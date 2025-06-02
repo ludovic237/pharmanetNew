@@ -62,61 +62,7 @@ export const routes: Routes = [
                 path: 'reviews',
                 loadComponent: () => import('./reviews/reviews.component').then(c => c.ReviewsComponent),
                 data: { breadcrumb: 'Reviews' }
-            },
-          {
-            path: 'users',
-            loadComponent: () => import('./users/users.component').then(c => c.UsersComponent),
-            data: { breadcrumb: 'Users' }
-          },
-          {
-            path: 'tenant',
-            loadComponent: () => import('./tenant/tenants.component').then(c => c.TenantsComponent),
-            data: { breadcrumb: 'tenant' }
-          },   {
-            path: 'rent',
-            loadComponent: () => import('./rent/rents.component').then(c => c.RentsComponent),
-            data: { breadcrumb: 'rent' }
-          },   {
-            path: 'subscription',
-            loadComponent: () => import('./subscription/subscriptions.component').then(c => c.SubscriptionsComponent),
-            data: { breadcrumb: 'subscription' }
-          },   {
-            path: 'issue',
-            loadComponent: () => import('./issue/issues.component').then(c => c.IssuesComponent),
-            data: { breadcrumb: 'issue' }
-          },   {
-            path: 'users',
-            loadComponent: () => import('./users/users.component').then(c => c.UsersComponent),
-            data: { breadcrumb: 'Users' }
-          },   {
-            path: 'users-new',
-            loadComponent: () => import('./users-new/users-new.component').then(c => c.UsersNewComponent),
-            data: { breadcrumb: 'Users new' }
-          },  {
-            path: 'invoice',
-            loadComponent: () => import('./invoice/invoices.component').then(c => c.InvoicesComponent),
-            data: { breadcrumb: 'Invoice' }
-          },  {
-            path: 'housting-unit',
-            loadComponent: () => import('./housting-unit/housting-units.component').then(c => c.HoustingUnitsComponent),
-            data: { breadcrumb: 'Housting unit' }
-          },  {
-            path: 'service',
-            loadComponent: () => import('./service/services.component').then(c => c.ServicesComponent),
-            data: { breadcrumb: 'Service' }
-          }, {
-            path: 'payment-lines',
-            loadComponent: () => import('./payment-line/payment-lines.component').then(c => c.PaymentLinesComponent),
-            data: { breadcrumb: 'Payment lines' }
-          }, {
-            path: 'payment',
-            loadComponent: () => import('./payment/payments.component').then(c => c.PaymentsComponent),
-            data: { breadcrumb: 'Payment' }
-          }, {
-            path: 'billing-cycle',
-            loadComponent: () => import('./billing-cycle/billing-cycles.component').then(c => c.BillingCyclesComponent),
-            data: { breadcrumb: 'Billing cycle' }
-          },
+            }
         ]
     }
 ];

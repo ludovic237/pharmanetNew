@@ -1,11 +1,11 @@
 <div class="p-2">
-    <mat-card>
+    <mat-card> 
         <div fxLayout="row wrap" fxLayoutAlign="space-between center" class="w-100 p-3">
-            <h2>Transactions List</h2>
+            <h2>Transactions List</h2>  
         </div>
         <mat-divider></mat-divider>
         <div class="mat-mdc-table admin-table">
-            <div class="mat-mdc-header-row mat-toolbar mat-primary">
+            <div class="mat-mdc-header-row">
                 <div class="mat-mdc-header-cell">OrderId</div>
                 <div class="mat-mdc-header-cell">TransactionId</div>
                 <div class="mat-mdc-header-cell">Date</div>
@@ -21,27 +21,27 @@
                     <div class="mat-mdc-cell">{{tran.date}}</div>
                     <div class="mat-mdc-cell">{{tran.paymentMethod}}</div>
                     <div class="mat-mdc-cell">{{tran.status}}</div>
-                    <div class="mat-mdc-cell">{{tran.amount}}</div>
+                    <div class="mat-mdc-cell">{{tran.amount}}</div>     
                     <div class="mat-mdc-cell">
-                        <div class="p-2 actions">
+                        <div class="p-2 actions">          
                             <button mat-mini-fab color="primary" matTooltip="View">
                                 <mat-icon>remove_red_eye</mat-icon>
-                            </button>
+                            </button> 
                         </div>
-                    </div>
+                    </div>      
                 </div>
-            }
+            } 
         </div>
     </mat-card>
 
     @if (transactions.length) {
         <div fxLayout="row wrap">
-            <div fxFlex="100">
-                <mat-card class="text-center">
+            <div fxFlex="100"> 
+                <mat-card class="text-center">           
                     <pagination-controls class="product-pagination" [autoHide]="true" [maxSize]="5" (pageChange)="onPageChanged($event)"></pagination-controls>
                 </mat-card>
             </div>
         </div>
     }
-
+   
 </div>

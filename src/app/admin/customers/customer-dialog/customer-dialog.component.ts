@@ -23,22 +23,22 @@ import { FlexLayoutModule } from '@ngbracket/ngx-layout';
 })
 export class CustomerDialogComponent implements OnInit {
   public form: FormGroup;
-  constructor(public dialogRef: MatDialogRef<CustomerDialogComponent>,
+  constructor(public dialogRef: MatDialogRef<CustomerDialogComponent>, 
               @Inject(MAT_DIALOG_DATA) public data: any,
               public fb: FormBuilder) { }
 
-  ngOnInit(): void {
+  ngOnInit(): void {   
     this.form = this.fb.group({
-      id: 0,
+      id: 0, 
       username: ['', Validators.required],
       email: null,
       firstName: ['', Validators.required],
       lastName: ['', Validators.required],
       middleName: null,
-      storeId: null,
-      walletBalance: null,
+      storeId: null,  
+      walletBalance: null, 
       revenue: null,
-      billing: this.fb.group({
+      billing: this.fb.group({ 
         firstName: ['', Validators.required],
         lastName: ['', Validators.required],
         middleName: '',
@@ -50,13 +50,11 @@ export class CustomerDialogComponent implements OnInit {
         state: '',
         zip: ['', Validators.required],
         address: ['', Validators.required]
-      })
-    });
+      }) 
+    }); 
 
-    console.log("this.data customer daialog");
-    console.log(this.data);
     if(this.data.customer){
-      this.form.patchValue(this.data.customer);
+      this.form.patchValue(this.data.customer); 
     };
   }
 

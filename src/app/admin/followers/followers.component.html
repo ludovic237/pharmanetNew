@@ -1,43 +1,43 @@
 <div class="p-2">
-    <mat-card>
+    <mat-card> 
         <div fxLayout="row wrap" fxLayoutAlign="space-between center" class="w-100 p-3">
-            <h2>Followers List</h2>
+            <h2>Followers List</h2>   
         </div>
         <mat-divider></mat-divider>
         <div class="mat-mdc-table admin-table">
-            <div class="mat-mdc-header-row mat-toolbar mat-primary">
+            <div class="mat-mdc-header-row">  
                 <div class="mat-mdc-header-cell image">Image</div>
-                <div class="mat-mdc-header-cell">Name</div>
-                <div class="mat-mdc-header-cell">Store</div>
+                <div class="mat-mdc-header-cell">Name</div> 
+                <div class="mat-mdc-header-cell">Store</div>  
                 <div class="mat-mdc-header-cell"></div>
             </div>
             @for (follower of followers | paginate: { itemsPerPage: count, currentPage: page }; track follower.id) {
-                <div class="mat-mdc-row">
+                <div class="mat-mdc-row">  
                     <div class="mat-mdc-cell image">
                         <img [src]="follower.image" alt="" width="50">
-                    </div>
-                    <div class="mat-mdc-cell">{{follower.name}}</div>
-                    <div class="mat-mdc-cell">{{ ( stores | filterById : follower.storeId )?.name }}</div>
+                    </div> 
+                    <div class="mat-mdc-cell">{{follower.name}}</div>  
+                    <div class="mat-mdc-cell">{{ ( stores | filterById : follower.storeId )?.name }}</div>      
                     <div class="mat-mdc-cell">
-                        <div class="p-2 actions">
+                        <div class="p-2 actions"> 
                             <button mat-mini-fab color="warn" matTooltip="Delete" class="mx-1" (click)="remove(follower)">
                                 <mat-icon>delete</mat-icon>
                             </button>
                         </div>
-                    </div>
+                    </div>      
                 </div>
-            }
+            } 
         </div>
     </mat-card>
 
     @if (followers.length) {
         <div fxLayout="row wrap">
-            <div fxFlex="100">
-                <mat-card class="text-center">
+            <div fxFlex="100"> 
+                <mat-card class="text-center">           
                     <pagination-controls class="product-pagination" [autoHide]="true" [maxSize]="5" (pageChange)="onPageChanged($event)"></pagination-controls>
                 </mat-card>
             </div>
         </div>
     }
-
+    
 </div>

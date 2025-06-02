@@ -49,30 +49,30 @@ export class UsersComponent implements OnInit {
   public searchText: string;
   public page:any;
   public settings: Settings;
-  domHandlerService = inject(DomHandlerService);
-
-  constructor(public settingsService: SettingsService,
+  domHandlerService = inject(DomHandlerService); 
+  
+  constructor(public settingsService: SettingsService, 
               public dialog: MatDialog,
               public usersService: UsersService,
               private ngxSpinnerService: NgxSpinnerService){
-      this.settings = this.settingsService.settings;
+      this.settings = this.settingsService.settings; 
   }
 
-  ngOnInit() {
+  ngOnInit() { 
       this.getUsers();
   }
 
   public getUsers(): void {
-      this.users = null; //for show spinner each time
+      this.users = null; //for show spinner each time    
       this.usersService.getUsers().subscribe({
           next: (users) => {
               this.users = users
           },
-          error: () => {
+          error: () => { 
               this.users = [];
               this.ngxSpinnerService.hide()
           }
-      });
+      });    
   }
   public addUser(user:User){
       this.usersService.addUser(user).subscribe(user => this.getUsers());
@@ -88,7 +88,7 @@ export class UsersComponent implements OnInit {
   public onPageChanged(event: any){
       this.page = event;
       this.getUsers();
-      this.domHandlerService.winScroll(0, 0);
+      this.domHandlerService.winScroll(0, 0); 
   }
 
   public openUserDialog(user: User){

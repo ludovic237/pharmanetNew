@@ -1,7 +1,7 @@
 @if (appService.Data.wishList?.length) {
     <mat-card class="p-0">
         <div class="mat-mdc-table wishlist-table">
-            <div class="mat-mdc-header-row mat-toolbar mat-primary">
+            <div class="mat-mdc-header-row">
                 <div class="mat-mdc-header-cell">Product</div>
                 <div class="mat-mdc-header-cell">Name</div>
                 <div class="mat-mdc-header-cell">Price</div>
@@ -23,7 +23,7 @@
                         <app-controls [product]="product" [type]="'wish'" (onQuantityChange)="getQuantity($event)"></app-controls>
                     </div>
                     <div class="mat-mdc-cell">
-                        <div class="p-2">
+                        <div class="p-2">          
                             <button mat-mini-fab color="primary" (click)="addToCart(product)" matTooltip="Add to cart">
                                 <mat-icon>add_shopping_cart</mat-icon>
                             </button>
@@ -31,13 +31,13 @@
                                 <mat-icon>close</mat-icon>
                             </button>
                         </div>
-                    </div>
+                    </div>                    
                 </div>
-            }
-        </div>
+            } 
+        </div>      
     </mat-card>
 } @else {
     <mat-chip-listbox>
         <mat-chip-option color="warn" highlighted selectable="false">YOU HAVE NO ITEMS IN WISH LIST.</mat-chip-option>
     </mat-chip-listbox>
-}
+} 
