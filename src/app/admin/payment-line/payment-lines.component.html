@@ -1,0 +1,39 @@
+<div class="p-2">
+  <mat-card>
+    <div fxLayout="row wrap" fxLayoutAlign="space-between center" class="w-100 p-3">
+      <h2>Payment lines Management</h2>
+      <button mat-raised-button color="primary" (click)="openPaymentLineDialog(null)">Add PaymentLine</button>
+    </div>
+    <mat-divider></mat-divider>
+    <div class="mat-mdc-table admin-table">
+      <div class="mat-mdc-header-row mat-toolbar mat-primary">
+        <div class="mat-mdc-header-cell">Tenant Name</div>
+        <div class="mat-mdc-header-cell">Amount paid</div>
+        <div class="mat-mdc-header-cell">Period start</div>
+        <div class="mat-mdc-header-cell">Period end</div>
+        <div class="mat-mdc-header-cell">PaymentLine mode</div>
+        <div class="mat-mdc-header-cell">Status</div>
+        <div class="mat-mdc-header-cell"></div>
+      </div>
+      @for (payment of payments | paginate: {itemsPerPage: count, currentPage: page}; track $index) {
+        <div class="mat-mdc-row">
+          <div class="mat-mdc-cell">{{ payment.tenantName }}</div>
+          <div class="mat-mdc-cell">{{ payment.amountPaid }}</div>
+          <div class="mat-mdc-cell">{{ payment.periodStart }}</div>
+          <div class="mat-mdc-cell">{{ payment.periodEnd }}</div>
+          <div class="mat-mdc-cell">{{ payment.paymentMethod }}</div>
+          <div class="mat-mdc-cell">{{ payment.status }}</div>
+          <div class="mat-mdc-cell">
+            <button mat-mini-fab color="primary" matTooltip="Edit" (click)="openPaymentLineDialog(payment)">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button mat-mini-fab color="warn" matTooltip="Delete" class="mx-1"
+                    (click)="removePaymentLine(payment)">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+  </mat-card>
+</div>

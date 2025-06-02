@@ -1,0 +1,10 @@
+<div [fxLayout]="direction" [fxLayoutAlign]="(direction == 'row') ? 'start center' : 'center end'">    
+    <div class="ratings">
+        @for (star of stars; track $index; let i = $index) {
+            <mat-icon class="mat-icon-xs" (click)="rate(i)">{{star}}</mat-icon>
+        }
+    </div>
+    @if (showText) {
+        <p class="ratings-count text-muted">{{ratingsCount}} ratings</p>
+    } 
+</div>

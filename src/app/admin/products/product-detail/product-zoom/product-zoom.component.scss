@@ -1,0 +1,22 @@
+.zoom-dialog { 
+    .mat-mdc-dialog-container {  
+        .controls {
+            display: flex;
+            padding: 4px;
+            box-sizing: border-box;
+            place-content: flex-end;
+            button {
+                margin: 0 2px;
+            }
+        } 
+        .viewer {
+            width: 100%;
+            text-align: center;
+            overflow: auto;
+
+            img {
+                max-width: 60%;
+            }
+        }
+    }
+}

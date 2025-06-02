@@ -1,0 +1,227 @@
+<mat-card class="p-3">
+  <mat-card-header  >
+    <mat-card-title>Dashboard</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <div fxLayout="row" fxLayoutAlign="space-between center" class="p-2">
+      <mat-form-field appearance="outline" class="w-100">
+        <mat-label>Mode</mat-label>
+        <mat-select [(ngModel)]="mode" (selectionChange)="onModeChange()">
+          <mat-option value="select">Select Range</mat-option>
+          <mat-option value="inputs">Custom Dates</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <ng-container *ngIf="mode === 'inputs'">
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Start Date</mat-label>
+          <input
+            matInput
+            [matDatepicker]="startPicker"
+            [(ngModel)]="startDate"
+            required
+          />
+          <mat-datepicker-toggle
+            matSuffix
+            [for]="startPicker">
+          </mat-datepicker-toggle>
+          <mat-datepicker #startPicker></mat-datepicker>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>End Date</mat-label>
+          <input
+            matInput
+            [matDatepicker]="endPicker"
+            [(ngModel)]="endDate"
+            required
+          />
+          <mat-datepicker-toggle
+            matSuffix
+            [for]="endPicker">
+          </mat-datepicker-toggle>
+          <mat-datepicker #endPicker></mat-datepicker>
+        </mat-form-field>
+      </ng-container>
+      <ng-container *ngIf="mode === 'select'">
+        <mat-form-field appearance="fill">
+          <mat-label>Select Range</mat-label>
+          <mat-select [(ngModel)]="selectedRange" (selectionChange)="onRangeChange()">
+            <mat-option value="thisMonth">This Month</mat-option>
+            <mat-option value="thisWeek">This Week</mat-option>
+            <mat-option value="thisYear">This Year</mat-option>
+            <mat-option value="last2Weeks">Last 2 Weeks</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </ng-container>
+
+    </div>
+  </mat-card-content>
+  <mat-card-footer>
+    <button
+      mat-raised-button
+      color="primary"
+      [disabled]="!isValid()"
+      (click)="fetchDashboardData()">
+      Search
+    </button>
+  </mat-card-footer>
+</mat-card>
+
+
+<mat-toolbar color="primary" class="mat-elevation-z4">
+  <mat-toolbar-row>
+    <span>Housing unit</span>
+    <span class="example-spacer"></span>
+  </mat-toolbar-row>
+</mat-toolbar>
+<div fxLayout="row wrap">
+  <div fxFlex="50" fxFlex.xl="16.6" fxFlex.lg="16.6" fxFlex.md="33.3" fxFlex.sm="33.3" class="p-2">
+    <mat-card class="gradient-green tile p-2">
+      <mat-icon>monetization_on</mat-icon>
+      <h2>{{totalAmountDue}}</h2>
+      <p>Amount due</p>
+    </mat-card>
+  </div>
+  <div fxFlex="50" fxFlex.xl="16.6" fxFlex.lg="16.6" fxFlex.md="33.3" fxFlex.sm="33.3" class="p-2">
+    <mat-card class="gradient-green tile p-2">
+      <mat-icon>monetization_on</mat-icon>
+      <h2>{{totalAmountPaid}}</h2>
+      <p>Amount paid</p>
+    </mat-card>
+  </div>
+  <div fxFlex="50" fxFlex.xl="16.6" fxFlex.lg="16.6" fxFlex.md="33.3" fxFlex.sm="33.3" class="p-2">
+    <mat-card class="gradient-green tile p-2">
+      <mat-icon>monetization_on</mat-icon>
+      <h2>{{totalAmountToPay}}</h2>
+      <p>Amount to pay</p>
+    </mat-card>
+  </div>
+  <div fxFlex="50" fxFlex.xl="16.6" fxFlex.lg="16.6" fxFlex.md="33.3" fxFlex.sm="33.3" class="p-2">
+    <mat-card class="gradient-green tile p-2">
+      <mat-icon>monetization_on</mat-icon>
+      <h2>{{totalHousingUnits}}</h2>
+      <p>Total housing Unit</p>
+    </mat-card>
+  </div>
+  <div fxFlex="50" fxFlex.xl="16.6" fxFlex.lg="16.6" fxFlex.md="33.3" fxFlex.sm="33.3" class="p-2">
+    <mat-card class="gradient-green tile p-2">
+      <mat-icon>monetization_on</mat-icon>
+      <h2>{{occupiedHousingUnits}}</h2>
+      <p>Total occupied housing Unit</p>
+    </mat-card>
+  </div>
+  <div fxFlex="50" fxFlex.xl="16.6" fxFlex.lg="16.6" fxFlex.md="33.3" fxFlex.sm="33.3" class="p-2">
+    <mat-card class="gradient-green tile p-2">
+      <mat-icon>monetization_on</mat-icon>
+      <h2>{{totalHousingUnits - occupiedHousingUnits}}</h2>
+      <p>Total not occupied housing Unit</p>
+    </mat-card>
+  </div>
+
+</div>
+
+<mat-toolbar color="primary" class="mat-elevation-z4">
+  <mat-toolbar-row>
+    <span>Payments</span>
+    <span class="example-spacer"></span>
+  </mat-toolbar-row>
+</mat-toolbar>
+<div fxLayout="row wrap">
+  <div fxFlex="50" fxFlex.xl="16.6" fxFlex.lg="16.6" fxFlex.md="33.3" fxFlex.sm="33.3" class="p-2">
+    <mat-card class="gradient-green tile p-2">
+      <mat-icon>monetization_on</mat-icon>
+      <h2>{{totalPayments}}</h2>
+      <p>Total payment</p>
+    </mat-card>
+  </div>
+  <div fxFlex="50" fxFlex.xl="16.6" fxFlex.lg="16.6" fxFlex.md="33.3" fxFlex.sm="33.3" class="p-2">
+    <mat-card class="gradient-green tile p-2">
+      <mat-icon>monetization_on</mat-icon>
+      <h2>{{totalPendingPayments}}</h2>
+      <p>Payment pending</p>
+    </mat-card>
+  </div>
+  <div fxFlex="50" fxFlex.xl="16.6" fxFlex.lg="16.6" fxFlex.md="33.3" fxFlex.sm="33.3" class="p-2">
+    <mat-card class="gradient-green tile p-2">
+      <mat-icon>monetization_on</mat-icon>
+      <h2>{{totalPartialPaidPayments}}</h2>
+      <p>Partial payments</p>
+    </mat-card>
+  </div>
+  <div fxFlex="50" fxFlex.xl="16.6" fxFlex.lg="16.6" fxFlex.md="33.3" fxFlex.sm="33.3" class="p-2">
+    <mat-card class="gradient-green tile p-2">
+      <mat-icon>monetization_on</mat-icon>
+      <h2>{{totalPaidPayments}}</h2>
+      <p>Paid payment</p>
+    </mat-card>
+  </div>
+</div>
+
+<mat-toolbar color="primary" class="mat-elevation-z4">
+  <mat-toolbar-row>
+    <span>Subscriptions</span>
+    <span class="example-spacer"></span>
+  </mat-toolbar-row>
+</mat-toolbar>
+<div fxLayout="row wrap">
+  <div fxFlex="50" fxFlex.xl="16.6" fxFlex.lg="16.6" fxFlex.md="33.3" fxFlex.sm="33.3" class="p-2">
+    <mat-card class="gradient-green tile p-2">
+      <mat-icon>monetization_on</mat-icon>
+      <h2>{{totalSubscriptions}}</h2>
+      <p>Total subscription</p>
+    </mat-card>
+  </div>
+  <div fxFlex="50" fxFlex.xl="16.6" fxFlex.lg="16.6" fxFlex.md="33.3" fxFlex.sm="33.3" class="p-2">
+    <mat-card class="gradient-green tile p-2">
+      <mat-icon>monetization_on</mat-icon>
+      <h2>{{totalActiveSubscriptions}}</h2>
+      <p>Total active</p>
+    </mat-card>
+  </div>
+  <div fxFlex="50" fxFlex.xl="16.6" fxFlex.lg="16.6" fxFlex.md="33.3" fxFlex.sm="33.3" class="p-2">
+    <mat-card class="gradient-green tile p-2">
+      <mat-icon>monetization_on</mat-icon>
+      <h2>{{totalExpiredSubscriptions}}</h2>
+      <p>Total expired</p>
+    </mat-card>
+  </div>
+  <div fxFlex="50" fxFlex.xl="16.6" fxFlex.lg="16.6" fxFlex.md="33.3" fxFlex.sm="33.3" class="p-2">
+    <mat-card class="gradient-green tile p-2">
+      <mat-icon>monetization_on</mat-icon>
+      <h2>{{totalCanceledSubscriptions}}</h2>
+      <p>Total canceled</p>
+    </mat-card>
+  </div>
+  <div fxFlex="50" fxFlex.xl="16.6" fxFlex.lg="16.6" fxFlex.md="33.3" fxFlex.sm="33.3" class="p-2">
+    <mat-card class="gradient-green tile p-2">
+      <mat-icon>monetization_on</mat-icon>
+      <h2>{{totalAmountSubscriptions}}</h2>
+      <p>Total amount</p>
+    </mat-card>
+  </div>
+  <div fxFlex="50" fxFlex.xl="16.6" fxFlex.lg="16.6" fxFlex.md="33.3" fxFlex.sm="33.3" class="p-2">
+    <mat-card class="gradient-green tile p-2">
+      <mat-icon>monetization_on</mat-icon>
+      <h2>{{totalAmountActiveSubscriptions}}</h2>
+      <p>Total amount active</p>
+    </mat-card>
+  </div>
+  <div fxFlex="50" fxFlex.xl="16.6" fxFlex.lg="16.6" fxFlex.md="33.3" fxFlex.sm="33.3" class="p-2">
+    <mat-card class="gradient-green tile p-2">
+      <mat-icon>monetization_on</mat-icon>
+      <h2>{{totalAmountExpiredSubscriptions}}</h2>
+      <p>Total amount expired</p>
+    </mat-card>
+  </div>
+  <div fxFlex="50" fxFlex.xl="16.6" fxFlex.lg="16.6" fxFlex.md="33.3" fxFlex.sm="33.3" class="p-2">
+    <mat-card class="gradient-green tile p-2">
+      <mat-icon>monetization_on</mat-icon>
+      <h2>{{totalAmountCanceledSubscriptions}}</h2>
+      <p>Total amount canceled</p>
+    </mat-card>
+  </div>
+</div>
+
+
+

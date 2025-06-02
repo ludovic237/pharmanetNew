@@ -1,0 +1,12 @@
+<button mat-icon-button [matMenuTriggerFor]="langMenu" #langMenuTrigger="matMenuTrigger" class="lang-btn">
+    <img [src]="'images/flags/'+translateService.currentLang+'.svg'" width="22" [alt]="translateService.currentLang">   
+</button>
+<mat-menu #langMenu="matMenu" [overlapTrigger]="false" class="app-menu-panel lang">
+    <span (mouseleave)="langMenuTrigger.closeMenu()">
+        @for (lang of translateService.getLangs(); track $index) {
+            <button mat-menu-item (click)="changeLang(lang)">  
+                <img [src]="'images/flags/'+lang+'.svg'" width="22" [alt]="lang" class="mat-elevation-z1">  
+            </button> 
+        }      
+    </span>
+</mat-menu>

@@ -1,0 +1,115 @@
+@if (appService.Data.compareList?.length) {
+<mat-card class="p-0">
+
+    <div class="mat-mdc-table compare-table">
+        <div class="mat-mdc-row">
+            <div class="mat-mdc-cell">product</div>
+            @for (product of appService.Data.compareList; track product.id) {
+            <div class="mat-mdc-cell">
+                <button mat-icon-button color="accent" class="remove"
+                    (click)="remove(product)"><mat-icon>close</mat-icon></button>
+                <img [src]="product.images[0].small" alt="">
+            </div>
+            }
+        </div>
+
+        <div class="mat-mdc-row">
+            <div class="mat-mdc-cell">name</div>
+            @for (product of appService.Data.compareList; track product.id) {
+            <div class="mat-mdc-cell">
+                <a [routerLink]="['/products', product.id, product.name]" class="product-name">{{product.name}}</a>
+            </div>
+            }
+        </div>
+
+        <div class="mat-mdc-row">
+            <div class="mat-mdc-cell">price</div>
+            @for (product of appService.Data.compareList; track product.id) {
+            <div class="mat-mdc-cell">
+                <b class="new-price">${{product.newPrice | number : '1.2-2'}}</b>
+            </div>
+            }
+        </div>
+
+        <div class="mat-mdc-row">
+            <div class="mat-mdc-cell">availability</div>
+            @for (product of appService.Data.compareList; track product.id) {
+            <div class="mat-mdc-cell">
+                <b class="text-muted">{{ (product.availibilityCount > 0) ? 'In stock':'Unavailable'}}</b>
+            </div>
+            }
+        </div>
+
+        <div class="mat-mdc-row">
+            <div class="mat-mdc-cell">rating</div>
+            @for (product of appService.Data.compareList; track product.id) {
+            <div class="mat-mdc-cell">
+                <app-rating [ratingsCount]="product.ratingsCount" [ratingsValue]="product.ratingsValue"></app-rating>
+            </div>
+            }
+        </div>
+
+        <div class="mat-mdc-row">
+            <div class="mat-mdc-cell">description</div>
+            @for (product of appService.Data.compareList; track product.id) {
+            <div class="mat-mdc-cell">
+                <span class="text-muted lh">{{product.description}}</span>
+            </div>
+            }
+        </div>
+
+        <div class="mat-mdc-row">
+            <div class="mat-mdc-cell">color</div>
+            @for (product of appService.Data.compareList; track product.id) {
+            <div class="mat-mdc-cell">
+                @for (color of product.color; track $index) {
+                <button mat-raised-button [style.background]="color" class="color">&nbsp;</button>
+                }
+            </div>
+            }
+        </div>
+
+        <div class="mat-mdc-row">
+            <div class="mat-mdc-cell">size</div>
+            @for (product of appService.Data.compareList; track product.id) {
+            <div class="mat-mdc-cell">
+                @for (size of product.size; track $index) {
+                <span class="size">{{size}}</span>
+                }
+            </div>
+            }
+        </div>
+
+        <div class="mat-mdc-row">
+            <div class="mat-mdc-cell">weight</div>
+            @for (product of appService.Data.compareList; track product.id) {
+            <div class="mat-mdc-cell">
+                @if (product.weight) {
+                <span>{{product.weight}} g</span>
+                }
+            </div>
+            }
+        </div>
+
+        <div class="mat-mdc-row">
+            <div class="mat-mdc-cell">
+                <button mat-raised-button color="warn" (click)="clear()">Clear All</button>
+            </div>
+            @for (product of appService.Data.compareList; track product.id) {
+            <div class="mat-mdc-cell">
+                <button mat-raised-button color="primary" class="add" (click)="addToCart(product)">
+                    <mat-icon>shopping_cart</mat-icon>Add to cart
+                </button>
+            </div>
+            }
+        </div>
+
+    </div>
+
+</mat-card>
+
+} @else {
+<mat-chip-listbox>
+    <mat-chip-option color="warn" highlighted selectable="false">YOU HAVE NO ITEMS TO COMPARE.</mat-chip-option>
+</mat-chip-listbox>
+}

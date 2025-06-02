@@ -1,0 +1,43 @@
+<mat-toolbar color="primary" class="mat-toolbar mat-primary">
+  <div fxLayout="row" fxLayoutAlign="space-between center" class="w-100 p-3">
+    <h2>Payment info</h2>
+    <!--    <button mat-icon-button (click)="onClose()">-->
+    <button mat-icon-button>
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+</mat-toolbar>
+<form [formGroup]="form" (ngSubmit)="onSubmit()" autocomplete="off">
+  <div mat-dialog-content>
+    <div fxLayout="row wrap">
+
+      <mat-card>
+        <mat-divider></mat-divider>
+        <div class="mat-mdc-table admin-table">
+          <div class="mat-mdc-header-row mat-toolbar mat-primary">
+            <div class="mat-mdc-header-cell">Payment Date</div>
+            <div class="mat-mdc-header-cell">Service Name</div>
+            <div class="mat-mdc-header-cell">Payment date</div>
+            <div class="mat-mdc-header-cell">Payment mode</div>
+            <div class="mat-mdc-header-cell">Status</div>
+          </div>
+          @for (payment of payments | paginate: {itemsPerPage: count, currentPage: page}; track $index) {
+            <div class="mat-mdc-row">
+              <div class="mat-mdc-cell">{{ payment.paymentDate }}</div>
+              <div class="mat-mdc-cell">{{ payment.serviceName }}</div>
+              <div class="mat-mdc-cell">{{ payment.amountPaid }}</div>
+              <div class="mat-mdc-cell">{{ payment.paymentMethod }}</div>
+              <div class="mat-mdc-cell">{{ payment.billingCycleStatus }}</div>
+            </div>
+          }
+        </div>
+      </mat-card>
+
+    </div>
+  </div>
+  <div mat-dialog-actions class="mat-toolbar mat-primary">
+    <div fxLayout="row" fxLayoutAlign="space-between center" class="w-100 p-3">
+      <button mat-raised-button color="warn" type="button" mat-dialog-close>Close</button>
+    </div>
+  </div>
+</form>

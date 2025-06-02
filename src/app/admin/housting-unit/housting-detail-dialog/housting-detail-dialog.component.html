@@ -1,0 +1,193 @@
+
+<mat-toolbar color="primary" class="mat-toolbar mat-primary">
+  <div fxLayout="row" fxLayoutAlign="space-between center" class="w-100 p-3">
+    <h2 mat-dialog-title>Housing Unit Information</h2>
+    <!--    <button mat-icon-button (click)="onClose()">-->
+    <button mat-icon-button>
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+</mat-toolbar>
+<form [formGroup]="form" (ngSubmit)="onSubmit()" autocomplete="off" style="height: 100%;">
+  <mat-dialog-actions>
+    <div fxLayout="row" fxLayoutAlign="space-between center" class="w-100 p-3">
+      <button mat-raised-button color="warn" type="button" mat-dialog-close>Close</button>
+      <button mat-raised-button color="primary" type="submit">Save</button>
+    </div>
+  </mat-dialog-actions>
+  <mat-dialog-content fxLayout="column" style="height: 100%; max-height: 100%" >
+    <mat-tab-group class="tab-content-wrapped" fxFlex style="height: 100%;">
+      <!-- Tenant Information -->
+      <mat-tab label="Tenant Information">
+        <div *ngIf="tenant; else noTenantInfo" fxLayout="row wrap"
+             class="mt-3">
+          <div fxFlex="100" fxFlex.gt-sm="33.3" class="px-2">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>Full Name</mat-label>
+              <input matInput [value]="tenant.fullName" readonly>
+            </mat-form-field>
+          </div>
+          <div fxFlex="100" fxFlex.gt-sm="33.3" class="px-2">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>Email</mat-label>
+              <input matInput [value]="tenant.email" readonly>
+            </mat-form-field>
+          </div>
+          <div fxFlex="100" fxFlex.gt-sm="33.3" class="px-2">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>Phone</mat-label>
+              <input matInput [value]="tenant.phone" readonly>
+            </mat-form-field>
+          </div>
+          <div fxFlex="100" fxFlex.gt-sm="33.3" class="px-2">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>Housing Unit</mat-label>
+              <input matInput [value]="tenant.housingUnit" readonly>
+            </mat-form-field>
+          </div>
+          <div fxFlex="100" fxFlex.gt-sm="33.3" class="px-2">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>Move-in Date</mat-label>
+              <input matInput [value]="tenant.moveInDate" readonly>
+            </mat-form-field>
+          </div>
+          <div fxFlex="100" fxFlex.gt-sm="33.3" class="px-2">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>Move-out Date</mat-label>
+              <input matInput [value]="tenant.moveOutDate" readonly>
+            </mat-form-field>
+          </div>
+        </div>
+        <ng-template #noTenantInfo>
+         <mat-card class="no-info-card" fxLayout="column" fxLayoutAlign="center center">
+           <mat-icon color="warn" class="no-info-icon">info</mat-icon>
+           <p class="no-info-message">No tenant information available.</p>
+         </mat-card>
+        </ng-template>
+      </mat-tab>
+
+      <!-- Financial Information -->
+      <mat-tab label="Financial Information">
+        <div *ngIf="financial && financial.billingCycles.length > 0; else noFinancialInfo"
+             fxLayout="row wrap" class="mt-3">
+          <h3>Billing Cycles</h3>
+          <table mat-table [dataSource]="financial.billingCycles" class="mat-elevation-z8">
+            <ng-container matColumnDef="id">
+              <th mat-header-cell *matHeaderCellDef> ID</th>
+              <td mat-cell *matCellDef="let element"> {{ element.id }}</td>
+            </ng-container>
+            <ng-container matColumnDef="amountDue">
+              <th mat-header-cell *matHeaderCellDef> Amount Due</th>
+              <td mat-cell *matCellDef="let element"> {{ element.amountDue }}</td>
+            </ng-container>
+            <ng-container matColumnDef="status">
+              <th mat-header-cell *matHeaderCellDef> Status</th>
+              <td mat-cell *matCellDef="let element"> {{ element.status }}</td>
+            </ng-container>
+            <tr mat-header-row *matHeaderRowDef="['id', 'amountDue', 'status']"></tr>
+            <tr mat-row *matRowDef="let row; columns: ['id', 'amountDue', 'status'];"></tr>
+          </table>
+        </div>
+        <ng-template #noFinancialInfo>
+          <mat-card class="no-info-card" fxLayout="column" fxLayoutAlign="center center">
+            <mat-icon color="warn" class="no-info-icon">info</mat-icon>
+            <p class="no-info-message">No financial information available.</p>
+          </mat-card>
+        </ng-template>
+      </mat-tab>
+
+      <!-- Issue Tracking -->
+      <mat-tab label="Issue Tracking">
+        <div *ngIf="issues && issues.length > 0; else noIssues" fxLayout="row wrap" class="mt-3">
+          <h3>Reported Issues</h3>
+          <table mat-table [dataSource]="issues" class="mat-elevation-z8">
+            <ng-container matColumnDef="title">
+              <th mat-header-cell *matHeaderCellDef> Title</th>
+              <td mat-cell *matCellDef="let element"> {{ element.title }}</td>
+            </ng-container>
+            <ng-container matColumnDef="description">
+              <th mat-header-cell *matHeaderCellDef> Description</th>
+              <td mat-cell *matCellDef="let element"> {{ element.description }}</td>
+            </ng-container>
+            <ng-container matColumnDef="status">
+              <th mat-header-cell *matHeaderCellDef> Status</th>
+              <td mat-cell *matCellDef="let element"> {{ element.status }}</td>
+            </ng-container>
+            <tr mat-header-row *matHeaderRowDef="['title', 'description', 'status']"></tr>
+            <tr mat-row *matRowDef="let row; columns: ['title', 'description', 'status'];"></tr>
+          </table>
+        </div>
+        <ng-template #noIssues>
+
+          <mat-card class="no-info-card" fxLayout="column" fxLayoutAlign="center center">
+            <mat-icon color="warn" class="no-info-icon">info</mat-icon>
+            <p class="no-info-message">No issues reported.</p>
+          </mat-card>
+        </ng-template>
+      </mat-tab>
+
+      <!-- Additional Information -->
+      <mat-tab label="Additional Information">
+        <div *ngIf="additional && additional.invoices.length > 0; else noAdditionalInfo"
+             fxLayout="row wrap" class="mt-3">
+          <h3>Invoices</h3>
+          <table mat-table [dataSource]="additional.invoices" class="mat-elevation-z8">
+            <ng-container matColumnDef="type">
+              <th mat-header-cell *matHeaderCellDef> Type</th>
+              <td mat-cell *matCellDef="let element"> {{ element.type }}</td>
+            </ng-container>
+            <ng-container matColumnDef="amount">
+              <th mat-header-cell *matHeaderCellDef> Amount</th>
+              <td mat-cell *matCellDef="let element"> {{ element.amount }}</td>
+            </ng-container>
+            <ng-container matColumnDef="status">
+              <th mat-header-cell *matHeaderCellDef> Status</th>
+              <td mat-cell *matCellDef="let element"> {{ element.status }}</td>
+            </ng-container>
+            <tr mat-header-row *matHeaderRowDef="['type', 'amount', 'status']"></tr>
+            <tr mat-row *matRowDef="let row; columns: ['type', 'amount', 'status'];"></tr>
+          </table>
+        </div>
+        <ng-template #noAdditionalInfo>
+
+          <mat-card class="no-info-card" fxLayout="column" fxLayoutAlign="center center">
+            <mat-icon color="warn" class="no-info-icon">info</mat-icon>
+            <p class="no-info-message">No additional information available.</p>
+          </mat-card>
+        </ng-template>
+      </mat-tab>
+
+      <!-- Previous Tenants -->
+      <mat-tab label="Previous Tenants">
+        <div *ngIf="previousTenants && previousTenants.length > 0; else noPreviousTenants" fxLayout="row wrap"
+             class="mt-3">
+          <h3>Previous Tenants</h3>
+          <table mat-table [dataSource]="previousTenants" class="mat-elevation-z8">
+            <ng-container matColumnDef="name">
+              <th mat-header-cell *matHeaderCellDef> Name</th>
+              <td mat-cell *matCellDef="let element"> {{ element.name }}</td>
+            </ng-container>
+            <ng-container matColumnDef="moveInDate">
+              <th mat-header-cell *matHeaderCellDef> Move-in Date</th>
+              <td mat-cell *matCellDef="let element"> {{ element.moveInDate }}</td>
+            </ng-container>
+            <ng-container matColumnDef="moveOutDate">
+              <th mat-header-cell *matHeaderCellDef> Move-out Date</th>
+              <td mat-cell *matCellDef="let element"> {{ element.moveOutDate }}</td>
+            </ng-container>
+            <tr mat-header-row *matHeaderRowDef="['name', 'moveInDate', 'moveOutDate']"></tr>
+            <tr mat-row *matRowDef="let row; columns: ['name', 'moveInDate', 'moveOutDate'];"></tr>
+          </table>
+        </div>
+        <ng-template #noPreviousTenants>
+          <mat-card class="no-info-card" fxLayout="column" fxLayoutAlign="center center">
+            <mat-icon color="warn" class="no-info-icon">info</mat-icon>
+            <p class="no-info-message">No previous tenants available.</p>
+          </mat-card>
+        </ng-template>
+      </mat-tab>
+    </mat-tab-group>
+  </mat-dialog-content>
+
+</form>
+

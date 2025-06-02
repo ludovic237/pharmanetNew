@@ -1,0 +1,190 @@
+<mat-tab-group>
+    <mat-tab label="Billing address">
+        <div class="p-2 mt-1">
+            <form [formGroup]="billingForm" (ngSubmit)="onBillingFormSubmit(billingForm.value)">     
+              <div fxLayout="row wrap">
+                <div fxFlex="100" fxFlex.gt-sm="33.3" class="px-1">
+                  <mat-form-field class="w-100">
+                      <input matInput placeholder="First name" formControlName="firstName" required>
+                      @if (billingForm.controls.firstName.errors?.required) {
+                        <mat-error>First name is required</mat-error>
+                      } 
+                  </mat-form-field>
+                </div>
+                <div fxFlex="100" fxFlex.gt-sm="33.3" class="px-1">
+                  <mat-form-field class="w-100">
+                      <input matInput placeholder="Last name" formControlName="lastName" required>
+                      @if (billingForm.controls.lastName.errors?.required) {
+                        <mat-error>Last name is required</mat-error>
+                      }
+                  </mat-form-field>
+                </div>
+                <div fxFlex="100" fxFlex.gt-sm="33.3" class="px-1">
+                  <mat-form-field class="w-100">
+                      <input matInput placeholder="Middle Name/Initial" formControlName="middleName">
+                  </mat-form-field>
+                </div>
+                <div fxFlex="100" fxFlex.gt-sm="33.3" class="px-1">
+                  <mat-form-field class="w-100">
+                      <input matInput placeholder="Company" formControlName="company">
+                  </mat-form-field>
+                </div>
+                <div fxFlex="100" fxFlex.gt-sm="33.3" class="px-1">
+                  <mat-form-field class="w-100">
+                      <input matInput placeholder="Email" formControlName="email" required>
+                      @if (billingForm.controls.email.errors?.required) {
+                        <mat-error>Email is required</mat-error>
+                      }                 
+                  </mat-form-field>
+                </div>
+                <div fxFlex="100" fxFlex.gt-sm="33.3" class="px-1">
+                  <mat-form-field class="w-100">
+                      <input matInput placeholder="Phone" formControlName="phone" required>
+                      @if (billingForm.controls.phone.errors?.required) {
+                        <mat-error>Phone is required</mat-error>
+                      } 
+                  </mat-form-field>
+                </div>
+                <div fxFlex="100" fxFlex.gt-sm="25" class="px-1">
+                  <mat-form-field class="w-100">
+                    <mat-select placeholder="Country" formControlName="country" required>
+                        @for (country of countries; track $index) {
+                            <mat-option [value]="country">{{country.name}}</mat-option>
+                        }                     
+                    </mat-select>
+                    @if (billingForm.controls.country.errors?.required) {
+                        <mat-error>Country is required</mat-error>
+                    } 
+                  </mat-form-field>
+                </div>
+                <div fxFlex="100" fxFlex.gt-sm="25" class="px-1">
+                  <mat-form-field class="w-100">
+                      <input matInput placeholder="City" formControlName="city" required>
+                      @if (billingForm.controls.city.errors?.required) {
+                        <mat-error>City is required</mat-error>
+                      } 
+                  </mat-form-field>
+                </div>
+                <div fxFlex="100" fxFlex.gt-sm="25" class="px-1">
+                  <mat-form-field class="w-100">
+                      <input matInput placeholder="State/Province" formControlName="state">
+                  </mat-form-field>
+                </div>
+                <div fxFlex="100" fxFlex.gt-sm="25" class="px-1">
+                  <mat-form-field class="w-100">
+                      <input matInput placeholder="Zip/Postal Code" formControlName="zip" required>
+                      @if (billingForm.controls.zip.errors?.required) {
+                        <mat-error>Zip/Postal Code is required</mat-error>
+                      } 
+                  </mat-form-field>
+                </div>
+                <div fxFlex="100" class="px-1">
+                  <mat-form-field class="w-100">
+                      <input matInput placeholder="Address (street, apartment, suite, unit etc.)" formControlName="address" required>
+                      @if (billingForm.controls.address.errors?.required) {
+                        <mat-error>Address is required</mat-error>
+                      } 
+                  </mat-form-field>
+                </div>
+                <div fxFlex="100" class="text-center mt-2">
+                    <button mat-raised-button color="primary" (click)="onBillingFormSubmit(billingForm.value)">Save</button>
+                </div>
+              </div>
+            </form>
+        </div>
+    </mat-tab>
+    <mat-tab label="Shipping address">
+        <div class="p-2 mt-1">
+            <form [formGroup]="shippingForm" (ngSubmit)="onShippingFormSubmit(shippingForm.value)">     
+              <div fxLayout="row wrap">
+                <div fxFlex="100" fxFlex.gt-sm="33.3" class="px-1">
+                  <mat-form-field class="w-100">
+                      <input matInput placeholder="First name" formControlName="firstName" required>
+                      @if (shippingForm.controls.firstName.errors?.required) {
+                        <mat-error>First name is required</mat-error>
+                      } 
+                  </mat-form-field>
+                </div>
+                <div fxFlex="100" fxFlex.gt-sm="33.3" class="px-1">
+                  <mat-form-field class="w-100">
+                      <input matInput placeholder="Last name" formControlName="lastName" required>
+                      @if (shippingForm.controls.lastName.errors?.required) {
+                        <mat-error>Last name is required</mat-error>
+                      } 
+                  </mat-form-field>
+                </div>
+                <div fxFlex="100" fxFlex.gt-sm="33.3" class="px-1">
+                  <mat-form-field class="w-100">
+                      <input matInput placeholder="Middle Name/Initial" formControlName="middleName">
+                  </mat-form-field>
+                </div>
+                <div fxFlex="100" fxFlex.gt-sm="33.3" class="px-1">
+                  <mat-form-field class="w-100">
+                      <input matInput placeholder="Company" formControlName="company">
+                  </mat-form-field>
+                </div>
+                <div fxFlex="100" fxFlex.gt-sm="33.3" class="px-1">
+                  <mat-form-field class="w-100">
+                      <input matInput placeholder="Email" formControlName="email" required>
+                      @if (shippingForm.controls.email.errors?.required) {
+                        <mat-error>Email is required</mat-error>
+                      } 
+                  </mat-form-field>
+                </div>
+                <div fxFlex="100" fxFlex.gt-sm="33.3" class="px-1">
+                  <mat-form-field class="w-100">
+                      <input matInput placeholder="Phone" formControlName="phone" required>
+                      @if (shippingForm.controls.phone.errors?.required) {
+                        <mat-error>Phone is required</mat-error>
+                      }                    
+                  </mat-form-field>
+                </div>
+                <div fxFlex="100" fxFlex.gt-sm="25" class="px-1">
+                  <mat-form-field class="w-100">
+                    <mat-select placeholder="Country" formControlName="country" required>
+                        @for (country of countries; track $index) {
+                            <mat-option [value]="country">{{country.name}}</mat-option>
+                        }
+                    </mat-select>
+                    @if (shippingForm.controls.country.errors?.required) {
+                        <mat-error>Country is required</mat-error>
+                    }            
+                  </mat-form-field>
+                </div>
+                <div fxFlex="100" fxFlex.gt-sm="25" class="px-1">
+                  <mat-form-field class="w-100">
+                      <input matInput placeholder="City" formControlName="city" required>
+                      @if (shippingForm.controls.city.errors?.required) {
+                        <mat-error>City is required</mat-error>
+                      } 
+                  </mat-form-field>
+                </div>
+                <div fxFlex="100" fxFlex.gt-sm="25" class="px-1">
+                  <mat-form-field class="w-100">
+                      <input matInput placeholder="State/Province" formControlName="state">
+                  </mat-form-field>
+                </div>
+                <div fxFlex="100" fxFlex.gt-sm="25" class="px-1">
+                  <mat-form-field class="w-100">
+                      <input matInput placeholder="Zip/Postal Code" formControlName="zip" required>
+                      @if (shippingForm.controls.zip.errors?.required) {
+                        <mat-error>Zip/Postal Code is required</mat-error>
+                      } 
+                  </mat-form-field>
+                </div>
+                <div fxFlex="100" class="px-1">
+                  <mat-form-field class="w-100">
+                      <input matInput placeholder="Address (street, apartment, suite, unit etc.)" formControlName="address" required>
+                      @if (shippingForm.controls.address.errors?.required) {
+                        <mat-error>Address is required</mat-error>
+                      } 
+                  </mat-form-field>
+                </div>
+                <div fxFlex="100" class="text-center mt-2">
+                    <button mat-raised-button color="primary" (click)="onShippingFormSubmit(shippingForm.value)">Save</button>
+                </div>
+              </div>
+            </form>
+        </div>
+    </mat-tab>
+</mat-tab-group>

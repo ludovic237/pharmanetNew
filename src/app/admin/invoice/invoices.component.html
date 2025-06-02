@@ -1,0 +1,36 @@
+<div class="p-2">
+          <mat-card>
+            <div fxLayout="row wrap" fxLayoutAlign="space-between center" class="w-100 p-3">
+              <h2>Invoice Management</h2>
+              <button mat-raised-button color="primary" (click)="openInvoiceDialog(null)">Add Invoice</button>
+            </div>
+            <mat-divider></mat-divider>
+            <div class="mat-mdc-table admin-table">
+              <div class="mat-mdc-header-row mat-toolbar mat-primary">
+                <div class="mat-mdc-header-cell">Tenant</div>
+                <div class="mat-mdc-header-cell">Type</div>
+                <div class="mat-mdc-header-cell">Month</div>
+                <div class="mat-mdc-header-cell">Amount</div>
+                <div class="mat-mdc-header-cell">Status</div>
+                <div class="mat-mdc-header-cell">Payment Date</div>
+                <div class="mat-mdc-header-cell"></div>
+              </div>
+              <div class="mat-mdc-row" *ngFor="let invoice of invoices">
+                <div class="mat-mdc-cell">{{ getTenantName(invoice.tenantId) }}</div>
+                <div class="mat-mdc-cell">{{ invoice.type }}</div>
+                <div class="mat-mdc-cell">{{ invoice.mois }}</div>
+                <div class="mat-mdc-cell">{{ invoice.montant | currency }}</div>
+                <div class="mat-mdc-cell">{{ invoice.status }}</div>
+                <div class="mat-mdc-cell">{{ invoice.datePaiement || 'N/A' }}</div>
+                <div class="mat-mdc-cell">
+                  <button mat-mini-fab color="primary" matTooltip="Edit" (click)="openInvoiceDialog(invoice)">
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                  <button mat-mini-fab color="warn" matTooltip="Delete" class="mx-1" (click)="removeInvoice(invoice)">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </mat-card>
+        </div>

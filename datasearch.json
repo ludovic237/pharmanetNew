@@ -1,0 +1,59 @@
+{
+  "housingUnitStatistics": {
+    "totalHousingUnits": 3,
+    "occupiedHousingUnits": 1,
+    "activeLeases": 1,
+    "housingUnitsWithDebt": 1,
+    "totalAmountDue": 3300,
+    "totalAmountPaid": 16700,
+    "totalAmountToPay": 20000,
+    "housingUnitsWithDebtList": [
+      {
+        "id": 2,
+        "number": "S 222",
+        "floor": 200,
+        "area": 1000,
+        "address": "TEST",
+        "type": "Studio",
+        "price": 2000
+      }
+    ]
+  },
+  "payments": {
+    "overduePayments": 0,
+    "pendingPayments": 0,
+    "totalPayments": 16700,
+    "totalPendingPayments": 3300,
+    "totalPartialPaidPayments": 0,
+    "totalPaidPayments": 16000
+  },
+  "subscriptions": {
+    "totalSubscriptions": 1,
+    "totalActiveSubscriptions": 1,
+    "totalExpiredSubscriptions": 0,
+    "totalCanceledSubscriptions": 0,
+    "totalAmountSubscriptions": 20000,
+    "totalAmountActiveSubscriptions": 20000,
+    "totalAmountExpiredSubscriptions": 0,
+    "totalAmountCanceledSubscriptions": 0
+  },
+  "billingCycles": {
+    "paidBillingCycles": 0,
+    "partiallyPaidBillingCycles": 0,
+    "overdueBillingCycles": 0
+  },
+  "issues": {
+    "openIssues": 0,
+    "resolvedIssues": 0,
+    "pendingIssues": 0,
+    "issueResolutionRate": 0
+  },
+  "tenants": {
+    "activeTenants": 1,
+    "inactiveTenants": 0,
+    "tenantPaymentCompliance": 100
+  },
+  "financialSummary": {
+    "totalRevenue": 16700
+  }
+}

@@ -1,0 +1,45 @@
+<div class="p-2">
+  <mat-card>
+    <div fxLayout="row wrap" fxLayoutAlign="space-between center" class="w-100 p-3">
+      <h2>Service Management</h2>
+      <button mat-raised-button color="primary" (click)="openServiceDialog(null)">Add Service</button>
+    </div>
+    <mat-divider></mat-divider>
+  <div class="mat-mdc-table admin-table" matSort (matSortChange)="onSortChange($event)">
+    <div class="mat-mdc-header-row mat-toolbar mat-primary">
+      <div class="mat-mdc-header-cell" mat-sort-header="name">Name</div>
+      <div class="mat-mdc-header-cell" mat-sort-header="description">Description</div>
+      <div class="mat-mdc-header-cell" mat-sort-header="price">Price</div>
+      <div class="mat-mdc-header-cell" mat-sort-header="billingMode">Billing mode</div>
+      <div class="mat-mdc-header-cell" mat-sort-header="createdDate">Created at</div>
+      <div class="mat-mdc-header-cell" mat-sort-header="type">Type</div>
+      <div class="mat-mdc-header-cell" mat-sort-header="isActive">Status</div>
+      <div class="mat-mdc-header-cell"></div>
+    </div>
+    <div class="mat-mdc-row"
+         *ngFor="let services of sortedServices | paginate: { itemsPerPage: count, currentPage: page }; let i = index">
+      <div class="mat-mdc-cell">{{ services.name }}</div>
+      <div class="mat-mdc-cell">{{ services.description }}</div>
+      <div class="mat-mdc-cell">{{ services.price > 0 ? services.price : 'Not price' }}</div>
+      <div class="mat-mdc-cell">{{ services.billingMode || 'No billing mode available' }}</div>
+      <div class="mat-mdc-cell">{{ services.createdDate | date:'dd/MM/yyyy HH:mm' }}</div>
+      <div class="mat-mdc-cell">{{ services.type }}</div>
+      <div class="mat-mdc-cell">
+        <span>
+          <mat-icon [ngClass]="services.isActive ? 'text-success' : 'text-danger'">
+            {{ services.isActive ? 'check_circle' : 'cancel' }}
+          </mat-icon>
+        </span>
+      </div>
+      <div class="mat-mdc-cell">
+        <button mat-mini-fab color="primary" matTooltip="Edit" (click)="openServiceDialog(services)">
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button mat-mini-fab color="warn" matTooltip="Delete" class="mx-1" (click)="removeService(services)">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+  </mat-card>
+</div>

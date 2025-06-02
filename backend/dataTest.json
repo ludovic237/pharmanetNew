@@ -1,0 +1,116 @@
+{
+  "tenant": {
+    "id": 1,
+    "fullName": "John Doe",
+    "email": "johndoe@example.com",
+    "phone": "123456789",
+    "username": "johndoe",
+    "gender": "Male",
+    "birthday": "1990-01-01",
+    "housingUnit": {
+      "id": 101,
+      "number": "A-101",
+      "address": "123 Main Street",
+      "type": "Apartment",
+      "floor": 1,
+      "area": 75
+    },
+    "moveInDate": "2023-01-01",
+    "moveOutDate": "2024-01-01",
+    "securityDeposit": 1000,
+    "monthlyRent": 500
+  },
+  "subscriptions": [
+    {
+      "id": 1,
+      "serviceName": "Internet",
+      "price": 50,
+      "startDate": "2023-01-01",
+      "endDate": "2023-12-31",
+      "status": "Active",
+      "options": [
+        {
+          "id": 1,
+          "name": "High Speed",
+          "price": 10
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "serviceName": "Electricity",
+      "price": 100,
+      "startDate": "2023-01-01",
+      "endDate": "2023-12-31",
+      "status": "Active",
+      "options": []
+    }
+  ],
+  "payments": [
+    {
+      "id": 1,
+      "amount": 500,
+      "paymentDate": "2023-02-01",
+      "paymentMethod": "Credit Card",
+      "status": "Paid"
+    },
+    {
+      "id": 2,
+      "amount": 500,
+      "paymentDate": "2023-03-01",
+      "paymentMethod": "Credit Card",
+      "status": "Paid"
+    }
+  ],
+  "billingCycles": [
+    {
+      "id": 1,
+      "serviceId": 1,
+      "serviceName": "1",
+      "amountDue": 500,
+      "periodStart": "2023-01-01",
+      "periodEnd": "2023-01-31",
+      "status": "Paid"
+    },
+    {
+      "id": 2,
+      "serviceId": 2,
+      "serviceName": "1",
+      "amountDue": 500,
+      "periodStart": "2023-02-01",
+      "periodEnd": "2023-02-28",
+      "status": "Paid"
+    }
+  ],
+  "financialSummary": {
+    "totalPayments": 2,
+    "completedPayments": 2,
+    "remainingPayments": 0,
+    "amountPaid": 1000,
+    "outstandingDebt": 0
+  },
+  "issues": [
+    {
+      "id": 1,
+      "title": "Leaking faucet",
+      "description": "The kitchen faucet is leaking.",
+      "declarationDate": "2023-03-01",
+      "status": "Resolved"
+    }
+  ],
+  "invoices": [
+    {
+      "id": 1,
+      "type": "Rent",
+      "month": 1,
+      "year": 2023,
+      "amount": 500,
+      "paymentDate": "2023-02-01",
+      "status": "Paid"
+    }
+  ],
+  "userActivity": {
+    "registrationDate": "2022-12-01",
+    "accountStatus": "Active"
+  }
+}

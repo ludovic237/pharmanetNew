@@ -1,0 +1,36 @@
+###
+POST http://localhost:8083/multichannel/migrate-customer
+
+###
+POST http://localhost:8083/api/customer/products
+Content-Type: application/json
+Authorization: Basic aff1-rossa 123456
+
+
+###
+POST http://localhost:8088/api/orangemoney/merchant/init
+Content-Type: application/json
+
+{
+  "phone": "656500025",
+  "amount": 1
+}
+
+###
+GET http://localhost:8080/api/admin/dashboard/info?
+    startDate=2024-05-09T09:02:33&
+    endDate=2025-05-09T09:02:33
+Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJiZ29tbmVAZ21haWwuY29tIiwiaWF0IjoxNzQ2Nzg2MzkxLCJleHAiOjE3NDY3ODk5OTF9.ydxjQ3NV4rZftAiZcWLxAQ_f5bE7hUNVtYC14nyFGr60akoErEroKAOscpy127Z5fmcCRpcSb6suOoOeaEJ0ng
+
+
+
+###
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "bgomne@gmail.com",
+  "password": "123456"
+}
+
+<> 2025-05-09T100442.200.json
