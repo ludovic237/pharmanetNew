@@ -1,35 +1,41 @@
 package com.example.backend.models
 
 import jakarta.persistence.*
-import lombok.Data
-import lombok.ToString
 import org.hibernate.annotations.ColumnDefault
 import java.time.Instant
 import java.time.LocalDateTime
-@Data
+
 @Entity
-@ToString
-@Table(name = "users")
+@Table(name = "user")
 class User {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "id", nullable = false)
-  var id: Long? = null
+  var id: Int? = null
 
-  @Column(name = "first_name", nullable = false, length = 100)
-  var firstName: String? = null
+  @Column(name = "nom", length = 100)
+  var nom: String? = null
 
-  @Column(name = "last_name", nullable = false, length = 100)
-  var lastName: String? = null
+  @Column(name = "prenom", length = 100)
+  var prenom: String? = null
 
-  @Column(name = "email", nullable = false, length = 150)
+  @Column(name = "email", length = 150)
   var email: String? = null
 
   @Column(name = "password", nullable = false)
   var password: String? = null
 
-  @Column(name = "phone", length = 20)
-  var phone: String? = null
+  @Column(name = "fonction", length = 64)
+  var fonction: String? = null
+
+  @Column(name = "telephone", length = 32)
+  var telephone: String? = null
+
+  @Column(name = "reduction")
+  var reduction: Int? = null
+
+  @Column(name = "reductionMax")
+  var reductionMax: Int? = null
 
   @Lob
   @Column(name = "role", nullable = false)
@@ -39,7 +45,7 @@ class User {
   var birthday: LocalDateTime? = null
 
   @Lob
-  @Column(name = "gender", nullable = true)
+  @Column(name = "gender")
   var gender: String? = null
 
   @Column(name = "image")
@@ -57,14 +63,18 @@ class User {
   var registrationDate: LocalDateTime? = null
 
   @Column(name = "joined_date")
-  var joinedDate: Instant? = null
-
-  @Column(name = "username", nullable = false)
-  var username: String? = null
+  var joinedDate: LocalDateTime? = null
 
   @Column(name = "created_date")
   var createdDate: LocalDateTime? = null
 
   @Column(name = "updated_date")
   var updatedDate: LocalDateTime? = null
+
+  @Column(name = "username", nullable = false)
+  var username: String? = null
+
+  @ColumnDefault("0")
+  @Column(name = "supprimer", nullable = false)
+  var supprimer: Int? = null
 }

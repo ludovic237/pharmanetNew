@@ -91,9 +91,9 @@ class AuthController(
 
     // Create a new user
     val user = User().apply {
-      firstName = registerRequest.firstName
-      lastName = registerRequest.lastName
-      phone = registerRequest.phone
+      nom = registerRequest.firstName
+      prenom = registerRequest.lastName
+      telephone = registerRequest.phone
       email = registerRequest.email
       registrationDate = LocalDateTime.now()
       createdDate = LocalDateTime.now()
