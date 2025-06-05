@@ -3,7 +3,6 @@ package com.example.backend.models
 import jakarta.persistence.*
 import org.hibernate.annotations.ColumnDefault
 import java.time.Instant
-import java.time.LocalDateTime
 
 @Entity
 @Table(name = "caisse")
@@ -23,10 +22,10 @@ class Caisse {
   var fermetureCaisse: String? = null
 
   @Column(name = "dateOuvert")
-  var dateOuvert: LocalDateTime? = null
+  var dateOuvert: Instant? = null
 
   @Column(name = "dateFerme")
-  var dateFerme: LocalDateTime? = null
+  var dateFerme: Instant? = null
 
   @Column(name = "session", length = 32)
   var session: String? = null
@@ -43,12 +42,4 @@ class Caisse {
   @ColumnDefault("0")
   @Column(name = "supprimer")
   var supprimer: Int? = null
-
-  // Constantes pour les états de la caisse
-  companion object {
-    const val ETAT_OUVERT = "OUVERT"
-    const val ETAT_FERME = "FERME"
-    const val ETAT_CLOTURE_EN_ATTENTE = "CLOTURE_EN_ATTENTE"
-  }
-
 }

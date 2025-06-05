@@ -2,7 +2,6 @@ package com.example.backend.models
 
 import jakarta.persistence.*
 import java.time.Instant
-import java.time.LocalDateTime
 
 @Entity
 @Table(name = "produit1")
@@ -33,10 +32,10 @@ class Produit1 {
   var stockMin: Int? = null
 
   @Column(name = "datePeremption")
-  var datePeremption: LocalDateTime? = null
+  var datePeremption: Instant? = null
 
   @Column(name = "dateCmd")
-  var dateCmd: LocalDateTime? = null
+  var dateCmd: Instant? = null
 
   @Column(name = "stockMag")
   var stockMag: Int? = null

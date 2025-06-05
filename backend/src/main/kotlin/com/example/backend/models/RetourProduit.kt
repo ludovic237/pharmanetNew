@@ -3,7 +3,6 @@ package com.example.backend.models
 import jakarta.persistence.*
 import org.hibernate.annotations.ColumnDefault
 import java.time.Instant
-import java.time.LocalDateTime
 
 @Entity
 @Table(name = "retour_produit")
@@ -25,7 +24,7 @@ class RetourProduit {
   var caisse: Caisse? = null
 
   @Column(name = "dateRetour")
-  var dateRetour: LocalDateTime? = null
+  var dateRetour: Instant? = null
 
   @ColumnDefault("0")
   @Column(name = "supprimer")

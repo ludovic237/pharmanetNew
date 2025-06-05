@@ -7,7 +7,6 @@ import org.hibernate.annotations.ColumnDefault
 @Table(name = "employe")
 class Employe {
   @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "id", nullable = false)
   var id: Int? = null
 
@@ -22,6 +21,10 @@ class Employe {
 
   @Column(name = "type", length = 100)
   var type: String? = null
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "user_id")
+  var user: User? = null
 
   @Column(name = "etat", length = 20)
   var etat: String? = null

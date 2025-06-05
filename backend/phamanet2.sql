@@ -23,7 +23,7 @@ create table if not exists concerner
     primary key,
   vente_id    bigint                          null,
   produit_id  int                             null,
-  en_rayon_id varchar(255)                    null,
+  en_rayon_id int                    null,
   prixUnit    int                             null,
   quantite    int                             null,
   reduction   int                             null,
@@ -184,7 +184,7 @@ create index IDX_6EEAA67D670C757F
 
 create table if not exists en_rayon
 (
-  id               varchar(255)  not null
+  id               int auto_increment
     primary key,
   produit_id       int           null,
   fournisseur_id   int           null,
@@ -196,13 +196,11 @@ create table if not exists en_rayon
   reduction        int           null,
   quantite         int           null,
   quantiteRestante int           null,
-  supprimer        int default 0 null,
-  constraint en_rayon_ibfk_2
-    foreign key (fournisseur_id) references fournisseur (id),
-  constraint en_rayon_ibfk_4
-    foreign key (commande_id) references commande (id)
+  supprimer        int default 0 null
 )
-  charset = latin1;
+
+
+
 
 create index commande_id
   on en_rayon (commande_id);
@@ -441,16 +439,12 @@ create table if not exists sortie_stock
 (
   id             int auto_increment
     primary key,
-  en_rayon_id    varchar(255)  null,
+  en_rayon_id    int  null,
   type_sortie_id int           null,
   quantite       int           null,
   dateSortie     datetime      null,
   detail_id      varchar(20)   null,
-  supprimer      int default 0 null,
-  constraint sortie_stock_ibfk_1
-    foreign key (en_rayon_id) references en_rayon (id),
-  constraint sortie_stock_ibfk_2
-    foreign key (type_sortie_id) references type_sortie (id)
+  supprimer      int default 0 null
 )
   charset = latin1;
 
@@ -533,16 +527,16 @@ create index IDX_29A5EC27EC4A74AB
 
 create table if not exists user
 (
-  id           int auto_increment
+  id                int auto_increment
     primary key,
-  nom          varchar(100)   null,
-  prenom       varchar(100)   null,
-  email        varchar(150)   null,
+  nom               varchar(100)            null,
+  prenom            varchar(100)            null,
+  email             varchar(150)            null,
   password          varchar(255)            not null,
-  fonction     varchar(64)   null,
-  telephone    varchar(32)   null,
-  reduction    int           null,
-  reductionMax int           null,
+  fonction          varchar(64)             null,
+  telephone         varchar(32)             null,
+  reduction         int                     null,
+  reductionMax      int                     null,
   role              tinytext                not null,
   birthday          datetime                null,
   gender            enum ('male', 'female') null,
@@ -556,7 +550,7 @@ create table if not exists user
   username          varchar(255)            not null,
   unique (username),
   unique (email),
-  supprimer    int default 0 not null
+  supprimer         int                              default 0 not null
 )
   collate = utf8mb3_unicode_ci;
 
@@ -581,7 +575,7 @@ create table if not exists caisse
 (
   id               int auto_increment
     primary key,
-  employe_id          int           null,
+  employe_id       int           null,
   ouvertureCaisse  varchar(255)  null,
   fermetureCaisse  varchar(255)  null,
   dateOuvert       datetime      null,
@@ -678,31 +672,15 @@ create table if not exists produit_inventaire
     primary key,
   inventaire_id int           null,
   employe_id    int           null,
-  en_rayon_id   varchar(255)  null,
+  en_rayon_id   int  null,
   stockAvant    int           null,
   stockValide   int           null,
   date_debut    datetime      null,
   date_fin      datetime      null,
   type          varchar(100)  null,
   statut        varchar(100)  null,
-  supprimer     int default 0 not null,
-  constraint produit_inventaire_ibfk_1
-    foreign key (inventaire_id) references inventaire (id),
-  constraint produit_inventaire_ibfk_2
-    foreign key (en_rayon_id) references en_rayon (id),
-  constraint produit_inventaire_ibfk_3
-    foreign key (employe_id) references employe (id)
+  supprimer     int default 0 not null
 )
-  charset = latin1;
-
-create index employe_id
-  on produit_inventaire (employe_id);
-
-create index en_rayon_id
-  on produit_inventaire (en_rayon_id);
-
-create index inventaire_id
-  on produit_inventaire (inventaire_id);
 
 create table if not exists transaction
 (
@@ -712,9 +690,8 @@ create table if not exists transaction
   montant     double       not null,
   type        varchar(32)  not null,
   note        varchar(128) not null,
-  dateTransac datetime     not null,
-  constraint FK_723705D1A76ED395
-    foreign key (user_id) references user (id)
+  dateTransac datetime     not null
+
 )
   collate = utf8mb3_unicode_ci;
 
@@ -729,7 +706,6 @@ create table if not exists ville
   code      varchar(16)   null,
   supprimer int default 0 not null
 )
-  collate = utf8mb3_unicode_ci;
 
 create table if not exists code_postal
 (
@@ -737,14 +713,8 @@ create table if not exists code_postal
     primary key,
   code     varchar(16) null,
   nom      varchar(32) not null,
-  Ville_id int         null,
-  constraint FK_CC94AC375E496260
-    foreign key (Ville_id) references ville (id)
+  Ville_id int         null
 )
-  collate = utf8mb3_unicode_ci;
-
-create index IDX_CC94AC375E496260
-  on code_postal (Ville_id);
 
 create table if not exists malade
 (
@@ -755,20 +725,16 @@ create table if not exists malade
   modeReglement varchar(32)   not null,
   poid          double        not null,
   taille        double        not null,
-  assureur_id   int           null,
-  CodePostal_id int           null,
+  code_postal_id int           null,
   reduction     varchar(32)   not null,
   supprimer     int default 0 not null,
   constraint FK_A5563102F83E1E74
-    foreign key (CodePostal_id) references code_postal (id)
+    foreign key (code_postal_id) references code_postal (id)
 )
   collate = utf8mb3_unicode_ci;
 
-create index IDX_A556310280F7E20A
-  on malade (assureur_id);
-
 create index IDX_A5563102F83E1E74
-  on malade (CodePostal_id);
+  on malade (code_postal_id);
 
 create table if not exists pharmacy
 (
@@ -778,17 +744,11 @@ create table if not exists pharmacy
   telephone     varchar(128) not null,
   adresse       varchar(128) not null,
   logo          varchar(64)  not null,
-  CodePostal_id int          null,
+  code_postal_id int          null,
   slogan        varchar(128) not null,
   docteur       varchar(128) not null,
-  contribuable  varchar(128) not null,
-  constraint FK_D6C15C1EF83E1E74
-    foreign key (CodePostal_id) references code_postal (id)
+  contribuable  varchar(128) not null
 )
-  collate = utf8mb3_unicode_ci;
-
-create index IDX_D6C15C1EF83E1E74
-  on pharmacy (CodePostal_id);
 
 create table if not exists vente
 (
@@ -808,17 +768,8 @@ create table if not exists vente
   employe_id       int           null,
   reduction        varchar(32)   null,
   caisse_id        int           null,
-  supprimer        int default 0 null,
-  constraint FK_888A2A4C2190E288
-    foreign key (malade_id) references malade (id),
-  constraint FK_888A2A4CA76ED395
-    foreign key (user_id) references user (id),
-  constraint FK_888A2A4CD486E642
-    foreign key (prescripteur_id) references prescripteur (id),
-  constraint FK_9479CF8E27B4FEBG
-    foreign key (caisse_id) references caisse (id)
+  supprimer        int default 0 null
 )
-  collate = utf8mb3_unicode_ci;
 
 create table if not exists facturation
 (
@@ -831,19 +782,8 @@ create table if not exists facturation
   reste        int           null,
   montantTtc   int           null,
   dateFacture  datetime      null,
-  supprimer    int default 0 null,
-  constraint facturation_ibfk_1
-    foreign key (caisse_id) references caisse (id),
-  constraint facturation_ibfk_2
-    foreign key (vente_id) references vente (id)
+  supprimer    int default 0 null
 )
-  charset = latin1;
-
-create index caisse_id
-  on facturation (caisse_id);
-
-create index vente_id
-  on facturation (vente_id);
 
 create table if not exists produit_vendu
 (
@@ -854,19 +794,9 @@ create table if not exists produit_vendu
   prixUnit   double null,
   montantTTC double null,
   produit_id int    null,
-  vente_id   bigint null,
-  constraint produit_vendu_ibfk_1
-    foreign key (produit_id) references produit (id),
-  constraint produit_vendu_ibfk_2
-    foreign key (vente_id) references vente (id)
+  vente_id   bigint null
 )
-  collate = utf8mb3_unicode_ci;
 
-create index IDX_EF634FED7DC7170A
-  on produit_vendu (vente_id);
-
-create index IDX_EF634FEDF347EFB
-  on produit_vendu (produit_id);
 
 create table if not exists retour_produit
 (
@@ -876,15 +806,9 @@ create table if not exists retour_produit
   employe_id int           null,
   caisse_id  int           null,
   dateRetour datetime      null,
-  supprimer  int default 0 null,
-  constraint retour_produit_ibfk_1
-    foreign key (vente_id) references vente (id),
-  constraint retour_produit_ibfk_2
-    foreign key (employe_id) references employe (id),
-  constraint retour_produit_ibfk_3
-    foreign key (caisse_id) references caisse (id)
+  supprimer  int default 0 null
 )
-  charset = latin1;
+
 
 create table if not exists produit_retour
 (
@@ -893,40 +817,8 @@ create table if not exists produit_retour
   retour_produit_id int           null,
   concerner_id      int           null,
   quantite          int           null,
-  supprimer         int default 0 null,
-  constraint produit_retour_ibfk_1
-    foreign key (retour_produit_id) references retour_produit (id),
-  constraint produit_retour_ibfk_2
-    foreign key (concerner_id) references concerner (id)
+  supprimer         int default 0 null
 )
-  charset = latin1;
-
-create index en_rayon_id
-  on produit_retour (concerner_id);
-
-create index retour_produit_id
-  on produit_retour (retour_produit_id);
-
-create index caisse_id
-  on retour_produit (caisse_id);
-
-create index employe_id
-  on retour_produit (employe_id);
-
-create index vente_id
-  on retour_produit (vente_id);
-
-create index IDX_888A2A4C2190E288
-  on vente (malade_id);
-
-create index IDX_888A2A4CA76ED395
-  on vente (user_id);
-
-create index IDX_888A2A4CD486E642
-  on vente (prescripteur_id);
-
-create index IDX_9479CF8E27B4FEBG
-  on vente (caisse_id);
 
 create or replace definer = root@localhost view pharma_concerner_view as
 select `ven`.`id`                AS `venteId`,
@@ -1077,7 +969,7 @@ select `ven`.`id`           AS `venteId`,
        `ven`.`etat`         AS `etat`,
        `cai`.`session`      AS `session`,
        `cai`.`id`           AS `caisseId`,
-       `cai`.`employe_id`      AS `caisseUserId`,
+       `cai`.`employe_id`   AS `caisseUserId`,
        `ven`.`dateVente`    AS `dateVente`
 from ((`vente` `ven` join `employe` `emp`
        on ((`ven`.`employe_id` = `emp`.`id`))) join `caisse` `cai` on ((`ven`.`caisse_id` = `cai`.`id`)))
@@ -1095,19 +987,67 @@ from ((`vente` `ven` join `employe` `emp`
        on ((`ven`.`employe_id` = `emp`.`id`))) join `caisse` `cai` on ((`ven`.`caisse_id` = `cai`.`id`)));
 
 alter table concerner
- add foreign key (vente_id) references vente(id),
- add foreign key (en_rayon_id) references en_rayon(id),
- add foreign key (produit_id) references produit(id);
+  add foreign key (vente_id) references vente (id),
+  add foreign key (en_rayon_id) references en_rayon (id),
+  add foreign key (produit_id) references produit (id);
 
 alter table commande
- add foreign key (employe_id) references employe(id);
+  add foreign key (employe_id) references employe (id);
 
 alter table vente
- add foreign key (employe_id) references employe(id);
+  add foreign key (employe_id) references employe (id);
 
 alter table concerner
- add foreign key (produit_id) references produit(id),
- add foreign key (en_rayon_id) references en_rayon(id),
- add foreign key (vente_id) references vente(id);
+  add foreign key (produit_id) references produit (id),
+  add foreign key (en_rayon_id) references en_rayon (id),
+  add foreign key (vente_id) references vente (id);
+
+alter table en_rayon
+  add foreign key (produit_id) references produit (id),
+  add foreign key (fournisseur_id) references fournisseur (id),
+  add foreign key (commande_id) references commande (id);
+
+alter table sortie_stock
+    add foreign key (en_rayon_id) references en_rayon (id),
+    add foreign key (type_sortie_id) references type_sortie (id);
+
+alter table transaction
+    add  foreign key (user_id) references user (id);
+
+alter table code_postal
+    add      foreign key (Ville_id) references ville (id);
+
+alter table malade
+    add      foreign key (code_postal_id) references code_postal (id);
 
 
+alter table pharmacy
+    add      foreign key (code_postal_id) references code_postal (id);
+
+alter table produit_inventaire
+    add foreign key (inventaire_id) references inventaire (id),
+    add foreign key (en_rayon_id) references en_rayon (id),
+    add foreign key (employe_id) references employe (id);
+
+alter table vente
+    add foreign key (malade_id) references malade(id),
+    add foreign key (user_id) references user(id),
+    add foreign key (prescripteur_id) references prescripteur (id),
+    add foreign key (caisse_id) references caisse(id);
+
+alter table facturation
+    add foreign key (vente_id) references vente (id),
+    add foreign key (caisse_id) references caisse(id);
+
+alter table produit_vendu
+    add foreign key (vente_id) references vente (id),
+    add foreign key (produit_id) references produit(id);
+
+alter table retour_produit
+    add foreign key (vente_id) references vente (id),
+    add foreign key (employe_id) references employe (id),
+    add foreign key (caisse_id) references caisse(id);
+
+alter table produit_retour
+    add foreign key (retour_produit_id) references retour_produit (id),
+    add foreign key (concerner_id) references concerner (id);

@@ -6,7 +6,6 @@ import jakarta.persistence.Id
 import jakarta.persistence.Table
 import org.hibernate.annotations.ColumnDefault
 import java.time.Instant
-import java.time.LocalDateTime
 
 @Entity
 @Table(name = "inventaire")
@@ -16,10 +15,10 @@ class Inventaire {
   var id: Int? = null
 
   @Column(name = "dateDebut")
-  var dateDebut: LocalDateTime? = null
+  var dateDebut: Instant? = null
 
   @Column(name = "dateFin")
-  var dateFin: LocalDateTime? = null
+  var dateFin: Instant? = null
 
   @Column(name = "etat", length = 15)
   var etat: String? = null

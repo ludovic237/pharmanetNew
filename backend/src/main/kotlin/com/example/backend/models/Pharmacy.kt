@@ -22,7 +22,7 @@ class Pharmacy {
   var logo: String? = null
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "CodePostal_id")
+  @JoinColumn(name = "code_postal_id")
   var codePostal: CodePostal? = null
 
   @Column(name = "slogan", nullable = false, length = 128)

@@ -3,15 +3,13 @@ package com.example.backend.models
 import jakarta.persistence.*
 import org.hibernate.annotations.ColumnDefault
 import java.time.Instant
-import java.time.LocalDateTime
 
 @Entity
 @Table(name = "facturation")
 class Facturation {
   @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "id", nullable = false)
-  var id: Long? = null
+  var id: Int? = null
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "vente_id")
@@ -34,7 +32,7 @@ class Facturation {
   var montantTtc: Int? = null
 
   @Column(name = "dateFacture")
-  var dateFacture: LocalDateTime? = null
+  var dateFacture: Instant? = null
 
   @ColumnDefault("0")
   @Column(name = "supprimer")

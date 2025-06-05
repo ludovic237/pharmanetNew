@@ -2,7 +2,6 @@ package com.example.backend.models
 
 import jakarta.persistence.*
 import java.time.Instant
-import java.time.LocalDateTime
 
 @Entity
 @Table(name = "history")
@@ -15,8 +14,12 @@ class History {
   @JoinColumn(name = "produit_id")
   var produit: com.example.backend.models.Produit? = null
 
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "user_id")
+  var user: User? = null
+
   @Column(name = "dateHisto")
-  var dateHisto: LocalDateTime? = null
+  var dateHisto: Instant? = null
 
   @Column(name = "description", length = 64)
   var description: String? = null

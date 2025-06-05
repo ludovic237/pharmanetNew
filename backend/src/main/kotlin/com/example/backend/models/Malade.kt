@@ -25,11 +25,8 @@ class Malade {
   @Column(name = "taille", nullable = false)
   var taille: Double? = null
 
-  @Column(name = "assureur_id")
-  var assureurId: Int? = null
-
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "CodePostal_id")
+  @JoinColumn(name = "code_postal_id")
   var codePostal: CodePostal? = null
 
   @Column(name = "reduction", nullable = false, length = 32)

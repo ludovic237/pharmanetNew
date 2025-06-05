@@ -3,7 +3,6 @@ package com.example.backend.models
 import jakarta.persistence.*
 import org.hibernate.annotations.ColumnDefault
 import java.time.Instant
-import java.time.LocalDateTime
 
 @Entity
 @Table(name = "vente")
@@ -19,10 +18,10 @@ class Vente {
   var prixPercu: Double? = null
 
   @Column(name = "dateVente")
-  var dateVente: LocalDateTime? = null
+  var dateVente: Instant? = null
 
   @Column(name = "dateEncaissement")
-  var dateEncaissement: LocalDateTime? = null
+  var dateEncaissement: Instant? = null
 
   @Column(name = "commentaire")
   var commentaire: String? = null
@@ -39,6 +38,10 @@ class Vente {
 
   @Column(name = "nouveau_info", length = 16)
   var nouveauInfo: String? = null
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "user_id")
+  var user: User? = null
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "prescripteur_id")

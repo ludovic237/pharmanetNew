@@ -3,7 +3,6 @@ package com.example.backend.models
 import jakarta.persistence.*
 import org.hibernate.annotations.ColumnDefault
 import java.time.Instant
-import java.time.LocalDateTime
 
 @Entity
 @Table(name = "commande")
@@ -17,10 +16,10 @@ class Commande {
   var employe: com.example.backend.models.Employe? = null
 
   @Column(name = "dateCreation")
-  var dateCreation: LocalDateTime? = null
+  var dateCreation: Instant? = null
 
   @Column(name = "dateLivraison")
-  var dateLivraison: LocalDateTime? = null
+  var dateLivraison: Instant? = null
 
   @Column(name = "note")
   var note: String? = null
