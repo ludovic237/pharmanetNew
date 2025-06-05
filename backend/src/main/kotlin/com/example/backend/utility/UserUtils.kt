@@ -29,7 +29,7 @@ class UserUtils(
 
         if (user.id != null) {
           println("User found in DB: ID = ${user.id}")
-          return user.id
+          return user.id!!.toLong()
         } else {
           println("User not found in DB for email: $username")
           // This case should ideally not happen if the user is authenticated,

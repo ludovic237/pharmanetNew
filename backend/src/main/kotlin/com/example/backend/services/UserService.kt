@@ -37,7 +37,7 @@ class UserService(
 //    existingUser.email = updatedUser.email
     // Update other fields as necessary
 
-    updatedUser.joinedDate = Date().toInstant();
+    updatedUser.joinedDate = LocalDateTime.now()
     updatedUser.updatedDate = LocalDateTime.now();
 
     return userRepository.save(updatedUser)
