@@ -2,7 +2,7 @@ package com.example.backend.models
 
 import jakarta.persistence.*
 import org.hibernate.annotations.ColumnDefault
-import java.time.Instant
+import java.time.LocalDateTime
 
 @Entity
 @Table(name = "bon_caisse")
@@ -28,10 +28,10 @@ class BonCaisse {
   var montant: Int? = null
 
   @Column(name = "dateGenerer")
-  var dateGenerer: Instant? = null
+  var dateGenerer: LocalDateTime? = null
 
   @Column(name = "dateEncaisser")
-  var dateEncaisser: Instant? = null
+  var dateEncaisser: LocalDateTime? = null
 
   @Column(name = "type", length = 50)
   var type: String? = null

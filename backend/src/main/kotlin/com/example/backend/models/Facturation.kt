@@ -2,7 +2,7 @@ package com.example.backend.models
 
 import jakarta.persistence.*
 import org.hibernate.annotations.ColumnDefault
-import java.time.Instant
+import java.time.LocalDateTime
 
 @Entity
 @Table(name = "facturation")
@@ -32,7 +32,7 @@ class Facturation {
   var montantTtc: Int? = null
 
   @Column(name = "dateFacture")
-  var dateFacture: Instant? = null
+  var dateFacture: LocalDateTime? = null
 
   @ColumnDefault("0")
   @Column(name = "supprimer")

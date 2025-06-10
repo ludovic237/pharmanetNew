@@ -1,15 +1,18 @@
 package com.example.backend.controllers
 
-import com.example.backend.dtos.CaisseOuvertureRequestDto
-import com.example.backend.services.CaisseException
-import com.example.backend.services.CaisseService
+import com.example.backend.services.ProduitService
+import com.example.backend.dtos.*
+import com.example.backend.exceptions.NotFoundException
+import com.example.backend.exceptions.ValidationException
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/api/produits")
-class ProduitController(private val produitService: ProduitService) {
+class ProduitController(
+  private val produitService: ProduitService
+) {
 
   @PostMapping
   fun createProduit(@RequestBody request: ProduitRequestDto): ResponseEntity<Any> {
@@ -82,21 +85,19 @@ class ProduitController(private val produitService: ProduitService) {
   // Endpoints for Categorie, Fournisseur, Depot, Rayon
   @PostMapping("/categories")
   fun createCategorie(@RequestBody dto: CategorieDto) = ResponseEntity.status(HttpStatus.CREATED).body(produitService.createCategorie(dto))
+
   @GetMapping("/categories")
   fun getAllCategories() = ResponseEntity.ok(produitService.getAllCategories())
 
   @PostMapping("/fournisseurs")
   fun createFournisseur(@RequestBody dto: FournisseurDto) = ResponseEntity.status(HttpStatus.CREATED).body(produitService.createFournisseur(dto))
+
   @GetMapping("/fournisseurs")
   fun getAllFournisseurs() = ResponseEntity.ok(produitService.getAllFournisseurs())
 
-  @PostMapping("/depots")
-  fun createDepot(@RequestBody dto: DepotDto) = ResponseEntity.status(HttpStatus.CREATED).body(produitService.createDepot(dto))
-  @GetMapping("/depots")
-  fun getAllDepots() = ResponseEntity.ok(produitService.getAllDepots())
-
   @PostMapping("/rayons")
   fun createRayon(@RequestBody dto: RayonDto) = ResponseEntity.status(HttpStatus.CREATED).body(produitService.createRayon(dto))
+
   @GetMapping("/rayons")
   fun getAllRayons() = ResponseEntity.ok(produitService.getAllRayons())
 }

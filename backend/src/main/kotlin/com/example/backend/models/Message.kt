@@ -4,7 +4,7 @@ import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.Id
 import jakarta.persistence.Table
-import java.time.Instant
+import java.time.LocalDateTime
 
 @Entity
 @Table(name = "message")
@@ -20,5 +20,5 @@ class Message {
   var description: String? = null
 
   @Column(name = "datemsg")
-  var datemsg: Instant? = null
+  var datemsg: LocalDateTime? = null
 }

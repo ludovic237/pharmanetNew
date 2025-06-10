@@ -1,44 +1,41 @@
 package com.example.backend.services
 
-import com.example.backend.dtos.CaisseDto
-import com.example.backend.dtos.CaisseOuvertureRequestDto
+import com.example.backend.dtos.*
+import com.example.backend.exceptions.NotFoundException
+import com.example.backend.exceptions.ValidationException
 import com.example.backend.models.*
 import com.example.backend.repositories.*
-import com.example.backend.utility.UserUtils
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.time.LocalDateTime
-import java.util.*
 
 @Service
 class ProduitService(
   private val produitRepository: ProduitRepository,
   private val categorieRepository: CategorieRepository,
   private val fournisseurRepository: FournisseurRepository,
-  private val depotRepository: DepotRepository,
   private val rayonRepository: RayonRepository,
   private val enRayonRepository: EnRayonRepository,
-  private val tarificationRepository: TarificationRepository
-) {
+  private val formeRepository: FormeRepository,
+  private val magasinRepository: MagasinRepository,
+  private val fabriquantRepository: FabriquantRepository
+)
+{
 
   @Transactional
   fun createProduit(request: ProduitRequestDto): ProduitResponseDto {
     request.codebarre?.let {
-      if (produitRepository.findByCodebarreAndSupprimer(it).isPresent) {
+      if (produitRepository.findByCodeUbipharmAndSupprimer(it).isPresent) {
         throw ValidationException("Un produit avec le code-barres '${it}' existe déjà.")
       }
     }
 
-    val categorie = request.categorieId?.let {
-      categorieRepository.findById(it).orElseThrow { NotFoundException("Catégorie non trouvée avec ID: $it") }
-    }
-    val fournisseur = request.fournisseurId?.let {
-      fournisseurRepository.findById(it).orElseThrow { NotFoundException("Fournisseur non trouvé avec ID: $it") }
-    }
+    var categorie = request.categorie
+    var fournisseur = request.fournisseur
 
-    val prixAchat = request.prixAchatInitial ?: BigDecimal.ZERO
+    val prixAchat = request.prixAchat ?: BigDecimal.ZERO
     val marge = request.margeBeneficiaire ?: BigDecimal.ZERO
     val tvaRate = request.tva ?: BigDecimal.ZERO // e.g., 0.20
 
@@ -51,55 +48,66 @@ class ProduitService(
       .setScale(2, RoundingMode.HALF_UP)
 
 
-    val produit = Produit(
-      nom = request.nom,
-      description = request.description,
-      codebarre = request.codebarre,
-      image = request.image,
-      seuil = request.seuil ?: 0,
-      categorie = categorie,
-      fournisseur = fournisseur,
-      uniteMesure = request.uniteMesure,
-      tva = tvaRate,
-      prixAchatInitial = prixAchat,
-      margeBeneficiaire = marge,
-      prixVenteConseille = prixVenteConseilleTTC,
-      dateCreation = LocalDateTime.now(),
-      dateModification = LocalDateTime.now()
-    )
+    val produit = Produit().apply {
+      this.ean13 = request.ean13
+      this.codeLaborex = request.codeLaborex
+      this.codeUbipharm = request.codeUbipharm
+      this.reference = request.reference
+      this.nom = request.nom
+      this.stock = request.stock
+      this.stockMax = request.stockMax
+      this.stockMin = request.stockMin
+      this.contenuDetail = request.contenuDetail
+      this.prixDetail = request.prixDetail
+      this.etat = request.etat
+      this.createdAt = LocalDateTime.now()
+      this.reductionMax = request.reductionMax
+      this.grossisteId = request.grossisteId
+      this.detailId = request.detailId
+      this.categorie = categorieRepository.findById(request.categorie!!).get()
+      this.forme = formeRepository.findById(request.forme!!).get()
+      this.fabriquant = fabriquantRepository.findById(request.fabriquant!!).get()
+      this.rayon = rayonRepository.findById(request.rayon!!).get()
+//      this.etagere =request.etagere
+      this.magasin = magasinRepository.findById(request.magasin!!).get()
+      this.supprimer = 0
+    }
     val savedProduit = produitRepository.save(produit)
 
     // Créer la tarification initiale
-    val tarification = Tarification(
-      produit = savedProduit,
-      prixVente = request.prixVenteInitial.setScale(2, RoundingMode.HALF_UP), // Prix de vente effectif
-      dateDebut = LocalDateTime.now(),
-      actif = true
-    )
-    tarificationRepository.save(tarification)
-    savedProduit.tarifications?.add(tarification)
+//    val tarification = Tarification(
+//      produit = savedProduit,
+//      prixVente = request.prixVente!!.setScale(2, RoundingMode.HALF_UP), // Prix de vente effectif
+//      dateDebut = LocalDateTime.now(),
+//      actif = true
+//    )
+//    tarificationRepository.save(tarification)
+//    savedProduit.tarifications?.add(tarification)
 
     // Créer l'entrée de stock initiale si fournie
-    if (request.quantiteInitiale != null && request.quantiteInitiale > 0 && request.depotIdInitial != null) {
-      val depot = depotRepository.findById(request.depotIdInitial)
-        .orElseThrow { NotFoundException("Dépôt initial non trouvé avec ID: ${request.depotIdInitial}") }
-      val rayon = request.rayonIdInitial?.let {
-        rayonRepository.findById(it)
-          .orElseThrow { NotFoundException("Rayon initial non trouvé avec ID: $it") }
-      }
 
-      val enRayon = EnRayon(
-        produit = savedProduit,
-        depot = depot,
-        rayon = rayon,
-        quantite = request.quantiteInitiale,
-        dateEntree = LocalDateTime.now(),
-        datePeremption = request.datePeremptionInitiale,
-        numeroLot = request.numeroLotInitial
-      )
-      enRayonRepository.save(enRayon)
-      savedProduit.enRayons?.add(enRayon)
-    }
+    /* if (request.quantiteInitiale != null && request.quantiteInitiale > 0 && request.depotIdInitial != null) {
+       val depot = depotRepository.findById(request.depotIdInitial)
+         .orElseThrow { NotFoundException("Dépôt initial non trouvé avec ID: ${request.depotIdInitial}") }
+       val rayon = request.rayonIdInitial?.let {
+         rayonRepository.findById(it)
+           .orElseThrow { NotFoundException("Rayon initial non trouvé avec ID: $it") }
+       }
+
+       val enRayon = EnRayon().apply {
+         this.produit = savedProduit
+         depot = depot
+         rayon = rayon
+         quantite = request.quantiteInitiale
+         quantite = request.quantiteInitiale
+         prixAchat = request.prixAchatInitial
+         prixVente = request.prixVenteInitial
+         dateEntree = LocalDateTime.now()
+         numeroLot = request.numeroLotInitial
+       }
+       enRayonRepository.save(enRayon)
+       savedProduit.enRayons?.add(enRayon)
+     }*/
     return mapToProduitResponseDto(savedProduit)
   }
 
@@ -120,42 +128,29 @@ class ProduitService(
       .filter { it.supprimer == 0 }
       .orElseThrow { NotFoundException("Produit non trouvé avec ID: $id") }
 
-    request.codebarre?.let { cb ->
-      produitRepository.findByCodebarreAndSupprimer(cb).ifPresent { existing ->
-        if (existing.id != produit.id) {
-          throw ValidationException("Un autre produit avec le code-barres '$cb' existe déjà.")
-        }
-      }
-      produit.codebarre = cb
-    }
-
+    produit.ean13 = request.ean13
+    produit.updatedAt = LocalDateTime.now()
+    produit.codeLaborex = request.codeLaborex
+    produit.codeUbipharm = request.codeUbipharm
+    produit.reference = request.reference
     produit.nom = request.nom
-    produit.description = request.description
-    produit.image = request.image
-    produit.seuil = request.seuil ?: produit.seuil
-    produit.uniteMesure = request.uniteMesure ?: produit.uniteMesure
-    produit.tva = request.tva ?: produit.tva
-    produit.prixAchatInitial = request.prixAchatInitial ?: produit.prixAchatInitial
-    produit.margeBeneficiaire = request.margeBeneficiaire ?: produit.margeBeneficiaire
+    produit.stock = request.stock
+    produit.stockMax = request.stockMax
+    produit.stockMin = request.stockMin
+    produit.contenuDetail = request.contenuDetail
+    produit.prixDetail = request.prixDetail
+    produit.etat = request.etat
+    produit.reductionMax = request.reductionMax
+    produit.grossisteId = request.grossisteId
+    produit.detailId = request.detailId
+    produit.categorie = categorieRepository.findById(request.categorie!!).get()
+    produit.forme = formeRepository.findById(request.forme!!).get()
+    produit.fabriquant = fabriquantRepository.findById(request.fabriquant!!).get()
+    produit.rayon = rayonRepository.findById(request.rayon!!).get()
+//produit.etagere =request.etagere
+    produit.magasin = magasinRepository.findById(request.magasin!!).get()
+    produit.supprimer = 0
 
-    request.categorieId?.let {
-      produit.categorie = categorieRepository.findById(it)
-        .orElseThrow { NotFoundException("Catégorie non trouvée avec ID: $it") }
-    }
-    request.fournisseurId?.let {
-      produit.fournisseur = fournisseurRepository.findById(it)
-        .orElseThrow { NotFoundException("Fournisseur non trouvé avec ID: $it") }
-    }
-
-    // Recalculer prix de vente conseillé si des éléments constitutifs changent
-    val prixAchat = produit.prixAchatInitial ?: BigDecimal.ZERO
-    val marge = produit.margeBeneficiaire ?: BigDecimal.ZERO
-    val tvaRate = produit.tva ?: BigDecimal.ZERO
-    val prixVenteConseilleHT = prixAchat.multiply(BigDecimal.ONE.add(marge))
-    produit.prixVenteConseille = prixVenteConseilleHT.multiply(BigDecimal.ONE.add(tvaRate))
-      .setScale(2, RoundingMode.HALF_UP)
-
-    produit.dateModification = LocalDateTime.now()
     val savedProduit = produitRepository.save(produit)
 
     // La gestion de la mise à jour de la tarification et du stock est séparée
@@ -171,45 +166,38 @@ class ProduitService(
       .filter { it.supprimer == 0 }
       .orElseThrow { NotFoundException("Produit non trouvé avec ID: $id") }
     produit.supprimer = 1
-    produit.dateModification = LocalDateTime.now()
-    // Logiquement supprimer les tarifications et stocks associés
-    produit.tarifications?.forEach { it.supprimer = 1; it.actif = false }
-    produit.enRayons?.forEach { it.supprimer = 1 }
+    produit.updatedAt = LocalDateTime.now()
     produitRepository.save(produit)
   }
 
   @Transactional
   fun updateStockProduit(produitId: Int, request: ProduitStockUpdateRequestDto): ProduitResponseDto {
-    val produit = produitRepository.findById(produitId)
+    var produit = produitRepository.findById(produitId)
       .filter { it.supprimer == 0 }
       .orElseThrow { NotFoundException("Produit non trouvé avec ID: $produitId") }
-    val depot = depotRepository.findById(request.depotId)
-      .orElseThrow { NotFoundException("Dépôt non trouvé avec ID: ${request.depotId}") }
-    val rayon = request.rayonId?.let {
+    var rayon = request.rayonId?.let {
       rayonRepository.findById(it).orElseThrow { NotFoundException("Rayon non trouvé avec ID: $it") }
     }
 
     // Chercher une entrée de stock existante pour ce produit, dépôt, rayon, et lot
-    var stockEntry = enRayonRepository.findByProduitAndDepotAndRayonAndNumeroLotAndSupprimer(
-      produit, depot, rayon, request.numeroLot
+    var stockEntry = enRayonRepository.findByProduitAndRayonAndSupprimer(
+      produit, rayon
     ).orElseGet {
       // Si pas d'entrée pour ce lot spécifique, créer une nouvelle si on ajoute du stock
       if (request.quantiteChange > 0) {
-        EnRayon(
-          produit = produit,
-          depot = depot,
-          rayon = rayon,
-          quantite = 0, // Sera mis à jour
-          dateEntree = LocalDateTime.now(),
-          numeroLot = request.numeroLot,
-          datePeremption = request.datePeremption
-        )
+        EnRayon().apply {
+          this.produit = produit
+          this.rayon = rayon
+          this.quantite = 0 // Sera mis à jour
+          this.dateLivraison = LocalDateTime.now()
+          this.datePeremption = request.datePeremption
+        }
       } else {
         throw NotFoundException("Aucun stock trouvé pour ce produit/dépôt/rayon/lot à décrémenter.")
       }
     }
 
-    val nouvelleQuantite = stockEntry.quantite + request.quantiteChange
+    val nouvelleQuantite = stockEntry.quantite!! + request.quantiteChange
     if (nouvelleQuantite < 0) {
       throw ValidationException("Quantité en stock insuffisante pour effectuer l'opération. Stock actuel pour ce lot: ${stockEntry.quantite}")
     }
@@ -223,7 +211,7 @@ class ProduitService(
     }
 
     enRayonRepository.save(stockEntry)
-    produit.dateModification = LocalDateTime.now()
+    produit.updatedAt = LocalDateTime.now()
     produitRepository.save(produit)
     return mapToProduitResponseDto(produit)
   }
@@ -234,121 +222,95 @@ class ProduitService(
       .filter { it.supprimer == 0 }
       .orElseThrow { NotFoundException("Produit non trouvé avec ID: $produitId") }
 
-    // Désactiver l'ancienne tarification active
-    tarificationRepository.findByProduitAndActifAndSupprimer(produit).ifPresent { oldTarif ->
-      oldTarif.actif = false
-      oldTarif.dateFin = LocalDateTime.now()
-      tarificationRepository.save(oldTarif)
-    }
-
-    // Créer la nouvelle tarification
-    val nouvelleTarification = Tarification(
-      produit = produit,
-      prixVente = request.nouveauPrixVente.setScale(2, RoundingMode.HALF_UP),
-      dateDebut = request.dateDebut ?: LocalDateTime.now(),
-      actif = true
-    )
-    tarificationRepository.save(nouvelleTarification)
-
-    produit.dateModification = LocalDateTime.now()
+    produit.updatedAt = LocalDateTime.now()
     produitRepository.save(produit) // Juste pour mettre à jour dateModification du produit
     return mapToProduitResponseDto(produit)
   }
 
 
   private fun mapToProduitResponseDto(produit: Produit): ProduitResponseDto {
-    val tarificationActive = tarificationRepository.findByProduitAndActifAndSupprimer(produit)
+//    val tarificationActive = tarificationRepository.findByProduitAndActifAndSupprimer(produit)
     val stockDetails = enRayonRepository.findAllByProduitAndSupprimer(produit)
-      .filter { it.quantite > 0 } // Afficher seulement où il y a du stock
+      .filter { it.quantite!! > 0 } // Afficher seulement où il y a du stock
       .map { er ->
         StockDetailDto(
           enRayonId = er.id,
-          depotNom = er.depot.nom,
+          productNom = er.produit?.nom!!,
+          depotNom = er.produit!!.nom,
           rayonNom = er.rayon?.nom,
-          quantite = er.quantite,
+          quantite = er.quantite!!,
           datePeremption = er.datePeremption,
-          numeroLot = er.numeroLot
+          numeroLot = ""
         )
       }
     val quantiteTotale = stockDetails.sumOf { it.quantite }
 
     return ProduitResponseDto(
       id = produit.id,
-      nom = produit.nom,
-      description = produit.description,
-      codebarre = produit.codebarre,
-      image = produit.image,
-      seuil = produit.seuil,
-      categorieNom = produit.categorie?.nom,
-      fournisseurNom = produit.fournisseur?.nom,
-      uniteMesure = produit.uniteMesure,
-      tva = produit.tva,
-      prixAchatInitial = produit.prixAchatInitial,
-      margeBeneficiaire = produit.margeBeneficiaire,
-      prixVenteConseille = produit.prixVenteConseille,
-      prixVenteActuel = tarificationActive.map { it.prixVente }.orElse(null),
+      nom = produit.nom!!,
+      description = "",
+      codebarre = "",
+      image = "",
+      seuil = produit.stockMin,
+      categorieNom = produit.categorie!!.nom,
+      tva = 0.20.toBigDecimal(), // TVA par défaut, peut être modifié
+      prixAchatInitial = 0.toBigDecimal(), // Prix d'achat initial, peut être modifié
+      margeBeneficiaire = BigDecimal.ZERO,
+      prixVenteConseille = 0.toBigDecimal(), // Prix de vente conseillé, peut être modifié
+      prixVenteActuel = BigDecimal.ZERO,
       quantiteTotaleEnStock = quantiteTotale,
-      dateCreation = produit.dateCreation,
-      dateModification = produit.dateModification,
-      stockDetails = stockDetails
+      dateCreation = produit.createdAt,
+      dateModification = produit.updatedAt,
+      stockDetails = stockDetails,
+      uniteMesure = produit.forme?.nom ?: "",
     )
   }
 
   // Services pour Categorie, Fournisseur, Depot, Rayon
   // Create Categorie
   fun createCategorie(dto: CategorieDto): CategorieDto {
-    if (categorieRepository.findByNomAndSupprimer(dto.nom).isPresent) {
+    if (categorieRepository.findByNom(dto.nom)!=null) {
       throw ValidationException("Une catégorie avec le nom '${dto.nom}' existe déjà.")
     }
-    val categorie = Categorie(nom = dto.nom, description = dto.description)
+    val categorie = Categorie().apply {
+      nom = dto.nom
+    }
     val saved = categorieRepository.save(categorie)
-    return CategorieDto(saved.id, saved.nom, saved.description)
+    return CategorieDto(saved.id, saved.nom!!)
   }
-  fun getAllCategories(): List<CategorieDto> = categorieRepository.findAllBySupprimer(0).map { CategorieDto(it.id, it.nom, it.description) }
+
+  fun getAllCategories(): List<CategorieDto> =
+    categorieRepository.findAllBySupprimer(0).map { CategorieDto(it.id, it.nom!!) }
 
   // Create Fournisseur
   fun createFournisseur(dto: FournisseurDto): FournisseurDto {
-    dto.email?.let {
-      if (fournisseurRepository.findByEmailAndSupprimer(it).isPresent) {
-        throw ValidationException("Un fournisseur avec l'email '${it}' existe déjà.")
+    dto.email?.let { email ->
+      if (fournisseurRepository.findByEmailAndSupprimer(email, 0) != null) {
+        throw ValidationException("Un fournisseur avec l'email '${email}' existe déjà.")
       }
     }
-    val fournisseur = Fournisseur(nom = dto.nom, email = dto.email, telephone = dto.telephone)
-    val saved = fournisseurRepository.save(fournisseur)
-    return FournisseurDto(saved.id, saved.nom, saved.email, saved.telephone)
-  }
-  fun getAllFournisseurs(): List<FournisseurDto> = fournisseurRepository.findAllBySupprimer(0).map { FournisseurDto(it.id, it.nom, it.email, it.telephone) }
-
-  // Create Depot
-  fun createDepot(dto: DepotDto): DepotDto {
-    if (depotRepository.findByNomAndSupprimer(dto.nom).isPresent) {
-      throw ValidationException("Un dépôt avec le nom '${dto.nom}' existe déjà.")
+    val fournisseur = Fournisseur().apply {
+      nom = dto.nom
+      email = dto.email
+      telephone = dto.telephone
     }
-    val depot = Depot(nom = dto.nom, adresse = dto.adresse)
-    val saved = depotRepository.save(depot)
-    return DepotDto(saved.id, saved.nom, saved.adresse)
+    val saved = fournisseurRepository.save(fournisseur)
+    return FournisseurDto(saved.id, saved.nom!!, saved.email, saved.telephone)
   }
-  fun getAllDepots(): List<DepotDto> = depotRepository.findAllBySupprimer(0).map { DepotDto(it.id, it.nom, it.adresse) }
+
+  fun getAllFournisseurs(): List<FournisseurDto> =
+    fournisseurRepository.findAllBySupprimer(0).map { FournisseurDto(it.id, it.nom!!, it.email, it.telephone) }
 
   // Create Rayon
   fun createRayon(dto: RayonDto): RayonDto {
-    val depot = depotRepository.findById(dto.depotId)
-      .orElseThrow { NotFoundException("Dépôt non trouvé avec ID: ${dto.depotId}") }
-    if (rayonRepository.findByNomAndDepotAndSupprimer(dto.nom, depot).isPresent) {
-      throw ValidationException("Un rayon avec le nom '${dto.nom}' existe déjà dans ce dépôt.")
+    val rayon = Rayon().apply {
+      this.nom = dto.nom
+      this.code = dto.code
     }
-    val rayon = Rayon(nom = dto.nom, description = dto.description, depot = depot)
     val saved = rayonRepository.save(rayon)
-    return RayonDto(saved.id, saved.nom, saved.description, saved.depot.id!!)
+    return RayonDto(saved.id, saved.nom, saved.code)
   }
-  fun getAllRayons(): List<RayonDto> = rayonRepository.findAllBySupprimer(0).map { RayonDto(it.id, it.nom, it.description, it.depot.id!!) }
+
+  fun getAllRayons(): List<RayonDto> =
+    rayonRepository.findAllBySupprimer(0)!!.map { RayonDto(it.id, it.nom, it.code!!)}
 }
-
-// Exceptions personnalisées
-// src/main/kotlin/com/example/backend/exceptions/NotFoundException.kt
-package com.example.backend.exceptions
-class NotFoundException(message: String) : RuntimeException(message)
-
-// src/main/kotlin/com/example/backend/exceptions/ValidationException.kt
-package com.example.backend.exceptions
-class ValidationException(message: String) : RuntimeException(message)

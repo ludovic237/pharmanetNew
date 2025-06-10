@@ -7,11 +7,9 @@ import org.springframework.data.jpa.repository.JpaRepository
 import java.util.*
 
 interface EnRayonRepository : JpaRepository<EnRayon, Int> {
-  fun findByProduitAndDepotAndRayonAndNumeroLotAndSupprimer(
+  fun findByProduitAndRayonAndSupprimer(
     produit: Produit,
-    depot: Depot,
     rayon: Rayon?, // Rayon can be null if stock is at depot level
-    numeroLot: String?,
     supprimer: Int = 0
   ): Optional<EnRayon>
 

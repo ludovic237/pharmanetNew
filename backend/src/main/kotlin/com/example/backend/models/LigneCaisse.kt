@@ -1,7 +1,7 @@
 package com.example.backend.models
 
 import jakarta.persistence.*
-import java.time.Instant
+import java.time.LocalDateTime
 
 @Entity
 @Table(name = "ligne_caisse")
@@ -22,7 +22,7 @@ class LigneCaisse {
   var libelle: String? = null
 
   @Column(name = "dateLigne", nullable = false)
-  var dateLigne: Instant? = null
+  var dateLigne: LocalDateTime? = null
 
   @Column(name = "debit")
   var debit: Double? = null

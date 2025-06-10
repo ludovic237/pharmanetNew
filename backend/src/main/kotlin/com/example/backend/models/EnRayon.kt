@@ -4,6 +4,7 @@ import jakarta.persistence.*
 import org.hibernate.annotations.ColumnDefault
 import java.time.Instant
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 @Entity
 @Table(name = "en_rayon")
@@ -17,18 +18,26 @@ class EnRayon {
   var produit: com.example.backend.models.Produit? = null
 
   @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "rayon_id")
+  var rayon: com.example.backend.models.Rayon? = null
+
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "fournisseur_id")
   var fournisseur: com.example.backend.models.Fournisseur? = null
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "unite_id")
+  var unite: com.example.backend.models.Unite? = null
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "commande_id")
   var commande: Commande? = null
 
   @Column(name = "dateLivraison")
-  var dateLivraison: Instant? = null
+  var dateLivraison: LocalDateTime? = null
 
   @Column(name = "datePeremption")
-  var datePeremption: LocalDate? = null
+  var datePeremption: LocalDateTime? = null
 
   @Column(name = "prixAchat")
   var prixAchat: Int? = null

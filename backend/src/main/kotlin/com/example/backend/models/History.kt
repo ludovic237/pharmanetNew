@@ -1,7 +1,7 @@
 package com.example.backend.models
 
 import jakarta.persistence.*
-import java.time.Instant
+import java.time.LocalDateTime
 
 @Entity
 @Table(name = "history")
@@ -19,7 +19,7 @@ class History {
   var user: User? = null
 
   @Column(name = "dateHisto")
-  var dateHisto: Instant? = null
+  var dateHisto: LocalDateTime? = null
 
   @Column(name = "description", length = 64)
   var description: String? = null

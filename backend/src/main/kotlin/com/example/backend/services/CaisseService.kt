@@ -16,7 +16,8 @@ class CaisseService(
   private val caisseRepository: CaisseRepository,
   private val employeRepository: EmployeRepository,
   private val userUtils: UserUtils
-) {
+)
+{
 
   @Transactional
   fun ouvrirCaisse(requestDto: CaisseOuvertureRequestDto): CaisseDto {

@@ -23,7 +23,7 @@ create table if not exists concerner
     primary key,
   vente_id    bigint                          null,
   produit_id  int                             null,
-  en_rayon_id int                    null,
+  en_rayon_id int                             null,
   prixUnit    int                             null,
   quantite    int                             null,
   reduction   int                             null,
@@ -187,7 +187,9 @@ create table if not exists en_rayon
   id               int auto_increment
     primary key,
   produit_id       int           null,
+  rayon_id   int           null,
   fournisseur_id   int           null,
+  unite_id   int           null,
   commande_id      bigint        null,
   dateLivraison    datetime      null,
   datePeremption   date          null,
@@ -198,7 +200,6 @@ create table if not exists en_rayon
   quantiteRestante int           null,
   supprimer        int default 0 null
 )
-
 
 
 
@@ -346,6 +347,8 @@ create table if not exists produit
   rayon_id      int                         null,
   etagere       varchar(15)                 null,
   magasin_id    int                         null,
+  created_at    datetime                    null,
+  updated_at    datetime                    null,
   supprimer     int         default 0       null,
   constraint produit_ibfk_1
     foreign key (categorie_id) references categorie (id),
@@ -439,7 +442,7 @@ create table if not exists sortie_stock
 (
   id             int auto_increment
     primary key,
-  en_rayon_id    int  null,
+  en_rayon_id    int           null,
   type_sortie_id int           null,
   quantite       int           null,
   dateSortie     datetime      null,
@@ -672,7 +675,7 @@ create table if not exists produit_inventaire
     primary key,
   inventaire_id int           null,
   employe_id    int           null,
-  en_rayon_id   int  null,
+  en_rayon_id   int           null,
   stockAvant    int           null,
   stockValide   int           null,
   date_debut    datetime      null,
@@ -718,16 +721,16 @@ create table if not exists code_postal
 
 create table if not exists malade
 (
-  id            int auto_increment
+  id             int auto_increment
     primary key,
-  nom           varchar(32)   null,
-  telephone     varchar(32)   not null,
-  modeReglement varchar(32)   not null,
-  poid          double        not null,
-  taille        double        not null,
+  nom            varchar(32)   null,
+  telephone      varchar(32)   not null,
+  modeReglement  varchar(32)   not null,
+  poid           double        not null,
+  taille         double        not null,
   code_postal_id int           null,
-  reduction     varchar(32)   not null,
-  supprimer     int default 0 not null,
+  reduction      varchar(32)   not null,
+  supprimer      int default 0 not null,
   constraint FK_A5563102F83E1E74
     foreign key (code_postal_id) references code_postal (id)
 )
@@ -738,16 +741,16 @@ create index IDX_A5563102F83E1E74
 
 create table if not exists pharmacy
 (
-  id            int auto_increment
+  id             int auto_increment
     primary key,
-  nom           varchar(64)  null,
-  telephone     varchar(128) not null,
-  adresse       varchar(128) not null,
-  logo          varchar(64)  not null,
+  nom            varchar(64)  null,
+  telephone      varchar(128) not null,
+  adresse        varchar(128) not null,
+  logo           varchar(64)  not null,
   code_postal_id int          null,
-  slogan        varchar(128) not null,
-  docteur       varchar(128) not null,
-  contribuable  varchar(128) not null
+  slogan         varchar(128) not null,
+  docteur        varchar(128) not null,
+  contribuable   varchar(128) not null
 )
 
 create table if not exists vente
@@ -1004,50 +1007,52 @@ alter table concerner
 
 alter table en_rayon
   add foreign key (produit_id) references produit (id),
+  add foreign key (unite_id) references unite (id),
+  add foreign key (rayon_id) references rayon (id),
   add foreign key (fournisseur_id) references fournisseur (id),
   add foreign key (commande_id) references commande (id);
 
 alter table sortie_stock
-    add foreign key (en_rayon_id) references en_rayon (id),
-    add foreign key (type_sortie_id) references type_sortie (id);
+  add foreign key (en_rayon_id) references en_rayon (id),
+  add foreign key (type_sortie_id) references type_sortie (id);
 
 alter table transaction
-    add  foreign key (user_id) references user (id);
+  add foreign key (user_id) references user (id);
 
 alter table code_postal
-    add      foreign key (Ville_id) references ville (id);
+  add foreign key (Ville_id) references ville (id);
 
 alter table malade
-    add      foreign key (code_postal_id) references code_postal (id);
+  add foreign key (code_postal_id) references code_postal (id);
 
 
 alter table pharmacy
-    add      foreign key (code_postal_id) references code_postal (id);
+  add foreign key (code_postal_id) references code_postal (id);
 
 alter table produit_inventaire
-    add foreign key (inventaire_id) references inventaire (id),
-    add foreign key (en_rayon_id) references en_rayon (id),
-    add foreign key (employe_id) references employe (id);
+  add foreign key (inventaire_id) references inventaire (id),
+  add foreign key (en_rayon_id) references en_rayon (id),
+  add foreign key (employe_id) references employe (id);
 
 alter table vente
-    add foreign key (malade_id) references malade(id),
-    add foreign key (user_id) references user(id),
-    add foreign key (prescripteur_id) references prescripteur (id),
-    add foreign key (caisse_id) references caisse(id);
+  add foreign key (malade_id) references malade (id),
+  add foreign key (user_id) references user (id),
+  add foreign key (prescripteur_id) references prescripteur (id),
+  add foreign key (caisse_id) references caisse (id);
 
 alter table facturation
-    add foreign key (vente_id) references vente (id),
-    add foreign key (caisse_id) references caisse(id);
+  add foreign key (vente_id) references vente (id),
+  add foreign key (caisse_id) references caisse (id);
 
 alter table produit_vendu
-    add foreign key (vente_id) references vente (id),
-    add foreign key (produit_id) references produit(id);
+  add foreign key (vente_id) references vente (id),
+  add foreign key (produit_id) references produit (id);
 
 alter table retour_produit
-    add foreign key (vente_id) references vente (id),
-    add foreign key (employe_id) references employe (id),
-    add foreign key (caisse_id) references caisse(id);
+  add foreign key (vente_id) references vente (id),
+  add foreign key (employe_id) references employe (id),
+  add foreign key (caisse_id) references caisse (id);
 
 alter table produit_retour
-    add foreign key (retour_produit_id) references retour_produit (id),
-    add foreign key (concerner_id) references concerner (id);
+  add foreign key (retour_produit_id) references retour_produit (id),
+  add foreign key (concerner_id) references concerner (id);

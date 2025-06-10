@@ -1,7 +1,7 @@
 package com.example.backend.models
 
 import jakarta.persistence.*
-import java.time.Instant
+import java.time.LocalDateTime
 
 @Entity
 @Table(name = "transaction")
@@ -24,5 +24,5 @@ class Transaction {
   var note: String? = null
 
   @Column(name = "dateTransac", nullable = false)
-  var dateTransac: Instant? = null
+  var dateTransac: LocalDateTime? = null
 }

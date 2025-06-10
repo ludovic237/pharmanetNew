@@ -2,6 +2,7 @@ package com.example.backend.models
 
 import jakarta.persistence.*
 import org.hibernate.annotations.ColumnDefault
+import java.time.LocalDateTime
 
 @Entity
 @Table(name = "produit")
@@ -53,6 +54,12 @@ class Produit {
 
   @Column(name = "detail_id")
   var detailId: Int? = null
+
+  @Column(name = "created_at")
+  var createdAt: LocalDateTime? = null
+
+  @Column(name = "updated_at")
+  var updatedAt: LocalDateTime? = null
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "categorie_id")
