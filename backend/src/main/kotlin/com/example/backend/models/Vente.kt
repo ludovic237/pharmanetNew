@@ -6,59 +6,66 @@ import java.time.LocalDateTime
 
 @Entity
 @Table(name = "vente")
-class Vente {
+class Vente (
   @Id
   @Column(name = "id", nullable = false)
-  var id: Long? = null
+  var id: Long? = null,
 
   @Column(name = "prixTotal")
-  var prixTotal: Double? = null
+  var prixTotal: Double? = null,
 
   @Column(name = "prixPercu")
-  var prixPercu: Double? = null
+  var prixPercu: Double? = null,
 
   @Column(name = "dateVente")
-  var dateVente: LocalDateTime? = null
+  var dateVente: LocalDateTime? = null,
 
   @Column(name = "dateEncaissement")
-  var dateEncaissement: LocalDateTime? = null
+  var dateEncaissement: LocalDateTime? = null,
 
   @Column(name = "commentaire")
-  var commentaire: String? = null
+  var commentaire: String? = null,
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "malade_id")
-  var malade: Malade? = null
+  var malade: Malade? = null,
 
   @Column(name = "etat", length = 16)
-  var etat: String? = null
+  var etat: String? = null,
 
   @Column(name = "reference", length = 16)
-  var reference: String? = null
+  var reference: String? = null,
 
   @Column(name = "nouveau_info", length = 16)
-  var nouveauInfo: String? = null
+  var nouveauInfo: String? = null,
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "user_id")
-  var user: User? = null
+  var user: User? = null,
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "prescripteur_id")
-  var prescripteur: Prescripteur? = null
+  var prescripteur: Prescripteur? = null,
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "employe_id")
-  var employe: Employe? = null
+  var employe: Employe? = null,
 
   @Column(name = "reduction", length = 32)
-  var reduction: String? = null
+  var reduction: String? = null,
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "caisse_id")
-  var caisse: Caisse? = null
+  var caisse: Caisse? = null,
 
   @ColumnDefault("0")
   @Column(name = "supprimer")
-  var supprimer: Int? = null
+  var supprimer: Int? = null,
+) {
+  // Constantes pour les états de la caisse
+  companion object {
+    const val ETAT_EN_COURS = "EN_COURS"
+    const val ETAT_TERMINEE = "TERMINEE"
+    const val ETAT_ANNULEE = "ANNULEE"
+  }
 }
