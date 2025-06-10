@@ -1,0 +1,27 @@
+package com.example.backend.services
+
+import com.example.backend.models.Fabriquant
+import com.example.backend.repositories.FabriquantRepository
+import org.springframework.stereotype.Service
+
+@Service
+class FabriquantService(private val fabriquantRepository: FabriquantRepository) {
+
+    fun createFabriquant(fabriquant: Fabriquant): Fabriquant = fabriquantRepository.save(fabriquant)
+
+    fun getAllFabriquants(): List<Fabriquant> = fabriquantRepository.findAll()
+
+    fun updateFabriquant(id: Int, updatedFabriquant: Fabriquant): Fabriquant {
+        val existingFabriquant = fabriquantRepository.findById(id).orElseThrow { Exception("Fabriquant not found") }
+        existingFabriquant.nom = updatedFabriquant.nom
+        existingFabriquant.adresse = updatedFabriquant.adresse
+        existingFabriquant.telephone = updatedFabriquant.telephone
+        existingFabriquant.email = updatedFabriquant.email
+        return fabriquantRepository.save(existingFabriquant)
+    }
+
+    fun deleteFabriquant(id: Int) {
+        if (!fabriquantRepository.existsById(id)) throw Exception("Fabriquant not found")
+        fabriquantRepository.deleteById(id)
+    }
+}

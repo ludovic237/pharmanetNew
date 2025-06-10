@@ -314,17 +314,7 @@ create table if not exists produit
   magasin_id    int                         null,
   created_at    datetime                    null,
   updated_at    datetime                    null,
-  supprimer     int         default 0       null,
-  constraint produit_ibfk_1
-    foreign key (categorie_id) references categorie (id),
-  constraint produit_ibfk_2
-    foreign key (fabriquant_id) references fabriquant (id),
-  constraint produit_ibfk_3
-    foreign key (rayon_id) references rayon (id),
-  constraint produit_ibfk_4
-    foreign key (magasin_id) references magasin (id),
-  constraint produit_ibfk_5
-    foreign key (forme_id) references forme (id)
+  supprimer     int         default 0       null
 );
 
 create table if not exists produit_cmd
@@ -889,6 +879,13 @@ alter table en_rayon
   add foreign key (rayon_id) references rayon (id),
   add foreign key (fournisseur_id) references fournisseur (id),
   add foreign key (commande_id) references commande (id);
+
+alter table produit
+  add foreign key (categorie_id) references categorie (id),
+  add foreign key (fabriquant_id) references fabriquant (id),
+  add foreign key (rayon_id) references rayon (id),
+  add foreign key (magasin_id) references magasin (id),
+  add foreign key (forme_id) references forme (id);
 
 alter table sortie_stock
   add foreign key (en_rayon_id) references en_rayon (id),

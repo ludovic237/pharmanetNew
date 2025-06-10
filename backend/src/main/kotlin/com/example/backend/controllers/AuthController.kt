@@ -99,6 +99,7 @@ class AuthController(
       createdDate = LocalDateTime.now()
       updatedDate = LocalDateTime.now()
       username = registerRequest.email
+      supprimer = 0
       password = passwordEncoder.encode(registerRequest.password)
       role = registerRequest.role // Initialize and set a default role
     }
