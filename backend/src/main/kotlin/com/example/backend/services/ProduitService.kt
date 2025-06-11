@@ -5,6 +5,9 @@ import com.example.backend.exceptions.NotFoundException
 import com.example.backend.exceptions.ValidationException
 import com.example.backend.models.*
 import com.example.backend.repositories.*
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.math.BigDecimal
@@ -118,8 +121,46 @@ class ProduitService(
     return mapToProduitResponseDto(produit)
   }
 
-  fun getAllProduits(): List<ProduitResponseDto> {
-    return produitRepository.findAllBySupprimer(0).map { mapToProduitResponseDto(it) }
+//  fun getAllProduits(): List<ProduitResponseDto> {
+//    return produitRepository.findAllBySupprimer(0).map { mapToProduitResponseDto(it) }
+//  }
+
+
+  fun Produit.toResponseDto(): ProduitResponseDto {
+      return ProduitResponseDto(
+          id = this.id,
+          nom = this.nom ?: "",
+          description = "",
+          codebarre = this.codeUbipharm ?: "",
+          image =  "",
+          seuil = this.stockMin ?: 0,
+          categorieNom = this.categorie?.nom ?: "",
+          tva = BigDecimal.ZERO,
+          prixAchatInitial =  BigDecimal.ZERO,
+          margeBeneficiaire =  BigDecimal.ZERO,
+          prixVenteConseille =  BigDecimal.ZERO,
+          prixVenteActuel =  BigDecimal.ZERO,
+          quantiteTotaleEnStock = this.stock ?: 0,
+          dateCreation = this.createdAt,
+          dateModification = this.updatedAt,
+          stockDetails = emptyList(), // Populate if needed
+          uniteMesure = this.forme?.nom ?: ""
+      )
+  }
+
+  fun getAllProduits(pageable: Pageable): Page<ProduitResponseDto> {
+      return produitRepository.findAll(pageable).map { it.toResponseDto() }
+  }
+
+  fun searchProducts(query: String, page: Int, size: Int): Page<ProduitResponseDto> {
+    val data = produitRepository.findByNomContainingIgnoreCase(query)
+    val data2 = produitRepository.findByNomContaining(query)
+    println("Data size: ${data.size}, Data2 size: ${data2.size}")
+    println("Query: $query, Page: $page, Size: $size")
+    println("data: $data")
+    println("data2: $data2")
+    val pageable = PageRequest.of(page, size)
+    return produitRepository.findByNomContainingIgnoreCase(query, pageable).map { it.toResponseDto() }
   }
 
   @Transactional

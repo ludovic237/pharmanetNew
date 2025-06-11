@@ -6,7 +6,8 @@ import org.hibernate.annotations.ColumnDefault
 @Entity
 @Table(name = "produit_cmd")
 class ProduitCmd {
-  @Id
+   @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY) // Use IDENTITY for auto-increment
   @Column(name = "id", nullable = false)
   var id: Int? = null
 

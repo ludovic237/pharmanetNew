@@ -1,16 +1,14 @@
 package com.example.backend.models
 
-import jakarta.persistence.Column
-import jakarta.persistence.Entity
-import jakarta.persistence.Id
-import jakarta.persistence.Table
+import jakarta.persistence.*
 import org.hibernate.annotations.ColumnDefault
 import java.time.LocalDateTime
 
 @Entity
 @Table(name = "ligne_commande")
 class LigneCommande {
-  @Id
+   @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY) // Use IDENTITY for auto-increment
   @Column(name = "id", nullable = false)
   var id: Int? = null
 
@@ -22,5 +20,5 @@ class LigneCommande {
 
   @ColumnDefault("0")
   @Column(name = "supprimer", nullable = false)
-  var supprimer: Int? = null
+  var supprimer: Int? = 0
 }

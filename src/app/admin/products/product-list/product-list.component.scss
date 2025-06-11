@@ -1,0 +1,7 @@
+.product-name {
+    width: 150px; /* Taille fixe */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: center; /* Centrer le texte */
+}

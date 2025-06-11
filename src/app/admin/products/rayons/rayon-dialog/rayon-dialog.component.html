@@ -1,0 +1,44 @@
+<h1 mat-dialog-title>{{ title }}</h1>
+<form [formGroup]="form" (ngSubmit)="onSubmit()" autocomplete="off">
+    <div mat-dialog-content>
+        <div fxLayout="row wrap">
+            <div fxFlex="100">
+                <mat-form-field appearance="outline" class="w-100">
+                    <mat-label>Nom</mat-label>
+                    <input matInput formControlName="nom" required>
+                    @if (form.controls.nom.errors?.required) {
+                        <mat-error>Nom is required</mat-error>
+                    }
+                </mat-form-field>
+            </div>
+            <div fxFlex="100">
+                <mat-form-field appearance="outline" class="w-100">
+                    <mat-label>Code</mat-label>
+                    <input matInput formControlName="code" required>
+                    @if (form.controls.code.errors?.required) {
+                        <mat-error>Code is required</mat-error>
+                    }
+                </mat-form-field>
+            </div>
+<!--            <div fxFlex="100">-->
+<!--                <mat-form-field appearance="outline" class="w-100">-->
+<!--                    <mat-label>Parent forme</mat-label>-->
+<!--                    <mat-select formControlName="parentId">-->
+<!--                        @for (cat of data.categories; track cat.id) {-->
+<!--                            <mat-option [value]="cat.id">{{cat.name}}</mat-option>-->
+<!--                        }-->
+<!--                    </mat-select>-->
+<!--                </mat-form-field>-->
+<!--            </div>-->
+<!--            <div fxFlex="100" class="py-1">-->
+<!--                <mat-checkbox formControlName="hasSubRayon" color="primary">Has SubRayon</mat-checkbox>-->
+<!--            </div>-->
+        </div>
+    </div>
+    <div mat-dialog-actions>
+        <div fxLayout="row" fxLayoutAlign="space-between center" class="w-100 p-3">
+            <button mat-raised-button color="warn" type="button" mat-dialog-close>Close</button>
+            <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid">Save</button>
+        </div>
+    </div>
+</form>

@@ -13,6 +13,7 @@ import { PipesModule } from '../../../theme/pipes/pipes.module';
 import { NgxPaginationModule } from 'ngx-pagination';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatButtonModule } from '@angular/material/button';
+import {CategorieService} from "@services/categories.service";
 
 @Component({
     selector: 'app-categories',
@@ -29,12 +30,13 @@ import { MatButtonModule } from '@angular/material/button';
     styleUrl: './categories.component.scss'
 })
 export class CategoriesComponent implements OnInit {
-  public categories: Category[] = [];
+  public categories: any[] = [];
+  // public categories: Category[] = [];
   public page: any;
   public count = 6;
   domHandlerService = inject(DomHandlerService);
   public settings: Settings;
-  constructor(public appService: AppService, public dialog: MatDialog, public settingsService: SettingsService) {
+  constructor(public appService: AppService, public categorieService: CategorieService, public dialog: MatDialog, public settingsService: SettingsService) {
     this.settings = this.settingsService.settings;
   }
 
@@ -42,10 +44,18 @@ export class CategoriesComponent implements OnInit {
     this.getCategories();
   }
 
-  public getCategories() { 
-    this.appService.getCategories().subscribe(data => {
-      data.shift(); 
-      this.categories = data;
+  public getCategories() {
+    this.categorieService.getCategories().subscribe({
+      next: (data) => {
+        this.categories = data;
+        this.count = this.categories.length
+      },
+      error: (err) => {
+        console.error('Error  subscription:', err);
+        if (err.status == "403") {
+          // this.router.navigate(['/sign-in']); // Redirect to login if not authenticated
+        }
+      }
     });
   }
 

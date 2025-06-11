@@ -1,0 +1,42 @@
+<div class="p-2">
+                        <mat-card>
+                            <div fxLayout="row wrap" fxLayoutAlign="space-between center" class="w-100 p-3">
+                                <h2>Rayon List</h2>
+                                <button mat-raised-button color="primary" (click)="openRayonDialog(null)">Add Rayon</button>
+                            </div>
+                            <mat-divider></mat-divider>
+                            <div class="mat-mdc-table admin-table">
+                                <div class="mat-mdc-header-row">
+                                    <div class="mat-mdc-header-cell">Name</div>
+                                    <div class="mat-mdc-header-cell">Code</div>
+                                    <div class="mat-mdc-header-cell">Parent Rayon</div>
+                                    <div class="mat-mdc-header-cell"></div>
+                                </div>
+                                <div *ngFor="let rayon of rayons | paginate: { itemsPerPage: count, currentPage: page }; " class="mat-mdc-row">
+                                    <div class="mat-mdc-cell">{{ rayon.nom }}</div>
+                                    <div class="mat-mdc-cell">{{ rayon.code }}</div>
+                                    <div class="mat-mdc-cell">
+                                        {{ (rayons | filterById: rayon.id)?.nom || 'N/A' }}
+                                    </div>
+                                    <div class="mat-mdc-cell">
+                                        <div class="p-2 actions">
+                                            <button mat-mini-fab color="primary" matTooltip="Edit" (click)="openRayonDialog(rayon)">
+                                                <mat-icon>edit</mat-icon>
+                                            </button>
+                                            <button mat-mini-fab color="warn" matTooltip="Delete" class="mx-1" (click)="remove(rayon)">
+                                                <mat-icon>delete</mat-icon>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </mat-card>
+
+                        <div *ngIf="rayons.length" fxLayout="row wrap">
+                            <div fxFlex="100">
+                                <mat-card class="p-0 text-center">
+                                    <pagination-controls class="product-pagination" [autoHide]="true" [maxSize]="5" (pageChange)="onPageChanged($event)"></pagination-controls>
+                                </mat-card>
+                            </div>
+                        </div>
+                    </div>

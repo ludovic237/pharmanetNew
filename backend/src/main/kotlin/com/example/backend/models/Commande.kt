@@ -7,7 +7,8 @@ import java.time.LocalDateTime
 @Entity
 @Table(name = "commande")
 class Commande {
-  @Id
+   @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY) // Use IDENTITY for auto-increment
   @Column(name = "id", nullable = false)
   var id: Long? = null
 
