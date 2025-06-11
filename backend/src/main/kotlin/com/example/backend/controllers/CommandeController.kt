@@ -12,23 +12,23 @@ import org.springframework.web.bind.annotation.*
 class CommandeController(private val com: FabriquantService) {
 
 
-  @CrossOrigin(origins = ["http://localhost:4200"])
-  @PreAuthorize("isAuthenticated()")
-  @PostMapping
-  fun creerCommande(@RequestBody commandeDto: CommandeDto): ResponseEntity<Commande> {
-    val commande = commandeService.creerCommande(commandeDto)
-    return ResponseEntity.status(HttpStatus.CREATED).body(commande)
-  }
-
-  @GetMapping("/{id}")
-  fun obtenirCommande(@PathVariable id: Long): ResponseEntity<Commande> {
-    val commande = commandeService.obtenirCommande(id)
-    return ResponseEntity.ok(commande)
-  }
-
-  @PutMapping("/{id}")
-  fun validerCommande(@PathVariable id: Long): ResponseEntity<Commande> {
-    val commande = commandeService.validerCommande(id)
-    return ResponseEntity.ok(commande)
-  }
+//  @CrossOrigin(origins = ["http://localhost:4200"])
+//  @PreAuthorize("isAuthenticated()")
+//  @PostMapping
+//  fun creerCommande(@RequestBody commandeDto: CommandeDto): ResponseEntity<Commande> {
+//    val commande = commandeService.creerCommande(commandeDto)
+//    return ResponseEntity.status(HttpStatus.CREATED).body(commande)
+//  }
+//
+//  @GetMapping("/{id}")
+//  fun obtenirCommande(@PathVariable id: Long): ResponseEntity<Commande> {
+//    val commande = commandeService.obtenirCommande(id)
+//    return ResponseEntity.ok(commande)
+//  }
+//
+//  @PutMapping("/{id}")
+//  fun validerCommande(@PathVariable id: Long): ResponseEntity<Commande> {
+//    val commande = commandeService.validerCommande(id)
+//    return ResponseEntity.ok(commande)
+//  }
 }
