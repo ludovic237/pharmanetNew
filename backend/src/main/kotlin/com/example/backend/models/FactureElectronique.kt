@@ -6,7 +6,7 @@ import org.hibernate.annotations.ColumnDefault
 @Entity
 @Table(name = "facture_electronique")
 class FactureElectronique {
-   @Id
+@Id
   @GeneratedValue(strategy = GenerationType.IDENTITY) // Use IDENTITY for auto-increment
   @Column(name = "id", nullable = false)
   var id: Int? = null
@@ -14,7 +14,7 @@ class FactureElectronique {
   @Column(name = "facturation_id")
   var facturationId: Long? = null
 
-  @Column(name = "numeroTelephone", length = 15)
+  @Column(name = "numero_telephone", length = 15)
   var numeroTelephone: String? = null
 
   @Column(name = "montant")

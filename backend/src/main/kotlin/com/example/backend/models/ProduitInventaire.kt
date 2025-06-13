@@ -2,12 +2,13 @@ package com.example.backend.models
 
 import jakarta.persistence.*
 import org.hibernate.annotations.ColumnDefault
+import java.time.Instant
 import java.time.LocalDateTime
 
 @Entity
 @Table(name = "produit_inventaire")
 class ProduitInventaire {
-   @Id
+@Id
   @GeneratedValue(strategy = GenerationType.IDENTITY) // Use IDENTITY for auto-increment
   @Column(name = "id", nullable = false)
   var id: Int? = null
@@ -24,10 +25,10 @@ class ProduitInventaire {
   @JoinColumn(name = "en_rayon_id")
   var enRayon: EnRayon? = null
 
-  @Column(name = "stockAvant")
+  @Column(name = "stock_avant")
   var stockAvant: Int? = null
 
-  @Column(name = "stockValide")
+  @Column(name = "stock_valide")
   var stockValide: Int? = null
 
   @Column(name = "date_debut")
@@ -44,5 +45,5 @@ class ProduitInventaire {
 
   @ColumnDefault("0")
   @Column(name = "supprimer", nullable = false)
-  var supprimer: Int? = 0
+  var supprimer: Int? = null
 }

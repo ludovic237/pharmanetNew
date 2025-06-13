@@ -4,4 +4,6 @@ import com.example.backend.models.ProduitCmd
 import org.springframework.data.jpa.repository.JpaRepository
 
 interface ProduitCmdRepository : JpaRepository<ProduitCmd, Int> {
+  fun findByCommandeId(commandeId: Long): List<ProduitCmd>
+  fun findByCommandeIdAndId(commandeId: Long,id:Int): ProduitCmd
 }

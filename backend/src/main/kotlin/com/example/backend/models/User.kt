@@ -8,8 +8,8 @@ import java.time.LocalDateTime
 @Entity
 @Table(name = "user")
 class User {
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
+@Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY) // Use IDENTITY for auto-increment
   @Column(name = "id", nullable = false)
   var id: Int? = null
 
@@ -34,7 +34,7 @@ class User {
   @Column(name = "reduction")
   var reduction: Int? = null
 
-  @Column(name = "reductionMax")
+  @Column(name = "reduction_max")
   var reductionMax: Int? = null
 
   @Lob
@@ -76,5 +76,5 @@ class User {
 
   @ColumnDefault("0")
   @Column(name = "supprimer", nullable = false)
-  var supprimer: Int? = 0
+  var supprimer: Int? = null
 }

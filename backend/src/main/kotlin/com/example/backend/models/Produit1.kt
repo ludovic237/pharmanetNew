@@ -1,12 +1,13 @@
 package com.example.backend.models
 
 import jakarta.persistence.*
+import java.time.Instant
 import java.time.LocalDateTime
 
 @Entity
 @Table(name = "produit1")
 class Produit1 {
-   @Id
+@Id
   @GeneratedValue(strategy = GenerationType.IDENTITY) // Use IDENTITY for auto-increment
   @Column(name = "id", nullable = false)
   var id: Int? = null
@@ -26,25 +27,25 @@ class Produit1 {
   @Column(name = "stock")
   var stock: Int? = null
 
-  @Column(name = "stockMax")
+  @Column(name = "stock_max")
   var stockMax: Int? = null
 
-  @Column(name = "stockMin")
+  @Column(name = "stock_min")
   var stockMin: Int? = null
 
-  @Column(name = "datePeremption")
+  @Column(name = "date_peremption")
   var datePeremption: LocalDateTime? = null
 
-  @Column(name = "dateCmd")
+  @Column(name = "date_cmd")
   var dateCmd: LocalDateTime? = null
 
-  @Column(name = "stockMag")
+  @Column(name = "stock_mag")
   var stockMag: Int? = null
 
-  @Column(name = "prixPublic")
+  @Column(name = "prix_public")
   var prixPublic: Double? = null
 
-  @Column(name = "prixAchat")
+  @Column(name = "prix_achat")
   var prixAchat: Double? = null
 
   @ManyToOne(fetch = FetchType.LAZY)

@@ -1,0 +1,85 @@
+
+
+###
+GET http://localhost:8080/api/produits
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbkBnbWFpbC5jb20iLCJpYXQiOjE3NDk2NjIwNDgsImV4cCI6MTc0OTY2NTY0OH0.LFdgLTZwumE3H1YnuLqcQR9eyzutBC8oROB5argdMJOtRpEscWJlg4m0sMK2M1ZOpEAL9Mlym_Qe9ciOx2bjyg
+
+{
+  "ean13": "",
+  "codebarre": "",
+  "codeLaborex": "",
+  "codeUbipharm": "",
+  "reference": "",
+  "nom": "",
+  "stock": 0,
+  "stockMax": 0,
+  "stockMin": 0,
+  "contenuDetail": "",
+  "prixDetail": "",
+  "margeBeneficiaire": {},
+  "tva": {},
+  "etat": "",
+  "prixAchat": {},
+  "prixVente": {},
+  "reductionMax": 0,
+  "grossisteId": "",
+  "detailId": 0,
+  "categorie": 0,
+  "fournisseur": 0,
+  "forme": 0,
+  "fabriquant": 0,
+  "rayon": 0,
+  "etagere": "",
+  "magasin": 0
+}
+
+<> 2025-06-11T181437.200.json
+<> 2025-06-11T181401.403.json
+<> 2025-06-11T174349.200.json
+<> 2025-06-10T153728.200.json
+
+###
+POST http://localhost:8080/api/produits
+Content-Type: application/json
+
+{
+  "ean13": "",
+  "codebarre": "",
+  "codeLaborex": "",
+  "codeUbipharm": "",
+  "reference": "",
+  "nom": "",
+  "stock": 0,
+  "stockMax": 0,
+  "stockMin": 0,
+  "contenuDetail": "",
+  "prixDetail": "",
+  "margeBeneficiaire": {},
+  "tva": {},
+  "etat": "",
+  "prixAchat": {},
+  "prixVente": {},
+  "reductionMax": 0,
+  "grossisteId": "",
+  "detailId": 0,
+  "categorie": 0,
+  "fournisseur": 0,
+  "forme": 0,
+  "fabriquant": 0,
+  "rayon": 0,
+  "etagere": "",
+  "magasin": 0
+}
+
+###
+GET http://localhost:8080/api/produits/{{id}}
+Content-Type: application/json
+
+{
+  "id": 0,
+  "nom": "",
+  "email": "",
+  "telephone": ""
+}
+

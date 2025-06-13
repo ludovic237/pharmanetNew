@@ -6,7 +6,7 @@ import org.hibernate.annotations.ColumnDefault
 @Entity
 @Table(name = "produit_detail")
 class ProduitDetail {
-   @Id
+@Id
   @GeneratedValue(strategy = GenerationType.IDENTITY) // Use IDENTITY for auto-increment
   @Column(name = "id", nullable = false)
   var id: Int? = null
@@ -20,14 +20,14 @@ class ProduitDetail {
   @Column(name = "stock", nullable = false)
   var stock: Int? = null
 
-  @Column(name = "stockMax", nullable = false)
+  @Column(name = "stock_max", nullable = false)
   var stockMax: Int? = null
 
-  @Column(name = "stockMin", nullable = false)
+  @Column(name = "stock_min", nullable = false)
   var stockMin: Int? = null
 
   @ColumnDefault("0")
-  @Column(name = "reductionMax", nullable = false)
+  @Column(name = "reduction_max", nullable = false)
   var reductionMax: Int? = null
 
   @Column(name = "prix", nullable = false)
@@ -38,5 +38,5 @@ class ProduitDetail {
 
   @ColumnDefault("0")
   @Column(name = "supprimer", nullable = false)
-  var supprimer: Int? = 0
+  var supprimer: Int? = null
 }

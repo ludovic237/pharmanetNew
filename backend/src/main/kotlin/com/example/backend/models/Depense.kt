@@ -2,12 +2,14 @@ package com.example.backend.models
 
 import jakarta.persistence.*
 import org.hibernate.annotations.ColumnDefault
+import java.time.Instant
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 @Entity
 @Table(name = "depense")
 class Depense {
-   @Id
+@Id
   @GeneratedValue(strategy = GenerationType.IDENTITY) // Use IDENTITY for auto-increment
   @Column(name = "id", nullable = false)
   var id: Int? = null
@@ -21,28 +23,28 @@ class Depense {
   @Column(name = "quantite")
   var quantite: Int? = null
 
-  @Column(name = "prixUnitaire")
+  @Column(name = "prix_unitaire")
   var prixUnitaire: Int? = null
 
-  @Column(name = "dateDepense")
-  var dateDepense: LocalDate? = null
+  @Column(name = "date_epense")
+  var dateEpense: LocalDateTime? = null
 
   @Column(name = "beneficiaire", length = 100)
   var beneficiaire: String? = null
 
-  @Column(name = "numeroCni", length = 100)
+  @Column(name = "numero_cni", length = 100)
   var numeroCni: String? = null
 
-  @Column(name = "dateDelivrance")
+  @Column(name = "date_delivrance")
   var dateDelivrance: LocalDate? = null
 
-  @Column(name = "lieuDelivrance", length = 100)
+  @Column(name = "lieu_delivrance", length = 100)
   var lieuDelivrance: String? = null
 
   @Column(name = "societe", length = 100)
   var societe: String? = null
 
-  @Column(name = "typeDepense")
+  @Column(name = "type_depense")
   var typeDepense: Int? = null
 
   @ColumnDefault("0")

@@ -5,7 +5,7 @@ import jakarta.persistence.*
 @Entity
 @Table(name = "budget")
 class Budget {
-   @Id
+@Id
   @GeneratedValue(strategy = GenerationType.IDENTITY) // Use IDENTITY for auto-increment
   @Column(name = "id", nullable = false)
   var id: Int? = null

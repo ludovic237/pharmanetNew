@@ -9,7 +9,7 @@ import java.time.LocalDateTime
 @Entity
 @Table(name = "en_rayon")
 class EnRayon {
-   @Id
+@Id
   @GeneratedValue(strategy = GenerationType.IDENTITY) // Use IDENTITY for auto-increment
   @Column(name = "id", nullable = false)
   var id: Int? = null
@@ -34,16 +34,16 @@ class EnRayon {
   @JoinColumn(name = "commande_id")
   var commande: Commande? = null
 
-  @Column(name = "dateLivraison")
+  @Column(name = "date_livraison")
   var dateLivraison: LocalDateTime? = null
 
-  @Column(name = "datePeremption")
+  @Column(name = "date_peremption")
   var datePeremption: LocalDateTime? = null
 
-  @Column(name = "prixAchat")
+  @Column(name = "prix_achat")
   var prixAchat: Int? = null
 
-  @Column(name = "prixVente")
+  @Column(name = "prix_vente")
   var prixVente: Int? = null
 
   @Column(name = "reduction")
@@ -52,7 +52,7 @@ class EnRayon {
   @Column(name = "quantite")
   var quantite: Int? = null
 
-  @Column(name = "quantiteRestante")
+  @Column(name = "quantite_restante")
   var quantiteRestante: Int? = null
 
   @ColumnDefault("0")

@@ -1,12 +1,13 @@
 package com.example.backend.models
 
-import jakarta.persistence.*
 import java.time.LocalDateTime
+import jakarta.persistence.*
+import org.hibernate.annotations.ColumnDefault
 
 @Entity
 @Table(name = "message")
 class Message {
-   @Id
+@Id
   @GeneratedValue(strategy = GenerationType.IDENTITY) // Use IDENTITY for auto-increment
   @Column(name = "id", nullable = false)
   var id: Int? = null

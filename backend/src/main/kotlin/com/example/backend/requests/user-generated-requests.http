@@ -1,0 +1,20 @@
+@token = eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbkBnbWFpbC5jb20iLCJpYXQiOjE3NDk4MDI5MzgsImV4cCI6MTc0OTgwNjUzOH0.0UaYaEn66zAo-jQWQjvUWfs03922San63jeIuEPGPox4U0RfR_lrTEh7YXkOrqONrha39blhKIcrg_lxAODCnw
+
+###
+POST http://localhost:8080/api/admin/users-employees
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbkBnbWFpbC5jb20iLCJpYXQiOjE3NDk4MDI5MzgsImV4cCI6MTc0OTgwNjUzOH0.0UaYaEn66zAo-jQWQjvUWfs03922San63jeIuEPGPox4U0RfR_lrTEh7YXkOrqONrha39blhKIcrg_lxAODCnw
+
+{
+  "registerRequest": {
+    "firstName": "employe1",
+    "lastName": "employe1",
+    "role": "employe",
+    "phone": "000000000",
+    "email": "employe1@gmail.com",
+    "password": "123456"
+  },
+  "employee": {
+    "identifiant": "empl1"
+  }
+}

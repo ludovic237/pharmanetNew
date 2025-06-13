@@ -8,7 +8,7 @@ import java.time.LocalDateTime
 @Entity
 @Table(name = "retour_produit")
 class RetourProduit {
-   @Id
+@Id
   @GeneratedValue(strategy = GenerationType.IDENTITY) // Use IDENTITY for auto-increment
   @Column(name = "id", nullable = false)
   var id: Int? = null
@@ -25,7 +25,7 @@ class RetourProduit {
   @JoinColumn(name = "caisse_id")
   var caisse: Caisse? = null
 
-  @Column(name = "dateRetour")
+  @Column(name = "date_retour")
   var dateRetour: LocalDateTime? = null
 
   @ColumnDefault("0")

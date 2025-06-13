@@ -6,7 +6,7 @@ import org.hibernate.annotations.ColumnDefault
 @Entity
 @Table(name = "concerner")
 class Concerner {
-   @Id
+@Id
   @GeneratedValue(strategy = GenerationType.IDENTITY) // Use IDENTITY for auto-increment
   @Column(name = "id", nullable = false)
   var id: Int? = null
@@ -23,7 +23,7 @@ class Concerner {
   @JoinColumn(name = "en_rayon_id")
   var enRayon: com.example.backend.models.EnRayon? = null
 
-  @Column(name = "prixUnit")
+  @Column(name = "prix_unit")
   var prixUnit: Int? = null
 
   @Column(name = "quantite")

@@ -1,12 +1,13 @@
 package com.example.backend.models
 
 import jakarta.persistence.*
+import java.time.Instant
 import java.time.LocalDateTime
 
 @Entity
 @Table(name = "history")
 class History {
-   @Id
+@Id
   @GeneratedValue(strategy = GenerationType.IDENTITY) // Use IDENTITY for auto-increment
   @Column(name = "id", nullable = false)
   var id: Int? = null
@@ -17,9 +18,9 @@ class History {
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "user_id")
-  var user: User? = null
+  var user: com.example.backend.models.User? = null
 
-  @Column(name = "dateHisto")
+  @Column(name = "date_histo")
   var dateHisto: LocalDateTime? = null
 
   @Column(name = "description", length = 64)

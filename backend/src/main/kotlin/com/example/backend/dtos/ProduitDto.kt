@@ -15,7 +15,7 @@ data class ProduitRequestDto(
   val stockMax: Int?,
   val stockMin: Int?,
   val contenuDetail: String?,
-  val prixDetail: String?,
+  val prixDetail: Int?,
   val margeBeneficiaire: BigDecimal?,
   val tva: BigDecimal?,
   val etat: String?,

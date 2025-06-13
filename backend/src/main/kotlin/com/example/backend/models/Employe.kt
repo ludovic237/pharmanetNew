@@ -6,7 +6,7 @@ import org.hibernate.annotations.ColumnDefault
 @Entity
 @Table(name = "employe")
 class Employe {
-   @Id
+@Id
   @GeneratedValue(strategy = GenerationType.IDENTITY) // Use IDENTITY for auto-increment
   @Column(name = "id", nullable = false)
   var id: Int? = null
@@ -25,12 +25,12 @@ class Employe {
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "user_id")
-  var user: User? = null
+  var user: com.example.backend.models.User? = null
 
   @Column(name = "etat", length = 20)
   var etat: String? = null
 
-  @Column(name = "faireReductionMax")
+  @Column(name = "faire_reduction_max")
   var faireReductionMax: Int? = null
 
   @ColumnDefault("0")

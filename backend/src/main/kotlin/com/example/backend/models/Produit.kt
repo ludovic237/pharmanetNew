@@ -2,12 +2,13 @@ package com.example.backend.models
 
 import jakarta.persistence.*
 import org.hibernate.annotations.ColumnDefault
+import java.time.Instant
 import java.time.LocalDateTime
 
 @Entity
 @Table(name = "produit")
 class Produit {
-   @Id
+@Id
   @GeneratedValue(strategy = GenerationType.IDENTITY) // Use IDENTITY for auto-increment
   @Column(name = "id", nullable = false)
   var id: Int? = null
@@ -15,10 +16,10 @@ class Produit {
   @Column(name = "ean13", length = 16)
   var ean13: String? = null
 
-  @Column(name = "codeLaborex", length = 32)
+  @Column(name = "code_laborex", length = 32)
   var codeLaborex: String? = null
 
-  @Column(name = "codeUbipharm", length = 32)
+  @Column(name = "code_ubipharm", length = 32)
   var codeUbipharm: String? = null
 
   @Column(name = "reference", length = 32)
@@ -30,24 +31,30 @@ class Produit {
   @Column(name = "stock")
   var stock: Int? = null
 
-  @Column(name = "stockMax")
+  @Column(name = "stock_max")
   var stockMax: Int? = null
 
-  @Column(name = "stockMin")
+  @Column(name = "stock_min")
   var stockMin: Int? = null
 
-  @Column(name = "contenuDetail", length = 10)
+  @Column(name = "contenu_detail", length = 10)
   var contenuDetail: String? = null
 
-  @Column(name = "prixDetail", length = 10)
-  var prixDetail: String? = null
+  @Column(name = "prix_detail")
+  var prixDetail: Int? = null
+
+  @Column(name = "prix_achat")
+  var prixAchat: Int? = null
+
+  @Column(name = "prix_vente")
+  var prixVente: Int? = null
 
   @ColumnDefault("'Utile'")
   @Column(name = "etat", length = 10)
   var etat: String? = null
 
   @ColumnDefault("0")
-  @Column(name = "reductionMax")
+  @Column(name = "reduction_max")
   var reductionMax: Int? = null
 
   @Column(name = "grossiste_id", length = 100)
@@ -55,12 +62,6 @@ class Produit {
 
   @Column(name = "detail_id")
   var detailId: Int? = null
-
-  @Column(name = "created_at")
-  var createdAt: LocalDateTime? = null
-
-  @Column(name = "updated_at")
-  var updatedAt: LocalDateTime? = null
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "categorie_id")
@@ -84,6 +85,12 @@ class Produit {
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "magasin_id")
   var magasin: Magasin? = null
+
+  @Column(name = "created_at")
+  var createdAt: LocalDateTime? = null
+
+  @Column(name = "updated_at")
+  var updatedAt: LocalDateTime? = null
 
   @ColumnDefault("0")
   @Column(name = "supprimer")

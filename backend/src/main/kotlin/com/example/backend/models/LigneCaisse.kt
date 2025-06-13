@@ -1,12 +1,13 @@
 package com.example.backend.models
 
 import jakarta.persistence.*
+import java.time.Instant
 import java.time.LocalDateTime
 
 @Entity
 @Table(name = "ligne_caisse")
 class LigneCaisse {
-   @Id
+@Id
   @GeneratedValue(strategy = GenerationType.IDENTITY) // Use IDENTITY for auto-increment
   @Column(name = "id", nullable = false)
   var id: Int? = null
@@ -22,7 +23,7 @@ class LigneCaisse {
   @Column(name = "libelle", nullable = false)
   var libelle: String? = null
 
-  @Column(name = "dateLigne", nullable = false)
+  @Column(name = "date_ligne", nullable = false)
   var dateLigne: LocalDateTime? = null
 
   @Column(name = "debit")
@@ -34,7 +35,7 @@ class LigneCaisse {
   @Column(name = "type", nullable = false, length = 32)
   var type: String? = null
 
-  @Column(name = "refProduit", nullable = false)
+  @Column(name = "ref_produit", nullable = false)
   var refProduit: Int? = null
 
   @Column(name = "motif", nullable = false, length = 128)

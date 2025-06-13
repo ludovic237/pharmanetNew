@@ -1,0 +1,21 @@
+
+###
+POST http://localhost:8080/api/commandes
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbkBnbWFpbC5jb20iLCJpYXQiOjE3NDk2NjIwNDgsImV4cCI6MTc0OTY2NTY0OH0.LFdgLTZwumE3H1YnuLqcQR9eyzutBC8oROB5argdMJOtRpEscWJlg4m0sMK2M1ZOpEAL9Mlym_Qe9ciOx2bjyg
+
+{
+  "clientId": 0,
+  "employeId": 0,
+  "fournisseurId": 0,
+  "produits": [{
+    "id":  1,
+    "nom": "",
+    "quantite":  20,
+    "prixUnitaire": 100
+  }]
+}
+
+<> 2025-06-11T181900.500.json
+<> 2025-06-11T181548.500.json
+<> 2025-06-11T181529.403.json

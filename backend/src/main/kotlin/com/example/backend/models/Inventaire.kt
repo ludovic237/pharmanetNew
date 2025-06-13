@@ -8,15 +8,15 @@ import java.time.LocalDateTime
 @Entity
 @Table(name = "inventaire")
 class Inventaire {
-   @Id
+@Id
   @GeneratedValue(strategy = GenerationType.IDENTITY) // Use IDENTITY for auto-increment
   @Column(name = "id", nullable = false)
   var id: Int? = null
 
-  @Column(name = "dateDebut")
+  @Column(name = "date_debut")
   var dateDebut: LocalDateTime? = null
 
-  @Column(name = "dateFin")
+  @Column(name = "date_fin")
   var dateFin: LocalDateTime? = null
 
   @Column(name = "etat", length = 15)

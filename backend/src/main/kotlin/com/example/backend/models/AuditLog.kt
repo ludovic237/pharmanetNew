@@ -8,18 +8,18 @@ import java.time.LocalDateTime
 @Entity
 @Table(name = "audit_logs")
 class AuditLog {
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "id", nullable = true)
+@Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY) // Use IDENTITY for auto-increment
+  @Column(name = "id", nullable = false)
   var id: Long? = null
 
-  @Column(name = "user_id", nullable = true)
+  @Column(name = "user_id")
   var userId: Long? = null
 
-  @Column(name = "action", nullable = true, length = 50)
+  @Column(name = "action", length = 50)
   var action: String? = null
 
-  @Column(name = "method_name", nullable = true)
+  @Column(name = "method_name")
   var methodName: String? = null
 
   @Lob
@@ -27,7 +27,7 @@ class AuditLog {
   var arguments: String? = null
 
   @Lob
-  @Column(columnDefinition = "LONGTEXT")
+  @Column(name = "result")
   var result: String? = null
 
   @Lob
@@ -36,15 +36,11 @@ class AuditLog {
 
   @ColumnDefault("CURRENT_TIMESTAMP")
   @Column(name = "timestamp")
-  val timestamp: LocalDateTime = LocalDateTime.now()
+  var timestamp: LocalDateTime? = null
 
   @Column(name = "created_date")
   var createdDate: LocalDateTime? = null
 
   @Column(name = "updated_date")
   var updatedDate: LocalDateTime? = null
-
-//  override fun toString():String {
-//    return "AuditLog(id=$id, userId=$userId, action=$action, methodName=$methodName, arguments=$arguments, result=$result, exception=$exception, timestamp=$timestamp)"
-//  }
 }

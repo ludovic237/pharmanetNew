@@ -6,7 +6,7 @@ import org.hibernate.annotations.ColumnDefault
 @Entity
 @Table(name = "fabriquant")
 class Fabriquant {
-   @Id
+@Id
   @GeneratedValue(strategy = GenerationType.IDENTITY) // Use IDENTITY for auto-increment
   @Column(name = "id", nullable = false)
   var id: Int? = null
@@ -26,8 +26,8 @@ class Fabriquant {
   @Column(name = "email", length = 32)
   var email: String? = null
 
-  @Column(name = "codepostal", length = 20)
-  var codepostal: String? = null
+  @Column(name = "code_postal", length = 20)
+  var codePostal: String? = null
 
   @ColumnDefault("0")
   @Column(name = "supprimer")

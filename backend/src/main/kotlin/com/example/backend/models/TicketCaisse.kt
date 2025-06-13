@@ -7,7 +7,7 @@ import java.time.LocalDate
 @Entity
 @Table(name = "ticket_caisse")
 class TicketCaisse {
-   @Id
+@Id
   @GeneratedValue(strategy = GenerationType.IDENTITY) // Use IDENTITY for auto-increment
   @Column(name = "id", nullable = false)
   var id: Int? = null
@@ -18,7 +18,7 @@ class TicketCaisse {
   @Column(name = "montant")
   var montant: Int? = null
 
-  @Column(name = "dateGenere")
+  @Column(name = "date_genere")
   var dateGenere: LocalDate? = null
 
   @Column(name = "statut", length = 15)

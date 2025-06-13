@@ -2,12 +2,13 @@ package com.example.backend.models
 
 import jakarta.persistence.*
 import org.hibernate.annotations.ColumnDefault
+import java.time.Instant
 import java.time.LocalDateTime
 
 @Entity
 @Table(name = "facturation")
 class Facturation {
-   @Id
+@Id
   @GeneratedValue(strategy = GenerationType.IDENTITY) // Use IDENTITY for auto-increment
   @Column(name = "id", nullable = false)
   var id: Int? = null
@@ -20,19 +21,19 @@ class Facturation {
   @JoinColumn(name = "caisse_id")
   var caisse: Caisse? = null
 
-  @Column(name = "typePaiement", length = 100)
+  @Column(name = "type_paiement", length = 100)
   var typePaiement: String? = null
 
-  @Column(name = "montantPercu")
+  @Column(name = "montant_percu")
   var montantPercu: Int? = null
 
   @Column(name = "reste")
   var reste: Int? = null
 
-  @Column(name = "montantTtc")
+  @Column(name = "montant_ttc")
   var montantTtc: Int? = null
 
-  @Column(name = "dateFacture")
+  @Column(name = "date_facture")
   var dateFacture: LocalDateTime? = null
 
   @ColumnDefault("0")

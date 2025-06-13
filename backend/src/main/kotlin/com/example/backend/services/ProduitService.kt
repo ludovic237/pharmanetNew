@@ -4,6 +4,7 @@ import com.example.backend.dtos.*
 import com.example.backend.exceptions.NotFoundException
 import com.example.backend.exceptions.ValidationException
 import com.example.backend.models.*
+import com.example.backend.models.Produit
 import com.example.backend.repositories.*
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
