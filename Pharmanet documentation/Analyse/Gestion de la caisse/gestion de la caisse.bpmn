@@ -9,7 +9,7 @@
     <bpmn:participant id="Participant_14zul6f" name="ouverture caisse" processRef="Process_01fwjsp">
       <bpmn:participantMultiplicity maximum="1" minimum="0"/>
     </bpmn:participant>
-    <bpmn:participant id="Participant_02txivx" name="Opérations pendant la session ouverte" processRef="Process_0onvmc6">
+    <bpmn:participant id="Participant_02txivx" name="Opï¿½rations pendant la session ouverte" processRef="Process_0onvmc6">
       <bpmn:participantMultiplicity maximum="1" minimum="0"/>
     </bpmn:participant>
   </bpmn:collaboration>
@@ -22,28 +22,28 @@
       <bpmn:incoming>Flow_1poyo76</bpmn:incoming>
       <bpmn:outgoing>Flow_0d0iney</bpmn:outgoing>
     </bpmn:task>
-    <bpmn:exclusiveGateway gatewayDirection="Unspecified" id="Gateway_0zgca5r" name="Vérification des sessions existante">
+    <bpmn:exclusiveGateway gatewayDirection="Unspecified" id="Gateway_0zgca5r" name="Vï¿½rification des sessions existante">
       <bpmn:incoming>Flow_0d0iney</bpmn:incoming>
       <bpmn:outgoing>Flow_1ygr0f1</bpmn:outgoing>
       <bpmn:outgoing>Flow_01xjlxz</bpmn:outgoing>
       <bpmn:outgoing>Flow_1mne8wo</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:task completionQuantity="1" id="Activity_138jalm" isForCompensation="false" name="Message (cUne caisse est déjà ouverte par un autre utilisateur )" startQuantity="1">
+    <bpmn:task completionQuantity="1" id="Activity_138jalm" isForCompensation="false" name="Message (cUne caisse est dï¿½jï¿½ ouverte par un autre utilisateur )" startQuantity="1">
       <bpmn:incoming>Flow_1ygr0f1</bpmn:incoming>
       <bpmn:outgoing>Flow_09u7rj7</bpmn:outgoing>
     </bpmn:task>
-    <bpmn:task completionQuantity="1" id="Activity_0j6ilan" isForCompensation="false" name="autorisation d’ouverture" startQuantity="1">
+    <bpmn:task completionQuantity="1" id="Activity_0j6ilan" isForCompensation="false" name="autorisation dï¿½ouverture" startQuantity="1">
       <bpmn:incoming>Flow_1mne8wo</bpmn:incoming>
       <bpmn:outgoing>Flow_0gaebuu</bpmn:outgoing>
     </bpmn:task>
-    <bpmn:task completionQuantity="1" id="Activity_1aal0lu" isForCompensation="false" name="autorisation d’ouverture" startQuantity="1">
+    <bpmn:task completionQuantity="1" id="Activity_1aal0lu" isForCompensation="false" name="autorisation dï¿½ouverture" startQuantity="1">
       <bpmn:incoming>Flow_01xjlxz</bpmn:incoming>
     </bpmn:task>
     <bpmn:task completionQuantity="1" id="Activity_1rx8tm7" isForCompensation="false" name="Caissier saisit le montant initial" startQuantity="1">
       <bpmn:incoming>Flow_0gaebuu</bpmn:incoming>
       <bpmn:outgoing>Flow_15rksr1</bpmn:outgoing>
     </bpmn:task>
-    <bpmn:task completionQuantity="1" id="Activity_1n44qcm" isForCompensation="false" name="valider (Création de la session de caisse avec statut ouverte, liée à Caissier )" startQuantity="1">
+    <bpmn:task completionQuantity="1" id="Activity_1n44qcm" isForCompensation="false" name="valider (Crï¿½ation de la session de caisse avec statut ouverte, liï¿½e ï¿½ Caissier )" startQuantity="1">
       <bpmn:incoming>Flow_15rksr1</bpmn:incoming>
     </bpmn:task>
     <bpmn:endEvent id="Event_1t2l6ej">
@@ -53,7 +53,7 @@
     <bpmn:sequenceFlow id="Flow_1poyo76" sourceRef="StartEvent_1" targetRef="Activity_1vwdp42"/>
     <bpmn:sequenceFlow id="Flow_0d0iney" sourceRef="Activity_1vwdp42" targetRef="Gateway_0zgca5r"/>
     <bpmn:sequenceFlow id="Flow_1ygr0f1" name="ouverte" sourceRef="Gateway_0zgca5r" targetRef="Activity_138jalm"/>
-    <bpmn:sequenceFlow id="Flow_01xjlxz" name="clôture en attente" sourceRef="Gateway_0zgca5r" targetRef="Activity_1aal0lu"/>
+    <bpmn:sequenceFlow id="Flow_01xjlxz" name="clï¿½ture en attente" sourceRef="Gateway_0zgca5r" targetRef="Activity_1aal0lu"/>
     <bpmn:sequenceFlow id="Flow_1mne8wo" name="fermer" sourceRef="Gateway_0zgca5r" targetRef="Activity_0j6ilan"/>
     <bpmn:sequenceFlow id="Flow_09u7rj7" sourceRef="Activity_138jalm" targetRef="Event_1t2l6ej"/>
     <bpmn:sequenceFlow id="Flow_0gaebuu" sourceRef="Activity_0j6ilan" targetRef="Activity_1rx8tm7"/>

@@ -6,6 +6,7 @@ import com.example.backend.exceptions.ValidationException
 import com.example.backend.models.*
 import com.example.backend.models.Produit
 import com.example.backend.repositories.*
+import com.example.backend.utility.UserUtils
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
@@ -17,6 +18,12 @@ import java.time.LocalDateTime
 
 @Service
 class ProduitService(
+  private val userUtils: UserUtils,
+  private val retourProduitRepository: RetourProduitRepository,
+  private val produitRetourRepository: ProduitRetourRepository,
+  private val employeRepository: EmployeRepository,
+  private val concernerRepository: ConcernerRepository,
+  private val venteRepository: VenteRepository,
   private val produitRepository: ProduitRepository,
   private val categorieRepository: CategorieRepository,
   private val fournisseurRepository: FournisseurRepository,
@@ -24,9 +31,8 @@ class ProduitService(
   private val enRayonRepository: EnRayonRepository,
   private val formeRepository: FormeRepository,
   private val magasinRepository: MagasinRepository,
-  private val fabriquantRepository: FabriquantRepository
-)
-{
+  private val fabriquantRepository: FabriquantRepository, private val caisseRepository: CaisseRepository
+) {
 
   @Transactional
   fun createProduit(request: ProduitRequestDto): ProduitResponseDto {
@@ -128,29 +134,29 @@ class ProduitService(
 
 
   fun Produit.toResponseDto(): ProduitResponseDto {
-      return ProduitResponseDto(
-          id = this.id,
-          nom = this.nom ?: "",
-          description = "",
-          codebarre = this.codeUbipharm ?: "",
-          image =  "",
-          seuil = this.stockMin ?: 0,
-          categorieNom = this.categorie?.nom ?: "",
-          tva = BigDecimal.ZERO,
-          prixAchatInitial =  BigDecimal.ZERO,
-          margeBeneficiaire =  BigDecimal.ZERO,
-          prixVenteConseille =  BigDecimal.ZERO,
-          prixVenteActuel =  BigDecimal.ZERO,
-          quantiteTotaleEnStock = this.stock ?: 0,
-          dateCreation = this.createdAt,
-          dateModification = this.updatedAt,
-          stockDetails = emptyList(), // Populate if needed
-          uniteMesure = this.forme?.nom ?: ""
-      )
+    return ProduitResponseDto(
+      id = this.id,
+      nom = this.nom ?: "",
+      description = "",
+      codebarre = this.codeUbipharm ?: "",
+      image = "",
+      seuil = this.stockMin ?: 0,
+      categorieNom = this.categorie?.nom ?: "",
+      tva = BigDecimal.ZERO,
+      prixAchatInitial = BigDecimal.ZERO,
+      margeBeneficiaire = BigDecimal.ZERO,
+      prixVenteConseille = BigDecimal.ZERO,
+      prixVenteActuel = BigDecimal.ZERO,
+      quantiteTotaleEnStock = this.stock ?: 0,
+      dateCreation = this.createdAt,
+      dateModification = this.updatedAt,
+      stockDetails = emptyList(), // Populate if needed
+      uniteMesure = this.forme?.nom ?: ""
+    )
   }
 
   fun getAllProduits(pageable: Pageable): Page<ProduitResponseDto> {
-      return produitRepository.findAll(pageable).map { it.toResponseDto() }
+    return produitRepository.findAll(pageable).map { it.toResponseDto() }
   }
 
   fun searchProducts(query: String, page: Int, size: Int): Page<ProduitResponseDto> {
@@ -311,7 +317,7 @@ class ProduitService(
   // Services pour Categorie, Fournisseur, Depot, Rayon
   // Create Categorie
   fun createCategorie(dto: CategorieDto): CategorieDto {
-    if (categorieRepository.findByNom(dto.nom)!=null) {
+    if (categorieRepository.findByNom(dto.nom) != null) {
       throw ValidationException("Une catégorie avec le nom '${dto.nom}' existe déjà.")
     }
     val categorie = Categorie().apply {
@@ -354,5 +360,86 @@ class ProduitService(
   }
 
   fun getAllRayons(): List<RayonDto> =
-    rayonRepository.findAllBySupprimer(0)!!.map { RayonDto(it.id, it.nom, it.code!!)}
+    rayonRepository.findAllBySupprimer(0)!!.map { RayonDto(it.id, it.nom, it.code!!) }
+
+
+  @Transactional
+  fun retournerProduitsVendusEtEnRayon(
+    venteId: Long,
+    produitsRetour: List<ProduitRetourRequestDto>,
+    employeId: Long
+  ): RetourProduit {
+    if (produitsRetour.isEmpty()) {
+      throw IllegalArgumentException("La liste des produits à retourner ne peut pas être vide.")
+    }
+
+    val vente = venteRepository.findById(venteId)
+      .orElseThrow { NotFoundException("Vente non trouvée avec l'ID: $venteId") }
+
+    val currentUser = userUtils.getCurrentUser()
+    val employe = employeRepository.findByUser(currentUser!!)
+
+    val caisse = caisseRepository.findByEmployeAndEtat(
+      employe,
+      Caisse.ETAT_OUVERT
+    ) ?: throw NotFoundException("Aucune caisse ouverte pour l'employé avec l'ID: ${employe.id}")
+
+    val retourProduit = RetourProduit().apply {
+      this.vente = vente
+      this.caisse = caisse
+      this.employe = employe
+      this.dateRetour = LocalDateTime.now()
+    }
+    retourProduitRepository.save(retourProduit)
+
+    produitsRetour.forEach { produitRetourRequest ->
+      val produitConcerner = concernerRepository.findByVenteAndProduit(
+        vente,
+        produitRepository.findById(produitRetourRequest.produitId.toInt())
+          .orElseThrow { NotFoundException("Produit non trouvé avec l'ID: ${produitRetourRequest.produitId}") }
+      ) ?: throw NotFoundException("Produit non trouvé dans la vente avec l'ID: ${produitRetourRequest.produitId}")
+
+      if (produitRetourRequest.quantiteRetour <= 0) {
+        throw IllegalArgumentException("La quantité retournée doit être supérieure à zéro.")
+      }
+
+      if (produitRetourRequest.quantiteRetour > produitConcerner.quantite!!) {
+        throw IllegalArgumentException("La quantité retournée ne peut pas dépasser la quantité vendue.")
+      }
+
+      // Update Concerner
+      produitConcerner.quantite = produitConcerner.quantite!! - produitRetourRequest.quantiteRetour
+      concernerRepository.save(produitConcerner)
+
+      // Create ProduitRetour
+      val produitRetour = ProduitRetour().apply {
+        this.retourProduit = retourProduit
+        this.concerner = produitConcerner
+        this.quantite = produitRetourRequest.quantiteRetour
+      }
+      produitRetourRepository.save(produitRetour)
+
+      // Update stock
+      val produit = produitRepository.findById(produitRetourRequest.produitId.toInt())
+        .orElseThrow { NotFoundException("Produit non trouvé avec l'ID: ${produitRetourRequest.produitId}") }
+      produit.stock = produit.stock!! + produitRetourRequest.quantiteRetour
+      produitRepository.save(produit)
+
+      // Update or create EnRayon
+      val enRayon = enRayonRepository.findByProduitAndSupprimer(produit, 0)
+      enRayon.quantite = enRayon.quantite!! + produitRetourRequest.quantiteRetour
+      enRayonRepository.save(enRayon)
+    }
+
+    return retourProduit
+  }
+
+
+
 }
+
+data class ProduitRetourRequestDto(
+  val produitId: Long,
+  val rayonId: Long,
+  val quantiteRetour: Int
+)

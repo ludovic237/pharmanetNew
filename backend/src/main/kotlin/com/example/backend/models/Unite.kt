@@ -19,5 +19,5 @@ class Unite {
 
   @ColumnDefault("0")
   @Column(name = "supprimer", nullable = false)
-  var supprimer: Int? = null
+  var supprimer: Int? = 0
 }

@@ -2,7 +2,6 @@ package com.example.backend.models
 
 import jakarta.persistence.*
 import org.hibernate.annotations.ColumnDefault
-import java.time.Instant
 import java.time.LocalDateTime
 
 @Entity
@@ -53,15 +52,19 @@ class Commande (
 
   @ColumnDefault("0")
   @Column(name = "supprimer")
-  var supprimer: Int? = null
+  var supprimer: Int? = 0
   ){
   // Constantes pour les états de la caisse
   companion object {
     const val COMMANDE_ANNULER = "ANNULER"
-    const val COMMANDE_CLOTURE = "CLOTURE"
+//    const val COMMANDE_CLOTURE = "CLOTURE"
     const val COMMANDE_LIVREE = "LIVREE"
     const val COMMANDE_EN_COURS = "EN_COURS"
     const val COMMANDE_EN_ATTENTE = "EN_ATTENTE"
+
+    const val COMMANDE_RECEPTION_TYPE_COMPLETE = "COMPLETE"
+    const val COMMANDE_RECEPTION_TYPE_PARTIEL = "PARTIEL"
+    const val COMMANDE_RECEPTION_TYPE_ANNULER = "ANNULER"
 
   }
 }

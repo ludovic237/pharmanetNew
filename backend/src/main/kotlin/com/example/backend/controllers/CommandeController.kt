@@ -1,6 +1,7 @@
 package com.example.backend.controllers
 
 import com.example.backend.dtos.CommandeRequest
+import com.example.backend.dtos.ProduitCmdRequest
 import com.example.backend.models.Commande
 import com.example.backend.models.Fabriquant
 import com.example.backend.services.CommandeService
@@ -21,6 +22,19 @@ class CommandeController(
   @PostMapping
   fun creerCommande(@RequestBody commandeDto: CommandeRequest): ResponseEntity<Commande> {
     val commande = commandeService.createCommande(commandeDto)
+    return ResponseEntity.ok(commande)
+  }
+
+
+  @CrossOrigin(origins = ["http://localhost:4200"])
+  @PreAuthorize("isAuthenticated()")
+  @PostMapping("/{id}/reception")
+  fun receptionnerCommande(
+    @PathVariable id: Long,
+    @RequestParam receptionType: String,
+    @RequestBody productCmdList: List<ProduitCmdRequest>
+  ): ResponseEntity<Commande> {
+    val commande = commandeService.receptionnerCommande(id, receptionType, productCmdList)
     return ResponseEntity.ok(commande)
   }
 

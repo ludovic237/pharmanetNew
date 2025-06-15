@@ -43,7 +43,7 @@ class Caisse(
 
   @ColumnDefault("0")
   @Column(name = "supprimer")
-  var supprimer: Int? = null
+  var supprimer: Int? = 0
 ) {
   // Constantes pour les états de la caisse
   companion object {

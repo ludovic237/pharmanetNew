@@ -25,5 +25,5 @@ class Prescripteur {
 
   @ColumnDefault("0")
   @Column(name = "supprimer")
-  var supprimer: Int? = null
+  var supprimer: Int? = 0
 }

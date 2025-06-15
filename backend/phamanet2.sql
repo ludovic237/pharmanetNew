@@ -182,7 +182,8 @@ create table if not exists en_rayon
   reduction         int           null,
   quantite          int           null,
   quantite_restante int           null,
-  supprimer         int default 0 null
+  supprimer         int default 0 null,
+  unique (produit_id, commande_id) -- Enforces the uniqueness constraint
 );
 
 CREATE TABLE audit_logs
@@ -878,7 +879,9 @@ alter table en_rayon
   add foreign key (unite_id) references unite (id),
   add foreign key (rayon_id) references rayon (id),
   add foreign key (fournisseur_id) references fournisseur (id),
-  add foreign key (commande_id) references commande (id);
+  add foreign key (commande_id) references commande (id),
+  modify prix_achat double default 0 null,
+  modify prix_vente double default 0 null;
 
 alter table produit
   add foreign key (categorie_id) references categorie (id),
@@ -910,7 +913,9 @@ alter table produit_inventaire
 ;
 alter table produit_cmd
   add foreign key (commande_id) references commande (id),
-  add foreign key (produit_id) references produit (id);
+  add foreign key (produit_id) references produit (id),
+  change prix_public prix_vente double null,
+  add prix_achat double null after prix_vente;;
 
 alter table vente
   add foreign key (malade_id) references malade (id),

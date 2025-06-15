@@ -11,8 +11,11 @@ class ProduitCmd {
   @Column(name = "id", nullable = false)
   var id: Int? = null
 
-  @Column(name = "prix_public")
-  var prixPublic: Double? = null
+  @Column(name = "prix_achat")
+  var prixAchat: Double? = null
+
+  @Column(name = "prix_vente")
+  var prixVente: Double? = null
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "produit_id")
@@ -48,5 +51,5 @@ class ProduitCmd {
 
   @ColumnDefault("0")
   @Column(name = "supprimer")
-  var supprimer: Int? = null
+  var supprimer: Int? = 0
 }

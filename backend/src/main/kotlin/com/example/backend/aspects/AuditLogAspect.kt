@@ -82,7 +82,8 @@ fun logBefore(joinPoint: JoinPoint) {
     userActionLog.userId = userUtils.getCurrentUserId()
     userActionLog.action = "AFTER_RETURNING"
     userActionLog.methodName = methodName
-    userActionLog.result = result?.toString()
+//    userActionLog.result = result?.toString()
+    userActionLog.result =  if (result.toString().length > 255) result.toString().substring(0, 255) else result.toString() // Truncate if necessary
     auditLogService.saveLog(userActionLog)
   }
 

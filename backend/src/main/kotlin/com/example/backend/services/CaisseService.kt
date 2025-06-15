@@ -40,9 +40,6 @@ class CaisseService(
 
     // 2. L'employé actuel a-t-il une caisse en "CLOTURE_EN_ATTENTE" ?
     caisseRepository.findByEmployeAndEtatAndSupprimer(employeData, Caisse.ETAT_CLOTURE_EN_ATTENTE)
-      .ifPresent {
-        throw CaisseException("Vous avez une caisse (ID: ${it.id}, Session: ${it.session}) en attente de clôture. Veuillez la finaliser.")
-      }
 
     // Si on arrive ici, l'employé peut ouvrir une nouvelle caisse (correspond à la branche "fermer" du BPMN)
     var nouvelleCaisse = Caisse().apply {
@@ -57,6 +54,9 @@ class CaisseService(
     val savedCaisse = caisseRepository.save(nouvelleCaisse)
     return mapToCaisseDto(savedCaisse)
   }
+
+
+
 
   private fun genererSessionId(): String {
     // Ge un identifiant de session simple, vous pouvez le rendre plus complexe
