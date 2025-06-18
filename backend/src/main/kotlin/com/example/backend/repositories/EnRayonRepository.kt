@@ -24,14 +24,15 @@ interface EnRayonRepository : JpaRepository<EnRayon, Int> {
   fun findByProduitAndSupprimer(
     produit: Produit,
     supprimer: Int = 0
-  ): EnRayon
+  ):List<EnRayon>
 
   fun findAllByProduitAndSupprimer(produit: Produit, supprimer: Int = 0): List<EnRayon>
+  fun findAllByRayon(rayon: EnRayon): EnRayon
 
   fun findByProduitNomContainingIgnoreCaseAndSupprimer(nomProduit: String, supprimer: Int): List<EnRayon>
   fun findByRayonNomContainingIgnoreCaseAndSupprimer(nomRayon: String, supprimer: Int): List<EnRayon>
   fun findByFournisseurNomContainingIgnoreCaseAndSupprimer(nomFournisseur: String, supprimer: Int): List<EnRayon>
-  fun findByProduitUniterContainingIgnoreCaseAndSupprimer(uniter: String, supprimer: Int): List<EnRayon>
+//  fun findByProduitUniterContainingIgnoreCaseAndSupprimer(uniter: String, supprimer: Int): List<EnRayon>
   fun findByCommandeIdAndSupprimer(commandeId: Long, supprimer: Int): List<EnRayon>
   fun findByDateLivraisonBetweenAndSupprimer(startDate: LocalDateTime, endDate: LocalDateTime, supprimer: Int): List<EnRayon>
   fun findByDatePeremptionBetweenAndSupprimer(startDate: LocalDateTime, endDate: LocalDateTime, supprimer: Int): List<EnRayon>

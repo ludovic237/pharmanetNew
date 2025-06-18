@@ -11,10 +11,25 @@ data class ProduitAssocieDto(
 )
 
 data class VenteRequestDto(
+  val clientInfo: ClientInfo,
+  val prescripteurInfo: PrescripteurInfo,
   val prixTotal: Double,
   val commentaire: String,
   val etat: String, // State of the sale: "COMPTANT", "ASSURANCE", or "CREDIT"
   val produits: List<ProduitAssocieDto> // List of associated products with quantity and price
+)
+
+data class ClientInfo(
+  val id: Int,
+  val type: String,
+  val name: String,
+  val phone: String,
+)
+
+data class PrescripteurInfo(
+  val id: Int,
+  val type: String,
+  val name: String,
 )
 
 data class EncaissementRequestDto(

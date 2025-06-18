@@ -15,6 +15,8 @@ import java.util.*
 @Service
 class VenteService(
   private val concernerRepository: ConcernerRepository,
+  private val prescripteurRepository: PrescripteurRepository,
+  private val userRepository: UserRepository,
   private val venteRepository: VenteRepository,
   private val caisseRepository: CaisseRepository,
   private val produitRepository: ProduitRepository,
@@ -38,15 +40,48 @@ class VenteService(
       throw RuntimeException("État de la vente invalide: ${venteRequestDto.etat}")
     }
 
+
+    // Handle client
+    val client = when (venteRequestDto.clientInfo.type) {
+      "existing" -> userRepository.findById(venteRequestDto.clientInfo.id.toLong())
+        .orElseThrow { RuntimeException("Client introuvable avec l'ID: ${venteRequestDto.clientInfo.id}") }
+
+      "new" -> User().apply {
+        this.nom = venteRequestDto.clientInfo.name
+          ?: throw RuntimeException("Nom du client requis pour un nouveau client")
+        this.telephone = venteRequestDto.clientInfo.phone
+          ?: throw RuntimeException("Téléphone du client requis pour un nouveau client")
+      }.also { userRepository.save(it) }
+
+      "none" -> null
+      else -> throw RuntimeException("Type de client invalide: ${venteRequestDto.clientInfo.type}")
+    }
+
+    // Handle prescriber
+    val prescripteur = when (venteRequestDto.prescripteurInfo.type) {
+      "existing" -> prescripteurRepository.findById(venteRequestDto.prescripteurInfo.id)
+        .orElseThrow { RuntimeException("Prescripteur introuvable avec l'ID: ${venteRequestDto.prescripteurInfo.id}") }
+
+      "new" -> Prescripteur().apply {
+        this.nom = venteRequestDto.prescripteurInfo.name
+          ?: throw RuntimeException("Nom du prescripteur requis pour un nouveau prescripteur")
+      }.also { prescripteurRepository.save(it) }
+
+      "none" -> null
+      else -> throw RuntimeException("Type de prescripteur invalide: ${venteRequestDto.prescripteurInfo.type}")
+    }
+
+    // Create the sale
     val nouvelleVente = Vente().apply {
       this.employe = employe
       this.dateVente = LocalDateTime.now()
       this.etat = venteRequestDto.etat
       this.prixTotal = venteRequestDto.prixTotal
       this.commentaire = venteRequestDto.commentaire
+      this.user = client
+      this.prescripteur = prescripteur
       this.supprimer = 0
     }
-
     val savedVente = venteRepository.save(nouvelleVente)
 
     venteRequestDto.produits.forEach { produitAssocieDto ->

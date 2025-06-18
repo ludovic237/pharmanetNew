@@ -426,7 +426,7 @@ class ProduitService(
       produitRepository.save(produit)
 
       // Update or create EnRayon
-      val enRayon = enRayonRepository.findByProduitAndSupprimer(produit, 0)
+      val enRayon = enRayonRepository.findAllByRayon(produitConcerner.enRayon!!)
       enRayon.quantite = enRayon.quantite!! + produitRetourRequest.quantiteRetour
       enRayonRepository.save(enRayon)
     }

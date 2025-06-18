@@ -35,6 +35,13 @@ class EnRayonController(private val enRayonService: EnRayonService) {
   fun getProduitsEnRayonParNomProduit(@RequestParam nomProduit: String): ResponseEntity<List<EnRayon>> =
     ResponseEntity.ok(enRayonService.getProduitsEnRayonParNomProduit(nomProduit))
 
+
+  @CrossOrigin(origins = ["http://localhost:4200"])
+  @PreAuthorize("isAuthenticated()")
+  @GetMapping("/par-produit")
+  fun getProduitsEnRayonParProduitIdt(@RequestParam produitId: Int): ResponseEntity<List<Map<String, Any?>>> =
+    ResponseEntity.ok(enRayonService.getProduitsEnRayonParProduitIdt(produitId))
+
   @CrossOrigin(origins = ["http://localhost:4200"])
   @PreAuthorize("isAuthenticated()")
   @GetMapping("/par-nom-rayon")
@@ -47,11 +54,11 @@ class EnRayonController(private val enRayonService: EnRayonService) {
   fun getProduitsEnRayonParFournisseur(@RequestParam nomFournisseur: String): ResponseEntity<List<EnRayon>> =
     ResponseEntity.ok(enRayonService.getProduitsEnRayonParFournisseur(nomFournisseur))
 
-  @CrossOrigin(origins = ["http://localhost:4200"])
+/*  @CrossOrigin(origins = ["http://localhost:4200"])
   @PreAuthorize("isAuthenticated()")
   @GetMapping("/par-uniter")
   fun getProduitsEnRayonParUniter(@RequestParam uniter: String): ResponseEntity<List<EnRayon>> =
-    ResponseEntity.ok(enRayonService.getProduitsEnRayonParUniter(uniter))
+    ResponseEntity.ok(enRayonService.getProduitsEnRayonParUniter(uniter))*/
 
   @CrossOrigin(origins = ["http://localhost:4200"])
   @PreAuthorize("isAuthenticated()")
