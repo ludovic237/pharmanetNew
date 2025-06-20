@@ -1,1 +1,282 @@
-<p>encaisser-vente works!</p>
+<div class="p-2">
+  <mat-card>
+    <div fxLayout="row wrap" fxLayoutAlign="space-between center" class="w-100 p-3">
+      <h2>Caisse ouverte par : {{ cashierName }}</h2>
+      <div fxLayout="row" fxLayoutGap="8px">
+        <button mat-raised-button color="primary" (click)="onValider()">Fermer la caisse</button>
+        <button mat-raised-button color="accent" (click)="showBonCaisse()">Gérer les Bons de Caisse</button>
+        <button mat-raised-button color="warn" (click)="showDepense()">Entrez une Dépense</button>
+        <button mat-raised-button color="primary" (click)="onRefresh()">Rafraîchir les Données</button>
+        <button mat-raised-button color="accent" (click)="showVente()">Afficher les Ventes</button>
+      </div>
+    </div>
+  </mat-card>
+</div>
+
+
+<div fxLayout="row" fxLayoutGap="16px">
+
+  <!-- Entête tableau principal -->
+  <mat-card fxFlex="100" class="mb-16">
+    <mat-card-header>
+      <mat-card-title>Ventes en Cours</mat-card-title>
+      <mat-card-subtitle>Liste des ventes non encaissées</mat-card-subtitle>
+    </mat-card-header>
+    <table mat-table [dataSource]="headerDataSource" class="full-width">
+
+      <ng-container matColumnDef="netAPayer">
+        <th mat-header-cell *matHeaderCellDef>Net à payer</th>
+        <td mat-cell *matCellDef="let element">{{ element.netAPayer }}</td>
+      </ng-container>
+      <ng-container matColumnDef="reduction">
+        <th mat-header-cell *matHeaderCellDef>Réduction</th>
+        <td mat-cell *matCellDef="let element">{{ element.reduction }}</td>
+      </ng-container>
+      <ng-container matColumnDef="reference">
+        <th mat-header-cell *matHeaderCellDef>Référence</th>
+        <td mat-cell *matCellDef="let element">{{ element.reference }}</td>
+      </ng-container>
+      <ng-container matColumnDef="infoClients">
+        <th mat-header-cell *matHeaderCellDef>Info Clients</th>
+        <td mat-cell *matCellDef="let element">{{ element.infoClients }}</td>
+      </ng-container>
+      <ng-container matColumnDef="vendeur">
+        <th mat-header-cell *matHeaderCellDef>Vendeur</th>
+        <td mat-cell *matCellDef="let element">{{ element.vendeur }}</td>
+      </ng-container>
+      <ng-container matColumnDef="commentaire">
+        <th mat-header-cell *matHeaderCellDef>Commentaire</th>
+        <td mat-cell *matCellDef="let element">{{ element.commentaire }}</td>
+      </ng-container>
+      <ng-container matColumnDef="dateVente">
+        <th mat-header-cell *matHeaderCellDef>Date vente</th>
+        <td mat-cell *matCellDef="let element">{{ element.dateVente | date:'dd/MM/yyyy' }}</td>
+      </ng-container>
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef>Actions</th>
+        <td mat-cell *matCellDef="let element">
+          <button mat-button color="primary" (click)="chargerVente(element.id)">Charger</button>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="headerColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: headerColumns;"></tr>
+    </table>
+  </mat-card>
+</div>
+
+
+<div fxLayout="row wrap">
+  <!-- Left Column: Table -->
+  <div fxFlex="100" fxFlex.gt-sm="60" class="p-2">
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>Produits de la Vente</mat-card-title>
+        <mat-card-subtitle>Détails des produits ajoutés à la vente</mat-card-subtitle>
+      </mat-card-header>
+      <table mat-table [dataSource]="leftDataSource">
+        <ng-container matColumnDef="nom">
+          <th mat-header-cell *matHeaderCellDef>Nom</th>
+          <td mat-cell *matCellDef="let p">{{ p.nom }}</td>
+        </ng-container>
+        <ng-container matColumnDef="prixUnitaire">
+          <th mat-header-cell *matHeaderCellDef>Prix Unitaire</th>
+          <td mat-cell *matCellDef="let p">{{ p.prixUnitaire }} FCFA</td>
+        </ng-container>
+        <ng-container matColumnDef="quantite">
+          <th mat-header-cell *matHeaderCellDef>Quantité</th>
+          <td mat-cell *matCellDef="let p">{{ p.quantite }}</td>
+        </ng-container>
+        <ng-container matColumnDef="prixTotal">
+          <th mat-header-cell *matHeaderCellDef>Prix Total</th>
+          <td mat-cell *matCellDef="let p">{{ p.prixUnitaire * p.quantite }} FCFA</td>
+        </ng-container>
+        <ng-container matColumnDef="reduction">
+          <th mat-header-cell *matHeaderCellDef>Réduction</th>
+          <td mat-cell *matCellDef="let p">{{ p.reduction ?? 0 }} %</td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="leftColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: leftColumns;"></tr>
+      </table>
+    </mat-card>
+  </div>
+
+  <!-- Right Column: Card -->
+  <div fxFlex="100" fxFlex.gt-sm="40" class="p-2">
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>Montant Facturé</mat-card-title>
+        <mat-card-subtitle>Effectuez le paiement en choisissant un mode</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="net-display">{{ netAPayer }} F CFA</div>
+
+        <mat-tab-group [(selectedIndex)]="selectedTabIndex" (selectedIndexChange)="onTabChange($event)">
+          <!-- Espèce Tab -->
+          <mat-tab label="Espèce">
+            <div class="tab-content">
+              <div class="p-2">
+                <mat-form-field appearance="outline">
+                  <mat-label>Montant encaissé</mat-label>
+                  <input matInput type="number" [(ngModel)]="montantEncaisse" (ngModelChange)="calculateRendu()">
+                </mat-form-field>
+              </div>
+              <div class="p-2">
+                <mat-form-field appearance="outline">
+                  <mat-label>Rendu</mat-label>
+                  <input matInput [value]="rendu" disabled>
+                </mat-form-field>
+              </div>
+            </div>
+          </mat-tab>
+
+          <!-- Électronique Tab -->
+          <mat-tab label="Électronique">
+            <div class="tab-content">
+              <div class="p-2">
+                <mat-form-field appearance="outline">
+                  <mat-label>Numéro de téléphone</mat-label>
+                  <input matInput type="text" [(ngModel)]="numeroTelephone">
+                </mat-form-field>
+              </div>
+              <div class="p-2">
+                <mat-form-field appearance="outline">
+                  <mat-label>Montant</mat-label>
+                  <input matInput type="number" [(ngModel)]="montantElectronique" (ngModelChange)="calculateRendu()">
+                </mat-form-field>
+              </div>
+              <div class="p-2">
+                <mat-form-field appearance="outline">
+                  <mat-label>Rendu</mat-label>
+                  <input matInput [value]="rendu" disabled>
+                </mat-form-field>
+              </div>
+            </div>
+          </mat-tab>
+
+          <!-- Ticket de caisse Tab -->
+          <mat-tab label="Ticket de caisse">
+            <div class="tab-content">
+              <div class="p-2">
+                <mat-form-field appearance="outline">
+                  <mat-label>Numéro de ticket</mat-label>
+                  <input matInput type="text" [(ngModel)]="numeroTicket"  (input)="onTicketInputChange($event)">
+                </mat-form-field>
+              </div>
+              <div class="p-2">
+                <mat-form-field appearance="outline">
+                  <mat-label>Montant</mat-label>
+                  <input matInput type="number" [(ngModel)]="montantTicket" (ngModelChange)="calculateRendu()">
+                </mat-form-field>
+              </div>
+              <div class="p-2">
+                <mat-form-field appearance="outline">
+                  <mat-label>Rendu</mat-label>
+                  <input matInput [value]="rendu" disabled>
+                </mat-form-field>
+              </div>
+            </div>
+          </mat-tab>
+
+          <!-- Mixte Tab -->
+          <mat-tab label="Mixte">
+            <div class="tab-content">
+              <div class="p-2">
+                <h3>Espèce</h3>
+                <mat-form-field appearance="outline">
+                  <mat-label>Montant en espèce</mat-label>
+                  <input matInput type="number" [(ngModel)]="montantEspece" (ngModelChange)="calculateRendu()">
+                </mat-form-field>
+              </div>
+              <div class="p-2">
+                <h3>Électronique</h3>
+                <mat-form-field appearance="outline">
+                  <mat-label>Numéro de téléphone</mat-label>
+                  <input matInput type="text" [(ngModel)]="numeroTelephoneMixte">
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                  <mat-label>Montant</mat-label>
+                  <input matInput type="number" [(ngModel)]="montantElectroniqueMixte"
+                         (ngModelChange)="calculateRendu()">
+                </mat-form-field>
+              </div>
+              <div class="p-2">
+                <h3>Ticket</h3>
+                <mat-form-field appearance="outline">
+                  <mat-label>Numéro de ticket</mat-label>
+                  <input matInput type="text" [(ngModel)]="numeroTicketMixte" (input)="onTicketMixteInputChange($event)">
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                  <mat-label>Montant</mat-label>
+                  <input matInput type="number" [(ngModel)]="montantTicketMixte" (ngModelChange)="calculateRendu()">
+                </mat-form-field>
+              </div>
+              <div class="p-2">
+                <mat-form-field appearance="outline">
+                  <mat-label>Total encaissé</mat-label>
+                  <input matInput [value]="totalEncaisse" disabled>
+                </mat-form-field>
+              </div>
+              <div class="p-2">
+                <mat-form-field appearance="outline">
+                  <mat-label>Rendu</mat-label>
+                  <input matInput [value]="rendu" disabled>
+                </mat-form-field>
+              </div>
+            </div>
+          </mat-tab>
+        </mat-tab-group>
+
+        <div fxLayout="row" fxLayoutGap="8px" class="actions-bar">
+          <button mat-stroked-button (click)="onAnnuler()">Annuler</button>
+          <button mat-flat-button color="primary" (click)="onValider()">Valider</button>
+          <button mat-flat-button color="accent" (click)="onImprimer()">Imprimer</button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>
+
+
+<!-- Tableau des ventes fermées -->
+<mat-card class="mt-16">
+  <mat-card-header>
+    <mat-card-title>Ventes Fermées</mat-card-title>
+    <mat-card-subtitle>Historique des ventes déjà encaissées</mat-card-subtitle>
+  </mat-card-header>
+  <table mat-table [dataSource]="bottomDataSource">
+
+    <ng-container matColumnDef="prixTotal">
+      <th mat-header-cell *matHeaderCellDef>Prix Total</th>
+      <td mat-cell *matCellDef="let v">{{ v.prixTotal }} FCFA</td>
+    </ng-container>
+    <ng-container matColumnDef="etat">
+      <th mat-header-cell *matHeaderCellDef>État</th>
+      <td mat-cell *matCellDef="let v">{{ v.etat }}</td>
+    </ng-container>
+    <ng-container matColumnDef="reference">
+      <th mat-header-cell *matHeaderCellDef>Référence</th>
+      <td mat-cell *matCellDef="let v">{{ v.reference }}</td>
+    </ng-container>
+    <ng-container matColumnDef="vendeur">
+      <th mat-header-cell *matHeaderCellDef>Vendeur</th>
+      <td mat-cell *matCellDef="let v">{{ v.vendeur }}</td>
+    </ng-container>
+    <ng-container matColumnDef="client">
+      <th mat-header-cell *matHeaderCellDef>Client</th>
+      <td mat-cell *matCellDef="let v">{{ v.client }}</td>
+    </ng-container>
+    <ng-container matColumnDef="dateVente">
+      <th mat-header-cell *matHeaderCellDef>Date vente</th>
+      <td mat-cell *matCellDef="let v">{{ v.dateVente | date:'dd/MM/yyyy' }}</td>
+    </ng-container>
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef>Actions</th>
+      <td mat-cell *matCellDef="let v"></td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="bottomColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: bottomColumns;"></tr>
+  </table>
+</mat-card>

@@ -8,7 +8,9 @@ import com.example.backend.repositories.*
 import jakarta.persistence.EntityNotFoundException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 @Service
 class CommandeService(
@@ -42,6 +44,7 @@ class CommandeService(
         "annulee" -> null
         else -> throw IllegalArgumentException("Type de commande invalide: ${request.type}")
       }
+      this.ref = genererReferenceCommande(commandeRepository.countMois().toInt())
       this.qtiteCmd = quantiteTotale
       this.montantCmd = montantTotal
       this.etat = when (request.type.lowercase()) {
@@ -350,4 +353,26 @@ class CommandeService(
       "note" to commande.note
     )
   }
+
+
+  fun genererReferenceCommande(num: Int): String {
+    // Get today's date
+    val today = LocalDate.now()
+    val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+    val formattedDate = today.format(formatter)
+
+    // Extract year, month, and day
+    val annee = formattedDate.substring(0, 4)
+    val mois = formattedDate.substring(5, 7)
+
+    // Increment the number
+    var numeroRegBig = num + 1
+
+    // Format the number to always have 4 digits
+    val formattedNumeroRegBig = String.format("%04d", numeroRegBig)
+
+    // Generate the reference
+    return "ALS$annee${mois}COM$formattedNumeroRegBig"
+  }
+
 }

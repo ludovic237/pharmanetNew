@@ -16,38 +16,34 @@ class CaisseService(
   private val caisseRepository: CaisseRepository,
   private val employeRepository: EmployeRepository,
   private val userUtils: UserUtils
-)
-{
+) {
+
+
+  fun getActiveCaisse(): Caisse? {
+      return caisseRepository.findByEtatAndSupprimer(Caisse.ETAT_OUVERT, 0)
+          .firstOrNull()
+  }
 
   @Transactional
   fun ouvrirCaisse(requestDto: CaisseOuvertureRequestDto): CaisseDto {
     val currentUser = userUtils.getCurrentUser()
-      ?: throw CaisseException("Impossible de récupérer l'utilisateur connecté.")
+      ?: throw CaisseException("Unable to retrieve the logged-in user.")
 
-    var employeData = employeRepository.findByUser(currentUser)
+    val employeData = employeRepository.findByUser(currentUser)
 
-    // Vérification des sessions existantes (selon BPMN Gateway_0zgca5r)
-    // 1. Y a-t-il une caisse OUVERTE par N'IMPORTE QUI ?
-    val caissesOuvertesGlobal = caisseRepository.findByEtatAndSupprimer(Caisse.ETAT_OUVERT)
-    if (caissesOuvertesGlobal.isNotEmpty()) {
-      val caisseOuverte = caissesOuvertesGlobal.first()
-      if (caisseOuverte.employe?.id != employeData.id) {
-        throw CaisseException("Une caisse (ID: ${caisseOuverte.id}, Session: ${caisseOuverte.session}) est déjà ouverte par l'employé ${caisseOuverte.employe?.identifiant ?: "inconnu"}.")
-      } else {
-        throw CaisseException("Vous avez déjà une caisse ouverte (ID: ${caisseOuverte.id}, Session: ${caisseOuverte.session}).")
-      }
+    // Check if there is already an active caisse
+    val activeCaisse = caisseRepository.findByEtatAndSupprimer(Caisse.ETAT_OUVERT, 0).firstOrNull()
+    if (activeCaisse != null) {
+      throw CaisseException("A caisse (ID: ${activeCaisse.id}, Session: ${activeCaisse.session}) is already open.")
     }
 
-    // 2. L'employé actuel a-t-il une caisse en "CLOTURE_EN_ATTENTE" ?
-    caisseRepository.findByEmployeAndEtatAndSupprimer(employeData, Caisse.ETAT_CLOTURE_EN_ATTENTE)
-
-    // Si on arrive ici, l'employé peut ouvrir une nouvelle caisse (correspond à la branche "fermer" du BPMN)
-    var nouvelleCaisse = Caisse().apply {
+    // Create a new caisse
+    val nouvelleCaisse = Caisse().apply {
       employe = employeData
       fondCaisseOuvert = requestDto.fondCaisseOuvert.toDouble()
       dateOuvert = LocalDateTime.now()
-      session = genererSessionId() // "Création de la session de caisse"
-      etat = Caisse.ETAT_OUVERT    // "avec statut ouverte"
+      session = genererSessionId()
+      etat = Caisse.ETAT_OUVERT
       supprimer = 0
     }
 
@@ -55,12 +51,11 @@ class CaisseService(
     return mapToCaisseDto(savedCaisse)
   }
 
-
-
-
   private fun genererSessionId(): String {
     // Ge un identifiant de session simple, vous pouvez le rendre plus complexe
-    return "SESS-${LocalDateTime.now().year}${LocalDateTime.now().monthValue}${LocalDateTime.now().dayOfMonth}-${UUID.randomUUID().toString().substring(0, 8).uppercase()}"
+    return "SESS-${LocalDateTime.now().year}${LocalDateTime.now().monthValue}${LocalDateTime.now().dayOfMonth}-${
+      UUID.randomUUID().toString().substring(0, 8).uppercase()
+    }"
   }
 
   private fun mapToCaisseDto(caisse: Caisse): CaisseDto {

@@ -62,18 +62,21 @@ class AuditLogAspect(
   fun excludeAuth() {
   }
 
-@Before("serviceMethods() && excludeAuth()")
-fun logBefore(joinPoint: JoinPoint) {
+  @Before("serviceMethods() && excludeAuth()")
+  fun logBefore(joinPoint: JoinPoint) {
     val methodName = joinPoint.signature.name
     val arguments = joinPoint.args.map { it?.toString() ?: "null" }.joinToString(",")
+    val maxLength = 100 // Adjust this value to match the database column's length
+    val truncatedArguments = if (arguments.length > maxLength) arguments.substring(0, maxLength) else arguments
+
     val userActionLog = AuditLog()
     userActionLog.userId = userUtils.getCurrentUserId()
     userActionLog.action = "BEFORE"
     userActionLog.methodName = methodName
-    userActionLog.arguments = if (arguments.length > 255) arguments.substring(0, 255) else arguments // Truncate if necessary
+    userActionLog.arguments = truncatedArguments // Use the truncated value
     println("Captured arguments: ${joinPoint.args.map { it?.toString() ?: "null" }}")
     auditLogService.saveLog(userActionLog)
-}
+  }
 
   @AfterReturning(value = "serviceMethods() && excludeAuth()", returning = "result")
   fun logAfterReturning(joinPoint: JoinPoint, result: Any?) {
@@ -83,7 +86,8 @@ fun logBefore(joinPoint: JoinPoint) {
     userActionLog.action = "AFTER_RETURNING"
     userActionLog.methodName = methodName
 //    userActionLog.result = result?.toString()
-    userActionLog.result =  if (result.toString().length > 255) result.toString().substring(0, 255) else result.toString() // Truncate if necessary
+    userActionLog.result = if (result.toString().length > 255) result.toString()
+      .substring(0, 255) else result.toString() // Truncate if necessary
     auditLogService.saveLog(userActionLog)
   }
 
@@ -94,23 +98,26 @@ fun logBefore(joinPoint: JoinPoint) {
     userActionLog.userId = userUtils.getCurrentUserId()
     userActionLog.action = "AFTER_THROWING"
     userActionLog.methodName = methodName
-    userActionLog.exception = if (exception.message!!.length > 255) exception.message!!.substring(0, 255) else exception.message // Truncate if necessary
+    userActionLog.exception = if (exception.message!!.length > 255) exception.message!!.substring(
+      0,
+      255
+    ) else exception.message // Truncate if necessary
 
     auditLogService.saveLog(userActionLog)
   }
 
-/*  fun interpretAuditLogs(auditLogs: List<AuditLog>): List<Pair<AuditLog, String>> {
-      return auditLogs.map { auditLog ->
-          val actionType = when {
-              auditLog.result == null -> "Unknown"
-              auditLog.result is List<*> -> {
-                  if ((auditLog.result as List<*>).isEmpty()) "Deletion" else "Update"
-              }
-              auditLog.result is Map<*, *> -> "Modification"
-              else -> "Creation"
-          }
-          auditLog to actionType
-      }
-  }*/
+  /*  fun interpretAuditLogs(auditLogs: List<AuditLog>): List<Pair<AuditLog, String>> {
+        return auditLogs.map { auditLog ->
+            val actionType = when {
+                auditLog.result == null -> "Unknown"
+                auditLog.result is List<*> -> {
+                    if ((auditLog.result as List<*>).isEmpty()) "Deletion" else "Update"
+                }
+                auditLog.result is Map<*, *> -> "Modification"
+                else -> "Creation"
+            }
+            auditLog to actionType
+        }
+    }*/
 
 }

@@ -47,3 +47,23 @@ data class ElectroniqueRequestDto(
     val montant: Int
 )
 
+data class EncaissementDto(
+  var typeEncaissement: String,
+  val venteId: Int,
+  val montantPercu: Int,
+  val montantRendu: Int,
+  val montantTtc: Int,
+  val espece: Int?, // Cash payment amount
+  val electronique: ElectroniqueDto?, // Electronic payment details
+  val ticket: TicketDto? // Ticket payment amount
+)
+
+data class ElectroniqueDto(
+  val numeroTelephone: String,
+  val montantElectronique: Int
+)
+
+data class TicketDto(
+  val numeroTicket: String,
+  val montantTicket: Int
+)

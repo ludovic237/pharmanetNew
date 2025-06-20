@@ -36,7 +36,7 @@ class BonCaisse {
   var dateEncaisser: LocalDateTime? = null
 
   @Column(name = "type", length = 50)
-  var type: String? = null
+  var type: String? = "Générer"
 
   @ColumnDefault("0")
   @Column(name = "supprimer")

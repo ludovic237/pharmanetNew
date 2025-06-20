@@ -1,7 +1,6 @@
 package com.example.backend.services
 
-import com.example.backend.dtos.CaisseDto
-import com.example.backend.dtos.CaisseOuvertureRequestDto
+import com.example.backend.dtos.EncaissementDto
 import com.example.backend.dtos.EncaissementRequestDto
 import com.example.backend.dtos.VenteRequestDto
 import com.example.backend.models.*
@@ -9,13 +8,18 @@ import com.example.backend.repositories.*
 import com.example.backend.utility.UserUtils
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.text.Normalizer
+import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.*
 
 @Service
 class VenteService(
+  private val enRayonRepository: EnRayonRepository,
   private val concernerRepository: ConcernerRepository,
   private val prescripteurRepository: PrescripteurRepository,
+  private val bonCaisseRepository: BonCaisseRepository,
   private val userRepository: UserRepository,
   private val venteRepository: VenteRepository,
   private val caisseRepository: CaisseRepository,
@@ -25,7 +29,8 @@ class VenteService(
   private val factureElectroniqueRepository: FactureElectroniqueRepository,
   private val factureTicketRepository: FactureTicketRepository,
   private val employeRepository: EmployeRepository,
-  private val userUtils: UserUtils
+  private val userUtils: UserUtils,
+  private val rayonRepository: RayonRepository
 ) {
 
   @Transactional
@@ -74,6 +79,7 @@ class VenteService(
     // Create the sale
     val nouvelleVente = Vente().apply {
       this.employe = employe
+      this.reference = genererReference(venteRepository.countMois().toInt())
       this.dateVente = LocalDateTime.now()
       this.etat = venteRequestDto.etat
       this.prixTotal = venteRequestDto.prixTotal
@@ -85,12 +91,14 @@ class VenteService(
     val savedVente = venteRepository.save(nouvelleVente)
 
     venteRequestDto.produits.forEach { produitAssocieDto ->
-      val produit = produitRepository.findById(produitAssocieDto.produitId.toInt())
+      val rayon = enRayonRepository.findById(produitAssocieDto.produitId.toInt()).get()
+      val produit = produitRepository.findById(rayon.produit!!.id!!)
         .orElseThrow { RuntimeException("Produit introuvable avec l'ID: ${produitAssocieDto.produitId}") }
 
       val concerner = Concerner().apply {
         this.vente = savedVente
         this.produit = produit
+        this.enRayon = rayon
         this.quantite = produitAssocieDto.quantite
         this.prixUnit = produitAssocieDto.prixUnit
       }
@@ -193,18 +201,252 @@ class VenteService(
     return facturationRepository.save(facturation)
   }
 
-  @Transactional(readOnly = true)
+  @Transactional
+  fun encaisserVente(encaissementDto: EncaissementDto): Facturation {
+    encaissementDto.typeEncaissement = convertToSimpleString(encaissementDto.typeEncaissement).lowercase()
+
+    val vente = venteRepository.findById(encaissementDto.venteId.toLong()).get()
+
+    val currentUser = userUtils.getCurrentUser()
+    val employe = employeRepository.findByUser(currentUser!!)
+    val caisse = caisseRepository.findByEmployeAndEtatAndSupprimer(employe, Caisse.ETAT_OUVERT)
+      ?: throw RuntimeException("Aucune caisse ouverte trouvée pour l'utilisateur connecté.")
+
+    var facturation = Facturation().apply {
+      this.vente = vente
+      this.caisse = caisse
+      this.typePaiement = encaissementDto.typeEncaissement
+      this.montantPercu = encaissementDto.montantPercu
+      this.reste = encaissementDto.montantRendu
+      this.montantTtc = vente.prixTotal!!.toInt()
+      this.dateFacture = LocalDateTime.now()
+      this.supprimer = 0
+    }
+    facturation = facturationRepository.save(facturation)
+
+    when (encaissementDto.typeEncaissement.toLowerCase()) {
+      Vente.VENTE_TYPE_PAIEMENT_ESPECE -> {
+        encaissementDto.espece?.let { montantEspece ->
+          val factureEspece = FactureEspece().apply {
+            this.facturationId = facturation.id?.toLong()
+            this.montant = montantEspece
+          }
+          factureEspeceRepository.save(factureEspece)
+        }
+      }
+
+      Vente.VENTE_TYPE_PAIEMENT_ELECTRONIQUE.toLowerCase() -> {
+        encaissementDto.electronique?.let { electronique ->
+          val factureElectronique = FactureElectronique().apply {
+            this.facturationId = facturation.id?.toLong()
+            this.numeroTelephone = electronique.numeroTelephone
+            this.montant = electronique.montantElectronique
+          }
+          factureElectroniqueRepository.save(factureElectronique)
+        }
+      }
+
+      Vente.VENTE_TYPE_PAIEMENT_TICKET.toLowerCase() -> {
+        encaissementDto.ticket?.let { ticket ->
+          val ticketCaisse = bonCaisseRepository.findByCodebarreId(ticket.numeroTicket)
+          val factureTicket = FactureTicket().apply {
+            this.facturationId = facturation.id?.toLong()
+            this.ticketCaisseId = ticketCaisse!!.id
+            this.montant = ticket.montantTicket
+          }
+          factureTicketRepository.save(factureTicket)
+        }
+      }
+
+      Vente.VENTE_TYPE_PAIEMENT_MIXTE.toLowerCase() -> {
+        encaissementDto.espece?.let { montantEspece ->
+          val factureEspece = FactureEspece().apply {
+            this.facturationId = facturation.id?.toLong()
+            this.montant = montantEspece
+          }
+          factureEspeceRepository.save(factureEspece)
+        }
+        encaissementDto.electronique?.let { electronique ->
+          val factureElectronique = FactureElectronique().apply {
+            this.facturationId = facturation.id?.toLong()
+            this.numeroTelephone = electronique.numeroTelephone
+            this.montant = electronique.montantElectronique
+          }
+          factureElectroniqueRepository.save(factureElectronique)
+        }
+        encaissementDto.ticket?.let { ticket ->
+          val ticketCaisse = bonCaisseRepository.findByCodebarreId(ticket.numeroTicket)
+          val factureTicket = FactureTicket().apply {
+            this.facturationId = facturation.id?.toLong()
+            this.ticketCaisseId = ticketCaisse!!.id
+            this.montant = ticket.montantTicket
+          }
+          factureTicketRepository.save(factureTicket)
+        }
+      }
+
+      else -> throw RuntimeException("Type de paiement non pris en charge: ${encaissementDto.typeEncaissement}")
+    }
+    vente.prixPercu = encaissementDto.montantPercu.toDouble()
+    vente.dateEncaissement = LocalDateTime.now()
+    venteRepository.save(vente)
+
+    return facturation
+  }
+
+  @Transactional
   fun chargerVentesEnCoursNonEncaisser(venteId: Long): Map<String, Any?> {
     val ventes = venteRepository.findById(venteId).get()
     if (ventes.prixPercu != null && ventes.prixPercu!! > 0) {
       throw RuntimeException("La vente est déjà encaissée.")
     }
     val produits = concernerRepository.findByVente(ventes)
+      .map { concerner ->
+        mapOf(
+          "id" to concerner?.id,
+          "nom" to concerner?.produit?.nom,
+          "prixUnitaire" to concerner?.prixUnit,
+          "quantite" to concerner?.quantite,
+          "prixTotal" to (concerner?.prixUnit!! * concerner.quantite!!),
+          "reduction" to concerner.reduction
+        )
+      }
     return mapOf(
       "vente" to ventes,
       "produits" to produits
     )
   }
 
+  @Transactional
+  fun listerVentes(): List<Map<String, Any?>> {
+    return venteRepository.findAll().map { vente ->
+      mapOf(
+        "netAPayer" to vente.prixTotal as Any?,
+        "reduction" to vente.reduction as Any?,
+        "reference" to vente.reference as Any?,
+        "infoClients" to (vente.user?.let { "${it.nom} (${it.telephone})" } ?: "Aucun client") as Any?,
+        "vendeur" to (vente.employe?.user?.nom ?: "Inconnu") as Any?,
+        "commentaire" to vente.commentaire as Any?,
+        "dateVente" to vente.dateVente as Any?,
+        "actions" to "edit,delete" as Any? // Placeholder for actions
+      )
+    }
+  }
 
+  @Transactional
+  fun listerVentesNonEncaissees(): List<Map<String, Any?>> {
+//      return venteRepository.findByPrixPercuGreaterThan(0.0).map { vente ->
+    return venteRepository.findVentesWithPrixPercuZero().map { vente ->
+      mapOf(
+        "id" to vente.id as Any?,
+        "netAPayer" to vente.prixTotal as Any?,
+        "reduction" to vente.reduction as Any?,
+        "reference" to vente.reference as Any?,
+        "infoClients" to (vente.user?.let { "${it.nom} (${it.telephone})" } ?: "Aucun client") as Any?,
+        "vendeur" to (vente.employe?.user?.nom ?: "Inconnu") as Any?,
+        "commentaire" to vente.commentaire as Any?,
+        "dateVente" to vente.dateVente as Any?,
+        "actions" to "edit,delete" as Any? // Placeholder for actions
+      )
+    }
+  }
+
+  @Transactional
+  fun listerVentesEncaissees(): List<Map<String, Any?>> {
+//      return venteRepository.findByPrixPercuGreaterThan(0.0).map { vente ->
+    return venteRepository.findVentesWithPrixPercu().map { vente ->
+      mapOf(
+        "id" to vente.id as Any?,
+        "prixPercu" to vente.prixPercu as Any?,
+        "netAPayer" to vente.prixTotal as Any?,
+        "reduction" to vente.reduction as Any?,
+        "reference" to vente.reference as Any?,
+        "infoClients" to (vente.user?.let { "${it.nom} (${it.telephone})" } ?: "Aucun client") as Any?,
+        "vendeur" to (vente.employe?.user?.nom ?: "Inconnu") as Any?,
+        "commentaire" to vente.commentaire as Any?,
+        "etat" to vente.etat as Any?,
+        "dateVente" to vente.dateVente as Any?,
+        "dateEncaissement" to vente.dateEncaissement as Any?,
+        "actions" to "edit,delete" as Any? // Placeholder for actions
+      )
+    }
+  }
+
+
+  @Transactional
+  fun chargerVentesEncaisser(venteId: Long): Map<String, Any?> {
+    val ventes = venteRepository.findById(venteId).get()
+    if (ventes.prixPercu == null && ventes.prixPercu!! <= 0) {
+      throw RuntimeException("La vente est déjà encaissée.")
+    }
+    val produits = concernerRepository.findByVente(ventes)
+      .map { concerner ->
+        mapOf(
+          "id" to concerner?.id,
+          "nom" to concerner?.produit?.nom,
+          "prixUnitaire" to concerner?.prixUnit,
+          "quantite" to concerner?.quantite,
+          "prixTotal" to (concerner?.prixUnit!! * concerner.quantite!!),
+          "reduction" to concerner.reduction
+        )
+      }
+
+    val facturation = facturationRepository.findByVente(ventes)
+
+    val montantEspece = when (facturation.typePaiement!!.lowercase()) {
+      Vente.VENTE_TYPE_PAIEMENT_ESPECE.lowercase(), Vente.VENTE_TYPE_PAIEMENT_MIXTE.lowercase() ->
+        factureEspeceRepository.findByFacturationId(facturation.id!!.toLong()).montant ?: 0
+
+      else -> 0
+    }
+
+    val montantElectronique = when (facturation.typePaiement!!.lowercase()) {
+      Vente.VENTE_TYPE_PAIEMENT_ELECTRONIQUE.lowercase(), Vente.VENTE_TYPE_PAIEMENT_MIXTE.lowercase() ->
+        factureElectroniqueRepository.findByFacturationId(facturation.id!!.toLong()).montant ?: 0
+
+      else -> 0
+    }
+
+    val montantTicket = when (facturation.typePaiement!!.lowercase()) {
+      Vente.VENTE_TYPE_PAIEMENT_TICKET.lowercase(), Vente.VENTE_TYPE_PAIEMENT_MIXTE.lowercase() ->
+        factureTicketRepository.findByFacturationId(facturation.id!!.toLong()).montant ?: 0
+
+      else -> 0
+    }
+    return mapOf(
+      "vente" to ventes,
+      "produits" to produits,
+      "montantFacturation" to facturation.montantTtc,
+      "montantEspece" to montantEspece,
+      "montantElectronique" to montantElectronique,
+      "montantTicket" to montantTicket
+    )
+  }
+
+  fun genererReference(num: Int): String {
+    // Get today's date
+    val today = LocalDate.now()
+    val formatter = DateTimeFormatter.ofPattern("yy-MM-dd")
+    val formattedDate = today.format(formatter)
+
+    // Extract year, month, and day
+    val annee = formattedDate.substring(0, 2)
+    val mois = formattedDate.substring(3, 5)
+    val jour = formattedDate.substring(6, 8)
+
+    // Increment the number
+    var numeroRegBig = num + 1
+
+    // Format the number to always have 4 digits
+    val formattedNumeroRegBig = String.format("%04d", numeroRegBig)
+
+    // Generate the reference
+    return "ALS$annee$mois$jour-$formattedNumeroRegBig"
+  }
+
+  fun convertToSimpleString(input: String): String {
+    return Normalizer.normalize(input, Normalizer.Form.NFD)
+      .replace("[\\p{InCombiningDiacriticalMarks}]".toRegex(), "")
+      .lowercase()
+  }
 }

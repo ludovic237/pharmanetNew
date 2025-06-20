@@ -1,5 +1,6 @@
 package com.example.backend.controllers
 
+import com.example.backend.dtos.EncaissementDto
 import com.example.backend.dtos.EncaissementRequestDto
 import com.example.backend.dtos.VenteRequestDto
 import com.example.backend.models.Facturation
@@ -28,9 +29,9 @@ class VenteController(
   @PostMapping("/{venteId}/encaisser")
   fun encaisserVente(
     @PathVariable venteId: Long,
-    @RequestBody encaissementRequestDto: EncaissementRequestDto
+    @RequestBody encaissementRequestDto: EncaissementDto
   ): ResponseEntity<Facturation> {
-    val facturation = venteService.encaisserVente(venteId, encaissementRequestDto)
+    val facturation = venteService.encaisserVente(encaissementRequestDto)
     return ResponseEntity.ok(facturation)
   }
 
@@ -41,4 +42,37 @@ class VenteController(
     val ventesEnCours = venteService.chargerVentesEnCoursNonEncaisser(venteId)
     return ResponseEntity.ok(ventesEnCours)
   }
+
+  @CrossOrigin(origins = ["http://localhost:4200"])
+  @PreAuthorize("isAuthenticated()")
+  @GetMapping("/vente-non-encaissees")
+  fun listerVentesNonEncaissees(): ResponseEntity<List<Map<String, Any?>>> {
+    val ventes = venteService.listerVentesNonEncaissees()
+    return ResponseEntity.ok(ventes)
+  }
+
+  @CrossOrigin(origins = ["http://localhost:4200"])
+  @PreAuthorize("isAuthenticated()")
+  @GetMapping("/lister")
+  fun listerVentes(): ResponseEntity<List<Map<String, Any?>>> {
+    val ventes = venteService.listerVentes()
+    return ResponseEntity.ok(ventes)
+  }
+
+  @CrossOrigin(origins = ["http://localhost:4200"])
+  @PreAuthorize("isAuthenticated()")
+  @GetMapping("/vente-encaissee")
+  fun listerVentesEncaissees(): ResponseEntity<List<Map<String, Any?>>> {
+    val ventes = venteService.listerVentesEncaissees()
+    return ResponseEntity.ok(ventes)
+  }
+
+  @CrossOrigin(origins = ["http://localhost:4200"])
+  @PreAuthorize("isAuthenticated()")
+  @GetMapping("/{venteId}/encaissee")
+  fun chargerVentesEncaisser(@PathVariable venteId: Long): ResponseEntity<Map<String, Any?>> {
+    val ventesEnCours = venteService.chargerVentesEncaisser(venteId)
+    return ResponseEntity.ok(ventesEnCours)
+  }
+
 }
