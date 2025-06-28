@@ -48,6 +48,8 @@ dependencies {
 	testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
 	testImplementation("org.springframework.security:spring-security-test")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+
+  implementation("jakarta.persistence:jakarta.persistence-api:3.1.0")
 }
 
 kotlin {

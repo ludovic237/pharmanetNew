@@ -1,13 +1,16 @@
-
 <div [formGroup]="form" fxLayout="row wrap" class="search-bar">
   <mat-form-field appearance="outline" class="w-40">
-      <input matInput formControlName="searchForm" >
+    <input matInput formControlName="searchForm">
   </mat-form-field>
 
   <button mat-raised-button color="primary" (click)="searchProducts()">Search</button>
 </div>
 <div fxLayout="row wrap">
-  @for (product of products | paginate: {totalItems:totalItems,itemsPerPage: count, currentPage: page}; track $index) {
+  @for (product of products | paginate: {
+    totalItems: totalItems,
+    itemsPerPage: count,
+    currentPage: page
+  }; track $index) {
     <!--<div fxFlex="100" [fxFlex.gt-sm]="viewCol" fxFlex.sm="50" class="p-2">
         <mat-card class="product-item text-center">
             @if (product.discount) {
@@ -49,7 +52,7 @@
         <!--          }-->
         <img [src]="product.image" alt="">
         <h4 class="category text-muted">{{ (categories | filterById : product.categorieNom)?.name }}</h4>
-        <div class="title text-truncate">{{ $index}} {{ product.nom }}</div>
+        <div class="title text-truncate">{{ $index }} {{ product.nom }}</div>
         <div fxLayout="row" fxLayoutAlign="space-between center" class="prices">
           <div fxLayout="column" fxLayoutAlign="center start">
             <p class="old-price text-muted">
@@ -83,15 +86,12 @@
 </div>
 
 <!--@if (products.length) {-->
-  <div fxLayout="row wrap">
-    <div fxFlex="100" class="p-2">
-      <mat-card class="text-center">
-        <pagination-controls
-          class="product-pagination"
-          [autoHide]="false"
-          (pageChange)="onPageChanged($event)">
-        </pagination-controls>
-      </mat-card>
-    </div>
+<div fxLayout="row wrap">
+  <div fxFlex="100" class="p-2">
+    <mat-card class="text-center">
+      <pagination-controls class="product-pagination" [autoHide]="true" [maxSize]="5"
+                           (pageChange)="onPageChanged($event)"></pagination-controls>
+    </mat-card>
   </div>
+</div>
 <!--}-->

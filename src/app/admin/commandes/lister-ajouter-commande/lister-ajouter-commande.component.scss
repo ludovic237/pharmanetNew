@@ -1,0 +1,31 @@
+
+.badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: bold;
+  text-transform: capitalize;
+  color: #fff;
+}
+
+.badge.en-attente {
+  background-color: #ffc107; /* Jaune */
+}
+
+.badge.livree {
+  background-color: #28a745; /* Vert */
+}
+
+.badge.en-cours {
+  background-color: #17a2b8; /* Bleu */
+}
+
+.badge.annuler {
+  background-color: #dc3545; /* Rouge */
+}
+
+.badge.cloturee {
+  background-color: #336eec; /* Rouge */
+}
+

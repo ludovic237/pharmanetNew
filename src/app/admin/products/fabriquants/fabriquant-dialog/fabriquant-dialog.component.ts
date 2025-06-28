@@ -8,7 +8,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { FlexLayoutModule } from '@ngbracket/ngx-layout';
 
 @Component({
-    selector: 'app-forme-dialog',
+    selector: 'app-fabriquant-dialog',
     imports: [
         ReactiveFormsModule,
         MatDialogModule,
@@ -18,7 +18,7 @@ import { FlexLayoutModule } from '@ngbracket/ngx-layout';
         MatButtonModule,
         FlexLayoutModule
     ],
-    templateUrl: './forme-dialog.component.html'
+    templateUrl: './fabriquant-dialog.component.html'
 })
 export class FabriquantDialogComponent implements OnInit {
   public form: FormGroup;
@@ -34,8 +34,8 @@ export class FabriquantDialogComponent implements OnInit {
       parentId: 0
     });
 
-    if (this.data.forme) {
-      this.form.patchValue(this.data.forme);
+    if (this.data.fabriquant) {
+      this.form.patchValue(this.data.fabriquant);
     };
   }
 

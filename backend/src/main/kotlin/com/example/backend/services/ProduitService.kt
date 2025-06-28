@@ -143,10 +143,10 @@ class ProduitService(
       seuil = this.stockMin ?: 0,
       categorieNom = this.categorie?.nom ?: "",
       tva = BigDecimal.ZERO,
-      prixAchatInitial = BigDecimal.ZERO,
-      margeBeneficiaire = BigDecimal.ZERO,
+      prixAchatInitial = this.prixAchat!!.toBigDecimal() ?: BigDecimal.ZERO,
+      prixVenteActuel = this.prixVente!!.toBigDecimal() ?: BigDecimal.ZERO,
+      margeBeneficiaire = this.prixVente!!.toBigDecimal() - this.prixAchat!!.toBigDecimal(),
       prixVenteConseille = BigDecimal.ZERO,
-      prixVenteActuel = BigDecimal.ZERO,
       quantiteTotaleEnStock = this.stock ?: 0,
       dateCreation = this.createdAt,
       dateModification = this.updatedAt,
@@ -433,7 +433,6 @@ class ProduitService(
 
     return retourProduit
   }
-
 
 
 }

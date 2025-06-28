@@ -5,9 +5,16 @@ import com.example.backend.models.Commande
 import com.example.backend.models.EnRayon
 import com.example.backend.models.ProduitCmd
 import com.example.backend.repositories.*
-import jakarta.persistence.EntityNotFoundException
+import com.itextpdf.kernel.pdf.PdfDocument
+import com.itextpdf.kernel.pdf.PdfWriter
+import com.itextpdf.layout.Document
+import com.itextpdf.layout.element.Paragraph
+import com.itextpdf.layout.element.Table
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.io.File
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -23,13 +30,17 @@ class CommandeService(
   private val userRepository: UserRepository
 ) {
 
+  @Transactional
   fun createCommande(request: CommandeRequest): Commande {
     if (request.produits.isEmpty()) {
       throw IllegalArgumentException("La commande doit contenir au moins un produit.")
     }
 
     val quantiteTotale = request.produits.sumOf { it.quantite!! }
+    val quantiteTotaleRecu = request.produits.sumOf { it.quantiteRecu!! }
+    val quantiteTotaleUniteGratuite = request.produits.sumOf { it.uniteGratuite!! }
     val montantTotal = request.produits.sumOf { it.quantite!! * it.prixAchat!! }
+    val montantTotalRecu = request.produits.sumOf { it.quantiteRecu!! * it.prixAchat!! }
 
     val commande = Commande().apply {
       this.employe = employeRepository.findById(request.employeId.toInt())
@@ -57,10 +68,10 @@ class CommandeService(
       }
       this.supprimer = 0
     }
-    commande.montantRecu = 0.0
-    commande.uniteGratuite = 0
+    commande.montantRecu = montantTotalRecu ?: 0.0
+    commande.uniteGratuite = quantiteTotaleUniteGratuite
     commande.qtiteCmd = quantiteTotale
-    commande.qtiteRecu = 0
+    commande.qtiteRecu = quantiteTotaleRecu ?: 0
     var savedCommande = commandeRepository.save(commande)
 
     // Ajout des produits dans la table ProduitCommande
@@ -80,22 +91,52 @@ class CommandeService(
           "cloture" -> produitRequest.quantite
           else -> 0
         }
-        this.qtiteCmd = produitRequest.quantite
-        this.prixAchat = produitRequest.prixAchat
-        this.prixVente = produitRequest.prixVente
-        this.uniteGratuite = 0
+        this.qtiteCmd = produitRequest.quantite ?: 0
+        this.qtiteRecu = produitRequest.quantiteRecu ?: 0
+        this.prixAchat = produitRequest.prixAchat ?: 0.0
+        this.prixVente = produitRequest.prixVente ?: 0.0
+        this.uniteGratuite = produitRequest.uniteGratuite ?: 0
       }
 
+
       produitCommande = produitCmdRepository.save(produitCommande)
-      commande.qtiteCmd = request.produits.sumOf { it.quantite!! }
-      if (request.type.lowercase() == Commande.COMMANDE_LIVREE.lowercase()) {
-        commande.qtiteRecu = request.produits.sumOf { it.quantite!! }
-        updateRayonFromCommande(produitCommande, commande, produitRequest, produitRequest.quantite!!)
+      produitRequest.productCmdId = produitCommande.id?.toLong()
+      produitRequest.productId = produitRequest.id?.toLong()
+
+      savedCommande.qtiteCmd = request.produits.sumOf { it.quantite!! }
+      if (request.type.lowercase() === Commande.COMMANDE_LIVREE.lowercase()) {
+        savedCommande.qtiteRecu = request.produits.sumOf { it.quantite!! }
+        savedCommande = commandeRepository.save(savedCommande)
+        updateRayonFromCommande(
+          produitCommande,
+          savedCommande,
+          produitRequest,
+          (produitRequest.quantite!! + produitRequest.uniteGratuite!! ?: 0)
+        )
+      } else {
+        savedCommande.qtiteRecu = request.produits.sumOf { it.quantiteRecu!! }
+        savedCommande = commandeRepository.save(savedCommande)
+        if ((produitRequest.quantiteRecu!! + produitRequest.uniteGratuite!! ?: 0) > 0) {
+          updateRayonFromCommande(
+            produitCommande,
+            savedCommande,
+            produitRequest,
+            (produitRequest.quantiteRecu!! + produitRequest.uniteGratuite!! ?: 0)
+          )
+        }
       }
+
+    }
+    if (request.type.lowercase() == Commande.COMMANDE_EN_COURS.lowercase()) {
+      savedCommande.montantRecu = savedCommande.montantCmd
+      savedCommande.qtiteRecu = savedCommande.qtiteRecu
+      savedCommande.uniteGratuite = savedCommande.uniteGratuite
+      savedCommande = commandeRepository.save(savedCommande)
     }
     if (request.type.lowercase() == Commande.COMMANDE_LIVREE.lowercase()) {
       savedCommande.montantRecu = savedCommande.montantCmd
       savedCommande.qtiteRecu = savedCommande.qtiteCmd
+      savedCommande.uniteGratuite = savedCommande.uniteGratuite
       savedCommande = commandeRepository.save(savedCommande)
     }
     return savedCommande
@@ -126,19 +167,6 @@ class CommandeService(
     return commandeRepository.save(commande)
   }
 
-  fun mettreEnCoursCommande(commandeId: Long): Commande {
-    val commande = commandeRepository.findById(commandeId)
-      .orElseThrow { IllegalArgumentException("Commande non trouvée avec l'ID fourni.") }
-    commande.etat = Commande.COMMANDE_EN_COURS
-    return commandeRepository.save(commande)
-  }
-
-  fun mettreEnAttenteCommande(commandeId: Long): Commande {
-    val commande = commandeRepository.findById(commandeId)
-      .orElseThrow { IllegalArgumentException("Commande non trouvée avec l'ID fourni.") }
-    commande.etat = Commande.COMMANDE_EN_ATTENTE
-    return commandeRepository.save(commande)
-  }
 
   @Transactional
   fun receptionnerCommande(commandeId: Long, receptionType: String, productCmdList: List<ProduitCmdRequest>): Commande {
@@ -151,13 +179,12 @@ class CommandeService(
         Commande.COMMANDE_RECEPTION_TYPE_ANNULER.toLowerCase() -> handleCancellation(commande)
         else -> throw IllegalArgumentException("Type de réception invalide: $receptionType")
       }
-    }
-    else if (commande.etat == Commande.COMMANDE_LIVREE ||
+    } else if (commande.etat == Commande.COMMANDE_LIVREE ||
       commande.etat == Commande.COMMANDE_EN_COURS ||
-      commande.etat == Commande.COMMANDE_EN_ATTENTE) {
+      commande.etat == Commande.COMMANDE_EN_ATTENTE
+    ) {
       handleCancellation(commande)
-    }
-    else {
+    } else {
       throw IllegalArgumentException("La commande doit être en cours ou en attente pour la réception.")
     }
     return commandeRepository.save(commande)
@@ -193,6 +220,7 @@ class CommandeService(
     commande: Commande
   ): Pair<Double, Int> {
     var totalQuantiteRecu = commande.qtiteRecu ?: 0
+    val totalUniteGratuite = productCmdList?.sumOf { it.uniteGratuite ?: 0 } ?: 0
     var totalMontantRecu = commande.montantRecu ?: 0.0
     if (receptionType == Commande.COMMANDE_RECEPTION_TYPE_COMPLETE) {
       productCmdList?.forEach { produitCmd ->
@@ -209,7 +237,7 @@ class CommandeService(
         produitCmdRepository.save(produitCmdData)
 
         updateRayonFromCommande(produitCmdData, commande, produitCmd, produitCmdData.qtiteRecu!!.toInt())
-        updateProduitStock(produitCmd.productId.toLong(), produitCmdData.qtiteRecu!!)
+        updateProduitStock(produitCmd.productId!!.toLong(), produitCmdData.qtiteRecu!!)
       }
       commande.montantRecu = totalMontantRecu
       commande.montantCmd = totalMontantRecu
@@ -218,25 +246,31 @@ class CommandeService(
       totalQuantiteRecu = 0
       totalMontantRecu = 0.0
       productCmdList?.forEach { produitCmd ->
-        val produitCmdEntity = produitCmdRepository.findById(produitCmd.id!!.toInt()).get()
+        var produit = produitRepository.findById(produitCmd.productId!!.toInt())
+          .orElseThrow { IllegalArgumentException("Produit non trouvé avec l'ID: ${produitCmd.productId}") }
+        val produitCmdEntity = produitCmdRepository.findByCommandeAndProduit(commande, produit)
           ?: createNewProduitCmd(produitCmd, commande)
-
+        produitCmdEntity.uniteGratuite = produitCmdEntity.uniteGratuite ?: 0 + produitCmd.uniteGratuite!! ?: 0
         produitCmdEntity.qtiteRecu = produitCmdEntity.qtiteRecu?.plus(produitCmd.quantite!!)
-        if (produitCmdEntity.qtiteRecu !! > produitCmdEntity.qtiteCmd!!) {
+        if (produitCmdEntity.qtiteRecu!! > produitCmdEntity.qtiteCmd!!) {
           throw IllegalArgumentException("La quantité à recevoir ne peut pas dépasser la quantité commandée.")
         }
-        totalQuantiteRecu += produitCmdEntity.qtiteRecu?.toInt() ?: 0
+
+        totalQuantiteRecu = produitCmdEntity.qtiteRecu?.toInt() ?: 0+ produitCmd.quantite?.toInt()!! ?: 0
         totalMontantRecu += produitCmdEntity.qtiteRecu?.toInt()!! * produitCmdEntity.prixAchat!!
 
         produitCmdRepository.save(produitCmdEntity)
 
-        updateRayonFromCommande(produitCmdEntity, commande, produitCmd, produitCmd.quantite?.toInt() ?: 0)
-        updateProduitStock(produitCmd.productId!!, produitCmd.quantite?.toInt() ?: 0)
+        updateRayonFromCommande(
+          produitCmdEntity, commande, produitCmd, produitCmd.quantite!! + produitCmd.uniteGratuite?.toInt()!!
+            ?: 0
+        )
+        updateProduitStock(produitCmd.productId!!, produitCmd.quantite!! + produitCmd.uniteGratuite?.toInt()!! ?: 0)
       }
     }
-
-    commande.qtiteRecu =  produitCmdRepository.findByCommandeId(commande.id!!).sumOf { it.qtiteRecu ?: 0 }
-    totalQuantiteRecu = commande.qtiteRecu ?: 0
+    commande.uniteGratuite =  commande.uniteGratuite!! + totalUniteGratuite
+    commande.qtiteRecu = produitCmdRepository.findByCommandeId(commande.id!!).sumOf { it.qtiteRecu ?: 0 }
+    totalQuantiteRecu = (commande.qtiteRecu ?: 0) + (totalUniteGratuite ?: 0)
     if (totalQuantiteRecu == commande.qtiteCmd) {
       commande.etat = Commande.COMMANDE_LIVREE
       commande.dateLivraison = LocalDateTime.now()
@@ -287,7 +321,8 @@ class CommandeService(
         this.reduction = 0
         this.fournisseur = commande.fournisseur
         this.dateLivraison = commande.dateLivraison ?: LocalDateTime.now()
-        this.datePeremption = produitCmd.datePeremption?.plusDays(30) ?: LocalDateTime.now().plusDays(30)
+        this.datePeremption = produitCmd.dateDePeremption ?: LocalDateTime.now().plusDays(30)
+//        this.datePeremption = produitCmd.datePeremption?.plusDays(30) ?: LocalDateTime.now().plusDays(30)
         this.prixAchat = produitCmdEntity.prixAchat?.toInt() ?: produitCmdEntity.produit?.prixAchat?.toInt() ?: 0
         this.prixVente = produitCmdEntity.prixVente?.toInt() ?: produitCmdEntity.produit?.prixVente?.toInt() ?: 0
         this.quantite = quantiteARecevoir
@@ -319,16 +354,48 @@ class CommandeService(
 
 
   fun getAllCommandesMapped(): List<Map<String, Any?>> {
-    return commandeRepository.findAll().map { commande ->
-      mapOf(
-        "id" to commande.id,
-        "dateCreation" to commande.dateCreation,
-        "etat" to commande.etat,
-        "qtiteCmd" to commande.qtiteCmd,
-        "montantCmd" to commande.montantCmd
-      )
-    }
+    return commandeRepository.findAll()
+      .sortedByDescending { it.dateCreation }
+      .map { commande ->
+        mapOf(
+          "id" to commande.id,
+          "ref" to commande.ref,
+          "dateCreation" to commande.dateCreation,
+          "etat" to commande.etat,
+          "qtiteCmd" to commande.qtiteCmd,
+          "qtiteRecu" to commande.qtiteRecu,
+          "montantRecu" to commande.montantRecu,
+          "uniteGratuite" to commande.uniteGratuite,
+          "fournisseur" to commande.fournisseur!!.nom,
+          "montantCmd" to commande.montantCmd
+        )
+      }
   }
+
+fun getAllCommandesMappedPageable(
+    pageable: Pageable,
+    etat: String?,
+    fournisseurId: String?,
+    startDate: String?,
+    endDate: String?
+): Page<Map<String, Any?>> {
+    val specification = CommandeRepository.filterCommandes(etat, fournisseurId, startDate, endDate)
+    return commandeRepository.findAll(specification, pageable)
+      .map { commande ->
+        mapOf(
+          "id" to commande.id,
+          "ref" to commande.ref,
+          "dateCreation" to commande.dateCreation,
+          "etat" to commande.etat,
+          "qtiteCmd" to commande.qtiteCmd,
+          "qtiteRecu" to commande.qtiteRecu,
+          "montantRecu" to commande.montantRecu,
+          "uniteGratuite" to commande.uniteGratuite,
+          "fournisseur" to commande.fournisseur!!.nom,
+          "montantCmd" to commande.montantCmd
+        )
+      }
+}
 
   fun getCommandeById(commandeId: Long): Map<String, Any?> {
     val commande = commandeRepository.findById(commandeId)
@@ -336,19 +403,29 @@ class CommandeService(
 
     val produits = produitCmdRepository.findByCommandeId(commandeId).map { produitCmd ->
       mapOf(
-        "produitId" to (produitCmd.produit?.id as? Long ?: 0L),
-        "quantite" to (produitCmd.qtiteRecu ?: 0),
+        "produit" to (produitCmd.produit),
+        "prixAchat" to (produitCmd.prixAchat ?: 0),
+        "prixVente" to (produitCmd.prixVente ?: 0),
+        "qtiteRecu" to (produitCmd.qtiteRecu ?: 0),
+        "uniteGratuite" to (produitCmd.uniteGratuite ?: 0),
+        "qtiteCmd" to (produitCmd.qtiteCmd ?: 0),
         "prixUnitaire" to (produitCmd.puRecept ?: 0.0)
       )
+
     }
 
     return mapOf(
       "id" to commande.id,
       "dateCreation" to commande.dateCreation.toString(),
       "dateLivraison" to commande.dateLivraison?.toString(),
-      "fournisseurId" to commande.fournisseur?.id,
+      "fournisseur" to commande.fournisseur,
       "produits" to produits,
+      "reference" to commande.ref,
+      "etat" to commande.etat,
       "montantTotal" to commande.montantCmd,
+      "qtiteRecu" to commande.qtiteRecu,
+      "qtiteCmd" to commande.qtiteCmd,
+      "uniteGratuite" to commande.uniteGratuite,
       "etat" to commande.etat,
       "note" to commande.note
     )
@@ -373,6 +450,262 @@ class CommandeService(
 
     // Generate the reference
     return "ALS$annee${mois}COM$formattedNumeroRegBig"
+  }
+
+  fun mettreEnAttenteCommande(commandeId: Long): Commande {
+    val commande = commandeRepository.findById(commandeId)
+      .orElseThrow { IllegalArgumentException("Commande non trouvée avec l'ID fourni.") }
+    commande.etat = Commande.COMMANDE_EN_ATTENTE
+    return commandeRepository.save(commande)
+  }
+
+  fun mettreEnCoursCommande(commandeId: Long): Commande {
+    val commande = commandeRepository.findById(commandeId)
+      .orElseThrow { IllegalArgumentException("Commande non trouvée avec l'ID fourni.") }
+    commande.etat = Commande.COMMANDE_EN_COURS
+    return commandeRepository.save(commande)
+  }
+
+
+  @Transactional
+  fun modifierLignesCommande(commandeId: Long, produits: List<ProduitCmdRequest>): Commande {
+    val commande = commandeRepository.findById(commandeId)
+      .orElseThrow { IllegalArgumentException("Commande non trouvée avec l'ID fourni.") }
+    if (commande.etat != Commande.COMMANDE_EN_ATTENTE) {
+      throw IllegalStateException("Modification des lignes non autorisée pour les commandes avec l'état: ${commande.etat}")
+    }
+    produits.forEach { produitRequest ->
+      val produitCmd = produitCmdRepository.findByCommandeAndProduit(
+        commande,
+        produitRepository.findById(produitRequest.id!!.toInt())
+          .orElseThrow { IllegalArgumentException("Produit non trouvé avec l'ID fourni.") }
+      ) ?: ProduitCmd().apply {
+        this.commande = commande
+        this.produit = produitRepository.findById(produitRequest.id!!.toInt()).get()
+      }
+      produitCmd.qtiteCmd = produitRequest.quantite
+      produitCmd.prixAchat = produitRequest.prixAchat
+      produitCmdRepository.save(produitCmd)
+    }
+    return commande
+  }
+
+  fun supprimerCommande(commandeId: Long) {
+    val commande = commandeRepository.findById(commandeId)
+      .orElseThrow { IllegalArgumentException("Commande non trouvée avec l'ID fourni.") }
+    if (commande.etat != Commande.COMMANDE_EN_ATTENTE) {
+      throw IllegalStateException("Suppression non autorisée pour les commandes avec l'état: ${commande.etat}")
+    }
+    commande.supprimer = 1
+    commandeRepository.save(commande)
+//    commandeRepository.delete(commande)
+  }
+
+  fun ajouterFournisseur(commandeId: Long, fournisseurId: Long): Commande {
+    val commande = commandeRepository.findById(commandeId)
+      .orElseThrow { IllegalArgumentException("Commande non trouvée avec l'ID fourni.") }
+    if (commande.etat != Commande.COMMANDE_EN_ATTENTE) {
+      throw IllegalStateException("Ajout de fournisseur non autorisé pour les commandes avec l'état: ${commande.etat}")
+    }
+    val fournisseur = fournisseurRepository.findById(fournisseurId.toInt())
+      .orElseThrow { IllegalArgumentException("Fournisseur non trouvé avec l'ID fourni.") }
+    commande.fournisseur = fournisseur
+    return commandeRepository.save(commande)
+  }
+
+  fun ajouterJustificatif(commandeId: Long, justificatif: String): Commande {
+    val commande = commandeRepository.findById(commandeId)
+      .orElseThrow { IllegalArgumentException("Commande non trouvée avec l'ID fourni.") }
+    if (commande.etat != Commande.COMMANDE_EN_COURS) {
+      throw IllegalStateException("Ajout de justificatif non autorisé pour les commandes avec l'état: ${commande.etat}")
+    }
+    commande.note = justificatif
+    return commandeRepository.save(commande)
+  }
+
+  fun cloturerCommande(commandeId: Long): Commande {
+    val commande = commandeRepository.findById(commandeId)
+      .orElseThrow { IllegalArgumentException("Commande non trouvée avec l'ID fourni.") }
+    if (commande.etat != Commande.COMMANDE_LIVREE && commande.etat != Commande.COMMANDE_EN_COURS) {
+      throw IllegalStateException("Clôture non autorisée pour les commandes avec l'état: ${commande.etat}")
+    }
+    commande.etat = Commande.COMMANDE_CLOTUREE
+    return commandeRepository.save(commande)
+  }
+
+  fun ajouterMotifAnnulation(commandeId: Long, motif: String): Commande {
+    val commande = commandeRepository.findById(commandeId)
+      .orElseThrow { IllegalArgumentException("Commande non trouvée avec l'ID fourni.") }
+    if (commande.etat != Commande.COMMANDE_ANNULER) {
+      throw IllegalStateException("Ajout de motif d'annulation non autorisé pour les commandes avec l'état: ${commande.etat}")
+    }
+    commande.note = motif
+    return commandeRepository.save(commande)
+  }
+
+  fun imprimerBonPdf(commandeId: Long, outputPath: String) {
+    val commande = commandeRepository.findById(commandeId)
+      .orElseThrow { IllegalArgumentException("Commande non trouvée avec l'ID fourni.") }
+
+    if (commande.etat != Commande.COMMANDE_EN_ATTENTE) {
+      throw IllegalStateException("Impression du bon non autorisée pour les commandes avec l'état: ${commande.etat}")
+    }
+
+    val produits = produitCmdRepository.findByCommandeId(commandeId).map { produitCmd ->
+      mapOf(
+        "Produit" to produitCmd.produit?.nom,
+        "Quantité commandée" to produitCmd.qtiteCmd,
+        "Prix unitaire" to produitCmd.prixAchat
+      )
+    }
+
+    val file = File(outputPath)
+    val pdfWriter = PdfWriter(file)
+    val pdfDocument = PdfDocument(pdfWriter)
+    val document = Document(pdfDocument)
+
+    document.add(Paragraph("Bon de commande").setFontSize(18f).setBold())
+    document.add(Paragraph("Référence commande: ${commande.ref}"))
+    document.add(Paragraph("Date de création: ${commande.dateCreation}"))
+    document.add(Paragraph("Montant total: ${commande.montantCmd}"))
+    document.add(Paragraph("\nProduits:"))
+
+    val table = Table(3)
+    table.addCell("Produit")
+    table.addCell("Quantité commandée")
+    table.addCell("Prix unitaire")
+
+    produits.forEach { produit ->
+      table.addCell(produit["Produit"].toString())
+      table.addCell(produit["Quantité commandée"].toString())
+      table.addCell(produit["Prix unitaire"].toString())
+    }
+
+    document.add(table)
+    document.close()
+
+    println("PDF généré avec succès: ${file.absolutePath}")
+  }
+
+  @Transactional
+  fun receptionComplementaire(commandeId: Long, produits: List<ProduitCmdRequest>): Commande {
+    val commande = commandeRepository.findById(commandeId)
+      .orElseThrow { IllegalArgumentException("Commande non trouvée avec l'ID fourni.") }
+
+    if (commande.etat != Commande.COMMANDE_EN_COURS) {
+      throw IllegalStateException("Réception complémentaire non autorisée pour les commandes avec l'état: ${commande.etat}")
+    }
+
+    produits.forEach { produitRequest ->
+      val produitCmd = produitCmdRepository.findByCommandeAndProduit(
+        commande,
+        produitRepository.findById(produitRequest.id!!.toInt())
+          .orElseThrow { IllegalArgumentException("Produit non trouvé avec l'ID fourni.") }
+      ) ?: throw IllegalArgumentException("Produit non trouvé dans la commande.")
+
+      produitCmd.qtiteRecu = (produitCmd.qtiteRecu ?: 0) + produitRequest.quantite!!
+      if (produitCmd.qtiteRecu!! > produitCmd.qtiteCmd!!) {
+        throw IllegalArgumentException("La quantité reçue ne peut pas dépasser la quantité commandée.")
+      }
+
+      produitCmdRepository.save(produitCmd)
+
+      // Update stock
+      val produit = produitCmd.produit!!
+      produit.stock = (produit.stock ?: 0) + produitRequest.quantite!!
+      produitRepository.save(produit)
+    }
+
+    commande.qtiteRecu = produitCmdRepository.findByCommandeId(commande.id!!).sumOf { it.qtiteRecu ?: 0 }
+    commande.montantRecu = produitCmdRepository.findByCommandeId(commande.id!!).sumOf {
+      (it.qtiteRecu ?: 0) * (it.prixAchat ?: 0.0)
+    }
+
+    return commandeRepository.save(commande)
+  }
+
+  fun visualiserHistoriqueReception(commandeId: Long): List<Map<String, Any?>> {
+    val commande = commandeRepository.findById(commandeId)
+      .orElseThrow { IllegalArgumentException("Commande non trouvée avec l'ID fourni.") }
+
+    if (commande.etat != Commande.COMMANDE_EN_COURS) {
+      throw IllegalStateException("Visualisation de l'historique non autorisée pour les commandes avec l'état: ${commande.etat}")
+    }
+
+    return produitCmdRepository.findByCommandeId(commandeId).map { produitCmd ->
+      mapOf(
+        "produit" to produitCmd.produit?.nom,
+        "quantiteRecu" to produitCmd.qtiteRecu,
+        "dateReception" to commande.dateLivraison
+      )
+    }
+  }
+
+  fun ajouterFacture(commandeId: Long, facture: String): Commande {
+    val commande = commandeRepository.findById(commandeId)
+      .orElseThrow { IllegalArgumentException("Commande non trouvée avec l'ID fourni.") }
+
+    if (commande.etat != Commande.COMMANDE_LIVREE) {
+      throw IllegalStateException("Ajout de facture non autorisé pour les commandes avec l'état: ${commande.etat}")
+    }
+
+    commande.note = facture
+    return commandeRepository.save(commande)
+  }
+
+  fun genererRapportLivraison(commandeId: Long): String {
+    val commande = commandeRepository.findById(commandeId)
+      .orElseThrow { IllegalArgumentException("Commande non trouvée avec l'ID fourni.") }
+
+    if (commande.etat != Commande.COMMANDE_LIVREE) {
+      throw IllegalStateException("Génération de rapport non autorisée pour les commandes avec l'état: ${commande.etat}")
+    }
+
+    val produits = produitCmdRepository.findByCommandeId(commandeId).map { produitCmd ->
+      "Produit: ${produitCmd.produit?.nom}, Quantité reçue: ${produitCmd.qtiteRecu}, Prix unitaire: ${produitCmd.prixAchat}"
+    }
+
+    val rapport = """
+          Rapport de livraison
+          ---------------------
+          Référence commande: ${commande.ref}
+          Date de livraison: ${commande.dateLivraison}
+          Produits:
+          ${produits.joinToString("\n")}
+          Montant total reçu: ${commande.montantRecu}
+      """.trimIndent()
+
+    return rapport
+  }
+
+  fun exporterCommande(commandeId: Long): String {
+    val commande = commandeRepository.findById(commandeId)
+      .orElseThrow { IllegalArgumentException("Commande non trouvée avec l'ID fourni.") }
+
+    if (commande.etat != Commande.COMMANDE_CLOTUREE) {
+      throw IllegalStateException("Exportation non autorisée pour les commandes avec l'état: ${commande.etat}")
+    }
+
+    val produits = produitCmdRepository.findByCommandeId(commandeId).map { produitCmd ->
+      mapOf(
+        "Produit" to produitCmd.produit?.nom,
+        "Quantité commandée" to produitCmd.qtiteCmd,
+        "Quantité reçue" to produitCmd.qtiteRecu,
+        "Prix achat" to produitCmd.prixAchat,
+        "Prix vente" to produitCmd.prixVente
+      )
+    }
+
+    val exportData = mapOf(
+      "Référence commande" to commande.ref,
+      "Date création" to commande.dateCreation,
+      "Date clôture" to commande.dateLivraison,
+      "Montant total" to commande.montantCmd,
+      "Produits" to produits
+    )
+
+    // Convert exportData to JSON or CSV format (example: JSON)
+    return exportData.toString() // Replace with actual export logic
   }
 
 }

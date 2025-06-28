@@ -1,0 +1,106 @@
+<mat-toolbar color="primary">
+  <div fxLayout="row" fxLayoutAlign="space-between center" class="user-info">
+    <h2>Gestion des Bons de Caisse</h2>
+  </div>
+</mat-toolbar>
+
+<mat-tab-group [(selectedIndex)]="selectedTabIndex">
+  <!-- Tab 1: Lister Bon -->
+  <!-- Tab 1: Lister Bon -->
+  <mat-tab label="Liste des Bons">
+    <div class="p-2">
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>Liste des Bons de Caisse</mat-card-title>
+          <mat-card-subtitle>Consultez les bons de caisse disponibles</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <table mat-table [dataSource]="bons" class="full-width">
+            <ng-container matColumnDef="id">
+              <th mat-header-cell *matHeaderCellDef>ID</th>
+              <td mat-cell *matCellDef="let bon">{{ bon.id }}</td>
+            </ng-container>
+            <ng-container matColumnDef="nomClient">
+              <th mat-header-cell *matHeaderCellDef>Nom du Client</th>
+              <td mat-cell *matCellDef="let bon">{{ bon.nomClient }}</td>
+            </ng-container>
+            <ng-container matColumnDef="codebarreId">
+              <th mat-header-cell *matHeaderCellDef>Code barre</th>
+              <td mat-cell *matCellDef="let bon">{{ bon.codebarreId }}</td>
+            </ng-container>
+            <ng-container matColumnDef="dateGenerer">
+              <th mat-header-cell *matHeaderCellDef>Generer le</th>
+              <td mat-cell *matCellDef="let bon">{{ bon.dateGenerer | date:'yyyy MM dd HH:mm' }}</td>
+            </ng-container>
+            <ng-container matColumnDef="dateEncaisser">
+              <th mat-header-cell *matHeaderCellDef>Encaisser le</th>
+              <td mat-cell *matCellDef="let bon">{{ bon.dateEncaisser | date:'yyyy MM dd HH:mm'  }}</td>
+            </ng-container>
+            <ng-container matColumnDef="type">
+              <th mat-header-cell *matHeaderCellDef>Type</th>
+              <td mat-cell *matCellDef="let bon">{{ bon.type }}</td>
+            </ng-container>
+            <ng-container matColumnDef="montant">
+              <th mat-header-cell *matHeaderCellDef>Montant</th>
+              <td mat-cell *matCellDef="let bon">{{ bon.montant | currency:'XAF' }}</td>
+            </ng-container>
+            <ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef>Actions</th>
+              <td mat-cell *matCellDef="let bon">
+               <button mat-raised-button color="primary" [disabled]="bon.dateEncaisser != null" (click)="encaisserBon(bon.codebarreId)">
+                 Encaisser
+               </button>
+              </td>
+            </ng-container>
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+          </table>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </mat-tab>
+
+  <!-- Tab 2: Encaisser Bon -->
+  <mat-tab label="Encaisser un Bon">
+    <div class="p-2">
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>Encaisser un Bon de Caisse</mat-card-title>
+          <mat-card-subtitle>Validez un bon de caisse en entrant son code</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Code du Bon</mat-label>
+            <input matInput [(ngModel)]="codeBon" placeholder="Entrez le code du bon"/>
+          </mat-form-field>
+          <button mat-raised-button color="primary" (click)="encaisserBon(codeBon)">Valider</button>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </mat-tab>
+
+  <!-- Tab 3: Créer Bon -->
+  <mat-tab label="Créer un Bon">
+    <div class="p-2">
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>Créer un Nouveau Bon de Caisse</mat-card-title>
+          <mat-card-subtitle>Remplissez les informations pour générer un bon</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <form [formGroup]="bonForm" (ngSubmit)="creerBon()">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>Nom du Client</mat-label>
+              <input matInput formControlName="nomClient" placeholder="Entrez le nom du client"/>
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>Montant</mat-label>
+              <input matInput type="number" formControlName="montant" placeholder="Entrez le montant"/>
+            </mat-form-field>
+            <button mat-raised-button color="primary" type="submit" [disabled]="bonForm.invalid">Créer</button>
+          </form>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </mat-tab>
+</mat-tab-group>

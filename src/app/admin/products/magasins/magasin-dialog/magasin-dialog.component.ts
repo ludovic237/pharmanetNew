@@ -8,7 +8,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { FlexLayoutModule } from '@ngbracket/ngx-layout';
 
 @Component({
-    selector: 'app-forme-dialog',
+    selector: 'app-magasin-dialog',
     imports: [
         ReactiveFormsModule,
         MatDialogModule,
@@ -16,9 +16,9 @@ import { FlexLayoutModule } from '@ngbracket/ngx-layout';
         MatSelectModule,
         MatCheckboxModule,
         MatButtonModule,
-        FlexLayoutModule
+        FlexLayoutModule 
     ],
-    templateUrl: './forme-dialog.component.html'
+    templateUrl: './magasin-dialog.component.html'
 })
 export class MagasinDialogComponent implements OnInit {
   public form: FormGroup;
@@ -34,8 +34,8 @@ export class MagasinDialogComponent implements OnInit {
       parentId: 0
     });
 
-    if (this.data.forme) {
-      this.form.patchValue(this.data.forme);
+    if (this.data.magasin) {
+      this.form.patchValue(this.data.magasin);
     };
   }
 

@@ -19,6 +19,10 @@ export const routes: Routes = [
                 loadChildren: () => import('./sales/sales.routes').then(p => p.routes)
             },
             {
+                path: 'commandes',
+                loadChildren: () => import('./commandes/commandes.routes').then(p => p.routes)
+            },
+            {
                 path: 'users',
                 loadComponent: () => import('./users/users.component').then(c => c.UsersComponent),
                 data: { breadcrumb: 'Users' }

@@ -1,8 +1,6 @@
 package com.example.backend.dtos
 
 import com.fasterxml.jackson.annotation.JsonFormat
-import java.math.BigDecimal
-import java.time.LocalDate
 import java.time.LocalDateTime
 
 data class CommandeDTO(
@@ -32,13 +30,15 @@ data class CommandeRequest(
 
 
 data class ProduitCmdRequest(
-  val productId: Long?,
-  val productCmdId: Long?,
+  var productId: Long?,
+  var productCmdId: Long?,
   val id: Long?,
   val nom: String?,
-  val quantite: Int?,
+  val quantite: Int?=0,
+  val quantiteRecu: Int?=0,
+  val uniteGratuite: Int?=0,
   @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-  val datePeremption: LocalDateTime?,
+  val dateDePeremption: LocalDateTime?,
   val prixUnitaire: Double?,
   val prixVente: Double?,
   val prixAchat: Double?,

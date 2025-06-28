@@ -37,7 +37,6 @@ import {MatCheckboxModule} from "@angular/material/checkbox";
     MatCheckboxModule,
     MatButtonModule,
     FormsModule,
-    RatingComponent,
     NgxPaginationModule,
     PipesModule,
     DecimalPipe
