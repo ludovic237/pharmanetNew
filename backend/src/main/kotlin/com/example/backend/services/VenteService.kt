@@ -6,6 +6,8 @@ import com.example.backend.dtos.VenteRequestDto
 import com.example.backend.models.*
 import com.example.backend.repositories.*
 import com.example.backend.utility.UserUtils
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.text.Normalizer
@@ -48,7 +50,7 @@ class VenteService(
 
     // Handle client
     val client = when (venteRequestDto.clientInfo.type) {
-      "existing" -> userRepository.findById(venteRequestDto.clientInfo.id.toLong())
+      "existing" -> userRepository.findById(venteRequestDto.clientInfo.id!!.toLong())
         .orElseThrow { RuntimeException("Client introuvable avec l'ID: ${venteRequestDto.clientInfo.id}") }
 
       "new" -> User().apply {
@@ -64,7 +66,7 @@ class VenteService(
 
     // Handle prescriber
     val prescripteur = when (venteRequestDto.prescripteurInfo.type) {
-      "existing" -> prescripteurRepository.findById(venteRequestDto.prescripteurInfo.id)
+      "existing" -> prescripteurRepository.findById(venteRequestDto.prescripteurInfo.id!!)
         .orElseThrow { RuntimeException("Prescripteur introuvable avec l'ID: ${venteRequestDto.prescripteurInfo.id}") }
 
       "new" -> Prescripteur().apply {
@@ -225,7 +227,7 @@ class VenteService(
     facturation = facturationRepository.save(facturation)
 
     when (encaissementDto.typeEncaissement.toLowerCase()) {
-      Vente.VENTE_TYPE_PAIEMENT_ESPECE -> {
+      Vente.VENTE_TYPE_PAIEMENT_ESPECE.toLowerCase() -> {
         encaissementDto.espece?.let { montantEspece ->
           val factureEspece = FactureEspece().apply {
             this.facturationId = facturation.id?.toLong()
@@ -317,6 +319,23 @@ class VenteService(
     )
   }
 
+  fun supprimerVente(venteId: Long): Map<String, Any?> {
+    val ventes = venteRepository.findById(venteId).get()
+    if (ventes.supprimer == 1) {
+      throw RuntimeException("La vente est déjà supprimée.")
+    }
+    ventes.supprimer = 1
+    venteRepository.save(ventes)
+    var concernerListe = concernerRepository.findByVente(ventes)
+    concernerListe.forEach { concerner ->
+      concerner!!.supprimer = 1
+      concernerRepository.save(concerner)
+    }
+    return mapOf(
+      "message" to "vente supprimée avec succès"
+    )
+  }
+
   @Transactional
   fun listerVentes(): List<Map<String, Any?>> {
     return venteRepository.findAll().map { vente ->
@@ -328,6 +347,51 @@ class VenteService(
         "vendeur" to (vente.employe?.user?.nom ?: "Inconnu") as Any?,
         "commentaire" to vente.commentaire as Any?,
         "dateVente" to vente.dateVente as Any?,
+        "actions" to "edit,delete" as Any? // Placeholder for actions
+      )
+    }
+  }
+
+
+  fun listerVentesPageable(
+    pageable: Pageable,
+    etat: String?,
+    dateVente: String?,
+    dateEncaissement: String?,
+    userId: String?,
+    employeId: String?,
+    prescripteurId: String?,
+    caisseId: String?
+  ): Page<Map<String, Any?>> {
+    val spec = VenteRepository.filterVentes(
+      etat, dateVente, dateEncaissement, userId, employeId, prescripteurId, caisseId
+    )
+    return venteRepository.findAll(spec, pageable).map { vente ->
+      val produits = concernerRepository.findByVente(vente).map { concerner ->
+        mapOf(
+          "id" to concerner!!.id,
+          "nom" to concerner!!.produit?.nom,
+          "produitId" to concerner!!.produit?.id,
+          "quantite" to concerner!!.quantite,
+          "prixUnitaire" to concerner!!.prixUnit,
+          "reduction" to concerner!!.reduction,
+          "prixTotal" to (concerner!!.prixUnit!! * concerner!!.quantite!!)
+        )
+      }
+
+      mapOf(
+        "id" to vente.id as Any?,
+        "prixPercu" to vente.prixPercu as Any?,
+        "netAPayer" to vente.prixTotal as Any?,
+        "reduction" to vente.reduction as Any?,
+        "reference" to vente.reference as Any?,
+        "infoClients" to (vente.user?.let { "${it.nom} (${it.telephone})" } ?: "Aucun client") as Any?,
+        "vendeur" to (vente.employe?.user?.nom ?: "Inconnu") as Any?,
+        "commentaire" to vente.commentaire as Any?,
+        "etat" to vente.etat as Any?,
+        "dateVente" to vente.dateVente as Any?,
+        "dateEncaissement" to vente.dateEncaissement as Any?,
+        "produits" to produits,
         "actions" to "edit,delete" as Any? // Placeholder for actions
       )
     }
@@ -442,6 +506,28 @@ class VenteService(
 
     // Generate the reference
     return "ALS$annee$mois$jour-$formattedNumeroRegBig"
+  }
+
+  fun getVenteDetailsByReference(reference: String): Map<String, Any?> {
+    val vente: Vente = venteRepository.findByReferenceAndSupprimer(reference, 0)
+      ?: throw IllegalArgumentException("Vente not found with reference: $reference")
+
+    val produits: List<Map<String, Any?>> = concernerRepository.findByVente(vente).map { concerner ->
+      mapOf(
+        "id" to concerner!!.id,
+        "nom" to concerner!!.produit?.nom,
+        "produitId" to concerner!!.produit?.id,
+        "rayonId" to concerner!!.enRayon?.id,
+        "quantite" to concerner!!.quantite,
+        "prixUnitaire" to concerner!!.prixUnit,
+        "reduction" to concerner!!.reduction,
+        "prixTotal" to (concerner!!.prixUnit!! * concerner.quantite!!)
+      )
+    }
+    return mapOf(
+      "vente" to vente,
+      "produits" to produits
+    )
   }
 
   fun convertToSimpleString(input: String): String {

@@ -81,4 +81,6 @@ import { Injectable } from '@angular/core';
     getRayons(): Observable<any[]> {
       return this.http.get<any[]>(`${this.baseUrl}/rayons`, {headers: this.getHeaders()});
     }
+
+
   }

@@ -1,6 +1,8 @@
 package com.example.backend.utility
 
+import com.example.backend.models.Caisse
 import com.example.backend.models.User // Your entity
+import com.example.backend.repositories.CaisseRepository
 import com.example.backend.repositories.UserRepository // Import UserRepository
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.userdetails.UserDetails // Import UserDetails
@@ -8,7 +10,8 @@ import org.springframework.stereotype.Component
 
 @Component
 class UserUtils(
-  private val userRepository: UserRepository // Inject UserRepository
+  private val userRepository: UserRepository, // Inject UserRepository,
+  private val caisseRepository: CaisseRepository // Inject UserRepository
 ) {
 
   fun getCurrentUserId(): Long? {
@@ -88,4 +91,15 @@ class UserUtils(
       return null
     }
   }
+
+
+  fun getActiveCaisse(): Caisse? {
+    return try {
+      caisseRepository.findByEtatAndSupprimer(Caisse.ETAT_OUVERT, 0).lastOrNull()
+    } catch (e: Exception) {
+      println("Error fetching active caisse: ${e.message}")
+      null
+    }
+  }
+
 }

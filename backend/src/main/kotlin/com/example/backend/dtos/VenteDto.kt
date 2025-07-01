@@ -20,16 +20,16 @@ data class VenteRequestDto(
 )
 
 data class ClientInfo(
-  val id: Int,
-  val type: String,
-  val name: String,
-  val phone: String,
+  val id: Int?,
+  val type: String?,
+  val name: String?,
+  val phone: String?,
 )
 
 data class PrescripteurInfo(
-  val id: Int,
-  val type: String,
-  val name: String,
+  val id: Int?,
+  val type: String?,
+  val name: String?,
 )
 
 data class EncaissementRequestDto(

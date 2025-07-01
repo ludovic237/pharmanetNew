@@ -28,5 +28,12 @@ export const adminMenuItems = [
     new AdminMenu(142, 'Level 3', null, null, 'folder_open', null, true, 141),
     new AdminMenu(143, 'Level 4', null, null, 'folder_open', null, true, 142),
     new AdminMenu(144, 'Level 5', null, '/', 'link', null, false, 143),
-    new AdminMenu(200, 'ADMIN_NAV.EXTERNAL_LINK', null, 'http://themeseason.com', 'open_in_new', '_blank', false, 0)
+    new AdminMenu(200, 'ADMIN_NAV.EXTERNAL_LINK', null, 'http://themeseason.com', 'open_in_new', '_blank', false, 0),
+
+  // Vente menu and submenus
+  new AdminMenu(300, 'ventes', null, null, 'shopping_cart', null, true, 0),
+  new AdminMenu(301, 'liste ventes', '/admin/ventes/list', null, 'list', null, false, 300),
+  new AdminMenu(302, 'encaisser vente', '/admin/ventes/encaisser-vente', null, 'add_circle_outline', null, false, 300),
+  new AdminMenu(303, 'ajouter vente', '/admin/ventes/ajouter-vente', null, 'bar_chart', null, false, 300),
+  new AdminMenu(304, 'retour produit', '/admin/ventes/retour-produit', null, 'bar_chart', null, false, 300),
 ];

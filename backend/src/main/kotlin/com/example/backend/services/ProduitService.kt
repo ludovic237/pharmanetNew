@@ -366,8 +366,7 @@ class ProduitService(
   @Transactional
   fun retournerProduitsVendusEtEnRayon(
     venteId: Long,
-    produitsRetour: List<ProduitRetourRequestDto>,
-    employeId: Long
+    produitsRetour: List<ProduitRetourRequestDto>
   ): RetourProduit {
     if (produitsRetour.isEmpty()) {
       throw IllegalArgumentException("La liste des produits à retourner ne peut pas être vide.")
@@ -384,16 +383,16 @@ class ProduitService(
       Caisse.ETAT_OUVERT
     ) ?: throw NotFoundException("Aucune caisse ouverte pour l'employé avec l'ID: ${employe.id}")
 
-    val retourProduit = RetourProduit().apply {
+    var retourProduit = RetourProduit().apply {
       this.vente = vente
       this.caisse = caisse
       this.employe = employe
       this.dateRetour = LocalDateTime.now()
     }
-    retourProduitRepository.save(retourProduit)
+    retourProduit = retourProduitRepository.save(retourProduit)
 
     produitsRetour.forEach { produitRetourRequest ->
-      val produitConcerner = concernerRepository.findByVenteAndProduit(
+      var produitConcerner = concernerRepository.findByVenteAndProduit(
         vente,
         produitRepository.findById(produitRetourRequest.produitId.toInt())
           .orElseThrow { NotFoundException("Produit non trouvé avec l'ID: ${produitRetourRequest.produitId}") }
@@ -409,7 +408,7 @@ class ProduitService(
 
       // Update Concerner
       produitConcerner.quantite = produitConcerner.quantite!! - produitRetourRequest.quantiteRetour
-      concernerRepository.save(produitConcerner)
+      produitConcerner = concernerRepository.save(produitConcerner)
 
       // Create ProduitRetour
       val produitRetour = ProduitRetour().apply {
@@ -426,8 +425,9 @@ class ProduitService(
       produitRepository.save(produit)
 
       // Update or create EnRayon
-      val enRayon = enRayonRepository.findAllByRayon(produitConcerner.enRayon!!)
-      enRayon.quantite = enRayon.quantite!! + produitRetourRequest.quantiteRetour
+      val enRayon = enRayonRepository.findById(produitRetourRequest.rayonId!!.toInt()).get()
+//      enRayon.quantite = enRayon.quantite!! + produitRetourRequest.quantiteRetour
+      enRayon.quantiteRestante = enRayon.quantiteRestante!! + produitRetourRequest.quantiteRetour
       enRayonRepository.save(enRayon)
     }
 

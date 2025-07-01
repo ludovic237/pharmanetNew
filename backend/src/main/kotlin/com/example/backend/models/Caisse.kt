@@ -49,6 +49,6 @@ class Caisse(
   companion object {
     const val ETAT_OUVERT = "OUVERT"
     const val ETAT_FERME = "FERME"
-    const val ETAT_CLOTURE_EN_ATTENTE = "CLOTURE_EN_ATTENTE"
+    const val ETAT_CLOTURE_EN_ATTENTE = "PENDING_CLOSURE"
   }
 }

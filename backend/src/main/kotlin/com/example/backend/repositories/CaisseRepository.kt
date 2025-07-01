@@ -9,7 +9,9 @@ import java.util.*
 @Repository
 interface CaisseRepository : JpaRepository<Caisse, Int> {
   fun findByEtatAndSupprimer(etat: String, supprimer: Int = 0): List<Caisse>
+  fun existsByEtatAndSupprimer(etat: String, supprimer: Int = 0): Boolean
   fun findByEmployeAndEtatAndSupprimer(employe: Employe, etat: String, supprimer: Int = 0): Caisse
   fun findByEmployeAndEtat(employe: Employe, etat: String): Caisse
   fun findByEmployeAndSupprimerOrderByDateOuvertDesc(employe: Employe, supprimer: Int = 0): List<Caisse>
+
 }

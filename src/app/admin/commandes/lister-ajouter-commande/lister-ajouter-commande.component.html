@@ -8,22 +8,31 @@
   </mat-card>
 
   <mat-card>
-    <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="8px" class="p-2">
+    <div fxLayout="row wrap" fxLayoutAlign="space-between center" fxLayoutGap="8px" class="p-2">
       <!-- Filter by Etat -->
-      <mat-chip-listbox>
-        <mat-chip-option
-          *ngFor="let etat of etats"
-          [class.mat-chip-selected]="selectedEtats == etat"
-          (click)="toggleEtatFilter(etat)"
-          [color]="selectedEtats.includes(etat) ? 'primary' : ''"
-          [selectable]="true">
-          {{ etat === 'all' ? 'Tous' : etat }}
-        </mat-chip-option>
-      </mat-chip-listbox>
+      <mat-form-field appearance="outline">
+        <mat-label>Filtrer par État</mat-label>
+        <mat-select [(value)]="selectedEtats" (selectionChange)="toggleEtatFilter($event.value)">
+          <mat-option *ngFor="let etat of etats" [value]="etat">
+            {{ etat === 'all' ? 'Tous' : etat }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+<!--      <mat-chip-listbox>-->
+<!--        <mat-chip-option-->
+<!--          *ngFor="let etat of etats"-->
+<!--          [class.mat-chip-selected]="selectedEtats == etat"-->
+<!--          (click)="toggleEtatFilter(etat)"-->
+<!--          [color]="selectedEtats.includes(etat) ? 'primary' : ''"-->
+<!--          [selectable]="true">-->
+<!--          {{ etat === 'all' ? 'Tous' : etat }}-->
+<!--        </mat-chip-option>-->
+<!--      </mat-chip-listbox>-->
 
       <!-- Filter by Fournisseur -->
-      <mat-form-field>
-        <mat-label>Fournisseur</mat-label>
+      <mat-form-field  appearance="outline">
+        <mat-label>Filtrer par  Fournisseur</mat-label>
         <mat-select  [(ngModel)]="selectedFournisseur" (selectionChange)="fetchCommandesPageable()">
           <mat-option  [value]="null" >
            Aucun
@@ -35,13 +44,13 @@
       </mat-form-field>
 
       <!-- Filter by Date Range -->
-      <mat-form-field>
+      <mat-form-field  appearance="outline">
         <mat-label>Date de début</mat-label>
         <input matInput [matDatepicker]="startPicker" [(ngModel)]="startDate" (dateChange)="fetchCommandesPageable()">
         <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
         <mat-datepicker #startPicker></mat-datepicker>
       </mat-form-field>
-      <mat-form-field>
+      <mat-form-field  appearance="outline">
         <mat-label>Date de fin</mat-label>
         <input matInput [matDatepicker]="endPicker" [(ngModel)]="endDate" (dateChange)="fetchCommandesPageable()">
         <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
@@ -50,20 +59,7 @@
     </div>
   </mat-card>
 </div>
-<mat-card>
-  <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="8px" class="p-2">
-    <mat-chip-listbox>
-      <mat-chip-option
-        *ngFor="let etat of etats"
-        [class.mat-chip-selected]="selectedEtats == etat"
-        (click)="toggleEtatFilter(etat)"
-        [color]="selectedEtats.includes(etat) ? 'primary' : ''"
-        [selectable]="true">
-        {{ etat === 'all' ? 'Tous' : etat }}
-      </mat-chip-option>
-    </mat-chip-listbox>
-  </div>
-</mat-card>
+<mat-divider></mat-divider>
 <mat-card>
   <div class="mat-elevation-z8">
 

@@ -1,0 +1,244 @@
+
+<mat-toolbar color="primary">
+  <div fxLayout="row wrap" fxLayoutAlign="space-between center" class="w-100 p-3">
+    <h2>Ajouter une Vente</h2>
+  </div>
+</mat-toolbar>
+<mat-card class="mb-4">
+  <div class="p-4" fxLayout="row wrap"  fxLayoutGap="16px">
+    <mat-form-field class="w-100 mt-2" appearance="outline" >
+      <mat-label>Ajouter un médicament</mat-label>
+      <input type="text"
+             matInput
+             [formControl]="medControl"
+             [matAutocomplete]="auto">
+      <mat-autocomplete #auto="matAutocomplete">
+        <mat-option *ngFor="let option of medOptions" [value]="option.name" (click)="openMedicamentDialog(option)">
+          {{ option.name }}
+        </mat-option>
+      </mat-autocomplete>
+    </mat-form-field>
+  </div>
+</mat-card>
+
+  <mat-card class="p-4">
+    <div class="container" fxLayout="column" fxLayoutGap="16px">
+      <!-- Tableau -->
+      <div class="table-wrapper">
+        <table mat-table [dataSource]="dataSource" class="mat-elevation-z1">
+
+          <ng-container matColumnDef="nom">
+            <th mat-header-cell *matHeaderCellDef>Nom</th>
+            <td mat-cell *matCellDef="let row">
+              <div>{{ row.nom }}</div>
+              <div>
+                <span *ngIf="isExpired(row.datePeremption)" class="badge badge-red">Produit expiré</span>
+                <span *ngIf="isExpiringSoon(row.datePeremption)" class="badge badge-yellow">Produit va bientôt expirer</span>
+                <span *ngIf="isValid(row.datePeremption)" class="badge badge-green">Produit encore valide</span>
+              </div>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="prixUnitaire">
+            <th mat-header-cell *matHeaderCellDef>Prix Unitaire</th>
+            <td mat-cell *matCellDef="let row">{{ row.prixUnitaire }} FCFA</td>
+          </ng-container>
+
+          <ng-container matColumnDef="quantite">
+            <th mat-header-cell *matHeaderCellDef>Quantité</th>
+            <td mat-cell *matCellDef="let row">{{ row.quantite }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="prixTotal">
+            <th mat-header-cell *matHeaderCellDef>Prix Total</th>
+            <td mat-cell *matCellDef="let row">{{ row.prixTotal }} FCFA</td>
+          </ng-container>
+
+          <ng-container matColumnDef="reduction">
+            <th mat-header-cell *matHeaderCellDef>Réduction</th>
+            <td mat-cell *matCellDef="let row">{{ row.reduction }} %</td>
+          </ng-container>
+
+          <ng-container matColumnDef="dateLivraison">
+            <th mat-header-cell *matHeaderCellDef>Date de Livraison</th>
+            <td mat-cell *matCellDef="let row">{{ row.dateLivraison | date:'dd/MM/yyyy' }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="type">
+            <th mat-header-cell *matHeaderCellDef>Type</th>
+            <td mat-cell *matCellDef="let row">{{ row.type }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="stockTotal">
+            <th mat-header-cell *matHeaderCellDef>Stock total</th>
+            <td mat-cell *matCellDef="let row">{{ row.stockTotal }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="action">
+            <th mat-header-cell *matHeaderCellDef>Action</th>
+            <td mat-cell *matCellDef="let row">
+              <button mat-icon-button color="warn" (click)="deleteProduct(row)">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+        </table>
+      </div>
+    </div>
+  </mat-card>
+
+<div fxLayout="row" fxLayoutGap="16px">
+
+  <div fxFlex="66" fxLayout="row wrap">
+    <div fxFlex="50" style="margin-top: 10px">
+      <mat-accordion>
+        <!-- Client Section -->
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              Nouveau Client / Client Existant
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+          <div fxLayout="column" fxLayoutGap="16px">
+            <mat-radio-group [formControl]="clientTypeControl" (change)="onClientTypeChange($event)">
+              <mat-radio-button value="existing">Client Existant</mat-radio-button>
+              <mat-radio-button value="new">Nouveau Client</mat-radio-button>
+            </mat-radio-group>
+
+            <div *ngIf="clientTypeControl.value === 'existing'" fxLayout="row" fxLayoutGap="16px">
+              <mat-form-field appearance="outline">
+                <mat-label>Rechercher un client</mat-label>
+                <input matInput [formControl]="clientSearchControl"
+                       [matAutocomplete]="clientAuto">
+                <mat-autocomplete #clientAuto="matAutocomplete" (optionSelected)="onClientSelected($event)">
+                  <mat-option *ngFor="let client of clientOptions" [value]="client.name">
+                    {{ client.name }} - {{ client.phone }}
+                  </mat-option>
+                </mat-autocomplete>
+              </mat-form-field>
+            </div>
+
+            <div *ngIf="clientTypeControl.value === 'new'" fxLayout="row" fxLayoutGap="16px">
+              <mat-form-field appearance="outline" fxFlex>
+                <mat-label>Nom</mat-label>
+                <input matInput [formControl]="clientNameControl" placeholder="Nom">
+              </mat-form-field>
+              <mat-form-field appearance="outline" fxFlex>
+                <mat-label>Téléphone</mat-label>
+                <input matInput [formControl]="clientPhoneControl" placeholder="Téléphone">
+              </mat-form-field>
+            </div>
+          </div>
+        </mat-expansion-panel>
+      </mat-accordion>
+    </div>
+
+    <div fxFlex="50" style="margin-top: 10px">
+   <mat-accordion>
+     <!-- Prescripteur Section -->
+     <mat-expansion-panel>
+       <mat-expansion-panel-header>
+         <mat-panel-title>
+           Nouveau Prescripteur / Prescripteur Existant
+         </mat-panel-title>
+       </mat-expansion-panel-header>
+       <div fxLayout="column" fxLayoutGap="16px">
+         <mat-radio-group [formControl]="prescripteurTypeControl" (change)="onPrescripteurTypeChange($event)">
+           <mat-radio-button value="existing">Prescripteur Existant</mat-radio-button>
+           <mat-radio-button value="new">Nouveau Prescripteur</mat-radio-button>
+         </mat-radio-group>
+
+         <div *ngIf="prescripteurTypeControl.value === 'existing'" fxLayout="row" fxLayoutGap="16px">
+           <mat-form-field appearance="outline">
+             <mat-label>Rechercher un prescripteur</mat-label>
+             <input matInput [formControl]="prescripteurSearchControl" [matAutocomplete]="prescripteurAuto">
+             <mat-autocomplete #prescripteurAuto="matAutocomplete" (optionSelected)="onPrescripteurSelected($event)">
+               <mat-option *ngFor="let prescripteur of prescripteurOptions" [value]="prescripteur.name">
+                 {{ prescripteur.name }}
+               </mat-option>
+             </mat-autocomplete>
+           </mat-form-field>
+         </div>
+
+         <div *ngIf="prescripteurTypeControl.value === 'new'" fxLayout="row" fxLayoutGap="16px">
+           <mat-form-field appearance="outline" fxFlex>
+             <mat-label>Nom</mat-label>
+             <input matInput [formControl]="prescripteurNameControl" placeholder="Nom">
+           </mat-form-field>
+         </div>
+       </div>
+     </mat-expansion-panel>
+   </mat-accordion>
+    </div>
+
+    <div fxFlex="50" style="margin-top: 10px">
+      <mat-accordion>
+        <!-- Réduction Section -->
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              Réduction
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+          <div>
+            <mat-slide-toggle [formControl]="reductionEnabled">
+              Activer la réduction
+            </mat-slide-toggle>
+            <mat-form-field appearance="outline">
+              <mat-label>Taux</mat-label>
+              <mat-select [formControl]="tauxReduction">
+                <mat-option *ngFor="let percent of reductionOptions" [value]="percent">
+                  {{ percent }}%
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </mat-expansion-panel>
+      </mat-accordion>
+    </div>
+
+    <div fxFlex="50" style="margin-top: 10px">
+      <mat-accordion>
+        <!-- Commentaire Section -->
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              Commentaire
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+          <div>
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Commentaire</mat-label>
+              <textarea matInput rows="3" [formControl]="commentaire"></textarea>
+            </mat-form-field>
+          </div>
+        </mat-expansion-panel>
+      </mat-accordion>
+    </div>
+  </div>
+
+  <div fxFlex="33">
+    <div [ngClass]="{'show': showOptions}">
+      <mat-card>
+        <mat-card-content>
+          <p><strong>Total :</strong> {{ total+totaleReduction }} FCFA</p>
+          <p><strong>Réduction :</strong> {{ totaleReduction }} FCFA</p>
+          <h3><strong>Net à payer :</strong> {{ netAPayer }} FCFA</h3>
+          <div fxLayout="row" fxLayoutGap="16px">
+            <button mat-raised-button color="primary" (click)="onPayer('comptant')">Comptant</button>
+            <button mat-raised-button (click)="onPayer('assurance')">Assurance</button>
+            <button mat-raised-button color="warn" (click)="onPayer('credit')">Crédit</button>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+
+</div>
+
+<!-- Récapitulatif & boutons -->
+
+

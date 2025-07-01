@@ -1,0 +1,170 @@
+<div class="p-2">
+    <mat-card>
+        <div fxLayout="row wrap" fxLayoutAlign="space-between center" class="w-100 p-3">
+            <h2>Ventes List</h2>
+        </div>
+        <mat-divider></mat-divider>
+      <mat-card>
+        <div fxLayout="row wrap" fxLayoutAlign="space-between center" fxLayoutGap="8px" class="p-2">
+          <!-- Filter by Etat -->
+          <mat-form-field appearance="outline">
+            <mat-label>Filtrer par État</mat-label>
+            <mat-select [(value)]="selectedEtat" (selectionChange)="fetchVentesPageable()">
+              <mat-option [value]="null">Tous</mat-option>
+              <mat-option *ngFor="let etat of etats" [value]="etat">
+                {{ etat }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <!-- Filter by Utilisateur -->
+          <mat-form-field appearance="outline">
+            <mat-label>Filtrer par Utilisateur</mat-label>
+            <mat-select [(value)]="selectedUtilisateur" (selectionChange)="fetchVentesPageable()">
+              <mat-option [value]="null">Tous</mat-option>
+              <mat-option *ngFor="let utilisateur of utilisateurs" [value]="utilisateur.id">
+                {{ utilisateur.nom }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <!-- Filter by Employe -->
+          <mat-form-field appearance="outline">
+            <mat-label>Filtrer par Employé</mat-label>
+            <mat-select [(value)]="selectedEmploye" (selectionChange)="fetchVentesPageable()">
+              <mat-option [value]="null">Tous</mat-option>
+              <mat-option *ngFor="let employe of employes" [value]="employe.id">
+                {{ employe.nom }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <!-- Filter by Prescripteur -->
+          <mat-form-field appearance="outline">
+            <mat-label>Filtrer par Prescripteur</mat-label>
+            <mat-select [(value)]="selectedPrescripteur" (selectionChange)="fetchVentesPageable()">
+              <mat-option [value]="null">Tous</mat-option>
+              <mat-option *ngFor="let prescripteur of prescripteurs" [value]="prescripteur.id">
+                {{ prescripteur.nom }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <!-- Filter by Caisse -->
+          <mat-form-field appearance="outline">
+            <mat-label>Filtrer par Caisse</mat-label>
+            <mat-select [(value)]="selectedCaisse" (selectionChange)="fetchVentesPageable()">
+              <mat-option [value]="null">Tous</mat-option>
+              <mat-option *ngFor="let caisse of caisses" [value]="caisse.id">
+                {{ caisse.nom }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <!-- Filter by Date de Vente -->
+          <mat-form-field appearance="outline">
+            <mat-label>Date de début (Vente)</mat-label>
+            <input matInput [matDatepicker]="startVentePicker" [(ngModel)]="startDateVente" (dateChange)="fetchVentesPageable()">
+            <mat-datepicker-toggle matSuffix [for]="startVentePicker"></mat-datepicker-toggle>
+            <mat-datepicker #startVentePicker></mat-datepicker>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Date de fin (Vente)</mat-label>
+            <input matInput [matDatepicker]="endVentePicker" [(ngModel)]="endDateVente" (dateChange)="fetchVentesPageable()">
+            <mat-datepicker-toggle matSuffix [for]="endVentePicker"></mat-datepicker-toggle>
+            <mat-datepicker #endVentePicker></mat-datepicker>
+          </mat-form-field>
+
+          <!-- Filter by Date d'Encaissement -->
+          <mat-form-field appearance="outline">
+            <mat-label>Date de début (Encaissement)</mat-label>
+            <input matInput [matDatepicker]="startEncaissementPicker" [(ngModel)]="startDateEncaissement" (dateChange)="fetchVentesPageable()">
+            <mat-datepicker-toggle matSuffix [for]="startEncaissementPicker"></mat-datepicker-toggle>
+            <mat-datepicker #startEncaissementPicker></mat-datepicker>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Date de fin (Encaissement)</mat-label>
+            <input matInput [matDatepicker]="endEncaissementPicker" [(ngModel)]="endDateEncaissement" (dateChange)="fetchVentesPageable()">
+            <mat-datepicker-toggle matSuffix [for]="endEncaissementPicker"></mat-datepicker-toggle>
+            <mat-datepicker #endEncaissementPicker></mat-datepicker>
+          </mat-form-field>
+        </div>
+      </mat-card>
+        <mat-divider></mat-divider>
+      <div class="table-container">
+        <table mat-table [dataSource]="ventes" class="mat-elevation-z8">
+          <ng-container matColumnDef="ref">
+            <th mat-header-cell *matHeaderCellDef>Réf</th>
+            <td mat-cell *matCellDef="let vente">
+              <mat-accordion>
+                <mat-expansion-panel >
+                  <mat-expansion-panel-header>
+                    <mat-panel-title>
+                      {{ vente.reference }}
+                    </mat-panel-title>
+                  </mat-expansion-panel-header>
+                  <div>
+                    <ul>
+                      <li *ngFor="let produit of vente.produits">
+                        {{ produit.nom }} ({{ produit.quantite }})
+                      </li>
+                    </ul>
+                  </div>
+                </mat-expansion-panel>
+              </mat-accordion>
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="montant">
+            <th mat-header-cell *matHeaderCellDef>Montant</th>
+            <td mat-cell *matCellDef="let vente">{{ vente.netAPayer }}</td>
+          </ng-container>
+          <ng-container matColumnDef="montantPerçu">
+            <th mat-header-cell *matHeaderCellDef>Montant perçu</th>
+            <td mat-cell *matCellDef="let vente">{{ vente.prixPercu }}</td>
+          </ng-container>
+          <ng-container matColumnDef="client">
+            <th mat-header-cell *matHeaderCellDef>Client</th>
+            <td mat-cell *matCellDef="let vente">{{ vente.infoClients }}</td>
+          </ng-container>
+          <ng-container matColumnDef="vendeur">
+            <th mat-header-cell *matHeaderCellDef>Vendeur</th>
+            <td mat-cell *matCellDef="let vente">{{ vente.vendeur }}</td>
+          </ng-container>
+          <ng-container matColumnDef="dateEncaissement">
+            <th mat-header-cell *matHeaderCellDef>Date d'encaissement</th>
+            <td mat-cell *matCellDef="let vente">{{ vente.dateEncaissement | date:'yyyy-MM-dd HH:mm:ss' }}</td>
+          </ng-container>
+          <ng-container matColumnDef="dateVente">
+            <th mat-header-cell *matHeaderCellDef>Date de vente</th>
+            <td mat-cell *matCellDef="let vente">{{ vente.dateVente | date:'yyyy-MM-dd HH:mm:ss' }}</td>
+          </ng-container>
+          <ng-container matColumnDef="etat">
+            <th mat-header-cell *matHeaderCellDef>État</th>
+            <td mat-cell *matCellDef="let vente">{{ vente.etat }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef>Actions</th>
+            <td mat-cell *matCellDef="let vente">
+              <button mat-raised-button color="primary" (click)="imprimerTicket(vente.id)">Imprimer ticket</button>
+            </td>
+          </ng-container>
+
+          <!-- Header and Row Definitions -->
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+      </div>
+    </mat-card>
+
+    @if (ventes.length) {
+        <div fxLayout="row wrap">
+            <div fxFlex="100">
+                <mat-card class="text-center">
+                    <pagination-controls class="product-pagination" [autoHide]="true" [maxSize]="5" (pageChange)="onPageChanged($event)"></pagination-controls>
+                </mat-card>
+            </div>
+        </div>
+    }
+
+</div>

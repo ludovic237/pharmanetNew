@@ -4,7 +4,8 @@ import java.math.BigDecimal
 import java.time.LocalDateTime
 
 data class CaisseOuvertureRequestDto(
-  val fondCaisseOuvert: BigDecimal
+  val fondCaisseOuvert: BigDecimal,
+  val ouvertureCaisse: String
 )
 
 data class CaisseDto(
@@ -17,6 +18,11 @@ data class CaisseDto(
   val fondCaisseOuvert: BigDecimal?,
   val fondCaisseFerme: BigDecimal?,
   val etat: String?
+)
+
+data class CaisseClotureRequestDto(
+  val fondCaisseFerme: Int,
+  val fermetureCaisse: String
 )
 
 data class CaisseFermetureRequestDto(

@@ -4,4 +4,6 @@ import com.example.backend.models.ProduitRetour
 import org.springframework.data.jpa.repository.JpaRepository
 
 interface ProduitRetourRepository : JpaRepository<ProduitRetour, Int> {
+
+    fun findByRetourProduitId(retourProduitId: Long): List<ProduitRetour>
 }

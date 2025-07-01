@@ -4,6 +4,8 @@ import com.example.backend.services.ProduitService
 import com.example.backend.dtos.*
 import com.example.backend.exceptions.NotFoundException
 import com.example.backend.exceptions.ValidationException
+import com.example.backend.models.RetourProduit
+import com.example.backend.services.ProduitRetourRequestDto
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
@@ -158,4 +160,6 @@ class ProduitController(
   @PreAuthorize("isAuthenticated()")
   @GetMapping("/rayons")
   fun getAllRayons() = ResponseEntity.ok(produitService.getAllRayons())
+
+
 }

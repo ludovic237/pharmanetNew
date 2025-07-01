@@ -1,21 +1,28 @@
 package com.example.backend.controllers
 
+import com.example.backend.dtos.CaisseClotureRequestDto
 import com.example.backend.dtos.CaisseOuvertureRequestDto
+import com.example.backend.models.Caisse
 import com.example.backend.services.CaisseException
 import com.example.backend.services.CaisseService
+import com.example.backend.utility.UserUtils
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Sort
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.security.access.prepost.PreAuthorize
+import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/api/caisses")
 class CaisseController(
+  private val userUtils: UserUtils,
   private val caisseService: CaisseService
 ) {
 
+  @CrossOrigin(origins = ["http://localhost:4200"])
+  @PreAuthorize("isAuthenticated()")
   @PostMapping("/ouvrir")
   fun ouvrirCaisse(@RequestBody ouvertureRequestDto: CaisseOuvertureRequestDto): ResponseEntity<Any> {
     return try {
@@ -24,9 +31,151 @@ class CaisseController(
     } catch (e: CaisseException) {
       ResponseEntity.status(HttpStatus.CONFLICT).body(mapOf("error" to e.message))
     } catch (e: Exception) {
-      ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(mapOf("error" to "Une erreur interne est survenue: ${e.message}"))
+      ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .body(mapOf("error" to "Une erreur interne est survenue: ${e.message}"))
     }
   }
 
-  // TODO: Endpoints pour fermer la caisse, lister les opérations, etc.
+
+  @CrossOrigin(origins = ["http://localhost:4200"])
+  @PreAuthorize("isAuthenticated()")
+  @GetMapping("/active/details")
+  fun getActiveCaisseDetails(): ResponseEntity<Map<String, Any?>> {
+    return try {
+      val activeCaisse = caisseService.getActiveCaisse()
+      if (activeCaisse != null) {
+        val employeName = activeCaisse.employe?.user?.nom ?: "Inconnu"
+        val caisseDetails = mapOf(
+          "id" to activeCaisse.id,
+          "etat" to activeCaisse.etat,
+          "nomEmploye" to employeName,
+          "dateOuvert" to activeCaisse.dateOuvert,
+          "dateFerme" to activeCaisse.dateFerme
+        )
+        ResponseEntity.ok(caisseDetails)
+      } else {
+        ResponseEntity.status(HttpStatus.NOT_FOUND).body(mapOf("error" to "Aucune caisse active trouvée"))
+      }
+    } catch (e: Exception) {
+      ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .body(mapOf("error" to "Une erreur interne est survenue: ${e.message}"))
+    }
+  }
+
+  @CrossOrigin(origins = ["http://localhost:4200"])
+  @PreAuthorize("isAuthenticated()")
+  @GetMapping("/active/details/pageable")
+  fun getActiveCaissesDetailsPageable(
+    @RequestParam(defaultValue = "0") page: Int,
+    @RequestParam(defaultValue = "10") size: Int,
+    @RequestParam(defaultValue = "id") sortBy: String
+  ): ResponseEntity<Page<Map<String, Any?>>> {
+    return try {
+      val pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, sortBy))
+      val caisseDetails = caisseService.getAllCaisse(pageable)
+      ResponseEntity.ok(caisseDetails)
+    } catch (e: Exception) {
+      ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Page.empty())
+    }
+  }
+
+  @CrossOrigin(origins = ["http://localhost:4200"])
+  @PreAuthorize("isAuthenticated()")
+  @GetMapping("/ouverte")
+  fun isCaisseOuverte(): ResponseEntity<Map<String, Any?>> {
+    val isOuverte = caisseService.isCaisseOuverte()
+    val activeCaisse = caisseService.getActiveCaisse()
+    val attenteCloture = caisseService.getCaisseAttenteCloture()
+    val userCurrentId = userUtils.getCurrentUserId()
+
+    val response = when {
+      activeCaisse != null && activeCaisse.employe?.user?.id == userCurrentId?.toInt() -> {
+        mapOf(
+          "status" to "active",
+          "caisseDetails" to mapOf(
+            "id" to activeCaisse.id,
+            "etat" to activeCaisse.etat,
+            "session" to activeCaisse.session,
+            "nomEmploye" to (activeCaisse.employe?.user?.nom ?: "Inconnu"),
+            "dateOuvert" to activeCaisse.dateOuvert,
+            "dateFerme" to activeCaisse.dateFerme
+          )
+        )
+      }
+
+      attenteCloture != null && attenteCloture.employe?.user?.id == userCurrentId?.toInt() -> {
+        mapOf(
+          "status" to "pending_closure",
+          "caisseDetails" to mapOf(
+            "id" to attenteCloture.id,
+            "session" to attenteCloture.session,
+            "etat" to attenteCloture.etat,
+            "nomEmploye" to (attenteCloture.employe?.user?.nom ?: "Inconnu"),
+            "dateOuvert" to attenteCloture.dateOuvert,
+            "dateFerme" to attenteCloture.dateFerme
+          )
+        )
+      }
+
+      else -> {
+        mapOf(
+          "status" to "none",
+          "caisseDetails" to null
+        )
+      }
+    }
+
+    return ResponseEntity.ok(response)
+  }
+
+  @CrossOrigin(origins = ["http://localhost:4200"])
+  @PreAuthorize("isAuthenticated()")
+  @PutMapping("/active/attente-cloture")
+  fun setCaisseToPendingClosure(): ResponseEntity<Map<String, Any?>> {
+      return try {
+          val updatedCaisse = caisseService.setCaisseToPendingClosure()
+          ResponseEntity.ok(mapOf("message" to "La caisse a été mise en attente de clôture.", "caisse" to updatedCaisse))
+      } catch (e: CaisseException) {
+          ResponseEntity.status(HttpStatus.CONFLICT).body(mapOf("error" to e.message))
+      } catch (e: Exception) {
+          ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+              .body(mapOf("error" to "Une erreur interne est survenue: ${e.message}"))
+      }
+  }
+
+
+  @CrossOrigin(origins = ["http://localhost:4200"])
+  @PreAuthorize("isAuthenticated()")
+  @PostMapping("/cloturer")
+  fun cloturerCaisse(
+    @RequestBody caisseClotureRequest: CaisseClotureRequestDto
+  ): ResponseEntity<Any> {
+    return try {
+      val caisseDto = caisseService.cloturerCaisse(caisseClotureRequest.fondCaisseFerme, caisseClotureRequest.fermetureCaisse)
+      ResponseEntity.ok(caisseDto)
+    } catch (e: CaisseException) {
+      ResponseEntity.status(HttpStatus.CONFLICT).body(mapOf("error" to e.message))
+    } catch (e: Exception) {
+      ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .body(mapOf("error" to "Une erreur interne est survenue: ${e.message}"))
+    }
+  }
+
+  @CrossOrigin(origins = ["http://localhost:4200"])
+  @PreAuthorize("isAuthenticated()")
+  @GetMapping("/cloture/details")
+  fun getCaisseClosureDetails(): ResponseEntity<Any> {
+    return try {
+      val caisseDetails = caisseService.getCaisseAttenteCloture()
+      if (caisseDetails != null) {
+        ResponseEntity.ok(caisseDetails)
+      } else {
+        ResponseEntity.status(HttpStatus.NOT_FOUND).body(mapOf("error" to "Aucune caisse en attente de clôture trouvée"))
+      }
+    } catch (e: Exception) {
+      ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .body(mapOf("error" to "Une erreur interne est survenue: ${e.message}"))
+    }
+  }
+
 }
