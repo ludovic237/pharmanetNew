@@ -31,6 +31,7 @@ import {CategorieService} from "@services/categories.service";
 })
 export class CategoriesComponent implements OnInit {
   public categories: any[] = [];
+  public totalItems = 0;  // Default to 10 if undefined
   // public categories: Category[] = [];
   public page: any;
   public count = 6;
@@ -48,7 +49,8 @@ export class CategoriesComponent implements OnInit {
     this.categorieService.getCategories().subscribe({
       next: (data) => {
         this.categories = data;
-        this.count = this.categories.length
+        this.totalItems = data.length;
+        // this.count = this.categories.length
       },
       error: (err) => {
         console.error('Error  subscription:', err);

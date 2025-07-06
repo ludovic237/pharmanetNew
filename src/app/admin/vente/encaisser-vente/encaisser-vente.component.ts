@@ -777,13 +777,14 @@ export class EncaisserVenteComponent implements OnInit {
   logoutUser(): void {
     this.authService.logout().subscribe({
       next: () => {
+        localStorage.removeItem('token');
         this.snackBar.open('Déconnexion réussie.', '×', {
           panelClass: 'success',
           verticalPosition: 'top',
           duration: 3000,
         });
         // Redirect to login page or clear session
-        window.location.href = '/login';
+        window.location.href = '/sign-in';
       },
       error: (err: any) => {
         console.error('Erreur lors de la déconnexion:', err);

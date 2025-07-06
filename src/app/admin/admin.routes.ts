@@ -23,14 +23,23 @@ export const routes: Routes = [
                 loadChildren: () => import('./vente/ventes.routes').then(p => p.routes)
             },
             {
+                path: 'stock',
+                loadChildren: () => import('./stock/stock.routes').then(p => p.routes)
+            },
+            {
                 path: 'commandes',
                 loadChildren: () => import('./commandes/commandes.routes').then(p => p.routes)
             },
             {
                 path: 'users',
-                loadComponent: () => import('./users/users.component').then(c => c.UsersComponent),
+                loadComponent: () => import('./users/users-new.component').then(c => c.UsersNewComponent),
                 data: { breadcrumb: 'Users' }
             },
+            // {
+            //     path: 'users',
+            //     loadComponent: () => import('./users/users.component').then(c => c.UsersComponent),
+            //     data: { breadcrumb: 'Users' }
+            // },
             {
                 path: 'customers',
                 loadComponent: () => import('./customers/customers.component').then(c => c.CustomersComponent),

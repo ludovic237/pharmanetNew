@@ -1,6 +1,6 @@
 import { Component, HostListener, OnInit, ViewChild } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon'; 
+import { MatIconModule } from '@angular/material/icon';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
@@ -42,7 +42,7 @@ export class AdminComponent implements OnInit {
   public settings: Settings;
   public menuItems: Array<any>;
   public toggleSearchBar: boolean = false;
-  
+
   constructor(public settingsService: SettingsService,
               public router: Router,
               private adminMenuService: AdminMenuService,
@@ -56,7 +56,7 @@ export class AdminComponent implements OnInit {
       this.settings.adminSidenavIsPinned = false;
     };
     setTimeout(() => {
-      this.settings.theme = 'blue';
+      this.settings.theme = 'green';
     });
     this.menuItems = this.adminMenuService.getMenuItems();
   }

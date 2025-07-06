@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
   import {HttpClient, HttpHeaders} from '@angular/common/http';
   import { Observable } from 'rxjs';
+import {Page} from "ngx-pagination";
 
   @Injectable({
     providedIn: 'root'
@@ -24,4 +25,13 @@ import { Injectable } from '@angular/core';
     ajouterVente(venteData: any): Observable<any> {
       return this.http.post(`${this.apiUrl}/ventes/ajouter`, venteData, { headers: this.getHeaders() });
     }
+
+    mettreAJourProduitEnRayon(rayon: any): Observable<any> {
+      return this.http.post<any>(this.apiUrl+"/en-rayon/save", rayon, {headers: this.getHeaders()});
+    }
+
+    getProduitsEnRayonPageable(page: number, size: number, nomProduit: string, bientotPerimee: boolean, joursAvantPeremption: number, enStock: boolean): Observable<Page> {
+      return this.http.get<Page>(this.apiUrl + `/en-rayon/pageable?page=${page}&nomProduit=${nomProduit}&bientotPerimee=${bientotPerimee}&joursAvantPeremption=${joursAvantPeremption}&enStock=${enStock}&size=${size}`, {headers: this.getHeaders()});
+    }
+
   }

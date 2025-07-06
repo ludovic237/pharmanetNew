@@ -20,11 +20,13 @@ import { MatCardModule } from '@angular/material/card';
 import { DatePipe } from '@angular/common';
 import { DomHandlerService } from '@services/dom-handler.service';
 import { NgxSpinnerService } from 'ngx-spinner';
+import {MatTableModule} from "@angular/material/table";
 
 @Component({
-  selector: 'app-users',
+  selector: 'app-users-new',
   imports: [
     FormsModule,
+    MatTableModule,
     FlexLayoutModule,
     MatButtonModule,
     MatButtonToggleModule,
@@ -39,14 +41,17 @@ import { NgxSpinnerService } from 'ngx-spinner';
     PipesModule,
     DatePipe
   ],
-  templateUrl: './users.component.html',
-  styleUrl: './users.component.scss',
+  templateUrl: './users-new.component.html',
+  styleUrl: './users-new.component.scss',
   encapsulation: ViewEncapsulation.None,
   providers: [UsersService]
 })
-export class UsersComponent implements OnInit {
-  public users: User[];
+export class UsersNewComponent implements OnInit {
+  displayedColumns: string[] = ['id', 'name', 'email', 'telephone', 'role', 'isActive', 'registrationDate', 'actions'];
+  users: any[] = [];
+  public totalItems: number = 0; // Default to 0 if undefined
   public searchText: string;
+  public count: number = 6; // Default to 6 if undefined
   public page:any;
   public settings: Settings;
   domHandlerService = inject(DomHandlerService);
@@ -67,6 +72,7 @@ export class UsersComponent implements OnInit {
     this.usersService.getUsers().subscribe({
       next: (users) => {
         this.users = users
+        this.totalItems = users.length;
       },
       error: () => {
         this.users = [];
@@ -80,9 +86,9 @@ export class UsersComponent implements OnInit {
   public updateUser(user:User){
     this.usersService.updateUser(user).subscribe(user => this.getUsers());
   }
-  public deleteUser(user:User){
-    this.usersService.deleteUser(user.id).subscribe(user => this.getUsers());
-  }
+  // public deleteUser(user:User){
+  //   this.usersService.deleteUser(user.id).subscribe(user => this.getUsers());
+  // }
 
 
   public onPageChanged(event: any){
@@ -98,6 +104,18 @@ export class UsersComponent implements OnInit {
     dialogRef.afterClosed().subscribe((user: User) => {
       if (user) {
         (user.id) ? this.updateUser(user) : this.addUser(user);
+      }
+    });
+  }
+
+
+  deleteUser(userId: number): void {
+    this.usersService.deleteUser(userId).subscribe({
+      next: () => {
+        this.users = this.users.filter(user => user.id !== userId);
+      },
+      error: (err) => {
+        console.error('Error deleting user:', err);
       }
     });
   }

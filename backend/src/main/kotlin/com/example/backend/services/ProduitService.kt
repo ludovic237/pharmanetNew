@@ -21,6 +21,7 @@ class ProduitService(
   private val userUtils: UserUtils,
   private val retourProduitRepository: RetourProduitRepository,
   private val produitRetourRepository: ProduitRetourRepository,
+  private val produitCmdRepository: ProduitCmdRepository,
   private val employeRepository: EmployeRepository,
   private val concernerRepository: ConcernerRepository,
   private val venteRepository: VenteRepository,
@@ -127,6 +128,22 @@ class ProduitService(
       .orElseThrow { NotFoundException("Produit non trouvé avec ID: $id") }
     return mapToProduitResponseDto(produit)
   }
+
+ fun getProduitDetailById(id: Int): Map<String, Any?> {
+   val produit = produitRepository.findById(id)
+     .filter { it.supprimer == 0 }
+     .orElseThrow { NotFoundException("Produit non trouvé avec ID: $id") }
+
+   return mapOf(
+     "id" to produit.id,
+     "nom" to produit.nom,
+     "stock" to produit.stock,
+     "categorie" to produit.categorie?.nom,
+     "prixAchat" to produit.prixAchat,
+     "prixVente" to produit.prixVente,
+     "etat" to produit.etat
+   )
+ }
 
 //  fun getAllProduits(): List<ProduitResponseDto> {
 //    return produitRepository.findAllBySupprimer(0).map { mapToProduitResponseDto(it) }
@@ -434,6 +451,186 @@ class ProduitService(
     return retourProduit
   }
 
+
+  @Transactional
+  fun getProduitDetails(produitId: Int): Map<String, Any?> {
+    val produit = produitRepository.findById(produitId).get()
+    val now = LocalDateTime.now()
+    val startOfMonth = now.withDayOfMonth(1).toLocalDate().atStartOfDay()
+
+    val toutesLesVentes = concernerRepository.findByProduit(produit)
+    val ventesDuMois = toutesLesVentes.filter { v ->
+      v?.vente?.dateVente?.isAfter(startOfMonth) == true
+    }
+
+    val totalQuantiteMois = ventesDuMois.sumOf { it?.quantite ?: 0 }
+    val totalReductionMois = ventesDuMois.fold(BigDecimal.ZERO) { acc, c ->
+      acc.add((c?.reduction as? BigDecimal) ?: BigDecimal.ZERO)
+    }
+
+   val totalVenteMois = ventesDuMois.fold(BigDecimal.ZERO) { acc, c ->
+      val pu = (c?.prixUnit?.toBigDecimal()) ?: BigDecimal.ZERO
+      val qte = (c?.quantite?.toBigDecimal() ?: BigDecimal.ZERO)
+      val red = (c?.reduction?.toBigDecimal()) ?: BigDecimal.ZERO
+      acc.add(pu.multiply(qte.subtract(red)))
+    }
+
+    val ventesMoisSummary = listOf(
+      mapOf(
+      "nom" to "Vente du Mois",
+      "quantite" to totalQuantiteMois,
+      "reduction" to totalReductionMois,
+      "vente" to totalVenteMois
+    ))
+
+   val totalQuantite = toutesLesVentes.sumOf { it?.quantite ?: 0 }
+    val totalReduction = toutesLesVentes.fold(BigDecimal.ZERO) { acc, c ->
+      acc.add((c?.reduction?.toBigDecimal()) ?: BigDecimal.ZERO)
+    }
+
+   val totalVente = toutesLesVentes.fold(BigDecimal.ZERO) { acc, c ->
+        val pu = (c?.prixUnit!!.toBigDecimal()) ?: BigDecimal.ZERO
+        val qte = c?.quantite?.toBigDecimal() ?: BigDecimal.ZERO
+        val red = c?.reduction?.toBigDecimal() ?: BigDecimal.ZERO
+        acc.add(pu.multiply(qte.subtract(red)))
+      }
+
+    val ventesTotalSummary = listOf(
+      mapOf(
+      "nom" to "Vente Totale",
+      "quantite" to totalQuantite,
+      "reduction" to totalReduction,
+      "vente" to totalVente
+    ))
+
+    val ventesList = toutesLesVentes.map { c ->
+      val v = c?.vente
+      val pu = c?.prixUnit?.toBigDecimal() ?: BigDecimal.ZERO
+      val qte = c?.quantite ?: 0
+      val red = c?.reduction?.toBigDecimal() ?: BigDecimal.ZERO
+      val total = pu * (qte.toBigDecimal())
+      mapOf(
+        "date" to v?.dateVente,
+        "vendeur" to v?.employe?.user?.nom,
+        "client" to v?.user?.nom,
+        "prixUnitaire" to pu,
+        "quantite" to qte,
+        "prixTotal" to total,
+        "reduction" to red,
+        "prixVente" to total.subtract(red)
+      )
+    }
+
+    val toutesLesCommandes = produitCmdRepository.findByProduit(produit)
+    val commandesDuMois = toutesLesCommandes.filter { lc ->
+      lc?.commande?.dateCreation?.isAfter(startOfMonth) == true
+    }
+
+    val totalQtCmdMois = commandesDuMois.sumOf { it?.qtiteCmd ?: 0 }
+    val totalCoutMois = commandesDuMois.fold(BigDecimal.ZERO) { acc, c ->
+      val pa = c?.prixAchat?.toBigDecimal() ?: BigDecimal.ZERO
+      val q = c?.qtiteCmd?.toBigDecimal() ?: BigDecimal.ZERO
+      acc.add(pa * q)
+    }
+    val commandesMoisSummary = listOf(
+      mapOf(
+      "nom" to "Commande du Mois",
+      "quantite" to totalQtCmdMois,
+      "cout" to totalCoutMois
+    ))
+
+    val totalQtCmd = toutesLesCommandes.sumOf { it?.qtiteCmd ?: 0 }
+    val totalCout = toutesLesCommandes.fold(BigDecimal.ZERO) { acc, c ->
+      val pa = c?.prixAchat?.toBigDecimal() ?: BigDecimal.ZERO
+      val q = c?.qtiteCmd?.toBigDecimal() ?: BigDecimal.ZERO
+      acc.add(pa * q)
+    }
+    val commandesTotalSummary = listOf( mapOf(
+      "nom" to "Commande Totale",
+      "quantite" to totalQtCmd,
+      "cout" to totalCout
+    ))
+
+    var commandePriceTotalRecu = 0;
+    var commandePriceTotalCommande = 0;
+
+    val commandesList = toutesLesCommandes.map { c ->
+      val cmd = c?.commande
+      val pa = c?.prixAchat?.toBigDecimal() ?: BigDecimal.ZERO
+      val pv = c?.prixVente ?: BigDecimal.ZERO
+      val qc = c?.qtiteCmd ?: 0
+      val qr = c?.qtiteRecu ?: 0
+      val totCmd = pa * (qc.toBigDecimal())
+      val totRec = pa * (qr.toBigDecimal())
+      commandePriceTotalCommande += totCmd.toInt()
+      commandePriceTotalRecu += totRec.toInt()
+      mapOf(
+        "date" to cmd?.dateCreation,
+        "produitId" to produit.id,
+        "commandeId" to cmd?.id,
+        "fournisseur" to cmd?.fournisseur?.nom,
+        "prixAchat" to pa,
+        "prixVente" to pv,
+        "quantiteCommandee" to qc,
+        "quantiteRecue" to qr,
+        "totalCommandee" to totCmd,
+        "totalRecu" to totRec,
+        "etat" to cmd?.etat
+      )
+    }
+
+    val entreesEnStock = enRayonRepository.findAllByProduitAndSupprimer(produit, 0)
+    val quantiteStockTotal = entreesEnStock.sumOf { it?.quantite ?: 0 }
+    val stockSummary = mapOf(
+      "totalCommandeValue" to totalCout,
+      "stockTotalQuantity" to quantiteStockTotal
+    )
+
+    val stockEntries = entreesEnStock.map { e ->
+      mapOf(
+        "rayonId" to e?.id,
+        "id" to produit.id,
+        "nom" to produit.nom,
+        "fournisseurId" to e?.fournisseur?.id,
+        "nomFournisseur" to e?.fournisseur?.nom,
+        "codeFournisseur" to e?.fournisseur?.code,
+        "dateLivraison" to e?.dateLivraison,
+        "datePeremption" to e?.datePeremption,
+        "prixAchat" to (produit.prixAchat ?: BigDecimal.ZERO),
+        "prixVente" to (produit.prixVente ?: BigDecimal.ZERO),
+        "reduction" to (e?.reduction ?: BigDecimal.ZERO),
+        "quantiteRecu" to (e?.quantite ?: 0),
+        "quantiteStock" to (e?.quantiteRestante ?: 0)
+      )
+    }
+
+    val stockSorties = toutesLesVentes.map { c ->
+      mapOf(
+        "nom" to produit.nom,
+        "quantite" to (c?.quantite ?: 0),
+        "detail" to "Vente #${c?.vente?.id}",
+        "forme" to "Vente",
+        "dateOperation" to c?.vente?.dateVente,
+        "operation" to "SORTIE_VENTE"
+      )
+    }
+
+    return mapOf(
+      "ventesMois" to ventesMoisSummary,
+      "ventesTotal" to ventesTotalSummary,
+      "ventesList" to ventesList,
+
+      "commandePriceTotalRecu" to commandePriceTotalRecu,
+      "commandePriceTotalCommande" to commandePriceTotalCommande,
+      "commandesMois" to commandesMoisSummary,
+      "commandesTotal" to commandesTotalSummary,
+      "commandesList" to commandesList,
+
+      "stockSummary" to stockSummary,
+      "stockEntries" to stockEntries,
+      "stockSorties" to stockSorties
+    )
+  }
 
 }
 

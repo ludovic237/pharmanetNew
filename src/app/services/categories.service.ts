@@ -19,8 +19,8 @@ export class CategorieService {
     });
   }
 
-  getCategories(): Observable<Categorie[]> {
-    return this.http.get<Categorie[]>(this.url, {headers: this.getHeaders()});
+  getCategories(): Observable<any[]> {
+    return this.http.get<any[]>(this.url, {headers: this.getHeaders()});
   }
 
   addCategorie(categorie: Categorie): Observable<Categorie> {

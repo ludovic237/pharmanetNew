@@ -5,6 +5,7 @@ import com.example.backend.models.User
 import com.example.backend.repositories.UserRepository
 import com.example.backend.services.CustomUserDetailsService
 import com.example.backend.utility.JwtUtil
+import com.example.backend.utility.UserUtils
 import org.springframework.http.ResponseEntity
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
@@ -25,6 +26,7 @@ class AuthController(
   private var jwtUtil: JwtUtil,
   var userRepository: UserRepository,
   var securityConfig: SecurityConfig,
+  var userUtils: UserUtils,
   private val userDetailsService: CustomUserDetailsService,
   private val passwordEncoder: PasswordEncoder // Injected here
 ) {
@@ -50,11 +52,13 @@ class AuthController(
       SecurityContextHolder.getContext().authentication = authentication
 
       val token = jwtUtil.generateToken(authentication)
+      var user = userUtils.getCurrentUser()
       println("Generated token: $token")
       ResponseEntity.ok(
         mapOf(
           "message" to "Login successful",
-          "token" to token
+          "token" to token,
+          "nom" to "${user!!.nom} ${user!!.prenom}",
         )
       )
     } catch (ex: Exception) {
@@ -78,7 +82,7 @@ class AuthController(
   @PostMapping("/logout")
   fun logout(): ResponseEntity<*> {
     SecurityContextHolder.clearContext()
-    return ResponseEntity.ok("Logout successful")
+    return ResponseEntity.ok(mapOf("message" to "Logout successful"))
   }
 
   @CrossOrigin(origins = ["http://localhost:4200"])

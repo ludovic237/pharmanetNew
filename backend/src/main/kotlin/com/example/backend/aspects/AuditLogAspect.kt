@@ -98,10 +98,10 @@ class AuditLogAspect(
     userActionLog.userId = userUtils.getCurrentUserId()
     userActionLog.action = "AFTER_THROWING"
     userActionLog.methodName = methodName
-    userActionLog.exception = if (exception.message!!.length > 255) exception.message!!.substring(
-      0,
-      255
-    ) else exception.message // Truncate if necessary
+//    userActionLog.exception = if (exception.message!!.length > 255) exception.message!!.substring(
+//      0,
+//      255
+//    ) else exception.message // Truncate if necessary
 
     auditLogService.saveLog(userActionLog)
   }

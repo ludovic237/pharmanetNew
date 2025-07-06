@@ -82,5 +82,25 @@ import { Injectable } from '@angular/core';
       return this.http.get<any[]>(`${this.baseUrl}/rayons`, {headers: this.getHeaders()});
     }
 
+    getProduitDetails(id: number): Observable<any> {
+      return this.http.get<any>(`${this.baseUrl}/${id}/details`, { headers: this.getHeaders() });
+    }
+
+    getProduitDetailById(id: number): Observable<any> {
+      return this.http.get<any>(`${this.baseUrl}/${id}/info`, { headers: this.getHeaders() });
+    }
+
+    markStockAsExpired(productId: number): Observable<void> {
+      return this.http.put<void>(`${this.baseUrl}/${productId}/expire`, {}, { headers: this.getHeaders() });
+    }
+
+    generateLabel(productId: number): Observable<any> {
+      return this.http.get(`${this.baseUrl}/${productId}/label`, { headers: this.getHeaders(), responseType: 'blob' });
+    }
+
+    // deleteProduct(productId: number): Observable<void> {
+    //   return this.http.delete<void>(`${this.baseUrl}/${productId}`, { headers: this.getHeaders() });
+    // }
+
 
   }

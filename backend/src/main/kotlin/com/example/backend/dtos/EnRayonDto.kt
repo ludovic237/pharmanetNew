@@ -1,7 +1,5 @@
 package com.example.backend.dtos
 
-import java.math.BigDecimal
-import java.time.LocalDate
 import java.time.LocalDateTime
 
 data class ProduitEnRayonDto(
@@ -16,4 +14,13 @@ data class ProduitEnRayonDto(
     val prixAchat: Int? = null,
     val datePeremption: LocalDateTime?=LocalDateTime.now(),
     val dateLivraison: LocalDateTime?=LocalDateTime.now()
+)
+
+data class EnRayonDto (
+   val enRayonId:Int? = null,
+   val prixAchat:Int? = 0,
+   val prixVente :Int? = 0,
+   val reductionMax :Int? = 0,
+   val quantiteRestante :Int? = 0,
+   val datePeremption: String? = null // Getters and Setters
 )

@@ -47,6 +47,17 @@ class ProduitController(
     }
   }
 
+  @CrossOrigin(origins = ["http://localhost:4200"])
+  @PreAuthorize("isAuthenticated()")
+  @GetMapping("/{id}/info")
+  fun getProduitDetailById(@PathVariable id: Int): ResponseEntity<Any> {
+    return try {
+      ResponseEntity.ok(produitService.getProduitDetailById(id))
+    } catch (e: NotFoundException) {
+      ResponseEntity.status(HttpStatus.NOT_FOUND).body(mapOf("error" to e.message))
+    }
+  }
+
   @PreAuthorize("isAuthenticated()")
   @GetMapping
   fun getAllProduits(
@@ -161,5 +172,12 @@ class ProduitController(
   @GetMapping("/rayons")
   fun getAllRayons() = ResponseEntity.ok(produitService.getAllRayons())
 
+
+  @CrossOrigin(origins = ["http://localhost:4200"])
+  @PreAuthorize("isAuthenticated()")
+  @GetMapping("/{id}/details")
+  fun getProduitDetails(@PathVariable id: Int): ResponseEntity<Map<String, Any?>> {
+    return ResponseEntity.ok(produitService.getProduitDetails(id))
+  }
 
 }

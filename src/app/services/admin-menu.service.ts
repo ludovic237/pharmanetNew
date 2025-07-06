@@ -3,7 +3,8 @@ import { Location } from '@angular/common';
 import { Router } from '@angular/router';
 import { DomHandlerService } from './dom-handler.service';
 import { AdminMenu } from '@models/admin-menu.model';
-import { adminMenuItems } from '../common/data/admin-menu';
+import { adminMenuPharmaItems } from '../common/data/admin-menu-pharma';
+// import { adminMenuItems } from '../common/data/admin-menu';
 
 @Injectable({
   providedIn: 'root'
@@ -12,7 +13,7 @@ export class AdminMenuService {
   constructor(private location: Location, private router: Router, public domHandlerService: DomHandlerService) { }
 
   public getMenuItems(): Array<AdminMenu> {
-    return adminMenuItems;
+    return adminMenuPharmaItems;
   }
 
   public expandActiveSubMenu(menu: Array<AdminMenu>) {
@@ -61,7 +62,7 @@ export class AdminMenuService {
   }
 
   public closeAllSubMenus() {
-    adminMenuItems.forEach((item: AdminMenu) => {
+    adminMenuPharmaItems.forEach((item: AdminMenu) => {
       let subMenu = this.domHandlerService.winDocument.getElementById('sub-menu-' + item.id);
       let menuItem = this.domHandlerService.winDocument.getElementById('menu-item-' + item.id);
       if (subMenu) {

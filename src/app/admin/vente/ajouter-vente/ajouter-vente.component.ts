@@ -503,7 +503,7 @@ export class AjouterVenteComponent implements OnInit {
       }))
     };
 
-  this.ventesService.creerVenteSansEncaissement(paymentVenteData).subscribe({
+    this.ventesService.creerVenteSansEncaissement(paymentVenteData).subscribe({
       next: (response: any) => {
         // Reset form controls
         this.clientTypeControl.reset('');

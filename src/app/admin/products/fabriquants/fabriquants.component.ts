@@ -34,6 +34,7 @@ export class FabriquantsComponent implements OnInit {
   public fabriquants: any[] = [];
   // public fabriquants: Fabriquant[] = [];
   public page: any;
+  public totalItems = 0;
   public count = 6;
   domHandlerService = inject(DomHandlerService);
   public settings: Settings;
@@ -50,7 +51,8 @@ export class FabriquantsComponent implements OnInit {
     this.fabriquantService.getFabriquants().subscribe({
       next: (data) => {
         this.fabriquants = data;
-        this.count = this.fabriquants.length
+        // this.count = this.fabriquants.length;
+        this.totalItems = data.length;
       },
       error: (err) => {
         console.error('Error  subscription:', err);

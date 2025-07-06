@@ -1,13 +1,13 @@
 <div fxLayout="row" fxLayoutAlign="space-between center" class="px-2 py-1">
     <div fxLayout="row">
-        <mat-button-toggle-group #controls="matButtonToggleGroup" appearance="legacy" hideSingleSelectionIndicator="true">            
+        <mat-button-toggle-group #controls="matButtonToggleGroup" appearance="legacy" hideSingleSelectionIndicator="true">
             <mat-button-toggle value="add" (click)="openUserDialog(null)">
                 <mat-icon>person_add</mat-icon>
             </mat-button-toggle>
             <mat-button-toggle value="search">
                 <mat-icon>search</mat-icon>
-            </mat-button-toggle>           
-        </mat-button-toggle-group>            
+            </mat-button-toggle>
+        </mat-button-toggle-group>
     </div>
     <form class="user-search" [class.show]="controls.value == 'search'">
         <mat-form-field class="user-search-input">
@@ -15,30 +15,30 @@
         </mat-form-field>
     </form>
     <div fxLayout="row" fxLayoutAlign="space-between center">
-        <mat-button-toggle-group #viewType="matButtonToggleGroup" appearance="legacy" value="grid" hideSingleSelectionIndicator="true">            
+        <mat-button-toggle-group #viewType="matButtonToggleGroup" appearance="legacy" value="grid" hideSingleSelectionIndicator="true">
             <mat-button-toggle value="grid">
                 <mat-icon>view_module</mat-icon>
             </mat-button-toggle>
             <mat-button-toggle value="list">
                 <mat-icon>view_list</mat-icon>
-            </mat-button-toggle>           
+            </mat-button-toggle>
         </mat-button-toggle-group>
     </div>
 </div>
 
 @if (viewType.value == 'grid') {
-    <div fxLayout="row wrap"> 
-        @for (user of users | UserSearchPipe : searchText | paginate: { itemsPerPage: 6, currentPage: page }; track user.id) {          
-            <div fxFlex="100" fxFlex.gt-md="33.3" fxFlex.md="50" class="p-2"> 
-                <mat-card class="p-0">  
+    <div fxLayout="row wrap">
+        @for (user of users | UserSearchPipe : searchText | paginate: { itemsPerPage: 6, currentPage: page }; track user.id) {
+            <div fxFlex="100" fxFlex.gt-md="33.3" fxFlex.md="50" class="p-2">
+                <mat-card class="p-0">
                     <div class="bg-primary" fxLayout="row" fxLayoutAlign="space-between center">
                         <h3 class="user-name">
-                            @if (user.settings.isDeleted) {
+                            @if (user.supprimer) {
                                 User blocked
                             } @else {
-                                {{user.profile.name}} {{user.profile.surname}}
+                                {{user.nom}} {{user.prenom}}
                             }
-                        </h3> 
+                        </h3>
                         <button mat-icon-button [matMenuTriggerFor]="menu" #menuTrigger="matMenuTrigger" class="default-contrast">
                             <mat-icon>more_vert</mat-icon>
                         </button>
@@ -61,12 +61,12 @@
                                 @if (user.profile.image) {
                                     <img [src]="user.profile.image" class="transition-2" [class.blocked]="user.settings.isDeleted">
                                 } @else {
-                                    <img src="img/users/default-user.jpg" class="transition-2" [class.blocked]="user.settings.isDeleted">  
+                                    <img src="img/users/default-user.jpg" class="transition-2" [class.blocked]="user.settings.isDeleted">
                                 }
                                 @if (user.settings.isDeleted) {
                                     <mat-icon color="warn">block</mat-icon>
                                 }
-                            </div>                                            
+                            </div>
                             <div class="user-social">
                                 <mat-slide-toggle color="primary" [checked]="user.settings.isDeleted" (change)="user.settings.isDeleted = !user.settings.isDeleted"></mat-slide-toggle>
                             </div>
@@ -103,16 +103,16 @@
 @if (viewType.value == 'list') {
     <div fxLayout="row wrap">
         @for (user of users | UserSearchPipe : searchText | paginate: { itemsPerPage: 6, currentPage: page }; track user.id) {
-            <div fxFlex="100" class="p-2"> 
-                <mat-card class="p-0">  
+            <div fxFlex="100" class="p-2">
+                <mat-card class="p-0">
                     <div class="bg-primary" fxLayout="row" fxLayoutAlign="space-between center">
                         <h3 class="user-name">
-                            @if (user.settings.isDeleted) {
+                            @if (user.supprimer) {
                                 User blocked
                             } @else {
-                                {{user.profile.name}} {{user.profile.surname}}
+                                {{user.nom}} {{user.prenom}}
                             }
-                        </h3> 
+                        </h3>
                         <button mat-icon-button [matMenuTriggerFor]="menu" #menuTrigger="matMenuTrigger">
                             <mat-icon>more_vert</mat-icon>
                         </button>
@@ -133,14 +133,14 @@
                         <div fxFlex="20" fxFlex.xs="30" fxLayout="column" fxLayoutAlign="center center">
                             <div class="user-img">
                                 @if (user.profile.image) {
-                                    <img [src]="user.profile.image" class="transition-2" [class.blocked]="user.settings.isDeleted"> 
+                                    <img [src]="user.profile.image" class="transition-2" [class.blocked]="user.settings.isDeleted">
                                 } @else {
-                                    <img src="img/users/default-user.jpg" class="transition-2" [class.blocked]="user.settings.isDeleted">  
+                                    <img src="img/users/default-user.jpg" class="transition-2" [class.blocked]="user.settings.isDeleted">
                                 }
                                 @if (user.settings.isDeleted) {
-                                    <mat-icon class="warn-color">block</mat-icon> 
-                                } 
-                            </div>                                            
+                                    <mat-icon class="warn-color">block</mat-icon>
+                                }
+                            </div>
                             <div class="user-social">
                                 <mat-slide-toggle color="primary" [checked]="user.settings.isDeleted" (change)="user.settings.isDeleted = !user.settings.isDeleted"></mat-slide-toggle>
                             </div>
@@ -158,13 +158,13 @@
                                 <p fxLayout="row" fxLayoutAlign="start center">
                                     <mat-icon class="text-muted">attach_money</mat-icon>
                                     <span>{{user.work.salary}}</span>
-                                </p>                                               
+                                </p>
                             </div>
                             <div fxFlex="30" fxFlex.xs="100" fxLayout="column">
                                 <p fxLayout="row" fxLayoutAlign="start center">
                                     <mat-icon class="text-muted">mail_outline</mat-icon>
                                     <span>{{user.contacts.email}}</span>
-                                </p> 
+                                </p>
                                 <p fxLayout="row" fxLayoutAlign="start center">
                                     <mat-icon class="text-muted">call</mat-icon>
                                     <span>{{user.contacts.phone}}</span>
@@ -172,7 +172,7 @@
                                 <p fxLayout="row" fxLayoutAlign="start center">
                                     <mat-icon class="text-muted">location_on</mat-icon>
                                     <span>{{user.contacts.address}}</span>
-                                </p>                        
+                                </p>
                             </div>
                             <div fxFlex="40" fxFlex.xs="100" fxLayout="column">
                                 <p fxLayout="row" fxLayoutAlign="start center">
@@ -182,17 +182,17 @@
                                 <p fxLayout="row" fxLayoutAlign="start center">
                                     <mat-icon class="text-muted">date_range</mat-icon>
                                     <span>Joined {{user.settings.joinedDate | date:"dd MMMM, yyyy 'at' HH:mm"}}</span>
-                                </p> 
+                                </p>
                                 <p fxLayout="row" fxLayoutAlign="start center">
                                     <mat-icon class="text-muted">
                                         @if (user.settings.isDeleted) {
-                                            person_outline 
+                                            person_outline
                                         } @else {
                                             person
                                         }
-                                    </mat-icon> 
+                                    </mat-icon>
                                     <span>{{ (user.settings.isDeleted) ? 'Blocked' : 'Active' }}</span>
-                                </p>                       
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -202,16 +202,16 @@
     </div>
 }
 
-@if (users) { 
+@if (users) {
     <div fxLayout="row wrap">
-        <div fxFlex="100" class="p-2"> 
-            <mat-card class="text-center">           
+        <div fxFlex="100" class="p-2">
+            <mat-card class="text-center">
                 <pagination-controls class="product-pagination" [autoHide]="true" [maxSize]="3" (pageChange)="onPageChanged($event)"></pagination-controls>
             </mat-card>
         </div>
     </div>
 } @else {
-    <div fxLayout="column" fxLayoutAlign="center center" class="user-spinner">   
-        <mat-spinner color="primary"></mat-spinner>    
+    <div fxLayout="column" fxLayoutAlign="center center" class="user-spinner">
+        <mat-spinner color="primary"></mat-spinner>
     </div>
 }

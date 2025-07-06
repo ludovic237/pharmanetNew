@@ -69,6 +69,7 @@ export class SignInComponent implements OnInit {
           console.log('Login successful:', response);
 
           localStorage.setItem('token', response.token);
+          localStorage.setItem('nom', response.nom);
 
           this.snackBar.open(response.message, '×', {
             panelClass: 'success',

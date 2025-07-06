@@ -1,9 +1,13 @@
 package com.example.backend.services
 
+import com.example.backend.dtos.EnRayonDto
 import com.example.backend.dtos.ProduitEnRayonDto
 import com.example.backend.models.EnRayon
 import com.example.backend.models.Forme
 import com.example.backend.repositories.*
+import jakarta.persistence.criteria.Predicate
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
@@ -158,4 +162,64 @@ class EnRayonService(
   @Transactional
   fun getProduitsEnRayonParIntervallePrixVente(minPrix: Double, maxPrix: Double): List<EnRayon> =
     enRayonRepository.findByPrixVenteBetweenAndSupprimer(minPrix, maxPrix, 0)
+
+  @Transactional
+  fun mettreAJourProduitEnRayon(produitDto: EnRayonDto): EnRayon {
+    val enRayon = enRayonRepository.findById(produitDto.enRayonId!!.toInt())
+      .orElseThrow { RuntimeException("Produit en rayon introuvable avec l'ID: ${produitDto.enRayonId}") }
+
+    val produit = enRayon.produit ?: throw RuntimeException("Produit introuvable pour l'ID: ${produitDto.enRayonId}")
+
+    produit.apply {
+      this.stock =
+        (produit.stock!! - enRayon.quantiteRestante!!) + produitDto.quantiteRestante!! // Update the stock of the product
+    }
+
+    produitRepository.save(produit) // Save the updated product
+
+    enRayon.apply {
+      this.reduction = produitDto.reductionMax
+      this.prixAchat = produitDto.prixAchat
+      this.prixVente = produitDto.prixVente
+      this.quantiteRestante = produitDto.quantiteRestante
+      this.datePeremption = produitDto.datePeremption?.let { LocalDateTime.parse(it) }
+    }
+    return enRayonRepository.save(enRayon) // Save the updated EnRayon
+  }
+
+
+  @Transactional
+  fun getProduitsEnRayonPageable(
+    nomProduit: String?,
+    bientotPerimee: Boolean?,
+    joursAvantPeremption: Int?,
+    enStock: Boolean?,
+    pageable: Pageable
+  ): Page<Map<String, Any?>> {
+    val specification = EnRayonRepository.filterEnRayon(nomProduit, bientotPerimee, joursAvantPeremption, enStock)
+    return enRayonRepository.findAll(specification,pageable)
+      .map { enRayon ->
+        mapOf(
+          "id" to enRayon.id,
+            "produitId" to enRayon.produit!!.id,
+            "produitNom" to enRayon.produit!!.nom,
+            "rayonId" to enRayon.rayon?.id,
+            "rayonNom" to enRayon.rayon?.nom,
+            "fournisseurId" to enRayon.fournisseur!!.id,
+            "fournisseurNom" to enRayon.fournisseur!!.nom,
+            "unite" to enRayon.unite,
+            "commandeId" to enRayon.commande!!.id,
+            "commandeRef" to enRayon.commande!!.ref,
+            "dateLivraison" to enRayon.dateLivraison,
+            "datePeremption" to enRayon.datePeremption,
+            "prixAchat" to enRayon.prixAchat,
+            "prixVente" to enRayon.prixVente,
+            "reduction" to enRayon.reduction,
+            "quantite" to enRayon.quantite,
+            "quantiteRestante" to enRayon.quantiteRestante,
+            "supprimer" to enRayon.supprimer,
+        )
+      }
+  }
+
 }

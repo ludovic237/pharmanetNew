@@ -8,4 +8,5 @@ import org.springframework.data.jpa.repository.JpaRepository
 interface ConcernerRepository : JpaRepository<Concerner, Int> {
   fun findByVenteAndProduit(vente: Vente, produit: Produit): Concerner?
   fun findByVente(vente: Vente): List<Concerner?>
+  fun findByProduit(produit: Produit): List<Concerner?>
 }

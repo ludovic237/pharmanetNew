@@ -20,15 +20,22 @@ import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators} fr
 import {MatInputModule} from "@angular/material/input";
 import {MatSelectModule} from "@angular/material/select";
 import {MatCheckboxModule} from "@angular/material/checkbox";
+import {MatTableModule} from "@angular/material/table";
+import {MatButtonToggleModule} from "@angular/material/button-toggle";
+import {User} from "@models/user.model";
+import {UserDialogComponent} from "../../users/user-dialog/user-dialog.component";
+import {DetailProduitDialogComponent} from "./detail-produit-dialog/detail-produit-dialog.component";
 
 @Component({
   selector: 'app-product-list',
   imports: [
+    MatTableModule,
     RouterModule,
     FlexLayoutModule,
     MatCardModule,
     MatChipsModule,
     MatButtonModule,
+    MatButtonToggleModule,
     MatIconModule,
     CommonModule,
     ReactiveFormsModule,
@@ -45,6 +52,10 @@ import {MatCheckboxModule} from "@angular/material/checkbox";
   styleUrl: './product-list.component.scss'
 })
 export class ProductListComponent implements OnInit {
+  displayedColumns: string[] = ['image', 'category', 'name', 'oldPrice', 'newPrice', 'actions'];
+
+  public searchText: string;
+
   public products: Array<ProductNew> = [];
   public categories: Array<any> = [];
   public viewCol: number = 25;
@@ -78,7 +89,7 @@ export class ProductListComponent implements OnInit {
 
   public getAllProducts() {
     this.productService.getProducts(this.page, 40).subscribe({
-      next: (data:any) => {
+      next: (data: any) => {
         this.count = data.numberOfElements;
         this.totalItems = data.totalElements;
         this.products = data.content; // Les produits pour la page actuelle
@@ -89,10 +100,24 @@ export class ProductListComponent implements OnInit {
     });
   }
 
+  searchUsers(): void {
+    this.productService.searchProducts(this.searchText, this.page, 40).subscribe({
+      // this.productService.searchProducts(this.searchTerm, this.page, this.count).subscribe({
+      next: (data: any) => {
+        this.count = data.numberOfElements;
+        this.totalItems = data.totalElements;
+        this.products = data.content; // Les produits pour la page actuelle
+      },
+      error: (err) => {
+        console.error('Error searching products:', err);
+      }
+    });
+  }
+
   public searchProducts(): void {
     console.log('Searching for products with term:', this.form.value);
     this.productService.searchProducts(this.form.value.searchForm, this.page, 40).subscribe({
-    // this.productService.searchProducts(this.searchTerm, this.page, this.count).subscribe({
+      // this.productService.searchProducts(this.searchTerm, this.page, this.count).subscribe({
       next: (data: any) => {
         this.count = data.numberOfElements;
         this.totalItems = data.totalElements;
@@ -139,6 +164,41 @@ export class ProductListComponent implements OnInit {
       next: (data) => {
         this.categories = data;
         this.getAllProducts();
+      },
+      error: (err) => {
+        console.error('Error fetching products:', err);
+      }
+    });
+  }
+
+  public openUserDialog(user: User) {
+    /*    let dialogRef = this.dialog.open(UserDialogComponent, {
+          data: user
+        });
+        dialogRef.afterClosed().subscribe((user: User) => {
+          if (user) {
+            // (user.id) ? this.updateUser(user) : this.addUser(user);
+          }
+        });*/
+  }
+
+  getDetailProduit(product: any) {
+    this.productService.getProduitDetails(product.id).subscribe({
+      next: (data) => {
+        const dialogRef = this.dialog.open(DetailProduitDialogComponent, {
+          data: data,
+          width: "80%",
+          panelClass: ['theme-dialog'],
+          autoFocus: false,
+        });
+        dialogRef.afterClosed().subscribe(dialogResult => {
+          if (dialogResult) {
+            const index: number = this.products.indexOf(product);
+            if (index !== -1) {
+              this.products.splice(index, 1);
+            }
+          }
+        });
       },
       error: (err) => {
         console.error('Error fetching products:', err);

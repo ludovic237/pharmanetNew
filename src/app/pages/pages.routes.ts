@@ -8,6 +8,10 @@ export const routes: Routes = [
         children: [
             {
                 path: '',
+                loadComponent: () => import('./sign-in/sign-in.component').then(c => c.SignInComponent)
+            },
+            {
+                path: '',
                 loadComponent: () => import('./home/home.component').then(c => c.HomeComponent)
             },
             {
@@ -54,7 +58,7 @@ export const routes: Routes = [
                 path: 'sign-in',
                 loadComponent: () => import('./sign-in/sign-in.component').then(c => c.SignInComponent),
                 data: { breadcrumb: 'Sign In' }
-            }            
+            }
         ]
     }
 ];

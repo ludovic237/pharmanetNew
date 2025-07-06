@@ -22,6 +22,7 @@ import { OptionsComponent } from '../theme/components/options/options.component'
 import { FooterComponent } from '../theme/components/footer/footer.component';
 import { FlexLayoutModule } from '@ngbracket/ngx-layout';
 import { MatButtonModule } from '@angular/material/button';
+import {MenuPharmaComponent} from "../theme/components/menu/menu-pharma.component";
 
 @Component({
     selector: 'app-pages',
@@ -38,7 +39,7 @@ import { MatButtonModule } from '@angular/material/button';
         SidenavMenuComponent,
         TopMenuComponent,
         CategoryListComponent,
-        MenuComponent,
+        MenuPharmaComponent,
         BreadcrumbComponent,
         OptionsComponent,
         FooterComponent,
