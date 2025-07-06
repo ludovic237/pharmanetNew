@@ -1,0 +1,88 @@
+<mat-toolbar color="primary">
+  <div fxLayout="row" fxLayoutAlign="space-between center">
+    <h2>Detail</h2>
+    <button mat-raised-button color="primary" (click)="onSetDefault()" class="default-button">
+      Définir par défaut
+    </button>
+  </div>
+</mat-toolbar>
+<div class="detail-dialog">
+  <mat-dialog-content class="dialog-content">
+    <form [formGroup]="detailForm" class="detail-form">
+
+
+      <div class="form-fields">
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-label>Prix d'achat</mat-label>
+          <input matInput type="number" formControlName="prixAchat" min="0">
+          <mat-error *ngIf="detailForm.get('prixAchat')?.hasError('required')">
+            Prix d'achat requis
+          </mat-error>
+          <mat-error *ngIf="detailForm.get('prixAchat')?.hasError('min')">
+            Prix d'achat doit être positif
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-label>Prix de vente</mat-label>
+          <input matInput type="number" formControlName="prixVente" min="0">
+          <mat-error *ngIf="detailForm.get('prixVente')?.hasError('required')">
+            Prix de vente requis
+          </mat-error>
+          <mat-error *ngIf="detailForm.get('prixVente')?.hasError('min')">
+            Prix de vente doit être positif
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-label>Réduction max</mat-label>
+          <input matInput type="number" formControlName="reductionMax" min="0" max="100">
+          <mat-hint>Pourcentage de réduction maximum</mat-hint>
+          <mat-error *ngIf="detailForm.get('reductionMax')?.hasError('required')">
+            Réduction max requise
+          </mat-error>
+          <mat-error *ngIf="detailForm.get('reductionMax')?.hasError('min')">
+            Réduction doit être positive
+          </mat-error>
+          <mat-error *ngIf="detailForm.get('reductionMax')?.hasError('max')">
+            Réduction ne peut pas dépasser 100%
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-label>Quantité restante</mat-label>
+          <input matInput type="number" formControlName="quantiteRestante" min="0">
+          <mat-error *ngIf="detailForm.get('quantiteRestante')?.hasError('required')">
+            Quantité restante requise
+          </mat-error>
+          <mat-error *ngIf="detailForm.get('quantiteRestante')?.hasError('min')">
+            Quantité doit être positive ou nulle
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="form-field date-field">
+          <mat-label>Date de péremption</mat-label>
+          <input matInput [matDatepicker]="picker" formControlName="datePeremption">
+          <mat-hint>MM/DD/YYYY</mat-hint>
+          <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+          <mat-datepicker #picker></mat-datepicker>
+          <mat-error *ngIf="detailForm.get('datePeremption')?.hasError('required')">
+            Date de péremption requise
+          </mat-error>
+        </mat-form-field>
+      </div>
+    </form>
+
+
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end" class="dialog-actions">
+    <button mat-button (click)="onCancel()" class="cancel-button">
+      Annuler
+    </button>
+    <button mat-raised-button color="primary" (click)="onSave()"
+            [disabled]="!detailForm.valid" class="save-button">
+      Sauvegarder
+    </button>
+  </mat-dialog-actions>
+</div>

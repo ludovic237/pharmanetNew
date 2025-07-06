@@ -1,0 +1,103 @@
+<div class="product-dialog">
+  <h2 mat-dialog-title>Produit</h2>
+
+  <mat-dialog-content class="dialog-content">
+    <div class="product-form">
+
+      <!-- Section Quantité étiquette -->
+      <form [formGroup]="etiquetteForm" (ngSubmit)="generatePDF()" class="etiquette-section">
+        <mat-form-field appearance="outline" class="etiquette-field">
+          <mat-label>Quantité étiquette</mat-label>
+          <input matInput type="number" formControlName="quantiteEtiquette" min="1">
+        </mat-form-field>
+        <button mat-raised-button color="primary" type="submit"
+                [disabled]="etiquetteForm.get('quantiteEtiquette')?.value <= 0">
+          <mat-icon>print</mat-icon>
+          Imprimer
+        </button>
+      </form>
+
+      <!-- Section Informations Codebarre -->
+      <form [formGroup]="productForm" class="product-info-section">
+        <div class="section-title">
+          <mat-icon>qr_code</mat-icon>
+          <span>Informations Codebarre</span>
+        </div>
+
+        <div class="form-grid">
+          <mat-form-field appearance="outline">
+            <mat-label>Nom Produit</mat-label>
+            <input matInput [readonly]="data.type === 'info'" formControlName="nomProduit">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Code barre</mat-label>
+            <input matInput [readonly]="data.type === 'info'" formControlName="codeBarre">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Nom Fournisseur</mat-label>
+            <input matInput [readonly]="data.type === 'info'" formControlName="nomFournisseur">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Code Fournisseur</mat-label>
+            <input matInput [readonly]="data.type === 'info'" formControlName="codeFournisseur">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Date Livraison</mat-label>
+            <input matInput [readonly]="data.type === 'info'" type="date" formControlName="dateLivraison">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Date Péremption</mat-label>
+            <input matInput [readonly]="data.type === 'info'" type="date" formControlName="datePeremption">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Prix vente</mat-label>
+            <input matInput [readonly]="data.type === 'info'" type="number" formControlName="prixVente">
+          </mat-form-field>
+        </div>
+
+        <!-- Section Autres Informations -->
+        <div class="section-title">
+          <mat-icon>info</mat-icon>
+          <span>Autres Informations</span>
+        </div>
+
+        <div class="form-grid">
+          <mat-form-field appearance="outline">
+            <mat-label>Quantité</mat-label>
+            <input matInput [readonly]="data.type === 'info'" type="number" formControlName="quantite">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Quantité restante</mat-label>
+            <input matInput [readonly]="data.type === 'info'" type="number" formControlName="quantiteRestante">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Prix Achat</mat-label>
+            <input matInput [readonly]="data.type === 'info'" type="number" formControlName="prixAchat">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Réduction(%)</mat-label>
+            <input matInput [readonly]="data.type === 'info'" type="number" formControlName="reduction" min="0"
+                   max="100">
+          </mat-form-field>
+        </div>
+      </form>
+
+    </div>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end" *ngIf="data.type !== 'info'">
+    <button mat-button (click)="onNoClick()">Fermer</button>
+    <button mat-raised-button color="primary" (click)="onSave()" [disabled]="!productForm.valid">
+      Sauvegarder
+    </button>
+  </mat-dialog-actions>
+</div>
