@@ -12,5 +12,7 @@ interface ProduitRepository : JpaRepository<Produit, Int> {
   fun findByNomContainingIgnoreCaseAndSupprimer(nom: String, supprimer: Int = 0): List<Produit>
   fun findByNomContainingIgnoreCase(nom: String): List<Produit>
   fun findByNomContaining(nom: String): List<Produit>
+  fun findByDetailId(detailId: Int): List<Produit>
+  fun findByIdAndDetailId(productId: Int, productDetailId:Int): Produit
   fun findByNomContainingIgnoreCase(nom: String, pageable: Pageable): Page<Produit>
 }

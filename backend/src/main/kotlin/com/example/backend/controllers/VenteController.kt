@@ -9,6 +9,7 @@ import com.example.backend.models.Vente
 import com.example.backend.services.ProduitRetourRequestDto
 import com.example.backend.services.ProduitService
 import com.example.backend.services.VenteService
+import org.bouncycastle.util.test.FixedSecureRandom.BigInteger
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort

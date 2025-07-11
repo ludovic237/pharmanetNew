@@ -97,6 +97,6 @@ class Produit(
   var supprimer: Int? = 0,
 ) {
   override fun toString(): String {
-    return "Produit(id=$id, nom='$nom', prixAchat=$prixAchat, prixVente=$prixVente, stock=$stock)"
+    return "Produit(id=$id, nom='$nom', grossisteId=$grossisteId, detailId='$detailId', prixAchat=$prixAchat, prixVente=$prixVente, stock=$stock)"
   }
 }

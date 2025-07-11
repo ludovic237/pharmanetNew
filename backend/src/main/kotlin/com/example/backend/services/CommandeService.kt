@@ -72,6 +72,10 @@ class CommandeService(
     commande.uniteGratuite = quantiteTotaleUniteGratuite
     commande.qtiteCmd = quantiteTotale
     commande.qtiteRecu = quantiteTotaleRecu ?: 0
+    val dateTimeNow = LocalDateTime.now()
+    val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
+    val formattedDateTimeNow = dateTimeNow.format(formatter)
+    commande.id = formattedDateTimeNow.toLong()
     var savedCommande = commandeRepository.save(commande)
 
     // Ajout des produits dans la table ProduitCommande

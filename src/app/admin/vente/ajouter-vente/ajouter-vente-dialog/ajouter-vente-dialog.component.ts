@@ -1,6 +1,6 @@
-import {Component, Inject} from '@angular/core';
+import {Component, Inject, OnInit} from '@angular/core';
 import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
-import {MAT_DIALOG_DATA, MatDialogModule, MatDialogRef} from "@angular/material/dialog";
+import {MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef} from "@angular/material/dialog";
 import {MatInputModule} from "@angular/material/input";
 import {MatSelectModule} from "@angular/material/select";
 import {MatCheckboxModule} from "@angular/material/checkbox";
@@ -14,6 +14,11 @@ import {MatTableModule} from "@angular/material/table";
 import {MatIconModule} from "@angular/material/icon";
 import {MatDividerModule} from "@angular/material/divider";
 import {MatSnackBar} from "@angular/material/snack-bar";
+import {Settings, SettingsService} from "@services/settings.service";
+import {
+  UpdateProduitDetailDialogComponent
+} from "./update-produit-detail-dialog/update-produit-detail-dialog.component";
+import {MatToolbarModule} from "@angular/material/toolbar";
 
 @Component({
   selector: 'app-ajouter-vente-dialog',
@@ -29,14 +34,16 @@ import {MatSnackBar} from "@angular/material/snack-bar";
     MatButtonModule,
     MatButtonModule, MatDividerModule, MatIconModule,
     MatTableModule,
+    MatToolbarModule,
     MatAutocompleteModule,
     FlexLayoutModule
   ],
   templateUrl: './ajouter-vente-dialog.component.html',
   styleUrl: './ajouter-vente-dialog.component.scss'
 })
-export class AjouterVenteDialogComponent {
+export class AjouterVenteDialogComponent implements OnInit {
 
+  type="detail"
   public enRayonList: any[] = [];
   public modifiedProducts: any[] = [];
   public displayedColumns: string[] = [
@@ -50,15 +57,22 @@ export class AjouterVenteDialogComponent {
     'actions'
   ];
   public form: FormGroup;
+  public settings: Settings;
 
   constructor(public dialogRef: MatDialogRef<AjouterVenteDialogComponent>,
               public enRayonService: EnrayonsService, // Replace with actual service
               public snackBar: MatSnackBar,
               @Inject(MAT_DIALOG_DATA) public data: any,
-              public fb: FormBuilder) {
+              public fb: FormBuilder,
+              public dialog: MatDialog,
+              public settingsService: SettingsService) {
+    this.settings = this.settingsService.settings;
   }
 
   ngOnInit(): void {
+    this.type = this.data.type;
+    console.log("this.type")
+    console.log(this.type)
     this.form = this.fb.group({
       id: 0,
       name: [null, Validators.required],
@@ -71,6 +85,7 @@ export class AjouterVenteDialogComponent {
     this.enRayonList = this.data.enRayonList.map((item: any) => ({
       ...item,
       quantiteRestante: 0,
+      quantiteStock: item.quantiteRestante,
       prixVente: item.prixVente
     }));
   }
@@ -105,6 +120,8 @@ export class AjouterVenteDialogComponent {
       verticalPosition: 'top',
       duration: 3000
     });
+    console.log("this.modifiedProducts")
+    console.log(this.modifiedProducts)
     this.dialogRef.close(this.modifiedProducts);
   }
 
@@ -134,6 +151,22 @@ export class AjouterVenteDialogComponent {
   isValid(datePeremption: Date): boolean {
     const diffInDays = (new Date(datePeremption).getTime() - this.currentDate.getTime()) / (1000 * 60 * 60 * 24);
     return diffInDays > 90;
+  }
+
+  augmenterDetail(){
+    const dialogRef = this.dialog.open(UpdateProduitDetailDialogComponent, {
+      data: {
+        id:this.data.id
+      },
+      maxWidth: "400px",
+      // width: "80%",
+      panelClass: ['theme-dialog'],
+      autoFocus: false,
+      direction: (this.settings.rtl) ? 'rtl' : 'ltr'
+    });
+    dialogRef.afterClosed().subscribe((modifiedProducts: any[]) => {
+
+    });
   }
 
 }

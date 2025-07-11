@@ -1,0 +1,104 @@
+<h1 mat-dialog-title>Nouvelle Sortie de Stock</h1>
+
+<div mat-dialog-content>
+  <!-- Formulaire pour ajouter une sortie -->
+  <form [formGroup]="sortieForm" class="sortie-form">
+    <div class="form-row">
+      <!-- Champ Nom Produit (lecture seule) -->
+      <mat-form-field appearance="outline" class="form-field">
+        <mat-label>Nom Produit</mat-label>
+        <input matInput [value]="data.name" readonly>
+      </mat-form-field>
+
+      <!-- Champ Nom Parent (lecture seule) -->
+      <mat-form-field appearance="outline" class="form-field">
+        <mat-label>Nom Parent</mat-label>
+        <input matInput [value]="data.parentNom || 'N/A'" readonly>
+      </mat-form-field>
+    </div>
+
+    <div class="form-row">
+      <!-- Champ Contenu (lecture seule) -->
+      <mat-form-field appearance="outline" class="form-field">
+        <mat-label>Contenu</mat-label>
+        <input matInput [value]="data.contenu || 'N/A'" readonly>
+      </mat-form-field>
+
+      <!-- Champ Stock (lecture seule) -->
+      <mat-form-field appearance="outline" class="form-field">
+        <mat-label>Stock Actuel</mat-label>
+        <input matInput [value]="data.stock" readonly>
+      </mat-form-field>
+    </div>
+
+    <div class="form-row action-row">
+      <!-- Champ Quantité -->
+      <mat-form-field appearance="outline" class="form-field">
+        <mat-label>Quantité à sortir</mat-label>
+        <input matInput type="number" formControlName="quantite" placeholder="0">
+        <mat-error *ngIf="sortieForm.get('quantite')?.hasError('required')">
+          La quantité est requise.
+        </mat-error>
+        <mat-error *ngIf="sortieForm.get('quantite')?.hasError('min')">
+          La quantité doit être au moins 1.
+        </mat-error>
+        <mat-error *ngIf="sortieForm.get('quantite')?.hasError('max')">
+          La quantité ne peut pas dépasser le stock ({{data.stock}}).
+        </mat-error>
+      </mat-form-field>
+
+      <!-- Bouton Ajouter -->
+      <button mat-flat-button color="primary" (click)="ajouterAuTableau()" [disabled]="sortieForm.invalid">
+        <mat-icon>add</mat-icon>
+        Ajouter
+      </button>
+    </div>
+  </form>
+
+  <!-- Séparateur visuel -->
+  <hr class="divider">
+
+  <!-- Tableau des sorties à effectuer -->
+  <div class="table-container" *ngIf="dataSource.length > 0">
+    <table mat-table [dataSource]="dataSource">
+
+      <!-- Colonne Nom Produit -->
+      <ng-container matColumnDef="nomProduit">
+        <th mat-header-cell *matHeaderCellDef> Produit </th>
+        <td mat-cell *matCellDef="let element"> {{element.nomProduit}} </td>
+      </ng-container>
+
+      <!-- Colonne Quantité -->
+      <ng-container matColumnDef="quantite">
+        <th mat-header-cell *matHeaderCellDef> Quantité </th>
+        <td mat-cell *matCellDef="let element"> {{element.quantite}} </td>
+      </ng-container>
+
+      <!-- Colonne Action (Supprimer) -->
+      <ng-container matColumnDef="action">
+        <th mat-header-cell *matHeaderCellDef> Action </th>
+        <td mat-cell *matCellDef="let element">
+          <button mat-icon-button color="warn" (click)="supprimerLigne(element)" matTooltip="Supprimer la ligne">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+  </div>
+
+  <div class="no-data" *ngIf="dataSource.length === 0">
+    <p>Aucun produit ajouté à la sortie.</p>
+  </div>
+
+</div>
+
+<!-- Actions en bas de la modale -->
+<div mat-dialog-actions align="end">
+  <button mat-stroked-button mat-dialog-close>Annuler</button>
+  <button mat-flat-button color="primary" (click)="enregistrer()" [disabled]="dataSource.length === 0">
+    Enregistrer les Sorties
+  </button>
+</div>

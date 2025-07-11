@@ -2,6 +2,7 @@ package com.example.backend.repositories;
 
 import com.example.backend.models.*
 import jakarta.persistence.criteria.Predicate
+import org.bouncycastle.util.test.FixedSecureRandom.BigInteger
 import org.springframework.data.jpa.domain.Specification
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor
@@ -11,6 +12,7 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 interface VenteRepository : JpaRepository<Vente, Long> , JpaSpecificationExecutor<Vente> {
+  fun findByCaisseId(caisseId: Long): List<Vente>?
   fun findByIdAndSupprimer(id: Long, supprimer: Int): Vente?
   fun findByIdAndEtat(id: Long, etat: String): Vente?
 
@@ -77,4 +79,6 @@ interface VenteRepository : JpaRepository<Vente, Long> , JpaSpecificationExecuto
   }
 
   fun findByReferenceAndSupprimer(reference: String, supprimer: Int): Vente?
+
+
 }

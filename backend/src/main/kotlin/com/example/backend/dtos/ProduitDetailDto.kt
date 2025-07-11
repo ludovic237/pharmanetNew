@@ -1,7 +1,7 @@
 package com.example.backend.dtos
 
+import lombok.Data
 import java.math.BigDecimal
-import java.time.LocalDate
 import java.time.LocalDateTime
 
 data class ProduitRequestDto(
@@ -81,3 +81,22 @@ data class CategorieDto(val id: Int?, val nom: String)
 data class FournisseurDto(val id: Int?, val nom: String, val email: String?, val telephone: String?)
 data class DepotDto(val id: Int?, val nom: String, val adresse: String?)
 data class RayonDto(val id: Int?, val nom: String?, val code: String?)
+
+
+data class ProduitDetailDto (
+  val nom: String? = null,
+  val reference: String? = null,
+  val stock:Int? = 0,
+  val stockMax:Int? = 0,
+  val stockMin:Int? = 0,
+  val prix: String? = null,
+  val reductionMax:Int? = 0,
+  val magasinId: Long? = null,
+  val data: List<DataDto>? = null,
+)
+
+data class DataDto (
+  val nom: String? = null,
+  val contenuDetail: String? = null,
+  val produitId: Long? = null
+)

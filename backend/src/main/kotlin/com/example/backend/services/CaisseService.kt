@@ -3,21 +3,34 @@ package com.example.backend.services
 import com.example.backend.dtos.CaisseDto
 import com.example.backend.dtos.CaisseOuvertureRequestDto
 import com.example.backend.models.Caisse
-import com.example.backend.repositories.CaisseRepository
-import com.example.backend.repositories.EmployeRepository
+import com.example.backend.models.Vente
+import com.example.backend.repositories.*
 import com.example.backend.utility.UserUtils
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.LocalTime
 import java.util.*
 
 @Service
 class CaisseService(
   private val caisseRepository: CaisseRepository,
+  private val bonCaisseRepository: BonCaisseRepository,
+  private val retourProduitRepository: RetourProduitRepository,
+  private val depenseRepository: DepenseRepository,
+  private val venteRepository: VenteRepository,
   private val employeRepository: EmployeRepository,
-  private val userUtils: UserUtils
+  private val userUtils: UserUtils,
+  private val produitRetourRepository: ProduitRetourRepository,
+  private val concernerRepository: ConcernerRepository,
+  private val facturationRepository: FacturationRepository,
+  private val factureEspeceRepository: FactureEspeceRepository,
+  private val factureTicketRepository: FactureTicketRepository,
+  private val factureElectroniqueRepository: FactureElectroniqueRepository
 ) {
 
   fun isCaisseOuverte(): Boolean {
@@ -65,9 +78,12 @@ class CaisseService(
 
   private fun genererSessionId(): String {
     // Ge un identifiant de session simple, vous pouvez le rendre plus complexe
-    return "SESS-${LocalDateTime.now().year}${LocalDateTime.now().monthValue}${LocalDateTime.now().dayOfMonth}-${
-      UUID.randomUUID().toString().substring(0, 8).uppercase()
-    }"
+    var heure = LocalTime.now()
+    return when (heure) {
+      in LocalTime.of(5, 0)..LocalTime.of(11, 59) -> "matin"
+      in LocalTime.of(12, 0)..LocalTime.of(23, 59) -> "soir"
+      else -> "soir"
+    }
   }
 
   fun mapToCaisseDto(caisse: Caisse): CaisseDto {
@@ -76,10 +92,10 @@ class CaisseService(
       employeId = caisse.employe?.id,
       employeNom = "${caisse.employe?.user?.prenom ?: ""} ${caisse.employe?.user?.nom ?: ""}".trim(),
       dateOuvert = caisse.dateOuvert,
-      dateFerme =null,
+      dateFerme = null,
       session = caisse.session,
       fondCaisseOuvert = caisse.fondCaisseOuvert!!.toBigDecimal(),
-      fondCaisseFerme =null,
+      fondCaisseFerme = null,
       etat = caisse.etat
     )
   }
@@ -110,7 +126,7 @@ class CaisseService(
     return caisseRepository.save(activeCaisse)
   }
 
-@Transactional
+  @Transactional
   fun cloturerCaisse(fondCaisseFerme: Int, fermetureCaisse: String): CaisseDto {
     val currentUser = userUtils.getCurrentUserId()
     val clotureCaisse = getCaisseAttenteCloture()
@@ -129,6 +145,273 @@ class CaisseService(
     }
   }
 
+
+  @Transactional
+  fun generateCaisseReport(caisseId: Long): Map<String, Any?> {
+    val caisse =
+      caisseRepository.findById(caisseId.toInt()).orElseThrow { IllegalArgumentException("Caisse not found") }
+    var prixTotalEncaissementVente = 0
+    var prixTotalFactureEspece = 0
+    var prixTotalFactureElectronique = 0
+    var prixTotalFactureTicket = 0
+
+    if (facturationRepository.findByCaisse(caisse)!!.size > 0) {
+      facturationRepository.findByCaisse(caisse)!!.forEach { facturation ->
+        val facturationId = facturation!!.id?.toLong()
+        if (facturationId != null) {
+          if (factureEspeceRepository.existsByFacturationId(facturationId)) {
+            val factureEspece = factureEspeceRepository.findByFacturationId(facturationId)
+            prixTotalFactureEspece += factureEspece?.montant ?: 0
+          }
+          if (factureElectroniqueRepository.existsByFacturationId(facturationId)) {
+            val factureElectronique = factureElectroniqueRepository.findByFacturationId(facturationId)
+            prixTotalFactureElectronique += factureElectronique?.montant ?: 0
+          }
+          if (factureTicketRepository.existsByFacturationId(facturationId)) {
+            val factureTicket = factureTicketRepository.findByFacturationId(facturationId)
+            prixTotalFactureTicket += factureTicket?.montant ?: 0
+          }
+        }
+      }
+      prixTotalEncaissementVente = prixTotalFactureTicket + prixTotalFactureEspece + prixTotalFactureElectronique
+    }
+
+    val ventes = venteRepository.findByCaisseId(caisseId)
+    val bonCaisseGeneres = bonCaisseRepository.findGeneratedByCaisseId(caisseId.toString())
+    val bonCaisseEncaisse = bonCaisseRepository.findEncaisseByCaisseId(caisseId.toString())
+    val depensesMap = depenseRepository.findByCaisseId(caisseId.toString())!!.map { depense ->
+      mapOf(
+        "designation" to depense.designation,
+        "quantite" to depense.quantite,
+        "prixUnitaire" to depense.prixUnitaire,
+        "typeDepense" to depense.typeDepense,
+      )
+    }
+    val depenses = depenseRepository.findByCaisseId(caisseId.toString())
+    val retourProduitsMap = retourProduitRepository.findByCaisse(caisse).orEmpty().map { retourProduit ->
+      var produitRetour = produitRetourRepository.findByRetourProduitId(retourProduit.id!!.toLong())
+      mapOf(
+        "reference" to retourProduit.vente?.reference,
+        "produit" to produitRetour.map { it.concerner!!.produit!!.nom }.joinToString { "," },
+        "quantite" to produitRetour.sumOf { it.quantite!! },
+        "total" to produitRetour.sumOf { it.quantite!! * it.concerner?.prixUnit!! }
+      )
+    }
+    val retourProduits = retourProduitRepository.findByCaisse(caisse).orEmpty()
+    val produitRetourList = produitRetourRepository.findByRetourProduitIn(retourProduits).orEmpty()
+    var listReduction = mutableListOf<Map<String, Any?>>()
+    var prixTotalVenteReduction = 0.0
+    var prixTotalVenteCredit = 0.0
+    var prixTotalVenteComptant = 0.0
+    var prixTotalVenteAssurance = 0.0
+    var prixTotalVente = 0
+    var prixTotalDetail = 0
+    var prixTotalGrossiste = 0
+    var prixTotalDetaillant = 0
+    var listVenteCredit = mutableListOf<Map<String, Any?>>()
+    ventes!!.stream().forEach { vente ->
+      if ((vente.reduction?.toInt() ?: 0) > 0) {
+        prixTotalVenteReduction += vente.prixTotal ?: 0.0
+        listReduction.add(
+          mapOf(
+            "reductionPrixTotal" to (vente.prixTotal ?: 0.0),
+            "reductionDateVente" to vente.dateVente,
+            "reductionReduction" to vente.reduction,
+            "reductionReference" to vente.reference,
+            "reductionId" to vente.id,
+          )
+        )
+      }
+      when (vente.etat) {
+        Vente.VENTE_CREDIT -> {
+          listVenteCredit.add(
+            mapOf(
+              "reference" to vente.reference,
+              "prixTotal" to vente.prixTotal,
+              "id" to vente.id,
+              "prixPercu" to vente.prixPercu,
+              "dateVente" to vente.dateVente,
+              "client" to vente.user?.nom,
+            )
+          )
+          prixTotalVenteCredit += vente.prixTotal!!
+        }
+
+        Vente.VENTE_COMPTANT -> {
+          prixTotalVenteComptant += vente.prixTotal!!
+        }
+
+        Vente.VENTE_ASSURANCE -> {
+          prixTotalVenteAssurance += vente.prixTotal!!
+        }
+
+        else -> {
+
+        }
+      }
+      val concernerList = concernerRepository.findByVente(vente)
+      concernerList.stream().forEach { concerne ->
+        when (concerne?.enRayon?.fournisseur?.statut) {
+          "Grossiste" -> {
+            prixTotalGrossiste += (concerne.prixUnit!! * concerne.quantite!!)
+          }
+
+          "Detaillant" -> {
+            prixTotalDetaillant += (concerne.prixUnit!! * concerne.quantite!!)
+          }
+
+          else -> {
+            prixTotalDetail += (concerne?.prixUnit!! * concerne.quantite!!)
+          }
+        }
+      }
+    }
+    prixTotalVente = prixTotalDetail + prixTotalDetaillant + prixTotalGrossiste
+    val totalVenteComptant = ventes!!.filter { it.etat == "COMPTANT" }.sumOf { it.prixTotal ?: 0.0 }
+    val totalVenteCredit = ventes!!.filter { it.etat == "CREDIT" }.sumOf { it.prixTotal ?: 0.0 }
+    val totalVenteAssurance = ventes!!.filter { it.etat == "ASSURANCE" }.sumOf { it.prixTotal ?: 0.0 }
+
+    val totalBonCaisseGeneres = bonCaisseGeneres!!.sumOf { it.montant ?: 0 }
+    val totalBonCaisseEncaisse = bonCaisseEncaisse!!.sumOf { it.montant ?: 0 }
+    val totalDepenses = depenses!!.sumOf { (it.quantite ?: 0) * (it.prixUnitaire ?: 0) }
+    val totalRetourProduits = produitRetourList.sumOf { it.quantite ?: 0 }
+
+    val montantSystem =
+      totalVenteComptant + totalBonCaisseGeneres - totalBonCaisseEncaisse - totalDepenses - totalRetourProduits
+    val difference = caisse.fondCaisseFerme ?: 0!!.minus(montantSystem) ?: 0.0
+
+    var dataFermeture = caisse.fermetureCaisse
+
+    val resultat = mutableListOf<Int>()
+
+    var totalCaisseEspece = 0
+    var totalCaisseElectronique = 0
+    var totalCaisseTicket = 0
+    // On saute la première ligne (index == 0)
+    if (dataFermeture != null) {
+      val lignes = dataFermeture!!.split("|")
+      for ((index, ligne) in lignes.withIndex()) {
+        when (index) {
+          0 -> {
+            val valeurs = ligne.split("-")
+
+
+            for ((i, valeurStr) in valeurs.withIndex()) {
+              val valeur = valeurStr.toIntOrNull() ?: 0
+              val montant = when (i) {
+                0 -> valeur * 25
+                1 -> valeur * 50
+                2 -> valeur * 100
+                3 -> valeur * 500
+                4 -> valeur * 10
+                5 -> valeur * 500
+                6 -> valeur * 1000
+                7 -> valeur * 2000
+                8 -> valeur * 5000
+                9 -> valeur * 10000
+                else -> 0
+              }
+              totalCaisseEspece += montant
+            }
+            resultat.add(totalCaisseEspece)
+          }
+
+          1 -> {
+            totalCaisseElectronique = ligne.toInt()
+          }
+
+          2 -> {
+            totalCaisseTicket = ligne.toInt()
+          }
+        }
+
+      }
+    }
+
+    var soldeReelEspece = totalCaisseEspece
+    var soldeReelElectronique = totalCaisseElectronique
+    var soldeReelTicket = totalCaisseTicket
+
+    var soldeSystemeEspece = prixTotalFactureEspece
+    var soldeSystemeElectronique = prixTotalFactureElectronique
+    var soldeSystemeTicket = prixTotalFactureTicket
+
+    var soldeReelTotal = soldeReelEspece + soldeReelElectronique + soldeReelTicket
+    var soldeSystemelTotal = soldeSystemeEspece + soldeSystemeElectronique + soldeSystemeTicket
+
+
+
+    return mapOf(
+      "ventes" to ventes,
+      "bonCaisseGeneres" to bonCaisseGeneres,
+      "bonCaisseEncaisse" to bonCaisseEncaisse,
+      "depenses" to depensesMap,
+      "encaissementFactureData" to listVenteCredit,
+      "retourProduits" to retourProduitsMap,
+      "produitRetourList" to produitRetourList,
+      "listReduction" to listReduction,
+      "totalVenteComptant" to totalVenteComptant,
+      "totalVenteCredit" to totalVenteCredit,
+      "totalVenteAssurance" to totalVenteAssurance,
+      "totalBonCaisseGeneres" to totalBonCaisseGeneres,
+      "totalBonCaisseEncaisse" to totalBonCaisseEncaisse,
+      "totalDepenses" to totalDepenses,
+      "totalRetourProduits" to totalRetourProduits,
+      "montantSystem" to montantSystem,
+      "difference" to difference,
+      "caisse" to caisse,
+      "prixTotalEncaissementVente" to prixTotalEncaissementVente,
+      "prixTotalGrossiste" to prixTotalGrossiste,
+      "prixTotalDetaillant" to prixTotalDetaillant,
+      "prixTotalDetail" to prixTotalDetail,
+      "prixTotalVente" to prixTotalVente,
+      "prixTotalVenteCredit" to prixTotalVenteCredit,
+      "prixTotalVenteComptant" to prixTotalVenteComptant,
+      "prixTotalVenteAssurance" to prixTotalVenteAssurance,
+      "soldeReelEspece" to soldeReelEspece,
+      "soldeReelElectronique" to soldeReelElectronique,
+      "soldeReelTicket" to soldeReelTicket,
+      "soldeSystemeEspece" to soldeSystemeEspece,
+      "soldeSystemeElectronique" to soldeSystemeElectronique,
+      "soldeSystemeTicket" to soldeSystemeTicket,
+      "soldeReelTotal" to soldeReelTotal,
+      "soldeSystemelTotal" to soldeSystemelTotal,
+    )
+  }
+
+  fun getAllCaisses(pageable: PageRequest): Page<Map<String, Any?>> {
+    val caisses = caisseRepository.findAll(pageable)
+    return caisses.map { caisse ->
+      mapOf(
+        "id" to caisse.id,
+        "etat" to caisse.etat,
+        "nomEmploye" to (caisse.employe?.user?.nom ?: "Inconnu"),
+        "dateOuvert" to caisse.dateOuvert,
+        "dateFerme" to caisse.dateFerme
+      )
+    }
+  }
+
+  fun getFilteredCaisses(
+    caisseId: Long?,
+    startDate: String?,
+    endDate: String?,
+    pageable: Pageable
+  ): Page<Map<String, Any?>> {
+    val start = startDate?.let { LocalDate.parse(it) }
+    val end = endDate?.let { LocalDate.parse(it) }
+    val specification = CaisseRepository.filterByCriteria(caisseId, start, end)
+    val caisses = caisseRepository.findAll(specification, pageable)
+    return caisses.map { caisse ->
+      mapOf(
+        "id" to caisse.id,
+        "etat" to caisse.etat,
+        "nomEmploye" to (caisse.employe?.user?.nom ?: "Inconnu"),
+        "dateOuvert" to caisse.dateOuvert,
+        "dateFerme" to caisse.dateFerme
+      )
+    }
+  }
 }
 
 // Définir une exception personnalisée

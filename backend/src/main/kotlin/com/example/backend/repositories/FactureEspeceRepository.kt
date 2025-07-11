@@ -5,4 +5,5 @@ import org.springframework.data.jpa.repository.JpaRepository
 
 interface FactureEspeceRepository : JpaRepository<FactureEspece, Int> {
   fun findByFacturationId(facturationId: Long): FactureEspece
+  fun existsByFacturationId(facturationId: Long): Boolean
 }

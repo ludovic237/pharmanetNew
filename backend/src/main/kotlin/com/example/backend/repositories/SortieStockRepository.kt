@@ -19,25 +19,25 @@ interface SortieStockRepository : JpaRepository<SortieStock, Int>, JpaSpecificat
       return Specification { root, query, criteriaBuilder ->
         val predicates = mutableListOf<Predicate>()
 
-        nomProduit?.let {
+        if (!nomProduit.isNullOrEmpty() && nomProduit != "null") {
           predicates.add(
             criteriaBuilder.like(
               criteriaBuilder.lower(root.get<String>("produit").get("nom")),
-              "%${it}%"
+              "%${nomProduit}%"
             )
           )
         }
 
-        typeSortie?.let {
-          predicates.add(criteriaBuilder.equal(root.get<String>("typeSortie"), it))
+        if (!typeSortie.isNullOrEmpty() && typeSortie != "null") {
+          predicates.add(criteriaBuilder.equal(root.get<String>("typeSortie"), typeSortie))
         }
 
-        enRayonId?.let {
-          predicates.add(criteriaBuilder.equal(root.get<Long>("enRayon").get<Int>("id"), it))
+        if (enRayonId != null) {
+          predicates.add(criteriaBuilder.equal(root.get<Long>("enRayon").get<Int>("id"), enRayonId))
         }
 
-        produitDetailId?.let {
-          predicates.add(criteriaBuilder.equal(root.get<Long>("produitDetail").get<Int>("id"), it))
+        if (produitDetailId != null && produitDetailId != 0L) {
+          predicates.add(criteriaBuilder.equal(root.get<Long>("produitDetail").get<Int>("id"), produitDetailId))
         }
 
         criteriaBuilder.and(*predicates.toTypedArray())

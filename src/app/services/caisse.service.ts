@@ -1,4 +1,4 @@
-import {HttpClient, HttpHeaders} from '@angular/common/http';
+import {HttpClient, HttpHeaders, HttpParams} from '@angular/common/http';
 import {Injectable} from '@angular/core';
 import {Observable} from 'rxjs';
 import {Categorie} from "@models/product";
@@ -48,6 +48,35 @@ export class CaisseService {
 
   getCaisseClosureDetails(): Observable<any> {
     return this.http.get(`${this.url}/cloture/details`, { headers: this.getHeaders() });
+  }
+
+  getCaisseReport(caisseId:number): Observable<any> {
+    return this.http.get<any>(this.url+`/${caisseId}/rapport`, { headers: this.getHeaders() });
+  }
+
+  getAllCaisses(page: number, size: number, sortBy: string): Observable<any> {
+    const params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString())
+      .set('sortBy', sortBy);
+
+    return this.http.get<any>(`${this.url}/all/pageable`, {
+      headers: this.getHeaders(),
+      params: params
+    });
+  }
+
+  // Before
+  // Missing getFilteredCaisses method in CaisseService
+
+  // After
+  getFilteredCaisses(filters: { caisseId: number | null; startDate: Date | null; endDate: Date | null }): Observable<any> {
+    const params = new HttpParams()
+      .set('caisseId', filters.caisseId ? filters.caisseId.toString() : '')
+      .set('startDate', filters.startDate ? filters.startDate.toISOString() : '')
+      .set('endDate', filters.endDate ? filters.endDate.toISOString() : '');
+
+    return this.http.get<any>(`${this.url}/all/filter`, { params });
   }
 
 }

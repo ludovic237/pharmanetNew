@@ -17,12 +17,15 @@ import {FabriquantService} from "@services/fabriquants.service";
 import {FormeService} from "@services/formes.service";
 import {CommonModule} from "@angular/common";
 import {ProductService} from "@services/products.service";
+import {EtageresService} from "@services/etageres.service";
+import {MatToolbarModule} from "@angular/material/toolbar";
 
 @Component({
     selector: 'app-add-product',
     imports: [
         CommonModule,
         FormsModule,
+        MatToolbarModule,
         ReactiveFormsModule,
         MatCardModule,
         InputFileModule,
@@ -41,11 +44,17 @@ export class AddProductComponent implements OnInit {
   public sizes = ["S", "M", "L", "XL", "2XL", "32", "36", "38", "46", "52", "13.3\"", "15.4\"", "17\"", "21\"", "23.4\""];
   public selectedColors: string;
   public categories: any[];
+  public rayons: any[];
+  public magasins: any[];
+  public formes: any[];
+  public fabriquants: any[];
+  public etagere: any[];
   private sub: any;
   public id: any;
 
   constructor(
     public categorieService: CategorieService,
+    public etageresService: EtageresService,
     public magasinService: MagasinService,
     public rayonService: RayonService,
     public fabriquantService: FabriquantService,
@@ -87,12 +96,73 @@ export class AddProductComponent implements OnInit {
         this.getProductById();
       }
     });
+    this.getCategories();
+    this.getRayon();
+    this.getEtagere();
+    this.getMagasin();
+    this.getForme();
+    this.getFabriquants();
   }
 
   public getCategories() {
     this.categorieService.getCategories().subscribe({
       next: (data:any) => {
         this.categories = data;
+      },
+      error: (err) => {
+        console.error('Error fetching products:', err);
+      }
+    });
+  }
+
+  public getRayon() {
+    this.rayonService.getRayons().subscribe({
+      next: (data:any) => {
+        this.rayons = data;
+      },
+      error: (err) => {
+        console.error('Error fetching products:', err);
+      }
+    });
+  }
+
+  public getMagasin() {
+    this.magasinService.getMagasins().subscribe({
+      next: (data:any) => {
+        this.rayons = data;
+      },
+      error: (err) => {
+        console.error('Error fetching products:', err);
+      }
+    });
+  }
+
+  public getForme() {
+    this.formeService.getFormes().subscribe({
+      next: (data:any) => {
+        this.formes = data;
+      },
+      error: (err) => {
+        console.error('Error fetching products:', err);
+      }
+    });
+  }
+
+  public getFabriquants() {
+    this.fabriquantService.getFabriquants().subscribe({
+      next: (data:any) => {
+        this.formes = data;
+      },
+      error: (err) => {
+        console.error('Error fetching products:', err);
+      }
+    });
+  }
+
+  public getEtagere() {
+    this.etageresService.getEtageress().subscribe({
+      next: (data:any) => {
+        this.etagere = data;
       },
       error: (err) => {
         console.error('Error fetching products:', err);

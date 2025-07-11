@@ -1,6 +1,7 @@
 package com.example.backend.controllers
 
 import com.example.backend.dtos.EnRayonDto
+import com.example.backend.dtos.ProduitDetailIncrementEnRayonDto
 import com.example.backend.dtos.ProduitEnRayonDto
 import com.example.backend.dtos.RayonDto
 import com.example.backend.models.EnRayon
@@ -34,6 +35,14 @@ class EnRayonController(private val enRayonService: EnRayonService) {
         return ResponseEntity.ok(enRayonList)
     }
 
+    @CrossOrigin(origins = ["http://localhost:4200"])
+    @PreAuthorize("isAuthenticated()")
+    @PostMapping("/increment-produit-detail")
+    fun decrementerStock(@RequestBody data: ProduitDetailIncrementEnRayonDto): ResponseEntity<Map<String,Any?>> {
+        val enRayonList = enRayonService.decrementerStock(data.enRayonId!!.toInt(),data.produitDetailId!!.toInt())
+        return ResponseEntity.ok(enRayonList)
+    }
+
   @CrossOrigin(origins = ["http://localhost:4200"])
   @PreAuthorize("isAuthenticated()")
   @GetMapping("/par-nom-produit")
@@ -45,6 +54,12 @@ class EnRayonController(private val enRayonService: EnRayonService) {
   @PreAuthorize("isAuthenticated()")
   @GetMapping("/par-produit")
   fun getProduitsEnRayonParProduitIdt(@RequestParam produitId: Int): ResponseEntity<List<Map<String, Any?>>> =
+    ResponseEntity.ok(enRayonService.getProduitsEnRayonParProduitIdt(produitId))
+
+  @CrossOrigin(origins = ["http://localhost:4200"])
+  @PreAuthorize("isAuthenticated()")
+  @GetMapping("/par-produit-all")
+  fun getProduitsEnRayonParProduitIdt(@RequestParam produitId: Int,@RequestParam produitType: String): ResponseEntity<List<Map<String, Any?>>> =
     ResponseEntity.ok(enRayonService.getProduitsEnRayonParProduitIdt(produitId))
 
   @CrossOrigin(origins = ["http://localhost:4200"])

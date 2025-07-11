@@ -6,34 +6,39 @@ import org.springframework.stereotype.Service
 import java.time.LocalDateTime
 
 @Service
-class DepenseService(private val depenseRepository: DepenseRepository) {
+class DepenseService(
+  private val caisseService: CaisseService,
+  private val depenseRepository: DepenseRepository
+) {
 
-    fun getAllDepenses(): List<Depense> {
-        return depenseRepository.findAll()
-    }
+  fun getAllDepenses(): List<Depense> {
+    return depenseRepository.findAll()
+  }
 
-fun createDepense(designation: String, prixUnitaire: Int): Depense {
+  fun createDepense(designation: String, prixUnitaire: Int): Depense {
+    var caisseId = caisseService.getActiveCaisse()!!.id
     val depense = Depense().apply {
-        this.designation = designation
-        this.prixUnitaire = prixUnitaire
-        this.dateEpense = LocalDateTime.now()
+      this.caisseId = caisseId.toString()
+      this.designation = designation
+      this.prixUnitaire = prixUnitaire
+      this.dateEpense = LocalDateTime.now()
     }
     return depenseRepository.save(depense)
-}
+  }
 
-fun updateDepense(id: Int, designation: String, prixUnitaire: Int): Depense {
+  fun updateDepense(id: Int, designation: String, prixUnitaire: Int): Depense {
     val existingDepense = depenseRepository.findById(id)
-        .orElseThrow { IllegalArgumentException("Depense with ID $id not found") }
+      .orElseThrow { IllegalArgumentException("Depense with ID $id not found") }
     existingDepense.apply {
-        this.designation = designation
-        this.prixUnitaire = prixUnitaire
+      this.designation = designation
+      this.prixUnitaire = prixUnitaire
     }
     return depenseRepository.save(existingDepense)
-}
+  }
 
-    fun deleteDepense(id: Int) {
-        val depense = depenseRepository.findById(id)
-            .orElseThrow { IllegalArgumentException("Depense with ID $id not found") }
-        depenseRepository.delete(depense)
-    }
+  fun deleteDepense(id: Int) {
+    val depense = depenseRepository.findById(id)
+      .orElseThrow { IllegalArgumentException("Depense with ID $id not found") }
+    depenseRepository.delete(depense)
+  }
 }

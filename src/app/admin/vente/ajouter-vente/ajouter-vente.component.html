@@ -14,7 +14,7 @@
              [matAutocomplete]="auto">
       <mat-autocomplete #auto="matAutocomplete">
         <mat-option *ngFor="let option of medOptions" [value]="option.name" (click)="openMedicamentDialog(option)">
-          {{ option.name }}
+          {{ option.name }} - {{ option.type }}
         </mat-option>
       </mat-autocomplete>
     </mat-form-field>

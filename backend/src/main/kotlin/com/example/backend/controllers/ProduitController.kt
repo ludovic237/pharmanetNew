@@ -49,6 +49,17 @@ class ProduitController(
 
   @CrossOrigin(origins = ["http://localhost:4200"])
   @PreAuthorize("isAuthenticated()")
+  @GetMapping("/{id}/map")
+  fun getProduitByIdMap(@PathVariable id: Int): ResponseEntity<Any> {
+    return try {
+      ResponseEntity.ok(produitService.getProduitByIdMap(id))
+    } catch (e: NotFoundException) {
+      ResponseEntity.status(HttpStatus.NOT_FOUND).body(mapOf("error" to e.message))
+    }
+  }
+
+  @CrossOrigin(origins = ["http://localhost:4200"])
+  @PreAuthorize("isAuthenticated()")
   @GetMapping("/{id}/info")
   fun getProduitDetailById(@PathVariable id: Int): ResponseEntity<Any> {
     return try {
@@ -78,7 +89,7 @@ class ProduitController(
     @RequestParam("query") query: String,
     @RequestParam("page", defaultValue = "0") page: Int,
     @RequestParam("size", defaultValue = "10") size: Int
-  ): ResponseEntity<Page<ProduitResponseDto>> {
+  ): ResponseEntity<Page<Map<String,Any?>>> {
     val result = produitService.searchProducts(query, page, size)
     return ResponseEntity.ok(result)
   }

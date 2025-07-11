@@ -8,6 +8,7 @@ import com.example.backend.models.Produit
 import com.example.backend.repositories.*
 import com.example.backend.utility.UserUtils
 import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
@@ -22,6 +23,7 @@ class ProduitService(
   private val retourProduitRepository: RetourProduitRepository,
   private val produitRetourRepository: ProduitRetourRepository,
   private val produitCmdRepository: ProduitCmdRepository,
+  private val produitDetailRepository: ProduitDetailRepository,
   private val employeRepository: EmployeRepository,
   private val concernerRepository: ConcernerRepository,
   private val venteRepository: VenteRepository,
@@ -129,21 +131,28 @@ class ProduitService(
     return mapToProduitResponseDto(produit)
   }
 
- fun getProduitDetailById(id: Int): Map<String, Any?> {
-   val produit = produitRepository.findById(id)
-     .filter { it.supprimer == 0 }
-     .orElseThrow { NotFoundException("Produit non trouvé avec ID: $id") }
+  fun getProduitByIdMap(id: Int): Map<String, Any?> {
+    val produit = produitRepository.findById(id)
+      .filter { it.supprimer == 0 }
+      .orElseThrow { NotFoundException("Produit non trouvé avec ID: $id") }
+    return mapToProduitResponseDtoMap(produit)
+  }
 
-   return mapOf(
-     "id" to produit.id,
-     "nom" to produit.nom,
-     "stock" to produit.stock,
-     "categorie" to produit.categorie?.nom,
-     "prixAchat" to produit.prixAchat,
-     "prixVente" to produit.prixVente,
-     "etat" to produit.etat
-   )
- }
+  fun getProduitDetailById(id: Int): Map<String, Any?> {
+    val produit = produitRepository.findById(id)
+      .filter { it.supprimer == 0 }
+      .orElseThrow { NotFoundException("Produit non trouvé avec ID: $id") }
+
+    return mapOf(
+      "id" to produit.id,
+      "nom" to produit.nom,
+      "stock" to produit.stock,
+      "categorie" to produit.categorie?.nom,
+      "prixAchat" to produit.prixAchat,
+      "prixVente" to produit.prixVente,
+      "etat" to produit.etat
+    )
+  }
 
 //  fun getAllProduits(): List<ProduitResponseDto> {
 //    return produitRepository.findAllBySupprimer(0).map { mapToProduitResponseDto(it) }
@@ -176,16 +185,33 @@ class ProduitService(
     return produitRepository.findAll(pageable).map { it.toResponseDto() }
   }
 
-  fun searchProducts(query: String, page: Int, size: Int): Page<ProduitResponseDto> {
-    val data = produitRepository.findByNomContainingIgnoreCase(query)
-    val data2 = produitRepository.findByNomContaining(query)
-    println("Data size: ${data.size}, Data2 size: ${data2.size}")
-    println("Query: $query, Page: $page, Size: $size")
-    println("data: $data")
-    println("data2: $data2")
+  fun searchProducts(query: String, page: Int, size: Int): Page<Map<String, Any?>> {
     val pageable = PageRequest.of(page, size)
-    return produitRepository.findByNomContainingIgnoreCase(query, pageable).map { it.toResponseDto() }
+    val produits = produitRepository.findByNomContainingIgnoreCase(query, pageable)
+      .map {
+        mapOf(
+          "id" to it.id,
+          "nom" to it.nom,
+          "prix" to it.prixVente,
+          "type" to "produit"
+        )
+      }
+    val details = produitDetailRepository.findByNomContainingIgnoreCaseAndSupprimer(query, 0, pageable)
+      .map {
+        mapOf(
+          "id" to it.id,
+          "nom" to it.nom,
+          "prix" to it.prix,
+          "type" to "detail"
+        )
+      }
+    val mergedList = (produits + details).sortedBy { it["nom"]?.toString() }
+    val start = page * size
+    val end = minOf(start + size, mergedList.size)
+    val pageContent = if (start >= mergedList.size) emptyList() else mergedList.subList(start, end)
+    return PageImpl(pageContent, pageable, mergedList.size.toLong())
   }
+
 
   @Transactional
   fun updateProduit(id: Int, request: ProduitRequestDto): ProduitResponseDto {
@@ -331,6 +357,63 @@ class ProduitService(
     )
   }
 
+  private fun mapToProduitResponseDtoMap(produit: Produit): Map<String, Any?> {
+
+    val stockDetails = enRayonRepository.findAllByProduitAndSupprimer(produit)
+      .filter { it.quantite!! > 0 }
+      .map { er ->
+        mapOf(
+          "enRayonId" to er.id,
+          "productNom" to er.produit?.nom!!,
+          "depotNom" to er.produit!!.nom,
+          "rayonNom" to er.rayon?.nom,
+          "quantite" to er.quantite!!,
+          "datePeremption" to er.datePeremption,
+          "numeroLot" to ""
+        )
+      }
+
+    val quantiteTotale = stockDetails.sumBy { it["quantite"] as Int }
+
+    return mapOf(
+      "id" to produit.id,
+      "nom" to produit.nom!!,
+      "ean13" to produit.ean13!!,
+      "codeLaborex" to produit.codeLaborex!!,
+      "codeUbipharm" to produit.codeUbipharm!!,
+      "reference" to produit.reference!!,
+      "description" to "",
+      "codebarre" to "",
+      "image" to "",
+      "seuil" to produit.stockMin,
+      "categorieId" to produit.categorie!!.id,
+      "categorieNom" to produit.categorie!!.nom,
+      "rayonId" to produit.rayon!!.id,
+      "rayonNom" to produit.rayon!!.nom,
+      "etagere" to produit.etagere,
+      "magasinNom" to produit.magasin!!.nom,
+      "magasinId" to produit.magasin!!.id,
+      "formeNom" to produit.forme!!.nom,
+      "formeId" to produit.forme!!.id,
+      "fabriquantId" to produit.fabriquant!!.id,
+      "fabriquantNom" to produit.fabriquant!!.nom,
+      "tva" to 0.20.toBigDecimal(),
+      "prixAchatInitial" to 0.toBigDecimal(),
+      "margeBeneficiaire" to BigDecimal.ZERO,
+      "prixVenteConseille" to 0.toBigDecimal(),
+      "prixVenteActuel" to BigDecimal.ZERO,
+      "quantiteTotaleEnStock" to quantiteTotale,
+      "dateCreation" to produit.createdAt,
+      "contenuDetail" to produit.contenuDetail,
+      "dateModification" to produit.updatedAt,
+      "stock" to produit.stock,
+      "stockMin" to produit.stockMin,
+      "stockMax" to produit.stockMax,
+      "reductionMax" to produit.reductionMax,
+      "stockDetails" to stockDetails,
+    )
+  }
+
   // Services pour Categorie, Fournisseur, Depot, Rayon
   // Create Categorie
   fun createCategorie(dto: CategorieDto): CategorieDto {
@@ -468,7 +551,7 @@ class ProduitService(
       acc.add((c?.reduction as? BigDecimal) ?: BigDecimal.ZERO)
     }
 
-   val totalVenteMois = ventesDuMois.fold(BigDecimal.ZERO) { acc, c ->
+    val totalVenteMois = ventesDuMois.fold(BigDecimal.ZERO) { acc, c ->
       val pu = (c?.prixUnit?.toBigDecimal()) ?: BigDecimal.ZERO
       val qte = (c?.quantite?.toBigDecimal() ?: BigDecimal.ZERO)
       val red = (c?.reduction?.toBigDecimal()) ?: BigDecimal.ZERO
@@ -477,31 +560,33 @@ class ProduitService(
 
     val ventesMoisSummary = listOf(
       mapOf(
-      "nom" to "Vente du Mois",
-      "quantite" to totalQuantiteMois,
-      "reduction" to totalReductionMois,
-      "vente" to totalVenteMois
-    ))
+        "nom" to "Vente du Mois",
+        "quantite" to totalQuantiteMois,
+        "reduction" to totalReductionMois,
+        "vente" to totalVenteMois
+      )
+    )
 
-   val totalQuantite = toutesLesVentes.sumOf { it?.quantite ?: 0 }
+    val totalQuantite = toutesLesVentes.sumOf { it?.quantite ?: 0 }
     val totalReduction = toutesLesVentes.fold(BigDecimal.ZERO) { acc, c ->
       acc.add((c?.reduction?.toBigDecimal()) ?: BigDecimal.ZERO)
     }
 
-   val totalVente = toutesLesVentes.fold(BigDecimal.ZERO) { acc, c ->
-        val pu = (c?.prixUnit!!.toBigDecimal()) ?: BigDecimal.ZERO
-        val qte = c?.quantite?.toBigDecimal() ?: BigDecimal.ZERO
-        val red = c?.reduction?.toBigDecimal() ?: BigDecimal.ZERO
-        acc.add(pu.multiply(qte.subtract(red)))
-      }
+    val totalVente = toutesLesVentes.fold(BigDecimal.ZERO) { acc, c ->
+      val pu = (c?.prixUnit!!.toBigDecimal()) ?: BigDecimal.ZERO
+      val qte = c?.quantite?.toBigDecimal() ?: BigDecimal.ZERO
+      val red = c?.reduction?.toBigDecimal() ?: BigDecimal.ZERO
+      acc.add(pu.multiply(qte.subtract(red)))
+    }
 
     val ventesTotalSummary = listOf(
       mapOf(
-      "nom" to "Vente Totale",
-      "quantite" to totalQuantite,
-      "reduction" to totalReduction,
-      "vente" to totalVente
-    ))
+        "nom" to "Vente Totale",
+        "quantite" to totalQuantite,
+        "reduction" to totalReduction,
+        "vente" to totalVente
+      )
+    )
 
     val ventesList = toutesLesVentes.map { c ->
       val v = c?.vente
@@ -534,10 +619,11 @@ class ProduitService(
     }
     val commandesMoisSummary = listOf(
       mapOf(
-      "nom" to "Commande du Mois",
-      "quantite" to totalQtCmdMois,
-      "cout" to totalCoutMois
-    ))
+        "nom" to "Commande du Mois",
+        "quantite" to totalQtCmdMois,
+        "cout" to totalCoutMois
+      )
+    )
 
     val totalQtCmd = toutesLesCommandes.sumOf { it?.qtiteCmd ?: 0 }
     val totalCout = toutesLesCommandes.fold(BigDecimal.ZERO) { acc, c ->
@@ -545,11 +631,13 @@ class ProduitService(
       val q = c?.qtiteCmd?.toBigDecimal() ?: BigDecimal.ZERO
       acc.add(pa * q)
     }
-    val commandesTotalSummary = listOf( mapOf(
-      "nom" to "Commande Totale",
-      "quantite" to totalQtCmd,
-      "cout" to totalCout
-    ))
+    val commandesTotalSummary = listOf(
+      mapOf(
+        "nom" to "Commande Totale",
+        "quantite" to totalQtCmd,
+        "cout" to totalCout
+      )
+    )
 
     var commandePriceTotalRecu = 0;
     var commandePriceTotalCommande = 0;

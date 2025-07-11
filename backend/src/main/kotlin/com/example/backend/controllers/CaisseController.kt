@@ -178,4 +178,48 @@ class CaisseController(
     }
   }
 
+  @CrossOrigin(origins = ["http://localhost:4200"])
+  @PreAuthorize("isAuthenticated()")
+  @GetMapping("/{caisseId}/rapport")
+  fun getCaisseReport(@PathVariable caisseId: Long): ResponseEntity<Map<String, Any?>> {
+    return try {
+      val reportData = caisseService.generateCaisseReport(caisseId)
+      ResponseEntity.ok(reportData)
+    } catch (e: Exception) {
+      ResponseEntity.status(500).body(mapOf("error" to "An internal error occurred: ${e.message}"))
+    }
+  }
+
+  @CrossOrigin(origins = ["http://localhost:4200"])
+  @PreAuthorize("isAuthenticated()")
+  @GetMapping("/all/pageable")
+  fun getAllCaisses(
+      @RequestParam(defaultValue = "0") page: Int,
+      @RequestParam(defaultValue = "10") size: Int,
+      @RequestParam(defaultValue = "id") sortBy: String
+  ): ResponseEntity<Page<Map<String, Any?>>> {
+      return try {
+          val pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, sortBy))
+          val caisses = caisseService.getAllCaisses(pageable)
+          ResponseEntity.ok(caisses)
+      } catch (e: Exception) {
+          ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Page.empty())
+      }
+  }
+
+  @CrossOrigin(origins = ["http://localhost:4200"])
+  @PreAuthorize("isAuthenticated()")
+  @GetMapping("/all/filter")
+  fun getFilteredCaisses(
+      @RequestParam(required = false) caisseId: Long?,
+      @RequestParam(required = false) startDate: String?,
+      @RequestParam(required = false) endDate: String?,
+      @RequestParam(defaultValue = "0") page: Int,
+      @RequestParam(defaultValue = "10") size: Int
+  ): ResponseEntity<Page<Map<String, Any?>>> {
+      val pageable = PageRequest.of(page, size)
+      val caisses = caisseService.getFilteredCaisses(caisseId, startDate, endDate, pageable)
+      return ResponseEntity.ok(caisses)
+  }
+
 }

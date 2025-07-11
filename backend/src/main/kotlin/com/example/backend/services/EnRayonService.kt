@@ -3,23 +3,78 @@ package com.example.backend.services
 import com.example.backend.dtos.EnRayonDto
 import com.example.backend.dtos.ProduitEnRayonDto
 import com.example.backend.models.EnRayon
-import com.example.backend.models.Forme
+import com.example.backend.models.SortieStock
 import com.example.backend.repositories.*
-import jakarta.persistence.criteria.Predicate
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 @Service
 class EnRayonService(
   private val formeRepository: FormeRepository,
+  private val sortieStockRepository: SortieStockRepository,
+  private val typeSortieRepository: TypeSortieRepository,
   private val produitRepository: ProduitRepository,
   private val fournisseurRepository: FournisseurRepository,
   private val enRayonRepository: EnRayonRepository,
   private val rayonRepository: RayonRepository,
+  private val produitDetailRepository: ProduitDetailRepository,
 ) {
+
+  @Transactional
+  fun decrementerStock(enRayonId: Int, produitDetailId: Int):Map<String,Any?> {
+    val enRayonOptional = enRayonRepository.findById(enRayonId)
+    if (enRayonOptional.isEmpty) {
+      return mapOf(
+        "messsage" to "Produit EnRayon introuvable avec l'ID: $enRayonId"
+      )
+    }
+
+    var produit = produitRepository.findById(enRayonOptional.get().produit?.id ?: 0).get()
+    val produitDetailOptional = produitDetailRepository.findById(produitDetailId)
+    if (produitDetailOptional.isEmpty) {
+      return mapOf(
+        "messsage" to "Produit Detail introuvable avec l'ID: $produitDetailId"
+      )
+    }
+    println("produit.detailId : ${produit.detailId}")
+    println("produitDetailId : ${produitDetailId}")
+    val enRayon = enRayonOptional.get()
+    println("enRayon.quantite : ${enRayon.quantite}")
+    if (enRayon.quantite!! > 0 && produit?.detailId == produitDetailId) {
+      val sortieStock = SortieStock().apply {
+        this.enRayon = enRayon
+        this.quantite = 1
+        this.detailId = produitDetailId.toString()
+        this.typeSortie = typeSortieRepository.findById(1).get()
+        this.dateSortie = LocalDateTime.now()
+      }
+      sortieStockRepository.save(sortieStock)
+      val produitDetail = produitDetailOptional.get()
+
+      enRayon.quantiteRestante = enRayon.quantiteRestante?.minus(1) ?: 0
+      enRayonRepository.save(enRayon)
+
+      produit.stock = produit.stock?.minus(1) ?: 0
+      produitRepository.save(produit)
+
+      produitDetail.stock = produitDetail.stock!! + produit.contenuDetail!!.toInt()
+      produitDetailRepository.save(produitDetail)
+
+      return mapOf(
+        "messsage" to "Succès : le stock a été décrémenté avec succès et la sortie de stock a été enregistrée"
+      )
+    }
+    else {
+      return  mapOf(
+        "messsage" to "Erreur : La quantité du stock total du produit est inférieure ou égale à zéro"
+      )
+    }
+
+  }
 
   @Transactional
   fun ajouterProduitsEnRayon(produits: List<ProduitEnRayonDto>): List<EnRayon> {
@@ -33,7 +88,12 @@ class EnRayonService(
       val rayon = rayonRepository.findById(produitDto.rayonId!!.toInt())
         .orElseThrow { RuntimeException("Rayon introuvable avec l'ID: ${produitDto.rayonId}") }
 
+      val dateTimeNow = LocalDateTime.now()
+      val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
+      val formattedDateTimeNow = dateTimeNow.format(formatter)
+
       val enRayon = EnRayon().apply {
+        this.id = "${produit.id}${fournisseur.code}${formattedDateTimeNow}".toInt()
         this.produit = produit
         this.fournisseur = fournisseur
         this.rayon = rayon
@@ -67,6 +127,78 @@ class EnRayonService(
 
   @Transactional
   fun getProduitsEnRayonParProduitIdt(produitId: Int): List<Map<String, Any?>> {
+    if (produitId < 700) {
+      produitDetailRepository.findById(produitId).get()
+      val p = produitDetailRepository.findById(produitId).get()
+      var data = mutableListOf<Map<String, Any?>>()
+      data.add(
+        mapOf(
+          "id" to p.id,
+          "nom" to p.nom,
+          "reference" to p.reference,
+          "quantiteRestante" to p.stock,
+          "quantite" to p.stock,
+          "prixVente" to p.prix,
+          "dateLivraison" to "",
+          "datePeremption" to "",
+          "reductionMax" to p.reductionMax,
+          "reduction" to p.reductionMax,
+          "type" to "detail"
+        )
+      )
+      return data
+    } else {
+      val produit = produitRepository.findById(produitId).orElseThrow()
+      val enRayonList = enRayonRepository.findByProduitAndSupprimer(produit)
+      var data = enRayonList.map { enRayon->
+        val p = enRayon.produit
+        mapOf(
+          "id" to p?.id,
+          "rayonId" to enRayon.id,
+          "quantite" to enRayon.quantite,
+          "quantiteRestante" to enRayon.quantiteRestante,
+          "dateLivraison" to enRayon.dateLivraison,
+          "datePeremption" to enRayon.datePeremption,
+          "ean13" to p?.ean13,
+          "nom" to p?.nom,
+          "stock" to p?.stock,
+          "prixVente" to enRayon.prixVente,
+          "etat" to p?.etat,
+          "reductionMax" to p?.reductionMax,
+          "reduction" to p?.reductionMax,
+         /* "categorie" to mapOf(
+            "id" to p?.categorie?.id,
+            "nom" to p?.categorie?.nom
+          ),
+          "forme" to mapOf(
+            "id" to p?.forme?.id,
+            "code" to p?.forme?.code,
+            "nom" to p?.forme?.nom
+          ),
+          "fabriquant" to mapOf(
+            "id" to p?.fabriquant?.id,
+            "code" to p?.fabriquant?.code,
+            "nom" to p?.fabriquant?.nom
+          ),*/
+          "rayon" to mapOf("id" to p?.rayon?.id),
+          "etagere" to p?.etagere,
+          /*"magasin" to mapOf(
+            "id" to p?.magasin?.id,
+            "code" to p?.magasin?.code,
+            "nom" to p?.magasin?.nom
+          ),*/
+          "createdAt" to p?.createdAt,
+          "updatedAt" to p?.updatedAt,
+          "type" to "produit"
+        )
+      }
+      return data
+    }
+  }
+
+
+  @Transactional
+  fun getProduitsWithDetailEnRayonParProduitIdt(produitId: Int, produitType: String): List<Map<String, Any?>> {
     val enRayonList = enRayonRepository.findByProduitAndSupprimer(produitRepository.findById(produitId).get())
 
     return enRayonList.map { enRayon ->
@@ -197,27 +329,27 @@ class EnRayonService(
     pageable: Pageable
   ): Page<Map<String, Any?>> {
     val specification = EnRayonRepository.filterEnRayon(nomProduit, bientotPerimee, joursAvantPeremption, enStock)
-    return enRayonRepository.findAll(specification,pageable)
+    return enRayonRepository.findAll(specification, pageable)
       .map { enRayon ->
         mapOf(
           "id" to enRayon.id,
-            "produitId" to enRayon.produit!!.id,
-            "produitNom" to enRayon.produit!!.nom,
-            "rayonId" to enRayon.rayon?.id,
-            "rayonNom" to enRayon.rayon?.nom,
-            "fournisseurId" to enRayon.fournisseur!!.id,
-            "fournisseurNom" to enRayon.fournisseur!!.nom,
-            "unite" to enRayon.unite,
-            "commandeId" to enRayon.commande!!.id,
-            "commandeRef" to enRayon.commande!!.ref,
-            "dateLivraison" to enRayon.dateLivraison,
-            "datePeremption" to enRayon.datePeremption,
-            "prixAchat" to enRayon.prixAchat,
-            "prixVente" to enRayon.prixVente,
-            "reduction" to enRayon.reduction,
-            "quantite" to enRayon.quantite,
-            "quantiteRestante" to enRayon.quantiteRestante,
-            "supprimer" to enRayon.supprimer,
+          "produitId" to enRayon.produit!!.id,
+          "produitNom" to enRayon.produit!!.nom,
+          "rayonId" to enRayon.rayon?.id,
+          "rayonNom" to enRayon.rayon?.nom,
+          "fournisseurId" to enRayon.fournisseur!!.id,
+          "fournisseurNom" to enRayon.fournisseur!!.nom,
+          "unite" to enRayon.unite,
+          "commandeId" to enRayon.commande!!.id,
+          "commandeRef" to enRayon.commande!!.ref,
+          "dateLivraison" to enRayon.dateLivraison,
+          "datePeremption" to enRayon.datePeremption,
+          "prixAchat" to enRayon.prixAchat,
+          "prixVente" to enRayon.prixVente,
+          "reduction" to enRayon.reduction,
+          "quantite" to enRayon.quantite,
+          "quantiteRestante" to enRayon.quantiteRestante,
+          "supprimer" to enRayon.supprimer,
         )
       }
   }

@@ -11,6 +11,8 @@ export const adminMenuPharmaItems = [
     new AdminMenu(26, 'Fabriquants', '/admin/products/fabriquants', null, 'factory', null, false, 20),
     new AdminMenu(27, 'Rayons', '/admin/products/rayons', null, 'store', null, false, 20),
     new AdminMenu(28, 'magasins', '/admin/products/magasins', null, 'store_mall_directory', null, false, 20),
+    new AdminMenu(29, 'Rapport caisse', '/admin/products/rapport-caisse', null, 'store_mall_directory', null, false, 20),
+    new AdminMenu(30, 'Produit detail list', '/admin/products/product-detail-list', null, 'store_mall_directory', null, false, 20),
 
   // Vente menu and submenus
   new AdminMenu(300, 'ventes', null, null, 'shopping_cart', null, true, 0),

@@ -1,0 +1,21 @@
+<mat-toolbar color="primary">
+  <span>Augmenter Quantité</span>
+</mat-toolbar>
+<div class="p-3">
+  <form [formGroup]="formGroup" (ngSubmit)="onSubmit(formGroup)">
+    <div fxLayout="row wrap" class="mt-3">
+      <mat-form-field class="form-field">
+        <mat-label>Scan Produit</mat-label>
+        <input matInput placeholder="Scan Produit" formControlName="product"/>
+      </mat-form-field>
+    </div>
+
+    <div mat-dialog-actions>
+      <div fxLayout="row" fxLayoutAlign="space-between center" class="w-100 p-3">
+        <button mat-raised-button color="primary" type="button" (click)="onClose()">Fermer</button>
+        <button mat-raised-button color="warn" type="reset" (click)="onReset()">Réinitialiser</button>
+        <button mat-raised-button color="accent" type="submit">Valider</button>
+      </div>
+    </div>
+  </form>
+</div>

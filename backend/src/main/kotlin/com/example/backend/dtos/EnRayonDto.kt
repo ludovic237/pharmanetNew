@@ -15,6 +15,10 @@ data class ProduitEnRayonDto(
     val datePeremption: LocalDateTime?=LocalDateTime.now(),
     val dateLivraison: LocalDateTime?=LocalDateTime.now()
 )
+data class ProduitDetailIncrementEnRayonDto(
+    val enRayonId: String? = null,
+    val produitDetailId: String? = null,
+)
 
 data class EnRayonDto (
    val enRayonId:Int? = null,

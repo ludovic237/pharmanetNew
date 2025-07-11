@@ -1,13 +1,17 @@
 package com.example.backend.dtos
 
+import org.bouncycastle.util.test.FixedSecureRandom.BigInteger
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.LocalDateTime
 
 data class ProduitAssocieDto(
-  val produitId: Long,
-  val quantite: Int,
-  val prixUnit: Int // Modifiable unit price
+  val produitId: Long?,
+  val quantite: Int?,
+  val rayonId: String?,
+  val type: String?,
+  val prixUnit: Int?,
+  val reduction: Int? // Modifiable unit price
 )
 
 data class VenteRequestDto(
@@ -49,10 +53,10 @@ data class ElectroniqueRequestDto(
 
 data class EncaissementDto(
   var typeEncaissement: String,
-  val venteId: Int,
+  val venteId: Long,
   val montantPercu: Int,
   val montantRendu: Int,
-  val montantTtc: Int,
+
   val espece: Int?, // Cash payment amount
   val electronique: ElectroniqueDto?, // Electronic payment details
   val ticket: TicketDto? // Ticket payment amount

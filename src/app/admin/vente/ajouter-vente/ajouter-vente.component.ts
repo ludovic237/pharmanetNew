@@ -49,6 +49,7 @@ interface VenteLigne {
   reduction: number;
   dateLivraison: Date;
   type: string;
+  rayonId: string;
   stockTotal: number;
 }
 
@@ -120,7 +121,7 @@ export class AjouterVenteComponent implements OnInit {
 
   // Autocomplete Médicaments
   medControl = new FormControl('');
-  medOptions: { name: string }[] = [];
+  medOptions: any[] = [];
 
   // Table
   displayedColumns: string[] = [
@@ -299,10 +300,17 @@ export class AjouterVenteComponent implements OnInit {
 
 
   openMedicamentDialog(med: any): void {
+    console.log("med")
+    console.log(med)
     this.enRayonService.getProduitsEnRayon(med.id).subscribe({
       next: (data: any) => {
         const dialogRef = this.dialog.open(AjouterVenteDialogComponent, {
-          data: {name: med.name, enRayonList: data},
+          data: {
+            type:med.type,
+            id:med.id,
+            name: med.name,
+            enRayonList: data
+          },
           // maxWidth: "400px",
           width: "80%",
           panelClass: ['theme-dialog'],
@@ -310,9 +318,11 @@ export class AjouterVenteComponent implements OnInit {
           direction: (this.settings.rtl) ? 'rtl' : 'ltr'
         });
         dialogRef.afterClosed().subscribe((modifiedProducts: any[]) => {
+          console.log("modifiedProducts")
+          console.log(modifiedProducts)
           if (modifiedProducts && modifiedProducts.length > 0) {
             const newData = modifiedProducts.map(product => {
-              const existingProductIndex = this.dataSource.data.findIndex(item => item.nom === product.produit.nom);
+              const existingProductIndex = this.dataSource.data.findIndex(item => item.nom === product.nom);
               if (existingProductIndex !== -1) {
                 // Update the existing product
                 this.dataSource.data[existingProductIndex] = {
@@ -328,14 +338,16 @@ export class AjouterVenteComponent implements OnInit {
               // Add as a new product
               return {
                 id: product.id,
-                nom: product.produit.nom,
+                nom: product.nom,
+                type: product.type,
+                rayonId: product.rayonId,
                 prixUnitaire: product.prixVente,
                 quantite: product.quantiteRestante,
                 prixTotal: product.prixVente * product.quantiteRestante,
                 reduction: product.reduction, // Adjust if needed
                 dateLivraison: product.dateLivraison, // Adjust if needed
                 datePeremption: product.datePeremption, // Adjust if needed
-                type: 'Générique', // Adjust if needed
+                // type: product.type,
                 stockTotal: product.quantite // Adjust if needed
               };
             }).filter(item => item !== null);
@@ -360,6 +372,7 @@ export class AjouterVenteComponent implements OnInit {
       next: (data: any) => {
         this.medOptions = data.content.map((product: any) => ({
           id: product.id,
+          type: product.type,
           name: product.nom
         }));
         console.log("this.medOptions");
@@ -499,6 +512,9 @@ export class AjouterVenteComponent implements OnInit {
       produits: venteLignes.map(ligne => ({
         produitId: ligne.id, // Assuming `id` exists in `VenteLigne`
         quantite: ligne.quantite,
+        type: ligne.type,
+        rayonId: ligne.rayonId,
+        reduction: ligne.reduction,
         prixUnit: ligne.prixUnitaire
       }))
     };

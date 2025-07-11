@@ -11,6 +11,9 @@
                 </div>
                 <div fxFlex="100" fxFlex.gt-sm="60" class="px-2">
                     <div fxLayout="row wrap">
+                      <mat-toolbar>
+                        <h2>Information general</h2>
+                      </mat-toolbar>
                       <div fxFlex="100" fxFlex.gt-sm="50" class="px-1">
                         <mat-form-field appearance="outline" class="w-100">
                           <mat-label>Nom</mat-label>
@@ -43,6 +46,9 @@
                           <input matInput formControlName="reference">
                         </mat-form-field>
                       </div>
+                      <mat-toolbar>
+                        <h2>Stock</h2>
+                      </mat-toolbar>
                       <div fxFlex="100" fxFlex.gt-sm="33.3" class="px-1">
                         <mat-form-field appearance="outline" class="w-100">
                           <mat-label>Stock</mat-label>
@@ -69,22 +75,75 @@
                       </div>
                       <div fxFlex="100" fxFlex.gt-sm="50" class="px-1">
                         <mat-form-field appearance="outline" class="w-100">
-                          <mat-label>Prix Detail</mat-label>
-                          <input matInput formControlName="prixDetail">
-                        </mat-form-field>
-                      </div>
-                      <div fxFlex="100" fxFlex.gt-sm="50" class="px-1">
-                        <mat-form-field appearance="outline" class="w-100">
-                          <mat-label>Etat</mat-label>
-                          <input matInput formControlName="etat">
-                        </mat-form-field>
-                      </div>
-                      <div fxFlex="100" fxFlex.gt-sm="50" class="px-1">
-                        <mat-form-field appearance="outline" class="w-100">
                           <mat-label>Reduction Max</mat-label>
                           <input matInput formControlName="reductionMax" type="number">
                         </mat-form-field>
                       </div>
+                      <mat-toolbar>
+                        <h2>Geo</h2>
+                      </mat-toolbar>
+                      <div fxFlex="100" fxFlex.gt-sm="50" class="px-1">
+                        <mat-form-field appearance="outline" class="w-100">
+                          <mat-label>Categorie</mat-label>
+                          <mat-select formControlName="categorieId" required>
+                            <mat-option *ngFor="let cat of categories" [value]="cat.id">{{ cat.nom }}</mat-option>
+                          </mat-select>
+                        </mat-form-field>
+                      </div>
+                      <div fxFlex="100" fxFlex.gt-sm="50" class="px-1">
+                        <mat-form-field appearance="outline" class="w-100">
+                          <mat-label>Rayon</mat-label>
+                          <mat-select formControlName="rayonId" required>
+                            <mat-option *ngFor="let r of rayons" [value]="r.id">{{ r.nom }}</mat-option>
+                          </mat-select>
+                        </mat-form-field>
+                      </div>
+
+                      <div fxFlex="100" fxFlex.gt-sm="50" class="px-1">
+                        <mat-form-field appearance="outline" class="w-100">
+                          <mat-label>Etagère</mat-label>
+                          <mat-select formControlName="etagereId" required>
+                            <mat-option *ngFor="let e of etagere" [value]="e.id">{{ e.nom }}</mat-option>
+                          </mat-select>
+                        </mat-form-field>
+                      </div>
+
+                      <div fxFlex="100" fxFlex.gt-sm="50" class="px-1">
+                        <mat-form-field appearance="outline" class="w-100">
+                          <mat-label>Magasin</mat-label>
+                          <mat-select formControlName="magasinId" required>
+                            <mat-option *ngFor="let m of magasins" [value]="m.id">{{ m.nom }}</mat-option>
+                          </mat-select>
+                        </mat-form-field>
+                      </div>
+
+                      <div fxFlex="100" fxFlex.gt-sm="50" class="px-1">
+                        <mat-form-field appearance="outline" class="w-100">
+                          <mat-label>Forme</mat-label>
+                          <mat-select formControlName="formeId" required>
+                            <mat-option *ngFor="let f of formes" [value]="f.id">{{ f.nom }}</mat-option>
+                          </mat-select>
+                        </mat-form-field>
+                      </div>
+
+                      <div fxFlex="100" fxFlex.gt-sm="50" class="px-1">
+                        <mat-form-field appearance="outline" class="w-100">
+                          <mat-label>Fabriquant</mat-label>
+                          <mat-select formControlName="fabriquantId" required>
+                            <mat-option *ngFor="let fa of fabriquants" [value]="fa.id">{{ fa.nom }}</mat-option>
+                          </mat-select>
+                        </mat-form-field>
+                      </div>
+                      <div fxFlex="100" class="mt-2 text-center w-100">
+                        <button mat-raised-button color="primary" type="submit">SUBMIT</button>
+                      </div>
+
+                        <div fxFlex="100" class="mt-2 text-center w-100">
+                            <button mat-raised-button color="primary" type="submit">SUBMIT</button>
+                        </div>
+                      <mat-toolbar>
+                        <h2>Detail produit</h2>
+                      </mat-toolbar>
                       <div fxFlex="100" fxFlex.gt-sm="50" class="px-1">
                         <mat-form-field appearance="outline" class="w-100">
                           <mat-label>Grossiste ID</mat-label>
@@ -99,19 +158,26 @@
                       </div>
                       <div fxFlex="100" fxFlex.gt-sm="50" class="px-1">
                         <mat-form-field appearance="outline" class="w-100">
-                          <mat-label>Categorie</mat-label>
-                          <mat-select formControlName="categorieId" required>
+                          <mat-label>Produit detail</mat-label>
+                          <mat-select formControlName="produitDetail" required>
                             <mat-option *ngFor="let cat of categories" [value]="cat.id">{{ cat.nom }}</mat-option>
                           </mat-select>
                         </mat-form-field>
                       </div>
-                      <div fxFlex="100" class="mt-2 text-center w-100">
-                        <button mat-raised-button color="primary" type="submit">SUBMIT</button>
+                      <div fxFlex="100" fxFlex.gt-sm="50" class="px-1">
+                        <mat-form-field appearance="outline" class="w-100">
+                          <mat-label>Prix detail</mat-label>
+                          <mat-select formControlName="prixDetail" required>
+                            <mat-option *ngFor="let cat of categories" [value]="cat.id">{{ cat.nom }}</mat-option>
+                          </mat-select>
+                        </mat-form-field>
                       </div>
-
-                        <div fxFlex="100" class="mt-2 text-center w-100">
-                            <button mat-raised-button color="primary" type="submit">SUBMIT</button>
-                        </div>
+                      <div fxFlex="100" fxFlex.gt-sm="50" class="px-1">
+                        <mat-form-field appearance="outline" class="w-100">
+                          <mat-label>Etat</mat-label>
+                          <input matInput formControlName="etat">
+                        </mat-form-field>
+                      </div>
                     </div>
                 </div>
             </form>

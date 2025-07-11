@@ -20,10 +20,12 @@ import {MatDatepickerModule} from "@angular/material/datepicker";
 import {MatNativeDateModule} from "@angular/material/core";
 import {MatSelectModule} from "@angular/material/select";
 import {FlexLayoutModule} from "@ngbracket/ngx-layout";
+import {MatGridListModule} from "@angular/material/grid-list";
 
 @Component({
   selector: 'app-gestion-caisse-dialog',
   imports: [
+    MatGridListModule,
     MatRadioModule,
     MatSlideToggleModule,
     FormsModule,
@@ -60,6 +62,7 @@ export class GestionCaisseDialogComponent {
   caisseForm: FormGroup;
   totalPieces: number = 0;
   totalBillets: number = 0;
+  totalAutres: number = 0;
   totalFond: number = 0;
 
   constructor(
@@ -83,6 +86,10 @@ export class GestionCaisseDialogComponent {
         billet1000: [0, [Validators.min(0)]],
         billet500: [0, [Validators.min(0)]],
       }),
+      autres: this.fb.group({
+        electronique: [0, [Validators.min(0)]],
+        ticket: [0, [Validators.min(0)]],
+      }),
     });
 
     this.calculateTotals();
@@ -91,6 +98,7 @@ export class GestionCaisseDialogComponent {
   calculateTotals(): void {
     const pieces = this.caisseForm.get('pieces')?.value || {};
     const billets = this.caisseForm.get('billets')?.value || {};
+    const autres = this.caisseForm.get('autres')?.value || {};
 
     this.totalPieces = (pieces.piece500 * 500) +
       (pieces.piece100 * 100) +
@@ -104,7 +112,10 @@ export class GestionCaisseDialogComponent {
       (billets.billet1000 * 1000) +
       (billets.billet500 * 500);
 
-    this.totalFond = this.totalPieces + this.totalBillets;
+    this.totalAutres = (autres.electronique ) +
+      (autres.ticket);
+
+    this.totalFond = this.totalPieces + this.totalBillets+this.totalAutres;
   }
 
   onValidate(): void {
@@ -128,13 +139,19 @@ export class GestionCaisseDialogComponent {
         ouvertureCaisse: finalResult.replace('--', "-"),
         fondCaisse: this.totalFond
       }
-    } else if (this.data.type === 'open') {
+      this.caisseForm.get('autres')?.reset();
+    }
+    else if (this.data.type === "close" || this.data.type === "") {
+      const autres = this.caisseForm.get('autres')?.value || {};
       result = {
-        fermetureCaisse: finalResult.replace('--', "-"),
+        fermetureCaisse: finalResult.replace('--', "-")+"|"+autres.electronique+"|"+autres.ticket,
         fondCaisse: this.totalFond
       }
     }
 
+    console.log("result");
+    console.log(result);
+    console.log(this.data);
     this.dialogRef.close({
         type: this.data.type,
         action: 'validate',

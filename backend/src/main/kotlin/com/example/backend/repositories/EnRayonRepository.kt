@@ -29,6 +29,11 @@ interface EnRayonRepository : JpaRepository<EnRayon, Int>, JpaSpecificationExecu
     supprimer: Int = 0
   ): List<EnRayon>
 
+  fun findByProduitIdAndSupprimer(
+    produitId: Int,
+    supprimer: Int = 0
+  ): List<EnRayon>
+
   fun findAllByProduitAndSupprimer(produit: Produit, supprimer: Int = 0): List<EnRayon>
   fun findAllByRayon(rayon: EnRayon): EnRayon
 

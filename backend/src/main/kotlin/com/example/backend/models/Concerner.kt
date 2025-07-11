@@ -16,6 +16,10 @@ class Concerner {
   var vente: com.example.backend.models.Vente? = null
 
   @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "produit_detail_id")
+  var produitDetail: com.example.backend.models.ProduitDetail? = null
+
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "produit_id")
   var produit: com.example.backend.models.Produit? = null
 
