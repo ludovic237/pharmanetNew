@@ -32,6 +32,10 @@ import { Injectable } from '@angular/core';
       return this.http.get<any>(`${this.baseUrl}/products/search?query=${searchTerm}&page=${page}&size=${size}`, { headers: this.getHeaders() });
     }
 
+    searchProductsParam(param: any): Observable<any> {
+      return this.http.get<any>(`${this.baseUrl}/products/search`, {params: param, headers: this.getHeaders()});
+    }
+
     getFilteredProducts(filters: any, page: number, size: number): Observable<any> {
       const params = new URLSearchParams({ ...filters, page: page.toString(), size: size.toString() });
       return this.http.get<any>(`${this.baseUrl}?${params.toString()}`, { headers: this.getHeaders() });
@@ -88,6 +92,14 @@ import { Injectable } from '@angular/core';
 
     getProduitDetailById(id: number): Observable<any> {
       return this.http.get<any>(`${this.baseUrl}/${id}/info`, { headers: this.getHeaders() });
+    }
+
+    getProduitEnRayonDetailById(id: number): Observable<any> {
+      return this.http.get<any>(`${this.baseUrl}/${id}/info/en_rayon`, { headers: this.getHeaders() });
+    }
+
+    getEnRayonDetailById(id: string): Observable<any> {
+      return this.http.get<any>(`${this.baseUrl}/${id}/info/scan/en_rayon`, { headers: this.getHeaders() });
     }
 
     markStockAsExpired(productId: number): Observable<void> {

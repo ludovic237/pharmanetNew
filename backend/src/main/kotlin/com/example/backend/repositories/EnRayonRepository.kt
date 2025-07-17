@@ -2,8 +2,6 @@ package com.example.backend.repositories;
 
 import com.example.backend.models.Commande
 import com.example.backend.models.EnRayon
-import com.example.backend.models.Produit
-import com.example.backend.models.Rayon
 import jakarta.persistence.criteria.Predicate
 import org.springframework.data.jpa.domain.Specification
 import org.springframework.data.jpa.repository.JpaRepository
@@ -11,34 +9,37 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor
 import java.time.LocalDateTime
 import java.util.*
 
-interface EnRayonRepository : JpaRepository<EnRayon, Int>, JpaSpecificationExecutor<EnRayon> {
-  fun findByProduitAndRayonAndSupprimer(
-    produit: Produit,
-    rayon: Rayon?, // Rayon can be null if stock is at depot level
-    supprimer: Int = 0
-  ): Optional<EnRayon>
+interface EnRayonRepository : JpaRepository<EnRayon, String>, JpaSpecificationExecutor<EnRayon> {
 
-  fun findByProduitAndCommandeAndSupprimer(
-    produit: Produit,
+
+  fun findByProduitIdAndCommandeAndSupprimer(
+    produit: Int,
     commande: Commande?, // Rayon can be null if stock is at depot level
     supprimer: Int = 0
   ): Optional<EnRayon>
 
-  fun findByProduitAndSupprimer(
-    produit: Produit,
-    supprimer: Int = 0
-  ): List<EnRayon>
-
   fun findByProduitIdAndSupprimer(
-    produitId: Int,
+    produit: Int,
     supprimer: Int = 0
   ): List<EnRayon>
 
-  fun findAllByProduitAndSupprimer(produit: Produit, supprimer: Int = 0): List<EnRayon>
-  fun findAllByRayon(rayon: EnRayon): EnRayon
+  fun findByProduitIdAndQuantiteRestanteGreaterThanAndSupprimer(
+    produit: Int,
+    quantite: Int = 0,
+    supprimer: Int = 0
+  ): List<EnRayon>
 
-  fun findByProduitNomContainingIgnoreCaseAndSupprimer(nomProduit: String, supprimer: Int): List<EnRayon>
-  fun findByRayonNomContainingIgnoreCaseAndSupprimer(nomRayon: String, supprimer: Int): List<EnRayon>
+  fun findByProduitIdAndIdAndSupprimer(
+    produit: Int,
+    rayonId: String,
+    supprimer: Int = 0
+  ): EnRayon
+
+  fun findAllByProduitIdAndSupprimer(produit: Int, supprimer: Int = 0): List<EnRayon>
+//  fun findAllByRayon(rayon: EnRayon): EnRayon
+
+  fun findByProduitIdInAndSupprimer(nomProduit: List<Int>, supprimer: Int): List<EnRayon>
+//  fun findByRayonIdInAndSupprimer(nomRayon: List<Int>, supprimer: Int): List<EnRayon>
   fun findByFournisseurNomContainingIgnoreCaseAndSupprimer(nomFournisseur: String, supprimer: Int): List<EnRayon>
 
   //  fun findByProduitUniterContainingIgnoreCaseAndSupprimer(uniter: String, supprimer: Int): List<EnRayon>

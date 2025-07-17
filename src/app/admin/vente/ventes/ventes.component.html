@@ -157,14 +157,15 @@
       </div>
     </mat-card>
 
-    @if (ventes.length) {
-        <div fxLayout="row wrap">
-            <div fxFlex="100">
-                <mat-card class="text-center">
-                    <pagination-controls class="product-pagination" [autoHide]="true" [maxSize]="5" (pageChange)="onPageChanged($event)"></pagination-controls>
-                </mat-card>
-            </div>
-        </div>
-    }
+
+  <div fxLayout="row wrap">
+    <div fxFlex="100">
+      <mat-card class="text-center">
+        <mat-paginator [length]="totalItems" [pageSize]="count" [pageSizeOptions]="[5, 10, 25, 100]"
+                       (page)="onPageChanged($event)">
+        </mat-paginator>
+      </mat-card>
+    </div>
+  </div>
 
 </div>

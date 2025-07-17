@@ -8,15 +8,14 @@ import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor
 import org.springframework.stereotype.Repository
 import java.time.LocalDate
-import java.util.*
 
 @Repository
 interface CaisseRepository : JpaRepository<Caisse, Int>, JpaSpecificationExecutor<Caisse> {
   fun findByEtatAndSupprimer(etat: String, supprimer: Int = 0): List<Caisse>
   fun existsByEtatAndSupprimer(etat: String, supprimer: Int = 0): Boolean
-  fun findByEmployeAndEtatAndSupprimer(employe: Employe, etat: String, supprimer: Int = 0): Caisse
-  fun findByEmployeAndEtat(employe: Employe, etat: String): Caisse
-  fun findByEmployeAndSupprimerOrderByDateOuvertDesc(employe: Employe, supprimer: Int = 0): List<Caisse>
+  fun findByUserAndEtatAndSupprimer(employe: Employe, etat: String, supprimer: Int = 0): Caisse
+  fun findByUserAndEtat(employe: Employe, etat: String): Caisse
+  fun findByUserAndSupprimerOrderByDateOuvertDesc(employe: Employe, supprimer: Int = 0): List<Caisse>
 
   companion object {
     fun filterByCriteria(caisseId: Long?, startDate: LocalDate?, endDate: LocalDate?): Specification<Caisse> {

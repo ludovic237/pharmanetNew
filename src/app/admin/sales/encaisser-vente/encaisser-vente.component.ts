@@ -175,7 +175,7 @@ export class EncaisserVenteComponent {
 
   onRefresh() {
     // recharger les données
-    this.ventesService.listerVentesNonEncaissees().subscribe({
+    /*this.ventesService.listerVentesNonEncaissees(page).subscribe({
       next: (response: any) => {
         this.headerDataSource.data = response;
         this.snackBar.open("Sale refresh success", '×', {
@@ -191,7 +191,7 @@ export class EncaisserVenteComponent {
           duration: 3000
         });
       }
-    });
+    });*/
   }
 
   chargerVente(venteId: number) {
@@ -434,26 +434,26 @@ this.ventesService.encaisserVente(this.venteId, encaissementDetails).subscribe({
   }
 
   showVente() {
-    this.ventesService.listerVentesEncaissees().subscribe({
-      next: (ventes: any[]) => {
-        const dialogRef = this.dialog.open(VenteDialogComponent, {
-          data: ventes,
-          width: "80%",
-          panelClass: ['theme-dialog'],
-          autoFocus: false,
-        });
-        dialogRef.afterClosed().subscribe((data: any) => {
-          console.log('Dialog closed', data);
-        });
-      },
-      error: (err: any) => {
-        console.error('Failed to fetch BonCaisse list:', err);
-        this.snackBar.open('Erreur lors de la récupération des bons de caisse.', '×', {
-          panelClass: 'error',
-          verticalPosition: 'top',
-          duration: 3000,
-        });
-      }
-    });
+    // this.ventesService.listerVentesEncaissees().subscribe({
+    //   next: (ventes: any[]) => {
+    //     const dialogRef = this.dialog.open(VenteDialogComponent, {
+    //       data: ventes,
+    //       width: "80%",
+    //       panelClass: ['theme-dialog'],
+    //       autoFocus: false,
+    //     });
+    //     dialogRef.afterClosed().subscribe((data: any) => {
+    //       console.log('Dialog closed', data);
+    //     });
+    //   },
+    //   error: (err: any) => {
+    //     console.error('Failed to fetch BonCaisse list:', err);
+    //     this.snackBar.open('Erreur lors de la récupération des bons de caisse.', '×', {
+    //       panelClass: 'error',
+    //       verticalPosition: 'top',
+    //       duration: 3000,
+    //     });
+    //   }
+    // });
   }
 }

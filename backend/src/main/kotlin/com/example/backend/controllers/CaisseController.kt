@@ -44,7 +44,7 @@ class CaisseController(
     return try {
       val activeCaisse = caisseService.getActiveCaisse()
       if (activeCaisse != null) {
-        val employeName = activeCaisse.employe?.user?.nom ?: "Inconnu"
+        val employeName = activeCaisse.user?.user?.nom ?: "Inconnu"
         val caisseDetails = mapOf(
           "id" to activeCaisse.id,
           "etat" to activeCaisse.etat,
@@ -89,34 +89,46 @@ class CaisseController(
     val userCurrentId = userUtils.getCurrentUserId()
 
     val response = when {
-      activeCaisse != null && activeCaisse.employe?.user?.id == userCurrentId?.toInt() -> {
+      activeCaisse != null && activeCaisse.user?.id == userCurrentId?.toInt() -> {
         mapOf(
           "status" to "active",
           "caisseDetails" to mapOf(
             "id" to activeCaisse.id,
             "etat" to activeCaisse.etat,
             "session" to activeCaisse.session,
-            "nomEmploye" to (activeCaisse.employe?.user?.nom ?: "Inconnu"),
+            "nomEmploye" to (activeCaisse.user?.user?.nom ?: "Inconnu"),
+            "dateOuvert" to activeCaisse.dateOuvert,
+            "dateFerme" to activeCaisse.dateFerme
+          )
+        )
+      }
+      activeCaisse != null && activeCaisse.user?.id != userCurrentId?.toInt() -> {
+        mapOf(
+          "status" to "already_open",
+          "caisseDetails" to mapOf(
+            "id" to activeCaisse.id,
+            "etat" to activeCaisse.etat,
+            "session" to activeCaisse.session,
+            "nomEmploye" to (activeCaisse.user?.user?.nom ?: "Inconnu"),
             "dateOuvert" to activeCaisse.dateOuvert,
             "dateFerme" to activeCaisse.dateFerme
           )
         )
       }
 
-      attenteCloture != null && attenteCloture.employe?.user?.id == userCurrentId?.toInt() -> {
+      attenteCloture != null && attenteCloture.user?.id == userCurrentId?.toInt() -> {
         mapOf(
           "status" to "pending_closure",
           "caisseDetails" to mapOf(
             "id" to attenteCloture.id,
             "session" to attenteCloture.session,
             "etat" to attenteCloture.etat,
-            "nomEmploye" to (attenteCloture.employe?.user?.nom ?: "Inconnu"),
+            "nomEmploye" to (attenteCloture.user!!.user?.nom ?: "Inconnu"),
             "dateOuvert" to attenteCloture.dateOuvert,
             "dateFerme" to attenteCloture.dateFerme
           )
         )
       }
-
       else -> {
         mapOf(
           "status" to "none",

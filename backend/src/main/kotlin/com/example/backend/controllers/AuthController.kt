@@ -1,7 +1,9 @@
 package com.example.backend.controllers
 
 import com.example.backend.config.SecurityConfig
+import com.example.backend.models.Employe
 import com.example.backend.models.User
+import com.example.backend.repositories.EmployeRepository
 import com.example.backend.repositories.UserRepository
 import com.example.backend.services.CustomUserDetailsService
 import com.example.backend.utility.JwtUtil
@@ -14,9 +16,7 @@ import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.crypto.password.PasswordEncoder
 
 import org.springframework.web.bind.annotation.*
-import java.time.LocalDateTime
 import java.util.*
-import kotlin.math.log
 
 
 @RestController
@@ -28,7 +28,8 @@ class AuthController(
   var securityConfig: SecurityConfig,
   var userUtils: UserUtils,
   private val userDetailsService: CustomUserDetailsService,
-  private val passwordEncoder: PasswordEncoder // Injected here
+  private val passwordEncoder: PasswordEncoder, // Injected here
+  private val employeRepository: EmployeRepository
 ) {
 
   fun AuthController(authenticationManager: AuthenticationManager) {
@@ -37,7 +38,7 @@ class AuthController(
 
   @CrossOrigin(origins = ["http://localhost:4200"])
   @PostMapping("/login")
-  fun login(@RequestBody loginRequest: LoginRequest): ResponseEntity<*> {
+ fun login(@RequestBody loginRequest: LoginRequest): ResponseEntity<*> {
     if (loginRequest.username.isEmpty() || loginRequest.password.isEmpty()) {
       return ResponseEntity.badRequest().body(
         mapOf("message" to "Email and password must not be empty")
@@ -45,25 +46,35 @@ class AuthController(
     }
     println("Login request: $loginRequest")
     return try {
-      val authentication: Authentication = authenticationManager!!.authenticate(
-        UsernamePasswordAuthenticationToken(loginRequest.username, loginRequest.password)
-      )
-      println("Authentication successful: $authentication")
-      SecurityContextHolder.getContext().authentication = authentication
+      // Rechercher l'employé par identifiant
+      val employe = employeRepository.findByIdentifiant(loginRequest.username)
+        ?: return ResponseEntity.badRequest().body(
+          mapOf("message" to "Login failed: Invalid username or password")
+        )
 
+      // Vérifier le mot de passe
+//      if (!passwordEncoder.matches(loginRequest.password, employe.password)) {
+//        return ResponseEntity.badRequest().body(
+//          mapOf("message" to "Login failed: Invalid username or password")
+//        )
+//      }
+
+      // Générer le token JWT
+      val authentication = UsernamePasswordAuthenticationToken(employe.identifiant, null, emptyList())
+      SecurityContextHolder.getContext().authentication = authentication
       val token = jwtUtil.generateToken(authentication)
-      var user = userUtils.getCurrentUser()
+
       println("Generated token: $token")
       ResponseEntity.ok(
         mapOf(
           "message" to "Login successful",
           "token" to token,
-          "nom" to "${user!!.nom} ${user!!.prenom}",
+          "nom" to "${employe.user?.nom ?: "Unknown"} ${employe.user?.prenom ?: ""}"
         )
       )
     } catch (ex: Exception) {
       ResponseEntity.badRequest().body(
-        mapOf("message" to "Login failed: Invalid email or password")
+        mapOf("message" to "Login failed: An error occurred")
       )
     }
   }
@@ -94,26 +105,26 @@ class AuthController(
     }
 
     // Create a new user
-    val user = User().apply {
+    var user = User().apply {
       nom = registerRequest.firstName
       prenom = registerRequest.lastName
       telephone = registerRequest.phone
       email = registerRequest.email
-      registrationDate = LocalDateTime.now()
-      createdDate = LocalDateTime.now()
-      updatedDate = LocalDateTime.now()
-      username = registerRequest.email
+      fonction = registerRequest.role
       supprimer = 0
-      password = passwordEncoder.encode(registerRequest.password)
-      role = registerRequest.role // Initialize and set a default role
     }
 
-    println("Registering user: $user")
-    println(passwordEncoder.encode(registerRequest.password))
-    println(user.password)
-    println(user.toString())
-    // Save the user
-    userRepository.save(user)
+    user = userRepository.save(user)
+
+    var employee = Employe().apply {
+      this.user = user
+      this.identifiant = registerRequest.email
+      this.codebarreId = "0"
+      this.supprimer = 0
+      this.password = passwordEncoder.encode(registerRequest.password)
+    }
+    employee = employeRepository.save(employee)
+
 
     return ResponseEntity.ok(mapOf("message" to "User registered successfully"))
   }

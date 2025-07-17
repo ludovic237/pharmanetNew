@@ -1,6 +1,7 @@
 package com.example.backend.repositories;
 
 import com.example.backend.models.Commande
+import com.example.backend.models.EnRayon
 import com.example.backend.models.ProduitDetail
 import jakarta.persistence.criteria.Predicate
 import org.springframework.data.domain.Page
@@ -18,6 +19,12 @@ interface ProduitDetailRepository : JpaRepository<ProduitDetail, Int>, JpaSpecif
   fun findByNomContainsIgnoreCaseAndSupprimer(nom: String, supprimer: Int, pageable: Pageable): Page<ProduitDetail>
 
   fun findByNomContainingIgnoreCaseAndSupprimer(nom: String, supprimer: Int, pageable: Pageable): Page<ProduitDetail>
+
+  fun findByIdAndStockGreaterThanAndSupprimer(
+    produit: Int,
+    quantite: Int = 0,
+    supprimer: Int = 0
+  ): ProduitDetail
 
   companion object {
     fun filterProduitDetail(

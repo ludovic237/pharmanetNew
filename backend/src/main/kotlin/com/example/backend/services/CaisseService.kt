@@ -3,7 +3,6 @@ package com.example.backend.services
 import com.example.backend.dtos.CaisseDto
 import com.example.backend.dtos.CaisseOuvertureRequestDto
 import com.example.backend.models.Caisse
-import com.example.backend.models.Vente
 import com.example.backend.repositories.*
 import com.example.backend.utility.UserUtils
 import org.springframework.data.domain.Page
@@ -14,7 +13,6 @@ import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
-import java.util.*
 
 @Service
 class CaisseService(
@@ -30,21 +28,23 @@ class CaisseService(
   private val facturationRepository: FacturationRepository,
   private val factureEspeceRepository: FactureEspeceRepository,
   private val factureTicketRepository: FactureTicketRepository,
-  private val factureElectroniqueRepository: FactureElectroniqueRepository
+  private val factureElectroniqueRepository: FactureElectroniqueRepository,
+  private val enRayonRepository: EnRayonRepository,
+  private val produitRepository: ProduitRepository
 ) {
 
   fun isCaisseOuverte(): Boolean {
-    return caisseRepository.existsByEtatAndSupprimer(Caisse.ETAT_OUVERT, 0)
+    return caisseRepository.existsByEtatAndSupprimer("Ouvert", 0)
   }
 
   fun getActiveCaisse(): Caisse? {
-    return caisseRepository.findByEtatAndSupprimer(Caisse.ETAT_OUVERT, 0)
+    return caisseRepository.findByEtatAndSupprimer("Ouvert", 0)
       .firstOrNull()
   }
 
 
   fun getCaisseAttenteCloture(): Caisse? {
-    return caisseRepository.findByEtatAndSupprimer(Caisse.ETAT_CLOTURE_EN_ATTENTE, 0)
+    return caisseRepository.findByEtatAndSupprimer("En cours1", 0)
       .firstOrNull()
   }
 
@@ -56,20 +56,20 @@ class CaisseService(
     val employeData = employeRepository.findByUser(currentUser)
 
     // Check if there is already an active caisse
-    val activeCaisse = caisseRepository.findByEtatAndSupprimer(Caisse.ETAT_OUVERT, 0).firstOrNull()
+    val activeCaisse = caisseRepository.findByEtatAndSupprimer("En cours", 0).firstOrNull()
     if (activeCaisse != null) {
       throw CaisseException("A caisse (ID: ${activeCaisse.id}, Session: ${activeCaisse.session}) is already open.")
     }
 
     // Create a new caisse
     val nouvelleCaisse = Caisse().apply {
-      employe = employeData
-      fondCaisseOuvert = requestDto.fondCaisseOuvert.toDouble()
-      ouvertureCaisse = requestDto.ouvertureCaisse
-      dateOuvert = LocalDateTime.now()
-      session = genererSessionId()
-      etat = Caisse.ETAT_OUVERT
-      supprimer = 0
+      this.user = employeData
+      this.fondCaisseOuvert = requestDto.fondCaisseOuvert.toDouble()
+      this.ouvertureCaisse = requestDto.ouvertureCaisse
+      this.dateOuvert = LocalDateTime.now()
+      this.session = genererSessionId()
+      this.etat = "En cours"
+      this.supprimer = 0
     }
 
     val savedCaisse = caisseRepository.save(nouvelleCaisse)
@@ -89,8 +89,8 @@ class CaisseService(
   fun mapToCaisseDto(caisse: Caisse): CaisseDto {
     return CaisseDto(
       id = caisse.id,
-      employeId = caisse.employe?.id,
-      employeNom = "${caisse.employe?.user?.prenom ?: ""} ${caisse.employe?.user?.nom ?: ""}".trim(),
+      employeId = caisse.user?.id,
+      employeNom = "${caisse.user?.user?.prenom ?: ""} ${caisse.user?.user?.nom ?: ""}".trim(),
       dateOuvert = caisse.dateOuvert,
       dateFerme = null,
       session = caisse.session,
@@ -108,7 +108,7 @@ class CaisseService(
       mapOf(
         "id" to activeCaisse.id as Any?,
         "etat" to activeCaisse.etat as Any?,
-        "nomEmploye" to (activeCaisse.employe?.user?.nom ?: "Inconnu") as Any?,
+        "nomEmploye" to (activeCaisse.user?.user?.nom ?: "Inconnu") as Any?,
         "dateOuvert" to activeCaisse.dateOuvert as Any?,
         "dateFerme" to activeCaisse.dateFerme as Any?
       )
@@ -118,11 +118,11 @@ class CaisseService(
 
   fun setCaisseToPendingClosure(): Caisse {
     val activeCaisse = getActiveCaisse() ?: throw CaisseException("Aucune caisse active trouvée.")
-    if (activeCaisse.etat!!.toLowerCase() != Caisse.ETAT_OUVERT.toLowerCase()) {
+    if (activeCaisse.etat!!.toLowerCase() != "En cours".toLowerCase()) {
       throw CaisseException("La caisse n'est pas dans un état actif.")
     }
 
-    activeCaisse.etat = Caisse.ETAT_CLOTURE_EN_ATTENTE
+    activeCaisse.etat = "En cours1"
     return caisseRepository.save(activeCaisse)
   }
 
@@ -131,12 +131,12 @@ class CaisseService(
     val currentUser = userUtils.getCurrentUserId()
     val clotureCaisse = getCaisseAttenteCloture()
 
-    if (clotureCaisse != null && clotureCaisse.employe?.user?.id?.toLong() == currentUser) {
+    if (clotureCaisse != null && clotureCaisse.user?.user?.id?.toLong() == currentUser) {
       clotureCaisse.apply {
         this.fermetureCaisse = fermetureCaisse
         this.fondCaisseFerme = fondCaisseFerme.toDouble()
         this.dateFerme = LocalDateTime.now()
-        this.etat = Caisse.ETAT_FERME
+        this.etat = "Clot"
       }
       val updatedCaisse = caisseRepository.save(clotureCaisse)
       return mapToCaisseDto(updatedCaisse)
@@ -192,7 +192,7 @@ class CaisseService(
       var produitRetour = produitRetourRepository.findByRetourProduitId(retourProduit.id!!.toLong())
       mapOf(
         "reference" to retourProduit.vente?.reference,
-        "produit" to produitRetour.map { it.concerner!!.produit!!.nom }.joinToString { "," },
+        "produit" to produitRetour.map { produitRepository.findById(it.concerner!!.produitId!!)!!.get().nom }.joinToString { "," },
         "quantite" to produitRetour.sumOf { it.quantite!! },
         "total" to produitRetour.sumOf { it.quantite!! * it.concerner?.prixUnit!! }
       )
@@ -223,7 +223,7 @@ class CaisseService(
         )
       }
       when (vente.etat) {
-        Vente.VENTE_CREDIT -> {
+        "Crédit" -> {
           listVenteCredit.add(
             mapOf(
               "reference" to vente.reference,
@@ -237,11 +237,11 @@ class CaisseService(
           prixTotalVenteCredit += vente.prixTotal!!
         }
 
-        Vente.VENTE_COMPTANT -> {
+        "Comptant" -> {
           prixTotalVenteComptant += vente.prixTotal!!
         }
 
-        Vente.VENTE_ASSURANCE -> {
+        "Assurance" -> {
           prixTotalVenteAssurance += vente.prixTotal!!
         }
 
@@ -249,19 +249,20 @@ class CaisseService(
 
         }
       }
-      val concernerList = concernerRepository.findByVente(vente)
+      val concernerList = concernerRepository.findByVenteId(vente.id!!.toLong())
       concernerList.stream().forEach { concerne ->
-        when (concerne?.enRayon?.fournisseur?.statut) {
+        var enRayon = enRayonRepository.findById(concerne!!.enRayonId!!).get()
+        when (enRayon.fournisseur?.statut) {
           "Grossiste" -> {
-            prixTotalGrossiste += (concerne.prixUnit!! * concerne.quantite!!)
+            prixTotalGrossiste += (concerne?.prixUnit!! * concerne?.quantite!!)
           }
 
           "Detaillant" -> {
-            prixTotalDetaillant += (concerne.prixUnit!! * concerne.quantite!!)
+            prixTotalDetaillant += (concerne?.prixUnit!! * concerne?.quantite!!)
           }
 
           else -> {
-            prixTotalDetail += (concerne?.prixUnit!! * concerne.quantite!!)
+            prixTotalDetail += (concerne?.prixUnit!! * concerne?.quantite!!)
           }
         }
       }
@@ -385,7 +386,7 @@ class CaisseService(
       mapOf(
         "id" to caisse.id,
         "etat" to caisse.etat,
-        "nomEmploye" to (caisse.employe?.user?.nom ?: "Inconnu"),
+        "nomEmploye" to (caisse.user?.user?.nom ?: "Inconnu"),
         "dateOuvert" to caisse.dateOuvert,
         "dateFerme" to caisse.dateFerme
       )
@@ -406,7 +407,7 @@ class CaisseService(
       mapOf(
         "id" to caisse.id,
         "etat" to caisse.etat,
-        "nomEmploye" to (caisse.employe?.user?.nom ?: "Inconnu"),
+        "nomEmploye" to (caisse.user?.user?.nom ?: "Inconnu"),
         "dateOuvert" to caisse.dateOuvert,
         "dateFerme" to caisse.dateFerme
       )

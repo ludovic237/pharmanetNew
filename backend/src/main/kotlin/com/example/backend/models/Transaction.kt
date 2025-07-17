@@ -7,8 +7,7 @@ import java.time.LocalDateTime
 @Entity
 @Table(name = "transaction")
 class Transaction {
-@Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY) // Use IDENTITY for auto-increment
+  @Id
   @Column(name = "id", nullable = false)
   var id: Int? = null
 
@@ -25,6 +24,6 @@ class Transaction {
   @Column(name = "note", nullable = false, length = 128)
   var note: String? = null
 
-  @Column(name = "date_transac", nullable = false)
+  @Column(name = "dateTransac", nullable = false)
   var dateTransac: LocalDateTime? = null
 }

@@ -41,11 +41,13 @@ import QRCode from "qrcode";
 import {debounceTime, switchMap} from "rxjs";
 import {RetourProduitService} from "@services/retour-produit.service";
 import autoTable from 'jspdf-autotable';
+import {MatPaginatorModule, PageEvent} from "@angular/material/paginator";
 
 @Component({
   selector: 'app-retour-produit',
   providers: [UsersService, VentesService, EnrayonsService, ProductService, PrescripteursService],
   imports: [
+    MatPaginatorModule,
     MatMenuModule,
     MatListModule,
     MatChipsModule,
@@ -97,8 +99,8 @@ export class RetourProduitComponent implements OnInit {
 
   retourProduitList: any[] = []
   page: number = 1;
-  count = 6;
-  totalItems = 6;
+  count = 5;
+  totalItems = 0;
 
   produitsAchetes: any[] = [];
   produitsRetournes: any[] = [];
@@ -158,7 +160,7 @@ export class RetourProduitComponent implements OnInit {
   }
 
   loadProduitsRetournesListe(): void {
-    this.retourProduitService.listerRetourProduitsAvecDetails(this.page - 1, this.count).subscribe({
+    this.retourProduitService.listerRetourProduitsAvecDetails(this.page-1, this.count).subscribe({
       next: (data: any) => {
         this.count = data.pageable.pageSize;
         this.totalItems = data.totalElements;
@@ -170,8 +172,11 @@ export class RetourProduitComponent implements OnInit {
     });
   }
 
-  public onPageChanged(event: any) {
-    this.page = event;
+  public onPageChanged(event: PageEvent) {
+    this.page = event.pageIndex + 1;
+    this.count = event.pageSize;
+    this.loadProduitsRetournesListe()
+
   }
 
   calculateTotals(data: any[]): void {

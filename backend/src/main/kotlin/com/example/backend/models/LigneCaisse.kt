@@ -7,8 +7,7 @@ import java.time.LocalDateTime
 @Entity
 @Table(name = "ligne_caisse")
 class LigneCaisse {
-@Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY) // Use IDENTITY for auto-increment
+  @Id
   @Column(name = "id", nullable = false)
   var id: Int? = null
 
@@ -23,7 +22,7 @@ class LigneCaisse {
   @Column(name = "libelle", nullable = false)
   var libelle: String? = null
 
-  @Column(name = "date_ligne", nullable = false)
+  @Column(name = "dateLigne", nullable = false)
   var dateLigne: LocalDateTime? = null
 
   @Column(name = "debit")
@@ -35,7 +34,7 @@ class LigneCaisse {
   @Column(name = "type", nullable = false, length = 32)
   var type: String? = null
 
-  @Column(name = "ref_produit", nullable = false)
+  @Column(name = "refProduit", nullable = false)
   var refProduit: Int? = null
 
   @Column(name = "motif", nullable = false, length = 128)

@@ -1,33 +1,28 @@
 package com.example.backend.models
 
-import jakarta.persistence.*
+import jakarta.persistence.Column
+import jakarta.persistence.Entity
+import jakarta.persistence.Id
+import jakarta.persistence.Table
 import org.hibernate.annotations.ColumnDefault
 
 @Entity
 @Table(name = "concerner")
 class Concerner {
-@Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY) // Use IDENTITY for auto-increment
+  @Id
   @Column(name = "id", nullable = false)
   var id: Int? = null
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "vente_id")
-  var vente: com.example.backend.models.Vente? = null
+  @Column(name = "vente_id")
+  var venteId: Long? = null
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "produit_detail_id")
-  var produitDetail: com.example.backend.models.ProduitDetail? = null
+  @Column(name = "produit_id")
+  var produitId: Int? = null
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "produit_id")
-  var produit: com.example.backend.models.Produit? = null
+  @Column(name = "en_rayon_id")
+  var enRayonId: String? = null
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "en_rayon_id")
-  var enRayon: com.example.backend.models.EnRayon? = null
-
-  @Column(name = "prix_unit")
+  @Column(name = "prixUnit")
   var prixUnit: Int? = null
 
   @Column(name = "quantite")
@@ -38,7 +33,7 @@ class Concerner {
 
   @ColumnDefault("0")
   @Column(name = "supprimer")
-  var supprimer: Int? = 0
+  var  supprimer: Int? = 0
 
   @ColumnDefault("'en rayon'")
   @Column(name = "type")

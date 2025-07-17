@@ -38,11 +38,13 @@ import {MatStepperModule} from "@angular/material/stepper";
 import {MatRadioModule} from "@angular/material/radio";
 import {jsPDF} from "jspdf";
 import QRCode from "qrcode";
+import {MatPaginatorModule, PageEvent} from "@angular/material/paginator";
 
 @Component({
   selector: 'app-ventes',
   providers: [UsersService, VentesService, EnrayonsService, ProductService, PrescripteursService],
   imports: [
+    MatPaginatorModule,
     MatMenuModule,
     MatListModule,
     MatChipsModule,
@@ -92,8 +94,8 @@ import QRCode from "qrcode";
 export class VentesComponent implements OnInit {
   ventes: any[] = []
   page: number = 1;
-  count = 6;
-  totalItems = 6;
+  count = 5;
+  totalItems = 0;
 
   etat: string = null;
   dateVente: string = null;
@@ -144,9 +146,11 @@ export class VentesComponent implements OnInit {
     this.fetchVentesPageable()
   }
 
-  public onPageChanged(event: any) {
-    this.page = event;
+  public onPageChanged(event: PageEvent) {
+    this.page = event.pageIndex + 1;
+    this.count = event.pageSize;
     this.domHandlerService.winScroll(0, 0);
+    this.fetchVentesPageable();
   }
 
   fetchVentesPageable(): void {

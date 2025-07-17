@@ -14,7 +14,6 @@ import java.text.Normalizer
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import java.util.*
 
 @Service
 class VenteService(
@@ -52,7 +51,7 @@ class VenteService(
 
     // Handle client
     val client = when (venteRequestDto.clientInfo.type) {
-      "existing" -> userRepository.findById(venteRequestDto.clientInfo.id!!.toLong())
+      "existing" -> userRepository.findById(venteRequestDto.clientInfo.id!!.toInt())
         .orElseThrow { RuntimeException("Client introuvable avec l'ID: ${venteRequestDto.clientInfo.id}") }
 
       "new" -> User().apply {
@@ -104,8 +103,8 @@ class VenteService(
         produitDetailRepository.save(produitDetail)
 
         val concerner = Concerner().apply {
-          this.vente = savedVente
-          this.produitDetail = produitDetail
+          this.venteId = savedVente.id
+          this.produitId = produitDetail.id
           this.quantite = produitAssocieDto.quantite
           this.prixUnit = produitAssocieDto.prixUnit
           this.type = produitAssocieDto.type
@@ -113,19 +112,19 @@ class VenteService(
         }
         concernerRepository.save(concerner)
       } else {
-        val rayon = enRayonRepository.findById(produitAssocieDto.rayonId!!.toInt()).get()
+        val rayon = enRayonRepository.findById(produitAssocieDto.rayonId!!).get()
         rayon.quantiteRestante = rayon.quantiteRestante!! - produitAssocieDto.quantite!!
         enRayonRepository.save(rayon)
 
-        val produit = produitRepository.findById(rayon.produit!!.id!!)
+        val produit = produitRepository.findById(rayon.produitId!!)
           .orElseThrow { RuntimeException("Produit introuvable avec l'ID: ${produitAssocieDto.produitId}") }
         produit.stock = produit.stock!! - produitAssocieDto.quantite!!
         produitRepository.save(produit)
 
         val concerner = Concerner().apply {
-          this.vente = savedVente
-          this.produit = produit
-          this.enRayon = rayon
+          this.venteId = savedVente.id
+          this.produitId = produit.id
+          this.enRayonId = rayon.id
           this.quantite = produitAssocieDto.quantite
           this.prixUnit = produitAssocieDto.prixUnit
           this.type = produitAssocieDto.type
@@ -150,7 +149,7 @@ class VenteService(
 
     val currentUser = userUtils.getCurrentUser()
     val employe = employeRepository.findByUser(currentUser!!)
-    val caisse = caisseRepository.findByEmployeAndEtatAndSupprimer(employe, Caisse.ETAT_OUVERT)
+    val caisse = caisseRepository.findByUserAndEtatAndSupprimer(employe, "En cours")
       ?: throw RuntimeException("Aucune caisse ouverte trouvée pour l'utilisateur connecté.")
 
     val facturation = Facturation().apply {
@@ -165,7 +164,7 @@ class VenteService(
     }
 
     when (encaissementRequestDto.typePaiement.toLowerCase()) {
-      Vente.VENTE_TYPE_PAIEMENT_ESPECE.toLowerCase() -> {
+      "espece".toLowerCase() -> {
         encaissementRequestDto.espece?.let { montantEspece ->
           val factureEspece = FactureEspece().apply {
             this.facturationId = facturation!!.id?.toLong()
@@ -175,7 +174,7 @@ class VenteService(
         }
       }
 
-      Vente.VENTE_TYPE_PAIEMENT_ELECTRONIQUE.toLowerCase() -> {
+      "electronique".toLowerCase() -> {
         encaissementRequestDto.electronique?.let { electronique ->
           val factureElectronique = FactureElectronique().apply {
             this.facturationId = facturation!!.id?.toLong()
@@ -186,7 +185,7 @@ class VenteService(
         }
       }
 
-      Vente.VENTE_TYPE_PAIEMENT_TICKET.toLowerCase() -> {
+      "ticket".toLowerCase() -> {
         encaissementRequestDto.ticket?.let { montantTicket ->
           val factureTicket = FactureTicket().apply {
             this.facturationId = facturation!!.id?.toLong()
@@ -196,7 +195,7 @@ class VenteService(
         }
       }
 
-      Vente.VENTE_TYPE_PAIEMENT_MIXTE.toLowerCase() -> {
+      "mixte".toLowerCase() -> {
         encaissementRequestDto.espece?.let { montantEspece ->
           val factureEspece = FactureEspece().apply {
             this.facturationId = facturation!!.id?.toLong()
@@ -239,7 +238,7 @@ class VenteService(
 
     val currentUser = userUtils.getCurrentUser()
     val employe = employeRepository.findByUser(currentUser!!)
-    val caisse = caisseRepository.findByEmployeAndEtatAndSupprimer(employe, Caisse.ETAT_OUVERT)
+    val caisse = caisseRepository.findByUserAndEtatAndSupprimer(employe, "En cours")
       ?: throw RuntimeException("Aucune caisse ouverte trouvée pour l'utilisateur connecté.")
 
     var facturation = Facturation().apply {
@@ -255,7 +254,7 @@ class VenteService(
     facturation = facturationRepository.save(facturation)
 
     when (encaissementDto.typeEncaissement.toLowerCase()) {
-      Vente.VENTE_TYPE_PAIEMENT_ESPECE.toLowerCase() -> {
+      "espece".toLowerCase() -> {
         encaissementDto.espece?.let { montantEspece ->
           val factureEspece = FactureEspece().apply {
             this.facturationId = facturation!!.id?.toLong()
@@ -265,7 +264,7 @@ class VenteService(
         }
       }
 
-      Vente.VENTE_TYPE_PAIEMENT_ELECTRONIQUE.toLowerCase() -> {
+      "electronique".toLowerCase() -> {
         encaissementDto.electronique?.let { electronique ->
           val factureElectronique = FactureElectronique().apply {
             this.facturationId = facturation!!.id?.toLong()
@@ -276,7 +275,7 @@ class VenteService(
         }
       }
 
-      Vente.VENTE_TYPE_PAIEMENT_TICKET.toLowerCase() -> {
+      "ticket".toLowerCase() -> {
         encaissementDto.ticket?.let { ticket ->
           val ticketCaisse = bonCaisseRepository.findByCodebarreId(ticket.numeroTicket)
           ticketCaisse!!.type = "Encaisser" // Transition to Encaisser
@@ -293,7 +292,7 @@ class VenteService(
         }
       }
 
-      Vente.VENTE_TYPE_PAIEMENT_MIXTE.toLowerCase() -> {
+      "mixte".toLowerCase() -> {
         encaissementDto.espece?.let { montantEspece ->
           val factureEspece = FactureEspece().apply {
             this.facturationId = facturation!!.id?.toLong()
@@ -341,11 +340,15 @@ class VenteService(
     if (ventes.prixPercu != null && ventes.prixPercu!! > 0) {
       throw RuntimeException("La vente est déjà encaissée.")
     }
-    val produits = concernerRepository.findByVente(ventes)
+    val produits = concernerRepository.findByVenteId(ventes.id!!.toLong())
       .map { concerner ->
-        var nom = concerner?.produit?.nom
-        if (concerner?.produitDetail != null) {
-          nom = concerner.produitDetail!!.nom
+        var produit =
+          produitRepository.findById(enRayonRepository.findById(concerner?.enRayonId!!).get().produitId!!!!)
+            .get()
+        var nom = produit.nom
+        if (concerner?.type === "detail") {
+          var produitDetail = produitDetailRepository.findById(concerner.enRayonId!!.toInt()).get()
+          nom = produitDetail.nom
         }
         mapOf(
           "id" to concerner?.id,
@@ -370,7 +373,7 @@ class VenteService(
     }
     ventes.supprimer = 1
     venteRepository.save(ventes)
-    var concernerListe = concernerRepository.findByVente(ventes)
+    var concernerListe = concernerRepository.findByVenteId(ventes.id!!.toLong())
     concernerListe.forEach { concerner ->
       concerner!!.supprimer = 1
       concernerRepository.save(concerner)
@@ -407,15 +410,28 @@ class VenteService(
     prescripteurId: String?,
     caisseId: String?
   ): Page<Map<String, Any?>> {
-    val spec = VenteRepository.filterVentes(
+    val spec = VenteRepository.filterVentes(0,1,
       etat, dateVente, dateEncaissement, userId, employeId, prescripteurId, caisseId
     )
     return venteRepository.findAll(spec, pageable).map { vente ->
-      val produits = concernerRepository.findByVente(vente).map { concerner ->
+      val produits = concernerRepository.findByVenteId(vente.id!!.toLong()).map { concerner ->
+        var nom = ""
+        var id = ""
+        if (concerner!!.type == "detail") {
+          var produitDetail = produitDetailRepository.findById(concerner.enRayonId!!.toInt()).get()
+          nom = produitDetail.nom.toString()
+          id = produitDetail.id.toString()
+        } else {
+          var produit =
+            produitRepository.findById(enRayonRepository.findById(concerner!!.enRayonId!!).get().produitId!!).get()
+          nom = produit.nom.toString()
+          id = produit.id.toString()
+        }
+
         mapOf(
           "id" to concerner!!.id,
-          "nom" to concerner!!.produit?.nom,
-          "produitId" to concerner!!.produit?.id,
+          "nom" to nom,
+          "produitId" to id,
           "quantite" to concerner!!.quantite,
           "prixUnitaire" to concerner!!.prixUnit,
           "reduction" to concerner!!.reduction,
@@ -442,9 +458,14 @@ class VenteService(
   }
 
   @Transactional
-  fun listerVentesNonEncaissees(): List<Map<String, Any?>> {
+  fun listerVentesNonEncaissees(
+    pageable: Pageable,
+  ): Page<Map<String, Any?>> {
 //      return venteRepository.findByPrixPercuGreaterThan(0.0).map { vente ->
-    return venteRepository.findVentesWithPrixPercuZero().map { vente ->
+    val spec = VenteRepository.filterVentes(0,0,
+      "null", "null","null","null","null","null","null",
+    )
+    return venteRepository.findAll(spec, pageable).map { vente ->
       mapOf(
         "id" to vente.id as Any?,
         "netAPayer" to vente.prixTotal as Any?,
@@ -460,9 +481,14 @@ class VenteService(
   }
 
   @Transactional
-  fun listerVentesEncaissees(): List<Map<String, Any?>> {
+  fun listerVentesEncaissees(
+    pageable: Pageable,
+  ): Page<Map<String, Any?>> {
 //      return venteRepository.findByPrixPercuGreaterThan(0.0).map { vente ->
-    return venteRepository.findVentesWithPrixPercu().map { vente ->
+    val spec = VenteRepository.filterVentes(0,1,
+      "null", "null","null","null","null","null","null",
+    )
+    return venteRepository.findAll(spec, pageable).map { vente ->
       mapOf(
         "id" to vente.id as Any?,
         "prixPercu" to vente.prixPercu as Any?,
@@ -487,11 +513,18 @@ class VenteService(
     if (ventes.prixPercu == null && ventes.prixPercu!! <= 0) {
       throw RuntimeException("La vente est déjà encaissée.")
     }
-    val produits = concernerRepository.findByVente(ventes)
+    val produits = concernerRepository.findByVenteId(ventes.id!!.toLong())
       .map { concerner ->
+        var produit =
+          produitRepository.findById(enRayonRepository.findById(concerner!!.enRayonId!!).get().produitId!!).get()
+        var nom = produit.nom
+        if (concerner.type == "detail") {
+          var produitDetail = produitDetailRepository.findById(concerner.enRayonId!!.toInt()).get()
+          nom = produitDetail.nom
+        }
         mapOf(
           "id" to concerner?.id,
-          "nom" to concerner?.produit?.nom,
+          "nom" to nom,
           "prixUnitaire" to concerner?.prixUnit,
           "quantite" to concerner?.quantite,
           "prixTotal" to (concerner?.prixUnit!! * concerner.quantite!!),
@@ -502,21 +535,21 @@ class VenteService(
     val facturation = facturationRepository.findByVente(ventes)
 
     val montantEspece = when (facturation!!.typePaiement!!.lowercase()) {
-      Vente.VENTE_TYPE_PAIEMENT_ESPECE.lowercase(), Vente.VENTE_TYPE_PAIEMENT_MIXTE.lowercase() ->
+      "espece".lowercase(), "mixte".lowercase() ->
         factureEspeceRepository.findByFacturationId(facturation!!.id!!.toLong()).montant ?: 0
 
       else -> 0
     }
 
     val montantElectronique = when (facturation!!.typePaiement!!.lowercase()) {
-      Vente.VENTE_TYPE_PAIEMENT_ELECTRONIQUE.lowercase(), Vente.VENTE_TYPE_PAIEMENT_MIXTE.lowercase() ->
+      "electronique".lowercase(), "mixte".lowercase() ->
         factureElectroniqueRepository.findByFacturationId(facturation!!.id!!.toLong()).montant ?: 0
 
       else -> 0
     }
 
     val montantTicket = when (facturation!!.typePaiement!!.lowercase()) {
-      Vente.VENTE_TYPE_PAIEMENT_TICKET.lowercase(), Vente.VENTE_TYPE_PAIEMENT_MIXTE.lowercase() ->
+      "ticket".lowercase(), "mixte".lowercase() ->
         factureTicketRepository.findByFacturationId(facturation!!.id!!.toLong()).montant ?: 0
 
       else -> 0
@@ -556,12 +589,21 @@ class VenteService(
     val vente: Vente = venteRepository.findByReferenceAndSupprimer(reference, 0)
       ?: throw IllegalArgumentException("Vente not found with reference: $reference")
 
-    val produits: List<Map<String, Any?>> = concernerRepository.findByVente(vente).map { concerner ->
+    val produits: List<Map<String, Any?>> = concernerRepository.findByVenteId(vente.id!!.toLong()).map { concerner ->
+      var produit =
+        produitRepository.findById(enRayonRepository.findById(concerner!!.enRayonId!!).get().produitId!!).get()
+      var nom = produit.nom
+      var id = produit.id
+      if (concerner.type == "detail") {
+        var produitDetail = produitDetailRepository.findById(concerner.enRayonId!!.toInt()).get()
+        nom = produitDetail.nom
+        id = produitDetail.id
+      }
       mapOf(
         "id" to concerner!!.id,
-        "nom" to concerner!!.produit?.nom,
-        "produitId" to concerner!!.produit?.id,
-        "rayonId" to concerner!!.enRayon?.id,
+        "nom" to nom,
+        "produitId" to id,
+        "rayonId" to concerner!!.enRayonId,
         "quantite" to concerner!!.quantite,
         "prixUnitaire" to concerner!!.prixUnit,
         "reduction" to concerner!!.reduction,

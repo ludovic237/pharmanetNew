@@ -39,8 +39,8 @@ export class VentesService {
   }
 
   // Load ongoing unpaid sales
-  listerVentesNonEncaissees(): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/vente-non-encaissees`, {headers: this.getHeaders()});
+  listerVentesNonEncaissees(page: number, size: number): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/vente-non-encaissees?page=${page}&size=${size}`, {headers: this.getHeaders()});
   }
 
   // Load ongoing unpaid sales
@@ -66,8 +66,8 @@ export class VentesService {
   }
 
   // Load ongoing unpaid sales
-  listerVentesEncaissees(): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/vente-encaissee`, {headers: this.getHeaders()});
+  listerVentesEncaissees(page: number, size: number): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/vente-encaissee?page=${page}&size=${size}`, {headers: this.getHeaders()});
   }
 
   // Load ongoing unpaid sales

@@ -8,10 +8,9 @@ import java.time.LocalDateTime
 @Entity
 @Table(name = "facturation")
 class Facturation {
-@Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY) // Use IDENTITY for auto-increment
+  @Id
   @Column(name = "id", nullable = false)
-  var id: Int? = null
+  var id: Long? = null
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "vente_id")
@@ -21,22 +20,22 @@ class Facturation {
   @JoinColumn(name = "caisse_id")
   var caisse: Caisse? = null
 
-  @Column(name = "type_paiement", length = 100)
+  @Column(name = "typePaiement", length = 100)
   var typePaiement: String? = null
 
-  @Column(name = "montant_percu")
+  @Column(name = "montantPercu")
   var montantPercu: Int? = null
 
   @Column(name = "reste")
   var reste: Int? = null
 
-  @Column(name = "montant_ttc")
+  @Column(name = "montantTtc")
   var montantTtc: Int? = null
 
-  @Column(name = "date_facture")
+  @Column(name = "dateFacture")
   var dateFacture: LocalDateTime? = null
 
   @ColumnDefault("0")
   @Column(name = "supprimer")
-  var supprimer: Int? = 0
+  var  supprimer: Int? = 0
 }

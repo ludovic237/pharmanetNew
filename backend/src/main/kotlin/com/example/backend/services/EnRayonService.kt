@@ -3,6 +3,7 @@ package com.example.backend.services
 import com.example.backend.dtos.EnRayonDto
 import com.example.backend.dtos.ProduitEnRayonDto
 import com.example.backend.models.EnRayon
+import com.example.backend.models.Rayon
 import com.example.backend.models.SortieStock
 import com.example.backend.repositories.*
 import org.springframework.data.domain.Page
@@ -26,14 +27,14 @@ class EnRayonService(
 
   @Transactional
   fun decrementerStock(enRayonId: Int, produitDetailId: Int):Map<String,Any?> {
-    val enRayonOptional = enRayonRepository.findById(enRayonId)
+    val enRayonOptional = enRayonRepository.findById(enRayonId.toString())
     if (enRayonOptional.isEmpty) {
       return mapOf(
         "messsage" to "Produit EnRayon introuvable avec l'ID: $enRayonId"
       )
     }
 
-    var produit = produitRepository.findById(enRayonOptional.get().produit?.id ?: 0).get()
+    var produit = produitRepository.findById(enRayonOptional.get().produitId?: 0).get()
     val produitDetailOptional = produitDetailRepository.findById(produitDetailId)
     if (produitDetailOptional.isEmpty) {
       return mapOf(
@@ -93,10 +94,9 @@ class EnRayonService(
       val formattedDateTimeNow = dateTimeNow.format(formatter)
 
       val enRayon = EnRayon().apply {
-        this.id = "${produit.id}${fournisseur.code}${formattedDateTimeNow}".toInt()
-        this.produit = produit
+        this.id = "${produit.id}${fournisseur.code}${formattedDateTimeNow}"
+        this.produitId = produit.id
         this.fournisseur = fournisseur
-        this.rayon = rayon
         this.quantite = produitDto.quantite
         this.prixAchat = produitDto.prixAchat
         this.prixVente = produitDto.prixVente
@@ -113,7 +113,7 @@ class EnRayonService(
   @Transactional
   fun mettreAJourProduitsEnRayon(produits: List<ProduitEnRayonDto>): List<EnRayon> {
     return produits.map { produitDto ->
-      val enRayon = enRayonRepository.findById(produitDto.enRayonId!!.toInt())
+      val enRayon = enRayonRepository.findById(produitDto.enRayonId!!.toString())
         .orElseThrow { RuntimeException("Produit en rayon introuvable avec l'ID: ${produitDto.enRayonId}") }
 
       enRayon.apply {
@@ -129,7 +129,7 @@ class EnRayonService(
   fun getProduitsEnRayonParProduitIdt(produitId: Int): List<Map<String, Any?>> {
     if (produitId < 700) {
       produitDetailRepository.findById(produitId).get()
-      val p = produitDetailRepository.findById(produitId).get()
+      val p = produitDetailRepository.findByIdAndStockGreaterThanAndSupprimer(produitId)
       var data = mutableListOf<Map<String, Any?>>()
       data.add(
         mapOf(
@@ -149,9 +149,9 @@ class EnRayonService(
       return data
     } else {
       val produit = produitRepository.findById(produitId).orElseThrow()
-      val enRayonList = enRayonRepository.findByProduitAndSupprimer(produit)
+      val enRayonList = enRayonRepository.findByProduitIdAndQuantiteRestanteGreaterThanAndSupprimer(produit.id!!)
       var data = enRayonList.map { enRayon->
-        val p = enRayon.produit
+        val p = produitRepository.findById(enRayon.produitId!!).get()
         mapOf(
           "id" to p?.id,
           "rayonId" to enRayon.id,
@@ -187,8 +187,8 @@ class EnRayonService(
             "code" to p?.magasin?.code,
             "nom" to p?.magasin?.nom
           ),*/
-          "createdAt" to p?.createdAt,
-          "updatedAt" to p?.updatedAt,
+//          "createdAt" to p?.createdAt,
+//          "updatedAt" to p?.updatedAt,
           "type" to "produit"
         )
       }
@@ -199,46 +199,47 @@ class EnRayonService(
 
   @Transactional
   fun getProduitsWithDetailEnRayonParProduitIdt(produitId: Int, produitType: String): List<Map<String, Any?>> {
-    val enRayonList = enRayonRepository.findByProduitAndSupprimer(produitRepository.findById(produitId).get())
+    val enRayonList = enRayonRepository.findByProduitIdAndSupprimer(produitRepository.findById(produitId).get().id!!)
 
     return enRayonList.map { enRayon ->
-      val minReduction = minOf(enRayon.produit?.reductionMax ?: 0, enRayon.reduction ?: 0)
+      var produit = produitRepository.findById(enRayon.produitId!!.toInt()).get()
+      val minReduction = minOf(produit?.reductionMax ?: 0, enRayon.reduction ?: 0)
       mapOf(
         "id" to enRayon.id,
         "produit" to mapOf(
-          "id" to enRayon.produit?.id,
-          "ean13" to enRayon.produit?.ean13,
-          "nom" to enRayon.produit?.nom,
-          "stock" to enRayon.produit?.stock,
-          "etat" to enRayon.produit?.etat,
-          "reductionMax" to enRayon.produit?.reductionMax,
+          "id" to produit?.id,
+          "ean13" to produit?.ean13,
+          "nom" to produit?.nom,
+          "stock" to produit?.stock,
+          "etat" to produit?.etat,
+          "reductionMax" to produit?.reductionMax,
           "categorie" to mapOf(
-            "id" to enRayon.produit?.categorie?.id,
-            "nom" to enRayon.produit?.categorie?.nom
+            "id" to produit?.categorie?.id,
+            "nom" to produit?.categorie?.nom
           ),
           "forme" to mapOf(
-            "id" to enRayon.produit?.forme?.id,
-            "code" to enRayon.produit?.forme?.code,
-            "nom" to enRayon.produit?.forme?.nom
+            "id" to produit?.forme?.id,
+            "code" to produit?.forme?.code,
+            "nom" to produit?.forme?.nom
           ),
           "fabriquant" to mapOf(
-            "id" to enRayon.produit?.fabriquant?.id,
-            "code" to enRayon.produit?.fabriquant?.code,
-            "nom" to enRayon.produit?.fabriquant?.nom
+            "id" to produit?.fabriquant?.id,
+            "code" to produit?.fabriquant?.code,
+            "nom" to produit?.fabriquant?.nom
           ),
           "rayon" to mapOf(
-            "id" to enRayon.produit?.rayon?.id
+            "id" to produit?.rayon?.id
           ),
-          "etagere" to enRayon.produit?.etagere,
+          "etagere" to produit?.etagere,
           "magasin" to mapOf(
-            "id" to enRayon.produit?.magasin?.id,
-            "code" to enRayon.produit?.magasin?.code,
-            "nom" to enRayon.produit?.magasin?.nom
+            "id" to produit?.magasin?.id,
+            "code" to produit?.magasin?.code,
+            "nom" to produit?.magasin?.nom
           ),
-          "createdAt" to enRayon.produit?.createdAt,
-          "updatedAt" to enRayon.produit?.updatedAt
+//          "createdAt" to produit?.createdAt,
+//          "updatedAt" to produit?.updatedAt
         ),
-        "rayon" to enRayon.rayon?.let { mapOf("id" to it.id) },
+        "rayon" to enRayon?.let { mapOf("id" to it.id) },
         "fournisseur" to mapOf(
           "id" to enRayon.fournisseur?.id,
           "code" to enRayon.fournisseur?.code,
@@ -246,7 +247,7 @@ class EnRayonService(
           "statut" to enRayon.fournisseur?.statut,
           "supprimer" to enRayon.fournisseur?.supprimer
         ),
-        "unite" to enRayon.unite,
+//        "unite" to enRayon.unite,
         "commande" to enRayon.commande?.let { mapOf("id" to it.id) },
         "dateLivraison" to enRayon.dateLivraison,
         "datePeremption" to enRayon.datePeremption,
@@ -260,12 +261,16 @@ class EnRayonService(
   }
 
   @Transactional
-  fun getProduitsEnRayonParNomProduit(nomProduit: String): List<EnRayon> =
-    enRayonRepository.findByProduitNomContainingIgnoreCaseAndSupprimer(nomProduit, 0)
+  fun getProduitsEnRayonParNomProduit(nomProduit: String): List<EnRayon> {
+    var produits = produitRepository.findByNomContaining(nomProduit)
+    return  enRayonRepository.findByProduitIdInAndSupprimer(produits.map { it.id!! }, 0)
+  }
 
   @Transactional
-  fun getProduitsEnRayonParNomRayon(nomRayon: String): List<EnRayon> =
-    enRayonRepository.findByRayonNomContainingIgnoreCaseAndSupprimer(nomRayon, 0)
+  fun getProduitsEnRayonParNomRayon(nomRayon: String): List<Rayon>{
+    var rayon = rayonRepository.findByNomContainingIgnoreCase(nomRayon)
+    return  rayon!!
+  }
 
   @Transactional
   fun getProduitsEnRayonParFournisseur(nomFournisseur: String): List<EnRayon> =
@@ -297,11 +302,9 @@ class EnRayonService(
 
   @Transactional
   fun mettreAJourProduitEnRayon(produitDto: EnRayonDto): EnRayon {
-    val enRayon = enRayonRepository.findById(produitDto.enRayonId!!.toInt())
+    val enRayon = enRayonRepository.findById(produitDto.enRayonId!!.toString())
       .orElseThrow { RuntimeException("Produit en rayon introuvable avec l'ID: ${produitDto.enRayonId}") }
-
-    val produit = enRayon.produit ?: throw RuntimeException("Produit introuvable pour l'ID: ${produitDto.enRayonId}")
-
+    val produit = produitRepository.findById(enRayon.produitId!!.toInt()).get()
     produit.apply {
       this.stock =
         (produit.stock!! - enRayon.quantiteRestante!!) + produitDto.quantiteRestante!! // Update the stock of the product
@@ -331,17 +334,18 @@ class EnRayonService(
     val specification = EnRayonRepository.filterEnRayon(nomProduit, bientotPerimee, joursAvantPeremption, enStock)
     return enRayonRepository.findAll(specification, pageable)
       .map { enRayon ->
+        val produit = produitRepository.findById(enRayon.produitId!!.toInt()).get()
         mapOf(
           "id" to enRayon.id,
-          "produitId" to enRayon.produit!!.id,
-          "produitNom" to enRayon.produit!!.nom,
-          "rayonId" to enRayon.rayon?.id,
-          "rayonNom" to enRayon.rayon?.nom,
+          "produitId" to produit!!.id,
+          "produitNom" to produit!!.nom,
+          "rayonId" to produit.rayon?.id,
+          "rayonNom" to produit.rayon?.nom,
           "fournisseurId" to enRayon.fournisseur!!.id,
           "fournisseurNom" to enRayon.fournisseur!!.nom,
-          "unite" to enRayon.unite,
-          "commandeId" to enRayon.commande!!.id,
-          "commandeRef" to enRayon.commande!!.ref,
+//          "unite" to enRayon.unite,
+          "commandeId" to enRayon.commande?.id,
+          "commandeRef" to enRayon.commande?.ref,
           "dateLivraison" to enRayon.dateLivraison,
           "datePeremption" to enRayon.datePeremption,
           "prixAchat" to enRayon.prixAchat,

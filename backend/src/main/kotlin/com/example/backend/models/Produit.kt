@@ -2,101 +2,82 @@ package com.example.backend.models
 
 import jakarta.persistence.*
 import org.hibernate.annotations.ColumnDefault
-import java.time.Instant
-import java.time.LocalDateTime
 
 @Entity
 @Table(name = "produit")
-class Produit(
+class Produit {
   @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY) // Use IDENTITY for auto-increment
   @Column(name = "id", nullable = false)
-  var id: Int? = null,
+  var id: Int? = null
 
   @Column(name = "ean13", length = 16)
-  var ean13: String? = null,
+  var ean13: String? = null
 
-  @Column(name = "code_laborex", length = 32)
-  var codeLaborex: String? = null,
+  @Column(name = "codeLaborex", length = 32)
+  var codeLaborex: String? = null
 
-  @Column(name = "code_ubipharm", length = 32)
-  var codeUbipharm: String? = null,
+  @Column(name = "codeUbipharm", length = 32)
+  var codeUbipharm: String? = null
 
   @Column(name = "reference", length = 32)
-  var reference: String? = null,
+  var reference: String? = null
 
   @Column(name = "nom", length = 50)
-  var nom: String? = null,
+  var nom: String? = null
 
   @Column(name = "stock")
-  var stock: Int? = null,
+  var stock: Int? = null
 
-  @Column(name = "stock_max")
-  var stockMax: Int? = null,
+  @Column(name = "stockMax")
+  var stockMax: Int? = null
 
-  @Column(name = "stock_min")
-  var stockMin: Int? = null,
+  @Column(name = "stockMin")
+  var stockMin: Int? = null
 
-  @Column(name = "contenu_detail", length = 10)
-  var contenuDetail: String? = null,
+  @Column(name = "contenuDetail", length = 10)
+  var contenuDetail: String? = null
 
-  @Column(name = "prix_detail")
-  var prixDetail: Int? = null,
-
-  @Column(name = "prix_achat")
-  var prixAchat: Int? = null,
-
-  @Column(name = "prix_vente")
-  var prixVente: Int? = null,
+  @Column(name = "prixDetail", length = 10)
+  var prixDetail: String? = null
 
   @ColumnDefault("'Utile'")
   @Column(name = "etat", length = 10)
-  var etat: String? = null,
+  var etat: String? = null
 
   @ColumnDefault("0")
-  @Column(name = "reduction_max")
-  var reductionMax: Int? = null,
+  @Column(name = "reductionMax")
+  var reductionMax: Int? = null
 
   @Column(name = "grossiste_id", length = 100)
-  var grossisteId: String? = null,
+  var grossisteId: String? = null
 
   @Column(name = "detail_id")
-  var detailId: Int? = null,
+  var detailId: Int? = null
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "categorie_id")
-  var categorie: Categorie? = null,
+  var categorie: Categorie? = null
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "forme_id")
-  var forme: Forme? = null,
+  var forme: Forme? = null
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "fabriquant_id")
-  var fabriquant: Fabriquant? = null,
+  var fabriquant: Fabriquant? = null
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "rayon_id")
-  var rayon: com.example.backend.models.Rayon? = null,
+  var rayon: com.example.backend.models.Rayon? = null
 
   @Column(name = "etagere", length = 15)
-  var etagere: String? = null,
+  var etagere: String? = null
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "magasin_id")
-  var magasin: Magasin? = null,
-
-  @Column(name = "created_at")
-  var createdAt: LocalDateTime? = null,
-
-  @Column(name = "updated_at")
-  var updatedAt: LocalDateTime? = null,
+  var magasin: Magasin? = null
 
   @ColumnDefault("0")
   @Column(name = "supprimer")
-  var supprimer: Int? = 0,
-) {
-  override fun toString(): String {
-    return "Produit(id=$id, nom='$nom', grossisteId=$grossisteId, detailId='$detailId', prixAchat=$prixAchat, prixVente=$prixVente, stock=$stock)"
-  }
+  var  supprimer: Int? = 0
 }

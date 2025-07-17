@@ -6,5 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository
 interface RayonRepository : JpaRepository<Rayon, Int> {
 fun findByNomAndSupprimer(nom: String, supprimer: Int = 0): Rayon?
 fun findByNom(nom: String): Boolean?
+fun findByNomContainingIgnoreCase(nom: String): List<Rayon>?
 fun findAllBySupprimer(supprimer: Int = 0): List<Rayon>?
 }

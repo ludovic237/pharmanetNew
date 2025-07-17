@@ -21,7 +21,7 @@ class DepenseService(
       this.caisseId = caisseId.toString()
       this.designation = designation
       this.prixUnitaire = prixUnitaire
-      this.dateEpense = LocalDateTime.now()
+      this.dateDepense = LocalDateTime.now()
     }
     return depenseRepository.save(depense)
   }

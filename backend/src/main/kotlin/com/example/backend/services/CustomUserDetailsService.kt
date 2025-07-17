@@ -1,5 +1,6 @@
 package com.example.backend.services
 
+import com.example.backend.repositories.EmployeRepository
 import com.example.backend.repositories.UserRepository
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.User
@@ -11,7 +12,8 @@ import java.util.*
 
 @Service
 class CustomUserDetailsService(
-  private val userRepository: UserRepository
+  private val userRepository: UserRepository,
+  private val employeRepository: EmployeRepository
 ) : UserDetailsService {
 
 //  override fun loadUserByUsername(username: String): UserDetails {
@@ -27,13 +29,15 @@ class CustomUserDetailsService(
 
 
   override fun loadUserByUsername(email: String): UserDetails {
-    val user = userRepository.findByEmail(email)
-      ?: throw UsernameNotFoundException("User not found with email: $email")
-        return User(
-      user.username,
-      user.password,
-      user.role!!.map { SimpleGrantedAuthority(it.toString()) }
+    var employe = employeRepository.findByIdentifiant(email)
+      ?: throw UsernameNotFoundException("Employe not found with email: $email")
+    val user = employe.user
+    return User(
+      employe.identifiant!!,
+      employe.password!!,
+      user!!.role!!.map { SimpleGrantedAuthority(it.toString()) }
     )
+
   }
 
 }

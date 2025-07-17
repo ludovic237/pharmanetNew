@@ -25,10 +25,12 @@ import {MatButtonToggleModule} from "@angular/material/button-toggle";
 import {User} from "@models/user.model";
 import {UserDialogComponent} from "../../users/user-dialog/user-dialog.component";
 import {DetailProduitDialogComponent} from "./detail-produit-dialog/detail-produit-dialog.component";
+import {MatPaginatorModule, PageEvent} from "@angular/material/paginator";
 
 @Component({
   selector: 'app-product-list',
   imports: [
+    MatPaginatorModule,
     MatTableModule,
     RouterModule,
     FlexLayoutModule,
@@ -59,11 +61,11 @@ export class ProductListComponent implements OnInit {
   public products: Array<ProductNew> = [];
   public categories: Array<any> = [];
   public viewCol: number = 25;
-  public page = 0; // Default to 0 if undefined
+  public page = 1; // Default to 0 if undefined
   public size = 100;  // Default to 10 if undefined
   public totalItems = 0;  // Default to 10 if undefined
   public totalPages = 50;  // Default to 10 if undefined
-  public count = 90;
+  public count = 5;
   public searchTerm: string = '';
   public form: FormGroup;
 
@@ -88,9 +90,9 @@ export class ProductListComponent implements OnInit {
   }
 
   public getAllProducts() {
-    this.productService.getProducts(this.page, 40).subscribe({
+    this.productService.getProducts(this.page-1, this.count).subscribe({
       next: (data: any) => {
-        this.count = data.numberOfElements;
+        this.count = data.pageable.pageSize;
         this.totalItems = data.totalElements;
         this.products = data.content; // Les produits pour la page actuelle
       },
@@ -129,8 +131,9 @@ export class ProductListComponent implements OnInit {
     });
   }
 
-  public onPageChanged(event: number) {
-    this.page = event;
+  public onPageChanged(event: PageEvent) {
+    this.page = event.pageIndex + 1;
+    this.count = event.pageSize;
     this.getAllProducts();
     this.domHandlerService.winScroll(0, 0);
   }

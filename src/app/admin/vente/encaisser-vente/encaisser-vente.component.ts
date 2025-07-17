@@ -49,6 +49,7 @@ import {CaisseService} from "@services/caisse.service";
 import {ConfirmationDialogComponent} from "./confirmation-dialog/confirmation-dialog.component";
 import {AuthService} from "@services/auth.service";
 import {GestionCaisseDialogComponent} from "./gestion-caisse-dialog/gestion-caisse-dialog.component";
+import {MatPaginatorModule, PageEvent} from "@angular/material/paginator";
 
 interface LigneHeader {
   netAPayer?: number;
@@ -81,6 +82,7 @@ interface LigneVente {
 
 enum CaisseStatus {
   OPEN = 'open',
+  ALREADYOPEN = 'alreadyopen',
   CLOSED = 'closed',
   NONE = 'none',
   ACTIVE = 'active',
@@ -91,6 +93,7 @@ enum CaisseStatus {
 @Component({
   selector: 'app-encaisser-vente',
   imports: [
+    MatPaginatorModule,
     MatRadioModule,
     MatSlideToggleModule,
     FormsModule,
@@ -154,7 +157,7 @@ export class EncaisserVenteComponent implements OnInit {
   // Paiement
   netAPayer = 0;
 
-  caisseStatus: CaisseStatus = CaisseStatus.OTHER;
+  caisseStatus: any = CaisseStatus.OTHER;
   cashierName: string = 'N/A';
 
   constructor(public appSettings: SettingsService,
@@ -174,7 +177,6 @@ export class EncaisserVenteComponent implements OnInit {
 
   ngOnInit(): void {
     this.checkCaisseStatus();
-    this.onRefresh();
   }
 
   checkCaisseStatus(): void {
@@ -183,6 +185,7 @@ export class EncaisserVenteComponent implements OnInit {
         if (response.status.toLowerCase() === 'ouvert' || response.status.toLowerCase() === 'active') {
           this.session = response.caisseDetails.session;
           this.caisseStatus = CaisseStatus.OPEN;
+          this.onRefresh();
           this.cashierName = response.caisseDetails?.nomEmploye || 'N/A';
         } else if (response.status === 'pending_closure') {
           this.session = response.caisseDetails.session;
@@ -191,10 +194,15 @@ export class EncaisserVenteComponent implements OnInit {
         } else if (response.status === 'none') {
           this.caisseStatus = CaisseStatus.NONE;
           this.cashierName = response.caisseDetails?.nomEmploye || 'N/A';
+        }
+        else if (response.status === 'already_open') {
+          this.caisseStatus = CaisseStatus.ALREADYOPEN;
+          this.cashierName = response.caisseDetails?.nomEmploye || 'N/A';
         } else {
           this.caisseStatus = CaisseStatus.OTHER;
           this.cashierName = 'N/A';
         }
+
       },
       error: (err: any) => {
         console.error('Failed to check caisse status:', err);
@@ -331,27 +339,6 @@ export class EncaisserVenteComponent implements OnInit {
 
   onImprimer() {
     // logique d'impression
-  }
-
-  onRefresh() {
-    // recharger les données
-    this.ventesService.listerVentesNonEncaissees().subscribe({
-      next: (response: any) => {
-        this.headerDataSource = response;
-        this.snackBar.open("Sale refresh success", '×', {
-          panelClass: 'success',
-          verticalPosition: 'top',
-          duration: 3000
-        });
-      },
-      error: (err: any) => {
-        this.snackBar.open('Failed to refresh sale', '×', {
-          panelClass: 'error',
-          verticalPosition: 'top',
-          duration: 3000
-        });
-      }
-    });
   }
 
   chargerVente(venteId: number) {
@@ -629,32 +616,20 @@ export class EncaisserVenteComponent implements OnInit {
   }
 
   showVente() {
-    this.ventesService.listerVentesEncaissees().subscribe({
-      next: (ventes: any[]) => {
-        const dialogRef = this.dialog.open(VenteDialogComponent, {
-          data: ventes,
-          width: "80%",
-          panelClass: ['theme-dialog'],
-          autoFocus: false,
-        });
-        dialogRef.afterClosed().subscribe((data: any) => {
-          console.log('Dialog closed', data);
-        });
-      },
-      error: (err: any) => {
-        console.error('Failed to fetch BonCaisse list:', err);
-        this.snackBar.open('Erreur lors de la récupération des bons de caisse.', '×', {
-          panelClass: 'error',
-          verticalPosition: 'top',
-          duration: 3000,
-        });
-      }
+    const dialogRef = this.dialog.open(VenteDialogComponent, {
+      data: null,
+      width: "80%",
+      panelClass: ['theme-dialog'],
+      autoFocus: false,
+    });
+    dialogRef.afterClosed().subscribe((data: any) => {
+      console.log('Dialog closed', data);
     });
   }
 
   fermerCaisse() {
     this.modalType = 'fermerCaisse';
-    this.ventesService.listerVentesNonEncaissees().subscribe({
+    this.ventesService.listerVentesNonEncaissees(this.pageEnCours,this.sizeEnCours).subscribe({
       next: (ventes: any[]) => {
         if (ventes.length > 0) {
           this.snackBar.open('Impossible de fermer la caisse. Des ventes non encaissées sont présentes.', '×', {
@@ -796,4 +771,40 @@ export class EncaisserVenteComponent implements OnInit {
       }
     });
   }
+
+  public pageEnCours:number = 1; // Default to 0 if undefined
+  public sizeEnCours = 5;  // Default to 10 if undefined
+  public totalItemsEnCours = 0;  // Default to 10 if undefined
+  public countEnCours = 10;
+
+  public onPageChangedVenteEnCours(event: PageEvent) {
+    this.pageEnCours = event.pageIndex + 1;
+    this.countEnCours = event.pageSize
+    this.onRefresh();
+  }
+
+  onRefresh() {
+    // recharger les données
+    this.ventesService.listerVentesNonEncaissees(this.pageEnCours-1,this.countEnCours).subscribe({
+      next: (response: any) => {
+        this.headerDataSource = response.content;
+        this.countEnCours= response.pageable.pageSize;
+        this.totalItemsEnCours = response.totalElements;
+
+        this.snackBar.open("Sale refresh success", '×', {
+          panelClass: 'success',
+          verticalPosition: 'top',
+          duration: 3000
+        });
+      },
+      error: (err: any) => {
+        this.snackBar.open('Failed to refresh sale', '×', {
+          panelClass: 'error',
+          verticalPosition: 'top',
+          duration: 3000
+        });
+      }
+    });
+  }
+
 }

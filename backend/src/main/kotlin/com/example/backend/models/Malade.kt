@@ -6,8 +6,7 @@ import org.hibernate.annotations.ColumnDefault
 @Entity
 @Table(name = "malade")
 class Malade {
-@Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY) // Use IDENTITY for auto-increment
+  @Id
   @Column(name = "id", nullable = false)
   var id: Int? = null
 
@@ -17,7 +16,7 @@ class Malade {
   @Column(name = "telephone", nullable = false, length = 32)
   var telephone: String? = null
 
-  @Column(name = "mode_reglement", nullable = false, length = 32)
+  @Column(name = "modeReglement", nullable = false, length = 32)
   var modeReglement: String? = null
 
   @Column(name = "poid", nullable = false)
@@ -27,7 +26,7 @@ class Malade {
   var taille: Double? = null
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "code_postal_id")
+  @JoinColumn(name = "CodePostal_id")
   var codePostal: CodePostal? = null
 
   @Column(name = "reduction", nullable = false, length = 32)
@@ -35,5 +34,5 @@ class Malade {
 
   @ColumnDefault("0")
   @Column(name = "supprimer", nullable = false)
-  var supprimer: Int? = 0
+  var  supprimer: Int? = 0
 }

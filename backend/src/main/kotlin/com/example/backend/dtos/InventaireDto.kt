@@ -12,3 +12,8 @@ data class InventaireRequestDto(
   val dateDeDebut: String,
   val produitList: List<ProduitInventaireDto>,
 )
+
+data class InventaireUpdateRequestDto(
+  val id: String,
+  val produitList: List<ProduitInventaireDto>,
+)

@@ -18,16 +18,16 @@ class UserService(
   }
 
   fun getUserById(id: Long): Optional<User> {
-    return userRepository.findById(id)
+    return userRepository.findById(id.toInt())
   }
 
   fun createUser(user: User): User {
-    user.createdDate = LocalDateTime.now()
+//    user.createdDate = LocalDateTime.now()
     return userRepository.save(user)
   }
 
   fun updateUser(id: Long, updatedUser: User): User {
-    val existingUser = userRepository.findById(id)
+    val existingUser = userRepository.findById(id.toInt())
       .orElseThrow { IllegalArgumentException("User with ID $id not found") }
 
 //    println("updatedUser");
@@ -37,17 +37,17 @@ class UserService(
 //    existingUser.email = updatedUser.email
     // Update other fields as necessary
 
-    updatedUser.joinedDate = LocalDateTime.now()
-    updatedUser.updatedDate = LocalDateTime.now();
+//    updatedUser.joinedDate = LocalDateTime.now()
+//    updatedUser.updatedDate = LocalDateTime.now();
 
     return userRepository.save(updatedUser)
   }
 
   fun deleteUser(id: Long) {
-    if (!userRepository.existsById(id)) {
+    if (!userRepository.existsById(id.toInt())) {
       throw IllegalArgumentException("User with ID $id not found")
     }
-    userRepository.deleteById(id)
+    userRepository.deleteById(id.toInt())
   }
 
   fun getCurrentUser(): User? {
@@ -57,6 +57,6 @@ class UserService(
       is String -> principal
       else -> null
     }
-    return username?.let { userRepository.findByUsername(it).orElse(null) }
+    return username?.let { userRepository.findByEmail(it) }
   }
 }

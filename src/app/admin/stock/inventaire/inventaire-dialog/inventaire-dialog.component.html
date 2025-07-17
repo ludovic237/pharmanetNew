@@ -7,137 +7,220 @@
   </div>
 </mat-toolbar>
 
-<mat-card  class="mb-4">
-  <div fxLayout="row wrap" class="mt-3">
-    <div fxFlex="100" fxFlex.gt-md="25" class="px-2">
-      <mat-form-field appearance="fill">
-        <mat-label>Start Date</mat-label>
-        <input matInput [matDatepicker]="startDatePicker" [(ngModel)]="data.dateDebut" placeholder="Select start date">
-        <mat-datepicker-toggle matSuffix [for]="startDatePicker"></mat-datepicker-toggle>
-        <mat-datepicker #startDatePicker></mat-datepicker>
-      </mat-form-field>
+<mat-dialog-content>
+  <mat-card  class="mb-4">
+    <form [formGroup]="form" fxLayout="row wrap" class="mt-3">
+      <div fxFlex="100" fxFlex.gt-md="25" class="px-2">
+        <mat-form-field  appearance="outline">
+          <mat-label>Entrer date</mat-label>
+          <mat-date-range-input [rangePicker]="picker">
+            <input matStartDate  placeholder="Start date" [(ngModel)]="startDate" >
+            <input matEndDate placeholder="End date" [(ngModel)]="endDate" >
+          </mat-date-range-input>
+          <mat-hint>MM/DD/YYYY - MM/DD/YYYY</mat-hint>
+          <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+          <mat-date-range-picker #picker>
+            <mat-date-range-picker-actions>
+              <button mat-button matDateRangePickerCancel>Annuler</button>
+              <button mat-button matDateRangePickerApply>Apply</button>
+            </mat-date-range-picker-actions>
+          </mat-date-range-picker>
+        </mat-form-field>
+      </div>
+      <div fxFlex="100" fxFlex.gt-md="25" class="px-2">
+        <mat-form-field appearance="fill">
+          <mat-label>Status</mat-label>
+          <mat-select [(ngModel)]="data.etat">
+            <mat-option value="active">Active</mat-option>
+            <mat-option value="inactive">Inactive</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <div fxFlex="100" fxFlex.gt-sm="50" class="px-1">
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Categorie</mat-label>
+          <mat-select formControlName="categorieId" required>
+            <mat-option [value]="null">Tous les categories</mat-option>
+            <mat-option *ngFor="let cat of categories" [value]="cat.id">{{ cat.nom }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <div fxFlex="100" fxFlex.gt-sm="50" class="px-1">
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Rayon</mat-label>
+          <mat-select formControlName="rayonId" required>
+            <mat-option [value]="null">Tous les rayons</mat-option>
+            <mat-option *ngFor="let r of rayons" [value]="r.id">{{ r.nom }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <div fxFlex="100" fxFlex.gt-sm="50" class="px-1">
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Etagère</mat-label>
+          <mat-select formControlName="etagereId" required>
+            <mat-option [value]="null">Tous les etageres</mat-option>
+            <mat-option *ngFor="let e of etagere" [value]="e.id">{{ e.nom }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <div fxFlex="100" fxFlex.gt-sm="50" class="px-1">
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Magasin</mat-label>
+          <mat-select formControlName="magasinId" required>
+            <mat-option [value]="null">Tous les magasins</mat-option>
+            <mat-option *ngFor="let m of magasins" [value]="m.id">{{ m.nom }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <div fxFlex="100" fxFlex.gt-sm="50" class="px-1">
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Forme</mat-label>
+          <mat-select formControlName="formeId" required>
+            <mat-option [value]="null">Tous les formes</mat-option>
+            <mat-option *ngFor="let f of formes" [value]="f.id">{{ f.nom }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <div fxFlex="100" fxFlex.gt-sm="50" class="px-1">
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Fabriquant</mat-label>
+          <mat-select formControlName="fabriquantId" required>
+            <mat-option [value]="null">Tous les fabriquants</mat-option>
+            <mat-option *ngFor="let fa of fabriquants" [value]="fa.id">{{ fa.nom }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+    </form>
+  </mat-card>
+  <mat-divider></mat-divider>
+  <mat-card  class="mb-4">
+    <div class="p-4" fxLayout="row wrap"  fxLayoutGap="16px" >
+      <div fxFlex="100" fxFlex.gt-md="25" class="px-2">
+        <mat-form-field class="w-100 mt-2" appearance="outline" >
+          <mat-label>Search Products</mat-label>
+          <input type="text"
+                 matInput
+                 [formControl]="medControl"
+                 [matAutocomplete]="auto">
+          <mat-autocomplete #auto="matAutocomplete">
+            <mat-option *ngFor="let option of medOptions" [value]="option.name" (click)="openMedicamentDialog(option)">
+              {{ option.name }}
+            </mat-option>
+          </mat-autocomplete>
+        </mat-form-field>
+      </div>
+      <div [formGroup]="form" fxFlex="100" fxFlex.gt-md="25" class="px-2">
+        <mat-form-field class="w-100 mt-2" appearance="outline" >
+          <mat-label>Scan Products</mat-label>
+          <input matInput formControlName="productSan" required (input)="onScan($event)">
+        </mat-form-field>
+      </div>
     </div>
-    <div fxFlex="100" fxFlex.gt-md="25" class="px-2">
-      <mat-form-field appearance="fill">
-        <mat-label>End Date</mat-label>
-        <input matInput [matDatepicker]="endDatePicker" [(ngModel)]="data.dateFin" placeholder="Select end date">
-        <mat-datepicker-toggle matSuffix [for]="endDatePicker"></mat-datepicker-toggle>
-        <mat-datepicker #endDatePicker></mat-datepicker>
-      </mat-form-field>
+
+  </mat-card>
+
+  <mat-card class="mb-4">
+    <div  class="p-4" fxLayout="row wrap"  fxLayoutGap="16px" >
+      <table mat-table [dataSource]="filteredProducts" class="mat-elevation-z8">
+
+        <ng-container matColumnDef="id">
+          <th mat-header-cell *matHeaderCellDef> ID</th>
+          <td mat-cell *matCellDef="let product"> {{ product.rayonId }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="name">
+          <th mat-header-cell *matHeaderCellDef> Name</th>
+          <td mat-cell *matCellDef="let product"> {{ product.nom }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="quantitySystem">
+          <th mat-header-cell *matHeaderCellDef> Quantité Système</th>
+          <td mat-cell *matCellDef="let product"> {{ product.quantitySystem }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="quantityReal">
+          <th mat-header-cell *matHeaderCellDef> Quantité Réel</th>
+          <td mat-cell *matCellDef="let product">
+            <mat-form-field style="width: 140px; height: 60px;" appearance="outline" class="small-input">
+              <input matInput
+                     [(ngModel)]="product.quantityReal"
+                     type="number"
+                     placeholder="Enter real quantity">
+            </mat-form-field>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="comparison">
+          <th mat-header-cell *matHeaderCellDef> Comparison</th>
+          <td mat-cell *matCellDef="let product">
+            {{ product.quantityReal - product.quantitySystem }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="dateLivraison">
+          <th mat-header-cell *matHeaderCellDef>Date livraison</th>
+          <td mat-cell *matCellDef="let product" [class.disabled-row]="product.disabled"> {{ product.dateLivraison }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="datePeremption">
+          <th mat-header-cell *matHeaderCellDef>Date peremption</th>
+          <td mat-cell *matCellDef="let product" [class.disabled-row]="product.disabled"> {{ product.datePeremption }}</td>
+        </ng-container>
+
+
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef> Actions</th>
+          <td mat-cell *matCellDef="let product">
+            <button mat-icon-button color="warn" (click)="deleteRow(product)">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="['id', 'name', 'quantitySystem', 'quantityReal', 'comparison', 'dateLivraison', 'datePeremption', 'actions']"></tr>
+        <tr mat-row
+            *matRowDef="let row; columns: [ 'id', 'name', 'quantitySystem', 'quantityReal', 'comparison', 'dateLivraison', 'datePeremption', 'actions'];"></tr>
+      </table>
     </div>
-    <div fxFlex="100" fxFlex.gt-md="25" class="px-2">
-      <mat-form-field appearance="fill">
-        <mat-label>Status</mat-label>
-        <mat-select [(ngModel)]="data.etat">
-          <mat-option value="active">Active</mat-option>
-          <mat-option value="inactive">Inactive</mat-option>
-        </mat-select>
-      </mat-form-field>
+  </mat-card>
+</mat-dialog-content>
+
+<mat-dialog-actions>
+  <mat-toolbar >
+    <div fxLayout="row" fxLayoutAlign="space-between center">
+      <div mat-dialog-actions>
+        <button mat-button (click)="onCancel()">Cancel</button>
+        <!-- Button for "add" type -->
+        <button mat-raised-button
+                color="primary"
+                (click)="addSelectedProducts()"
+                *ngIf="data.type === 'add'"
+                [disabled]="filteredProducts.length === 0">
+          Sauvegarder
+        </button>
+
+        <!-- Button for "update" type -->
+        <button mat-raised-button
+                color="accent"
+                (click)="onSave()"
+                *ngIf="data.type === 'edit'">
+          Mise à jour
+        </button>
+
+        <!-- Button for "update" or other types -->
+        <button mat-raised-button
+                color="warn"
+                (click)="onCloturer()"
+                *ngIf="data.type === 'update' || data.type !== 'add'">
+          Clôturer
+        </button>
+
+      </div>
     </div>
-  </div>
-</mat-card>
-<mat-divider></mat-divider>
-<mat-card  class="mb-4">
-  <div class="p-4" fxLayout="row wrap"  fxLayoutGap="16px" >
-    <mat-form-field class="w-100 mt-2" appearance="outline" >
-      <mat-label>Search Products</mat-label>
-      <input type="text"
-             matInput
-             [formControl]="medControl"
-             [matAutocomplete]="auto">
-      <mat-autocomplete #auto="matAutocomplete">
-        <mat-option *ngFor="let option of medOptions" [value]="option.name" (click)="openMedicamentDialog(option)">
-          {{ option.name }}
-        </mat-option>
-      </mat-autocomplete>
-    </mat-form-field>
-  </div>
+  </mat-toolbar>
+</mat-dialog-actions>
 
-</mat-card>
-
-<mat-card class="mb-4">
-  <div  class="p-4" fxLayout="row wrap"  fxLayoutGap="16px" >
-    <table mat-table [dataSource]="filteredProducts" class="mat-elevation-z8">
-      <ng-container matColumnDef="select">
-        <th mat-header-cell *matHeaderCellDef>
-          <mat-checkbox (change)="$event ? selectAll($event.checked) : null"></mat-checkbox>
-        </th>
-        <td mat-cell *matCellDef="let product">
-          <mat-checkbox [(ngModel)]="product.selected"></mat-checkbox>
-        </td>
-      </ng-container>
-
-      <ng-container matColumnDef="id">
-        <th mat-header-cell *matHeaderCellDef> ID</th>
-        <td mat-cell *matCellDef="let product"> {{ product.id }}</td>
-      </ng-container>
-
-      <ng-container matColumnDef="name">
-        <th mat-header-cell *matHeaderCellDef> Name</th>
-        <td mat-cell *matCellDef="let product"> {{ product.nom }}</td>
-      </ng-container>
-
-      <ng-container matColumnDef="quantitySystem">
-        <th mat-header-cell *matHeaderCellDef> Quantité Système</th>
-        <td mat-cell *matCellDef="let product"> {{ product.quantitySystem }}</td>
-      </ng-container>
-
-      <ng-container matColumnDef="quantityReal">
-        <th mat-header-cell *matHeaderCellDef> Quantité Réel</th>
-        <td mat-cell *matCellDef="let product">
-          <mat-form-field style="width: 140px; height: 60px;" appearance="outline" class="small-input">
-            <input matInput
-                   [(ngModel)]="product.quantityReal"
-                   type="number"
-                   placeholder="Enter real quantity">
-          </mat-form-field>
-        </td>
-      </ng-container>
-
-      <ng-container matColumnDef="comparison">
-        <th mat-header-cell *matHeaderCellDef> Comparison</th>
-        <td mat-cell *matCellDef="let product">
-          {{ product.quantityReal - product.quantitySystem }}
-        </td>
-      </ng-container>
-
-      <tr mat-header-row *matHeaderRowDef="['select', 'id', 'name', 'quantitySystem', 'quantityReal', 'comparison']"></tr>
-      <tr mat-row
-          *matRowDef="let row; columns: ['select', 'id', 'name', 'quantitySystem', 'quantityReal', 'comparison'];"></tr>
-    </table>
-  </div>
-</mat-card>
-
-
-<mat-toolbar >
-  <div fxLayout="row" fxLayoutAlign="space-between center">
-    <div mat-dialog-actions>
-      <button mat-button (click)="onCancel()">Cancel</button>
-      <!-- Button for "add" type -->
-      <button mat-raised-button
-              color="primary"
-              (click)="addSelectedProducts()"
-              *ngIf="data.type === 'add'"
-              [disabled]="filteredProducts.length === 0 || !data.dateDebut">
-        Sauvegarder
-      </button>
-
-      <!-- Button for "update" type -->
-      <button mat-raised-button
-              color="accent"
-              (click)="onSave()"
-              *ngIf="data.type === 'update'">
-        Mise à jour
-      </button>
-
-      <!-- Button for "update" or other types -->
-      <button mat-raised-button
-              color="warn"
-              (click)="onCloturer()"
-              *ngIf="data.type === 'update' || data.type !== 'add'">
-        Clôturer
-      </button>
-
-    </div>
-  </div>
-</mat-toolbar>

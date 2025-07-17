@@ -2,24 +2,23 @@ package com.example.backend.models
 
 import jakarta.persistence.*
 import org.hibernate.annotations.ColumnDefault
+import java.time.Instant
 import java.time.LocalDateTime
 
 @Entity
 @Table(name = "commande")
 class Commande (
-@Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY) // Use IDENTITY for auto-increment
+  @Id
   @Column(name = "id", nullable = false)
   var id: Long? = null,
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "employe_id")
-  var employe: com.example.backend.models.Employe? = null,
+  @Column(name = "employe_id")
+  var employeId: Int? = null,
 
-  @Column(name = "date_creation")
+  @Column(name = "dateCreation")
   var dateCreation: LocalDateTime? = null,
 
-  @Column(name = "date_livraison")
+  @Column(name = "dateLivraison")
   var dateLivraison: LocalDateTime? = null,
 
   @Column(name = "note")
@@ -29,19 +28,19 @@ class Commande (
   @JoinColumn(name = "fournisseur_id")
   var fournisseur: com.example.backend.models.Fournisseur? = null,
 
-  @Column(name = "qtite_cmd")
+  @Column(name = "qtiteCmd")
   var qtiteCmd: Int? = null,
 
-  @Column(name = "qtite_recu")
+  @Column(name = "qtiteRecu")
   var qtiteRecu: Int? = null,
 
-  @Column(name = "unite_gratuite")
+  @Column(name = "uniteGratuite")
   var uniteGratuite: Int? = null,
 
-  @Column(name = "montant_cmd")
+  @Column(name = "montantCmd")
   var montantCmd: Double? = null,
 
-  @Column(name = "montant_recu")
+  @Column(name = "montantRecu")
   var montantRecu: Double? = null,
 
   @Column(name = "etat", length = 32)
@@ -52,12 +51,12 @@ class Commande (
 
   @ColumnDefault("0")
   @Column(name = "supprimer")
-  var supprimer: Int? = 0
-  ){
+  var  supprimer: Int? = 0
+){
   // Constantes pour les états de la caisse
   companion object {
     const val COMMANDE_ANNULER = "ANNULER"
-//    const val COMMANDE_CLOTURE = "CLOTURE"
+    //    const val COMMANDE_CLOTURE = "CLOTURE"
     const val COMMANDE_LIVREE = "LIVREE"
     const val COMMANDE_EN_COURS = "EN_COURS"
     const val COMMANDE_EN_ATTENTE = "EN_ATTENTE"

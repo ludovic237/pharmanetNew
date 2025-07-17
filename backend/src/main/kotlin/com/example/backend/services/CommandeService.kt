@@ -43,8 +43,7 @@ class CommandeService(
     val montantTotalRecu = request.produits.sumOf { it.quantiteRecu!! * it.prixAchat!! }
 
     val commande = Commande().apply {
-      this.employe = employeRepository.findById(request.employeId.toInt())
-        .orElseThrow { IllegalArgumentException("Employé non trouvé avec l'ID fourni.") }
+      this.employeId = request.employeId.toInt()
       this.fournisseur = fournisseurRepository.findById(request.fournisseurId.toInt())
         .orElseThrow { IllegalArgumentException("Fournisseur non trouvé avec l'ID fourni.") }
       this.dateCreation = LocalDateTime.now()
@@ -81,7 +80,7 @@ class CommandeService(
     // Ajout des produits dans la table ProduitCommande
     request.produits.forEach { produitRequest ->
       var produitCommande = ProduitCmd().apply {
-        this.commande = savedCommande
+        this.commandeId = savedCommande.id
         this.produit = produitRepository.findById(produitRequest.id!!.toInt())
           .orElseThrow { IllegalArgumentException("Produit non trouvé avec l'ID fourni.") }
         this.puRecept = when (request.type.lowercase()) {
@@ -97,8 +96,8 @@ class CommandeService(
         }
         this.qtiteCmd = produitRequest.quantite ?: 0
         this.qtiteRecu = produitRequest.quantiteRecu ?: 0
-        this.prixAchat = produitRequest.prixAchat ?: 0.0
-        this.prixVente = produitRequest.prixVente ?: 0.0
+        this.puCmd = produitRequest.prixAchat ?: 0.0
+        this.prixPublic = produitRequest.prixVente ?: 0.0
         this.uniteGratuite = produitRequest.uniteGratuite ?: 0
       }
 
@@ -235,7 +234,7 @@ class CommandeService(
 
         val quantiteARecevoir = minOf(produitCmdData.qtiteCmd!!, (commande.qtiteCmd ?: 0) - totalQuantiteRecu)
         totalQuantiteRecu += quantiteARecevoir
-        totalMontantRecu += quantiteARecevoir * produitCmdData.prixAchat!!
+        totalMontantRecu += quantiteARecevoir * produitCmdData.puCmd!!
 
         produitCmdData.qtiteRecu = produitCmdData.qtiteCmd
         produitCmdRepository.save(produitCmdData)
@@ -252,7 +251,7 @@ class CommandeService(
       productCmdList?.forEach { produitCmd ->
         var produit = produitRepository.findById(produitCmd.productId!!.toInt())
           .orElseThrow { IllegalArgumentException("Produit non trouvé avec l'ID: ${produitCmd.productId}") }
-        val produitCmdEntity = produitCmdRepository.findByCommandeAndProduit(commande, produit)
+        val produitCmdEntity = produitCmdRepository.findByCommandeIdAndProduit(commande.id!!.toLong(), produit)
           ?: createNewProduitCmd(produitCmd, commande)
         produitCmdEntity.uniteGratuite = produitCmdEntity.uniteGratuite ?: 0 + produitCmd.uniteGratuite!! ?: 0
         produitCmdEntity.qtiteRecu = produitCmdEntity.qtiteRecu?.plus(produitCmd.quantite!!)
@@ -261,7 +260,7 @@ class CommandeService(
         }
 
         totalQuantiteRecu = produitCmdEntity.qtiteRecu?.toInt() ?: 0+ produitCmd.quantite?.toInt()!! ?: 0
-        totalMontantRecu += produitCmdEntity.qtiteRecu?.toInt()!! * produitCmdEntity.prixAchat!!
+        totalMontantRecu += produitCmdEntity.qtiteRecu?.toInt()!! * produitCmdEntity.puCmd!!
 
         produitCmdRepository.save(produitCmdEntity)
 
@@ -298,7 +297,7 @@ class CommandeService(
         .orElseThrow { IllegalArgumentException("Produit non trouvé avec l'ID: ${produitCmd.productId}") }
       this.qtiteRecu = produitCmd.quantite
       this.puRecept = produitCmd.prixUnitaire
-      this.commande = commande
+      this.commandeId = commande.id
     }.let { produitCmdRepository.save(it) }
   }
 
@@ -312,23 +311,23 @@ class CommandeService(
 
     val produit = produitRepository.findById(produitCmd.productId!!.toInt())
       .orElseThrow { IllegalArgumentException("Produit non trouvé avec l'ID: ${produitCmd.productId}") }
-    if (enRayonRepository.findByProduitAndCommandeAndSupprimer(produit, commande, 0).isPresent) {
+    if (enRayonRepository.findByProduitIdAndCommandeAndSupprimer(produit.id!!, commande, 0).isPresent) {
       // Si le produit est déjà en rayon pour cette commande, on met à jour la quantité
-      val enRayon = enRayonRepository.findByProduitAndCommandeAndSupprimer(produit, commande, 0).get()
+      val enRayon = enRayonRepository.findByProduitIdAndCommandeAndSupprimer(produit.id!!, commande, 0).get()
       enRayon.quantite = enRayon.quantite!! + quantiteARecevoir
       enRayon.quantiteRestante = enRayon.quantiteRestante!! + quantiteARecevoir
       enRayonRepository.save(enRayon)
     } else {
       val enRayon = EnRayon().apply {
-        this.produit = produitCmdEntity.produit
+        this.produitId = produitCmdEntity.produit!!.id
         this.commande = commande
         this.reduction = 0
         this.fournisseur = commande.fournisseur
         this.dateLivraison = commande.dateLivraison ?: LocalDateTime.now()
         this.datePeremption = produitCmd.dateDePeremption ?: LocalDateTime.now().plusDays(30)
 //        this.datePeremption = produitCmd.datePeremption?.plusDays(30) ?: LocalDateTime.now().plusDays(30)
-        this.prixAchat = produitCmdEntity.prixAchat?.toInt() ?: produitCmdEntity.produit?.prixAchat?.toInt() ?: 0
-        this.prixVente = produitCmdEntity.prixVente?.toInt() ?: produitCmdEntity.produit?.prixVente?.toInt() ?: 0
+        this.prixAchat = produitCmdEntity.puCmd?.toInt() ?: 0
+        this.prixVente = produitCmdEntity.prixPublic?.toInt() ?: 0
         this.quantite = quantiteARecevoir
         this.quantiteRestante = quantiteARecevoir
       }
@@ -408,8 +407,8 @@ fun getAllCommandesMappedPageable(
     val produits = produitCmdRepository.findByCommandeId(commandeId).map { produitCmd ->
       mapOf(
         "produit" to (produitCmd.produit),
-        "prixAchat" to (produitCmd.prixAchat ?: 0),
-        "prixVente" to (produitCmd.prixVente ?: 0),
+        "prixAchat" to (produitCmd.puCmd ?: 0),
+        "prixVente" to (produitCmd.prixPublic ?: 0),
         "qtiteRecu" to (produitCmd.qtiteRecu ?: 0),
         "uniteGratuite" to (produitCmd.uniteGratuite ?: 0),
         "qtiteCmd" to (produitCmd.qtiteCmd ?: 0),
@@ -479,16 +478,16 @@ fun getAllCommandesMappedPageable(
       throw IllegalStateException("Modification des lignes non autorisée pour les commandes avec l'état: ${commande.etat}")
     }
     produits.forEach { produitRequest ->
-      val produitCmd = produitCmdRepository.findByCommandeAndProduit(
-        commande,
+      val produitCmd = produitCmdRepository.findByCommandeIdAndProduit(
+        commande.id!!.toLong(),
         produitRepository.findById(produitRequest.id!!.toInt())
           .orElseThrow { IllegalArgumentException("Produit non trouvé avec l'ID fourni.") }
       ) ?: ProduitCmd().apply {
-        this.commande = commande
+        this.commandeId = commande.id
         this.produit = produitRepository.findById(produitRequest.id!!.toInt()).get()
       }
       produitCmd.qtiteCmd = produitRequest.quantite
-      produitCmd.prixAchat = produitRequest.prixAchat
+      produitCmd.prixPublic = produitRequest.prixAchat
       produitCmdRepository.save(produitCmd)
     }
     return commande
@@ -559,7 +558,7 @@ fun getAllCommandesMappedPageable(
       mapOf(
         "Produit" to produitCmd.produit?.nom,
         "Quantité commandée" to produitCmd.qtiteCmd,
-        "Prix unitaire" to produitCmd.prixAchat
+        "Prix unitaire" to produitCmd.prixPublic
       )
     }
 
@@ -601,8 +600,8 @@ fun getAllCommandesMappedPageable(
     }
 
     produits.forEach { produitRequest ->
-      val produitCmd = produitCmdRepository.findByCommandeAndProduit(
-        commande,
+      val produitCmd = produitCmdRepository.findByCommandeIdAndProduit(
+        commande.id!!.toLong(),
         produitRepository.findById(produitRequest.id!!.toInt())
           .orElseThrow { IllegalArgumentException("Produit non trouvé avec l'ID fourni.") }
       ) ?: throw IllegalArgumentException("Produit non trouvé dans la commande.")
@@ -622,7 +621,7 @@ fun getAllCommandesMappedPageable(
 
     commande.qtiteRecu = produitCmdRepository.findByCommandeId(commande.id!!).sumOf { it.qtiteRecu ?: 0 }
     commande.montantRecu = produitCmdRepository.findByCommandeId(commande.id!!).sumOf {
-      (it.qtiteRecu ?: 0) * (it.prixAchat ?: 0.0)
+      (it.qtiteRecu ?: 0) * (it.prixPublic ?: 0.0)
     }
 
     return commandeRepository.save(commande)
@@ -666,7 +665,7 @@ fun getAllCommandesMappedPageable(
     }
 
     val produits = produitCmdRepository.findByCommandeId(commandeId).map { produitCmd ->
-      "Produit: ${produitCmd.produit?.nom}, Quantité reçue: ${produitCmd.qtiteRecu}, Prix unitaire: ${produitCmd.prixAchat}"
+      "Produit: ${produitCmd.produit?.nom}, Quantité reçue: ${produitCmd.qtiteRecu}, Prix unitaire: ${produitCmd.prixPublic}"
     }
 
     val rapport = """
@@ -695,8 +694,8 @@ fun getAllCommandesMappedPageable(
         "Produit" to produitCmd.produit?.nom,
         "Quantité commandée" to produitCmd.qtiteCmd,
         "Quantité reçue" to produitCmd.qtiteRecu,
-        "Prix achat" to produitCmd.prixAchat,
-        "Prix vente" to produitCmd.prixVente
+        "Prix achat" to produitCmd.prixPublic,
+        "Prix vente" to produitCmd.puCmd
       )
     }
 

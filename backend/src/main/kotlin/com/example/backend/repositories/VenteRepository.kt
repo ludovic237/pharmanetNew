@@ -32,6 +32,8 @@ interface VenteRepository : JpaRepository<Vente, Long> , JpaSpecificationExecuto
 
   companion object {
     fun filterVentes(
+      supprimer: Int?,
+      prixPercu: Int?,
       etat: String?,
       dateVente: String?,
       dateEncaissement: String?,
@@ -55,6 +57,17 @@ interface VenteRepository : JpaRepository<Vente, Long> , JpaSpecificationExecuto
 
         if (!etat.isNullOrEmpty() && etat != "null") {
           predicates.add(criteriaBuilder.equal(root.get<String>("etat"), etat))
+        }
+
+        if (supprimer != null) {
+          predicates.add(criteriaBuilder.equal(root.get<Int>("supprimer"), supprimer))
+        }
+
+        if (prixPercu == 0) {
+          predicates.add(criteriaBuilder.equal(root.get<Int>("prixPercu"), prixPercu))
+        }
+        else  if (prixPercu!! > 0) {
+          predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get<Int>("prixPercu"), 0))
         }
 
         if (!userId.isNullOrEmpty() && userId != "null") {

@@ -166,7 +166,8 @@ export class AjouterVenteComponent implements OnInit {
       next: (response: any) => {
         this.medOptions = response.content.map((product: any) => ({
           id: product.id,
-          name: product.nom
+          name: product.nom,
+          stock: product.stock,
         }));
       },
       error: (err: any) => {
@@ -271,7 +272,7 @@ export class AjouterVenteComponent implements OnInit {
         }
 
         // Calculate total price after applying the reduction
-        const reducedPrice = l.prixTotal * (1 - this.applicableReduction / 100);
+        const reducedPrice = l.prixTotal;
         return reducedPrice;
       })
       .reduce((a, b) => a + b, 0);
@@ -287,10 +288,48 @@ export class AjouterVenteComponent implements OnInit {
         if (!this.selectedClient) {
           this.applicableReduction = 0
         }
-        return l.prixTotal * (this.applicableReduction / 100);
+        return (l.prixTotal * (this.applicableReduction / 100));
       })
       .reduce((a, b) => a + b, 0);
-    this.netAPayer = this.total;
+
+    console.log(this.totaleReduction)
+
+    var reductionData = Math.ceil((this.totaleReduction / 5) * 5) + "";
+    var firstData = reductionData.substr(0, reductionData.length - 2).toString();
+    var lastData = "";
+    var finalReductionTotal = 0;
+    if (reductionData.length >= 3) {
+      var second = parseInt(reductionData.substr(reductionData.length - 2));
+      if (second < 100 && second >= 75) {
+        lastData = "75";
+      } else if (second < 75 && second >= 50) {
+        lastData = "50";
+      } else if (second < 50 && second >= 25) {
+        lastData = "25";
+      } else if (second < 25 && second >= 0) {
+        lastData = "00";
+      }
+      this.totaleReduction = parseInt(firstData + lastData);
+    }
+    console.log(this.totaleReduction)
+
+    this.netAPayer = this.total-this.totaleReduction;
+  }
+
+  roundReduction(value: number): number {
+    const hundredPart = Math.floor(value / 100) * 100
+    const remainder = value % 100;
+    if (remainder > 75) {
+      return hundredPart + 75;
+    } else if (remainder > 50) {
+      return hundredPart + 50;
+    } else if (remainder > 25) {
+      return hundredPart + 25;
+    } else if (remainder > 0) {
+      return hundredPart;
+    } else {
+      return hundredPart;
+    }
   }
 
   onAjouterLigne() {
@@ -306,8 +345,8 @@ export class AjouterVenteComponent implements OnInit {
       next: (data: any) => {
         const dialogRef = this.dialog.open(AjouterVenteDialogComponent, {
           data: {
-            type:med.type,
-            id:med.id,
+            type: med.type,
+            id: med.id,
             name: med.name,
             enRayonList: data
           },
@@ -373,7 +412,8 @@ export class AjouterVenteComponent implements OnInit {
         this.medOptions = data.content.map((product: any) => ({
           id: product.id,
           type: product.type,
-          name: product.nom
+          name: product.nom,
+          stock: product.stock,
         }));
         console.log("this.medOptions");
         console.log(this.medOptions);

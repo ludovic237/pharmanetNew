@@ -1,4 +1,4 @@
-import {Component, Inject} from '@angular/core';
+import {Component, Inject, OnInit} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogModule, MatDialogRef} from "@angular/material/dialog";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {CommonModule} from "@angular/common";
@@ -18,10 +18,12 @@ import {FlexLayoutModule} from "@ngbracket/ngx-layout";
 import {jsPDF} from "jspdf";
 import QRCode from "qrcode";
 import {VentesService} from "@services/ventes.service";
+import {MatPaginatorModule, PageEvent} from "@angular/material/paginator";
 
 @Component({
   selector: 'app-vente-dialog',
   imports: [
+    MatPaginatorModule,
     CommonModule,
     FormsModule,
     MatTabsModule,
@@ -41,7 +43,12 @@ import {VentesService} from "@services/ventes.service";
   templateUrl: './vente-dialog.component.html',
   styleUrl: './vente-dialog.component.scss'
 })
-export class VenteDialogComponent {
+export class VenteDialogComponent implements OnInit{
+
+  public page:number = 1; // Default to 0 if undefined
+  public size = 0;  // Default to 10 if undefined
+  public totalItems = 0;  // Default to 10 if undefined
+  public count = 5;
 
   displayedColumns: string[] = ['montant', 'montantPerçu', 'dateEncaissement', 'dateVente', 'etat', 'ref', 'actions'];
   ventes: any[] = []; // Replace with actual data source
@@ -52,13 +59,43 @@ export class VenteDialogComponent {
     public venteService: VentesService, // Replace with actual VenteService
     private snackBar: MatSnackBar
   ) {
-    this.ventes = data; // Load data passed to the dialog
+    // this.ventes = data; // Load data passed to the dialog
+  }
+
+  ngOnInit() {
+    this.getVente();
   }
 
   closeDialog(): void {
     this.dialogRef.close();
   }
 
+  getVente() {
+    this.venteService.listerVentesEncaissees(
+      this.page - 1,
+      this.count
+    ).subscribe({
+      next: (ventes: any) => {
+        this.count = ventes.pageable.pageSize;
+        this.totalItems = ventes.totalElements;
+        this.ventes = ventes.content;
+      },
+      error: (err: any) => {
+        console.error('Failed to fetch BonCaisse list:', err);
+        this.snackBar.open('Erreur lors de la récupération des bons de caisse.', '×', {
+          panelClass: 'error',
+          verticalPosition: 'top',
+          duration: 3000,
+        });
+      }
+    });
+  }
+
+  public onPageChanged(event: PageEvent) {
+    this.page = event.pageIndex + 1;
+    this.count = event.pageSize
+    this.getVente();
+  }
 
   imprimerTicket(venteId: string): void {
     this.venteService.chargerVentesEncaisser(Number(venteId)).subscribe({

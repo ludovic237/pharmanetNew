@@ -63,8 +63,15 @@ class VenteController(
   @CrossOrigin(origins = ["http://localhost:4200"])
   @PreAuthorize("isAuthenticated()")
   @GetMapping("/vente-non-encaissees")
-  fun listerVentesNonEncaissees(): ResponseEntity<List<Map<String, Any?>>> {
-    val ventes = venteService.listerVentesNonEncaissees()
+  fun listerVentesNonEncaissees(
+    @RequestParam(defaultValue = "0") page: String,
+    @RequestParam(defaultValue = "10") size: String,
+    @RequestParam(defaultValue = "id") sortBy: String,
+  ): ResponseEntity<Page<Map<String, Any?>>> {
+    val pageNumber = page.toIntOrNull()?.coerceAtLeast(0) ?: 0
+    val pageSize = size.toIntOrNull()?.coerceAtLeast(1) ?: 10
+    val pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.DESC, "dateVente"))
+    val ventes = venteService.listerVentesNonEncaissees(pageable)
     return ResponseEntity.ok(ventes)
   }
 
@@ -107,8 +114,15 @@ class VenteController(
   @CrossOrigin(origins = ["http://localhost:4200"])
   @PreAuthorize("isAuthenticated()")
   @GetMapping("/vente-encaissee")
-  fun listerVentesEncaissees(): ResponseEntity<List<Map<String, Any?>>> {
-    val ventes = venteService.listerVentesEncaissees()
+  fun listerVentesEncaissees(
+    @RequestParam(defaultValue = "0") page: String,
+    @RequestParam(defaultValue = "10") size: String,
+    @RequestParam(defaultValue = "id") sortBy: String,
+  ): ResponseEntity<Page<Map<String, Any?>>> {
+    val pageNumber = page.toIntOrNull()?.coerceAtLeast(0) ?: 0
+    val pageSize = size.toIntOrNull()?.coerceAtLeast(1) ?: 10
+    val pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.DESC, "dateVente"))
+    val ventes = venteService.listerVentesEncaissees(pageable)
     return ResponseEntity.ok(ventes)
   }
 

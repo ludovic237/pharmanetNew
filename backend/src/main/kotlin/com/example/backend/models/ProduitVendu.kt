@@ -5,22 +5,21 @@ import jakarta.persistence.*
 @Entity
 @Table(name = "produit_vendu")
 class ProduitVendu {
-@Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY) // Use IDENTITY for auto-increment
+  @Id
   @Column(name = "id", nullable = false)
   var id: Int? = null
 
-  @Column(name = "qtite_vendu")
+  @Column(name = "qtiteVendu")
   var qtiteVendu: Int? = null
 
   @Column(name = "tva")
   var tva: Double? = null
 
-  @Column(name = "prix_unit")
+  @Column(name = "prixUnit")
   var prixUnit: Double? = null
 
-  @Column(name = "montant_ttc")
-  var montantTtc: Double? = null
+  @Column(name = "montantTTC")
+  var montantTTC: Double? = null
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "produit_id")

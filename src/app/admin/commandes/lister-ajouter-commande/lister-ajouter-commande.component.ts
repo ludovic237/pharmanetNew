@@ -51,6 +51,7 @@ import {MatMenuModule} from "@angular/material/menu";
 import {NgxPaginationModule} from "ngx-pagination";
 import {DomHandlerService} from "@services/dom-handler.service";
 import {FournisseursService} from "@services/fournisseurs.service";
+import {MatPaginator, PageEvent} from "@angular/material/paginator";
 
 interface Commande {
   id: string;
@@ -72,51 +73,52 @@ interface ProduitCommande {
   selector: 'app-lister-ajouter-commande',
   standalone: true,
   providers: [UsersService, VentesService, EnrayonsService, ProductService, PrescripteursService],
-  imports: [
-    MatMenuModule,
-    MatListModule,
-    MatChipsModule,
-    MatSlideToggleModule,
-    FormsModule,
-    MatCheckboxModule,
-    ReactiveFormsModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatDividerModule,
-    MatExpansionModule,
-    FormsModule,
-    ReactiveFormsModule,
-    CommonModule,
-    // Material
-    MatToolbarModule,
-    MatTabsModule,
-    MatIconModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatAutocompleteModule,
-    MatTableModule,
-    MatCardModule,
-    MatButtonModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    MatSelectModule,
-    FlexLayoutModule,
-    FormsModule,
-    ReactiveFormsModule,
-    FlexLayoutModule,
-    // Material
-    MatStepperModule,
-    MatTableModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
-    MatRadioModule,
-    MatIconModule,
-    MatCardModule,
-    MatSnackBarModule,
-    MatChipsModule,
-    NgxPaginationModule,
-  ],
+    imports: [
+        MatMenuModule,
+        MatListModule,
+        MatChipsModule,
+        MatSlideToggleModule,
+        FormsModule,
+        MatCheckboxModule,
+        ReactiveFormsModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatDividerModule,
+        MatExpansionModule,
+        FormsModule,
+        ReactiveFormsModule,
+        CommonModule,
+        // Material
+        MatToolbarModule,
+        MatTabsModule,
+        MatIconModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatAutocompleteModule,
+        MatTableModule,
+        MatCardModule,
+        MatButtonModule,
+        MatDatepickerModule,
+        MatNativeDateModule,
+        MatSelectModule,
+        FlexLayoutModule,
+        FormsModule,
+        ReactiveFormsModule,
+        FlexLayoutModule,
+        // Material
+        MatStepperModule,
+        MatTableModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatButtonModule,
+        MatRadioModule,
+        MatIconModule,
+        MatCardModule,
+        MatSnackBarModule,
+        MatChipsModule,
+        NgxPaginationModule,
+        MatPaginator,
+    ],
   templateUrl: './lister-ajouter-commande.component.html',
   styleUrl: './lister-ajouter-commande.component.scss'
 })
@@ -219,9 +221,9 @@ fetchCommandesPageable(): void {
   });
 }
 
-  public onPageChanged(event: number) {
-    this.page = event;
-    console.log('Page changed to:', this.page);
+  public onPageChanged(event: PageEvent) {
+    this.page = event.pageIndex + 1;
+    this.count = event.pageSize;
     this.fetchCommandesPageable();
   }
 

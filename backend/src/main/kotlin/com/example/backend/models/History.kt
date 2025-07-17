@@ -7,8 +7,7 @@ import java.time.LocalDateTime
 @Entity
 @Table(name = "history")
 class History {
-@Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY) // Use IDENTITY for auto-increment
+  @Id
   @Column(name = "id", nullable = false)
   var id: Int? = null
 
@@ -20,7 +19,7 @@ class History {
   @JoinColumn(name = "user_id")
   var user: com.example.backend.models.User? = null
 
-  @Column(name = "date_histo")
+  @Column(name = "dateHisto")
   var dateHisto: LocalDateTime? = null
 
   @Column(name = "description", length = 64)

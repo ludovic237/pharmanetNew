@@ -69,6 +69,22 @@ class ProduitController(
     }
   }
 
+  @CrossOrigin(origins = ["http://localhost:4200"])
+  @PreAuthorize("isAuthenticated()")
+  @GetMapping("/{id}/info/en_rayon")
+  fun getProduitEnRayonDetailById(@PathVariable id: Int): ResponseEntity<List<Map<String,Any?>>> {
+    return ResponseEntity.ok(produitService.getProduitEnRayonDetailById(id))
+
+  }
+
+  @CrossOrigin(origins = ["http://localhost:4200"])
+  @PreAuthorize("isAuthenticated()")
+  @GetMapping("/{id}/info/scan/en_rayon")
+  fun getEnRayonDetailById(@PathVariable id: String): ResponseEntity<Map<String,Any?>> {
+    return ResponseEntity.ok(produitService.getEnRayonDetailById(id))
+
+  }
+
   @PreAuthorize("isAuthenticated()")
   @GetMapping
   fun getAllProduits(
@@ -88,9 +104,15 @@ class ProduitController(
   fun searchProducts(
     @RequestParam("query") query: String,
     @RequestParam("page", defaultValue = "0") page: Int,
-    @RequestParam("size", defaultValue = "10") size: Int
+    @RequestParam("size", defaultValue = "10") size: Int,
+    @RequestParam(required = false) rayonId: String?,
+    @RequestParam(required = false) fabriquantId: String?,
+    @RequestParam(required = false) etagereId: String?,
+    @RequestParam(required = false) formeId: String?,
+    @RequestParam(required = false) magasinId: String?,
+    @RequestParam(required = false) categorieId: String?
   ): ResponseEntity<Page<Map<String,Any?>>> {
-    val result = produitService.searchProducts(query, page, size)
+    val result = produitService.searchProductsWithParam(query, page, size,rayonId, fabriquantId, etagereId, formeId, magasinId, categorieId)
     return ResponseEntity.ok(result)
   }
 

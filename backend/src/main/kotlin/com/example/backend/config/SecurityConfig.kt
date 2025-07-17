@@ -1,6 +1,7 @@
 package com.example.backend.config
 
 
+import com.example.backend.repositories.EmployeRepository
 import com.example.backend.services.CustomUserDetailsService
 import com.example.backend.utility.JwtAuthenticationFilter
 import com.example.backend.utility.JwtUtil
@@ -25,6 +26,7 @@ import org.springframework.web.filter.OncePerRequestFilter
 @EnableMethodSecurity(prePostEnabled = true)
 class SecurityConfig(
   private val customUserDetailsService: CustomUserDetailsService,
+  private val employeRepository: EmployeRepository,
   private val jwtUtil: JwtUtil,
 ) {
 
@@ -55,7 +57,7 @@ class SecurityConfig(
 
   @Bean
   fun jwtAuthenticationFilter(): JwtAuthenticationFilter {
-    return JwtAuthenticationFilter(jwtUtil, customUserDetailsService)
+    return JwtAuthenticationFilter(jwtUtil, employeRepository,customUserDetailsService)
   }
 
 }

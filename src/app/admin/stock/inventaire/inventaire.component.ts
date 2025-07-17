@@ -26,7 +26,7 @@ import {MatStepperModule} from "@angular/material/stepper";
 import {MatRadioModule} from "@angular/material/radio";
 import {MatSnackBarModule} from "@angular/material/snack-bar";
 import {NgxPaginationModule} from "ngx-pagination";
-import {MatPaginator} from "@angular/material/paginator";
+import {MatPaginator, PageEvent} from "@angular/material/paginator";
 import {InventaireService} from "@services/inventaire.service";
 import {
   AjouterCommandeDialogComponent
@@ -89,11 +89,14 @@ export class InventaireComponent implements OnInit {
 
   inventaire: any[] = [];
   displayedColumns: string[] = ['id', 'dateDebut', 'dateFin', 'etat', 'actions'];
-  totalItems = 0;
-  count = 10;
   etat: string | null = null;
   dateDebut: Date | null = null;
   dateFin: Date | null = null;
+
+  public page:number = 1; // Default to 0 if undefined
+  public size = 100;  // Default to 10 if undefined
+  public totalItems = 0;  // Default to 10 if undefined
+  public count = 10;
 
   constructor(private inventaireService: InventaireService,
               public dialog: MatDialog) {}
@@ -103,10 +106,17 @@ export class InventaireComponent implements OnInit {
   }
 
   fetchInventaire(): void {
-    this.inventaireService.getInventaire(this.etat, this.dateDebut, this.dateFin).subscribe((data: any) => {
-      this.inventaire = data.items;
-      this.totalItems = data.total;
+    this.inventaireService.getInventaire(this.page-1,this.count,this.etat, this.dateDebut, this.dateFin).subscribe({
+      next: (data: any) => {
+        this.count = data.pageable.pageSize;
+        this.totalItems = data.totalElements;
+        this.inventaire = data.content;
+      },
+      error: (err:any) => {
+        console.error('Error fetching commandes:', err);
+      }
     });
+
   }
 
   resetFilters(): void {
@@ -116,8 +126,10 @@ export class InventaireComponent implements OnInit {
     this.fetchInventaire();
   }
 
-  onPageChanged(page: number): void {
-    this.inventaireService.setPage(page);
+  onPageChanged(event: PageEvent): void {
+
+    this.page = event.pageIndex + 1;
+    this.count = event.pageSize
     this.fetchInventaire();
   }
 

@@ -95,6 +95,6 @@
   </table>
 
   <mat-paginator [length]="totalItems" [pageSize]="count" [pageSizeOptions]="[5, 10, 25, 100]"
-                 (page)="onPageChanged($event.pageIndex + 1)">
+                 (page)="onPageChanged($event)">
   </mat-paginator>
 </div>

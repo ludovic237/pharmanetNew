@@ -939,3 +939,10 @@ alter table retour_produit
 alter table produit_retour
   add foreign key (retour_produit_id) references retour_produit (id),
   add foreign key (concerner_id) references concerner (id);
+
+alter table user
+  add username          varchar(255)            not null,
+  add password          varchar(255)            not null;
+
+alter table user
+  add   role              tinytext                not null;

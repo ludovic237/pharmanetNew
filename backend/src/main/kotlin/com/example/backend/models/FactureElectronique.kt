@@ -1,20 +1,22 @@
 package com.example.backend.models
 
-import jakarta.persistence.*
+import jakarta.persistence.Column
+import jakarta.persistence.Entity
+import jakarta.persistence.Id
+import jakarta.persistence.Table
 import org.hibernate.annotations.ColumnDefault
 
 @Entity
 @Table(name = "facture_electronique")
 class FactureElectronique {
-@Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY) // Use IDENTITY for auto-increment
+  @Id
   @Column(name = "id", nullable = false)
   var id: Int? = null
 
   @Column(name = "facturation_id")
   var facturationId: Long? = null
 
-  @Column(name = "numero_telephone", length = 15)
+  @Column(name = "numeroTelephone", length = 15)
   var numeroTelephone: String? = null
 
   @Column(name = "montant")
@@ -22,5 +24,5 @@ class FactureElectronique {
 
   @ColumnDefault("0")
   @Column(name = "supprimer")
-  var supprimer: Int? = 0
+  var  supprimer: Int? = 0
 }

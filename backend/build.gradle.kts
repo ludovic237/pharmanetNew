@@ -41,14 +41,17 @@ dependencies {
 
 	compileOnly("org.projectlombok:lombok")
 	developmentOnly("org.springframework.boot:spring-boot-devtools")
-	runtimeOnly("com.mysql:mysql-connector-j")
+
+  runtimeOnly("com.mysql:mysql-connector-j")
+  implementation("com.mysql:mysql-connector-j")
+
 	runtimeOnly("org.mariadb.jdbc:mariadb-java-client")
 	annotationProcessor("org.projectlombok:lombok")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
 	testImplementation("org.springframework.security:spring-security-test")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-
+  implementation("org.flywaydb:flyway-core:9.22.0")
   implementation("jakarta.persistence:jakarta.persistence-api:3.1.0")
 }
 

@@ -5,8 +5,7 @@ import jakarta.persistence.*
 @Entity
 @Table(name = "pharmacy")
 class Pharmacy {
-@Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY) // Use IDENTITY for auto-increment
+  @Id
   @Column(name = "id", nullable = false)
   var id: Int? = null
 
@@ -23,7 +22,7 @@ class Pharmacy {
   var logo: String? = null
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "code_postal_id")
+  @JoinColumn(name = "CodePostal_id")
   var codePostal: CodePostal? = null
 
   @Column(name = "slogan", nullable = false, length = 128)

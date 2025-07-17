@@ -1,8 +1,7 @@
 package com.example.backend.services
 
-import com.example.backend.models.Rayon
+import com.example.backend.repositories.EnRayonRepository
 import com.example.backend.repositories.ProduitDetailRepository
-import com.example.backend.repositories.RayonRepository
 import com.example.backend.repositories.SortieStockRepository
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
@@ -11,7 +10,8 @@ import org.springframework.stereotype.Service
 @Service
 class SortieStockService(
   private val produitDetailRepository: ProduitDetailRepository,
-  private val sortieStockRepository: SortieStockRepository
+  private val sortieStockRepository: SortieStockRepository,
+  private val enRayonRepository: EnRayonRepository
 ) {
 
   fun getSortieStockPageable(
@@ -33,10 +33,19 @@ class SortieStockService(
           null
         }
         // Build the map cleanly in one place
+
+        var produit = produitDetailRepository.findById(enRayonRepository.findById(sortieStock.enRayon!!.id!!).get().produitId!!).get()
+        var nom = produit.nom
+        var id = produit.id
+        if (sortieStock.typeSortie!!.nom!! === "detail") {
+          var produitDetail = produitDetailRepository.findById(sortieStock.enRayon!!.id!!.toInt()).get()
+          nom = produitDetail.nom
+          id = produitDetail.id
+        }
         mapOf(
           "id" to sortieStock.id,
-          "nomProduit" to sortieStock.enRayon?.produit?.nom,
-          "formeProduit" to sortieStock.enRayon?.produit?.forme,
+          "nomProduit" to nom,
+//          "formeProduit" to forme,
           "typeSortie" to sortieStock.typeSortie,
           "enRayonId" to sortieStock.enRayon?.id,
           "produitDetailId" to sortieStock.detailId,

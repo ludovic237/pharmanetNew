@@ -34,7 +34,9 @@ class ProduitService(
   private val enRayonRepository: EnRayonRepository,
   private val formeRepository: FormeRepository,
   private val magasinRepository: MagasinRepository,
-  private val fabriquantRepository: FabriquantRepository, private val caisseRepository: CaisseRepository
+  private val fabriquantRepository: FabriquantRepository,
+  private val caisseRepository: CaisseRepository,
+  private val commandeRepository: CommandeRepository
 ) {
 
   @Transactional
@@ -71,9 +73,9 @@ class ProduitService(
       this.stockMax = request.stockMax
       this.stockMin = request.stockMin
       this.contenuDetail = request.contenuDetail
-      this.prixDetail = request.prixDetail
+      this.prixDetail = request.prixDetail.toString()
       this.etat = request.etat
-      this.createdAt = LocalDateTime.now()
+//      this.createdAt = LocalDateTime.now()
       this.reductionMax = request.reductionMax
       this.grossisteId = request.grossisteId
       this.detailId = request.detailId
@@ -148,10 +150,79 @@ class ProduitService(
       "nom" to produit.nom,
       "stock" to produit.stock,
       "categorie" to produit.categorie?.nom,
-      "prixAchat" to produit.prixAchat,
-      "prixVente" to produit.prixVente,
+//      "prixAchat" to produit.prixAchat,
+//      "prixVente" to produit.prixVente,
+      "prixAchat" to 0,
+      "prixVente" to 0,
       "etat" to produit.etat
     )
+  }
+
+  fun getEnRayonDetailById(enRayonId: String): Map<String, Any?> {
+    var enRayonList = enRayonRepository.findById(enRayonId!!.toString()).get()
+    var produit = produitRepository.findById(enRayonList.produitId!!).get()
+    return   mapOf(
+      "id" to produit.id,
+      "rayonId" to enRayonList.id,
+      "nom" to produit.nom,
+      "stock" to enRayonList.quantiteRestante,
+      "dateLivraison" to enRayonList.dateLivraison,
+      "datePeremption" to enRayonList.datePeremption,
+      "categorie" to produit.categorie?.nom,
+//      "prixAchat" to produit.prixAchat,
+//      "prixVente" to produit.prixVente,
+      "prixAchat" to 0,
+      "prixVente" to 0,
+      "type" to "produit"
+    )
+  }
+
+  fun getProduitEnRayonDetailById(id: Int): List<Map<String, Any?>> {
+    if (id < 700) {
+      var produit = produitDetailRepository.findById(id).get()
+      val p = produitDetailRepository.findByIdAndStockGreaterThanAndSupprimer(id)
+      var data = mutableListOf<Map<String, Any?>>()
+      data.add(
+        mapOf(
+          "id" to produit.id,
+          "rayonId" to p.id,
+          "nom" to produit.nom,
+          "stock" to p.stock,
+          "dateLivraison" to "",
+          "datePeremption" to "",
+          "categorie" to produit.grossisteList,
+//      "prixAchat" to produit.prixAchat,
+//      "prixVente" to produit.prixVente,
+          "prixAchat" to 0,
+          "prixVente" to 0,
+          "type" to "detail"
+        )
+      )
+      return data
+    }
+    else {
+      val produit = produitRepository.findById(id)
+        .filter { it.supprimer == 0 }
+        .orElseThrow { NotFoundException("Produit non trouvé avec ID: $id") }
+      var enRayonList = enRayonRepository.findAllByProduitIdAndSupprimer(produit.id!!).map { enRayon ->
+        mapOf(
+          "id" to produit.id,
+          "rayonId" to enRayon.id,
+          "nom" to produit.nom,
+          "stock" to enRayon.quantiteRestante,
+          "dateLivraison" to enRayon.dateLivraison,
+          "datePeremption" to enRayon.datePeremption,
+          "categorie" to produit.categorie?.nom,
+//      "prixAchat" to produit.prixAchat,
+//      "prixVente" to produit.prixVente,
+          "prixAchat" to 0,
+          "prixVente" to 0,
+          "type" to "produit"
+        )
+      }
+      return enRayonList
+    }
+
   }
 
 //  fun getAllProduits(): List<ProduitResponseDto> {
@@ -169,13 +240,13 @@ class ProduitService(
       seuil = this.stockMin ?: 0,
       categorieNom = this.categorie?.nom ?: "",
       tva = BigDecimal.ZERO,
-      prixAchatInitial = this.prixAchat!!.toBigDecimal() ?: BigDecimal.ZERO,
-      prixVenteActuel = this.prixVente!!.toBigDecimal() ?: BigDecimal.ZERO,
-      margeBeneficiaire = this.prixVente!!.toBigDecimal() - this.prixAchat!!.toBigDecimal(),
+      prixAchatInitial = BigDecimal.ZERO,
+      prixVenteActuel = BigDecimal.ZERO,
+      margeBeneficiaire = BigDecimal.ZERO,
       prixVenteConseille = BigDecimal.ZERO,
       quantiteTotaleEnStock = this.stock ?: 0,
-      dateCreation = this.createdAt,
-      dateModification = this.updatedAt,
+      dateCreation = null,
+      dateModification = null,
       stockDetails = emptyList(), // Populate if needed
       uniteMesure = this.forme?.nom ?: ""
     )
@@ -192,7 +263,8 @@ class ProduitService(
         mapOf(
           "id" to it.id,
           "nom" to it.nom,
-          "prix" to it.prixVente,
+          "stock" to it.stock,
+          "prix" to 0,
           "type" to "produit"
         )
       }
@@ -201,7 +273,8 @@ class ProduitService(
         mapOf(
           "id" to it.id,
           "nom" to it.nom,
-          "prix" to it.prix,
+          "stock" to it.stock,
+          "prix" to 0,
           "type" to "detail"
         )
       }
@@ -212,6 +285,28 @@ class ProduitService(
     return PageImpl(pageContent, pageable, mergedList.size.toLong())
   }
 
+ fun searchProductsWithParam(query: String, page: Int, size: Int,
+                             rayonId: String?,
+                             fabriquantId: String?,
+                             etagereId: String?,
+                             formeId: String?,
+                             magasinId: String?,
+                             categorieId: String?
+                             ): Page<Map<String, Any?>> {
+    val pageable = PageRequest.of(page, size)
+   val spec = ProduitRepository.ProduitSpecification.withFilters(query, rayonId, fabriquantId, etagereId, formeId, magasinId, categorieId)
+    return produitRepository.findAll(spec, pageable)
+      .map {
+        mapOf(
+          "id" to it.id,
+          "nom" to it.nom,
+          "stock" to it.stock,
+          "prix" to 0,
+          "type" to "produit"
+        )
+      }
+ }
+
 
   @Transactional
   fun updateProduit(id: Int, request: ProduitRequestDto): ProduitResponseDto {
@@ -220,7 +315,7 @@ class ProduitService(
       .orElseThrow { NotFoundException("Produit non trouvé avec ID: $id") }
 
     produit.ean13 = request.ean13
-    produit.updatedAt = LocalDateTime.now()
+//    produit.updatedAt = LocalDateTime.now()
     produit.codeLaborex = request.codeLaborex
     produit.codeUbipharm = request.codeUbipharm
     produit.reference = request.reference
@@ -229,7 +324,7 @@ class ProduitService(
     produit.stockMax = request.stockMax
     produit.stockMin = request.stockMin
     produit.contenuDetail = request.contenuDetail
-    produit.prixDetail = request.prixDetail
+    produit.prixDetail = request.prixDetail.toString()
     produit.etat = request.etat
     produit.reductionMax = request.reductionMax
     produit.grossisteId = request.grossisteId
@@ -257,7 +352,7 @@ class ProduitService(
       .filter { it.supprimer == 0 }
       .orElseThrow { NotFoundException("Produit non trouvé avec ID: $id") }
     produit.supprimer = 1
-    produit.updatedAt = LocalDateTime.now()
+//    produit.updatedAt = LocalDateTime.now()
     produitRepository.save(produit)
   }
 
@@ -271,22 +366,9 @@ class ProduitService(
     }
 
     // Chercher une entrée de stock existante pour ce produit, dépôt, rayon, et lot
-    var stockEntry = enRayonRepository.findByProduitAndRayonAndSupprimer(
-      produit, rayon
-    ).orElseGet {
-      // Si pas d'entrée pour ce lot spécifique, créer une nouvelle si on ajoute du stock
-      if (request.quantiteChange > 0) {
-        EnRayon().apply {
-          this.produit = produit
-          this.rayon = rayon
-          this.quantite = 0 // Sera mis à jour
-          this.dateLivraison = LocalDateTime.now()
-          this.datePeremption = request.datePeremption
-        }
-      } else {
-        throw NotFoundException("Aucun stock trouvé pour ce produit/dépôt/rayon/lot à décrémenter.")
-      }
-    }
+    var stockEntry = enRayonRepository.findByProduitIdAndIdAndSupprimer(
+      produit.id!!,request.rayonId!!.toString()
+    )
 
     val nouvelleQuantite = stockEntry.quantite!! + request.quantiteChange
     if (nouvelleQuantite < 0) {
@@ -302,7 +384,7 @@ class ProduitService(
     }
 
     enRayonRepository.save(stockEntry)
-    produit.updatedAt = LocalDateTime.now()
+//    produit.updatedAt = LocalDateTime.now()
     produitRepository.save(produit)
     return mapToProduitResponseDto(produit)
   }
@@ -313,7 +395,7 @@ class ProduitService(
       .filter { it.supprimer == 0 }
       .orElseThrow { NotFoundException("Produit non trouvé avec ID: $produitId") }
 
-    produit.updatedAt = LocalDateTime.now()
+//    produit.updatedAt = LocalDateTime.now()
     produitRepository.save(produit) // Juste pour mettre à jour dateModification du produit
     return mapToProduitResponseDto(produit)
   }
@@ -321,14 +403,15 @@ class ProduitService(
 
   private fun mapToProduitResponseDto(produit: Produit): ProduitResponseDto {
 //    val tarificationActive = tarificationRepository.findByProduitAndActifAndSupprimer(produit)
-    val stockDetails = enRayonRepository.findAllByProduitAndSupprimer(produit)
+    val stockDetails = enRayonRepository.findAllByProduitIdAndSupprimer(produit.id!!)
       .filter { it.quantite!! > 0 } // Afficher seulement où il y a du stock
       .map { er ->
+
         StockDetailDto(
-          enRayonId = er.id,
-          productNom = er.produit?.nom!!,
-          depotNom = er.produit!!.nom,
-          rayonNom = er.rayon?.nom,
+          enRayonId = er.id?.toInt(),
+          productNom = "er.produit?.nom!!",
+          depotNom = "er.produit!!.nom",
+          rayonNom = "er.rayon?.nom",
           quantite = er.quantite!!,
           datePeremption = er.datePeremption,
           numeroLot = ""
@@ -350,8 +433,8 @@ class ProduitService(
       prixVenteConseille = 0.toBigDecimal(), // Prix de vente conseillé, peut être modifié
       prixVenteActuel = BigDecimal.ZERO,
       quantiteTotaleEnStock = quantiteTotale,
-      dateCreation = produit.createdAt,
-      dateModification = produit.updatedAt,
+      dateCreation = null,
+      dateModification = null,
       stockDetails = stockDetails,
       uniteMesure = produit.forme?.nom ?: "",
     )
@@ -359,14 +442,14 @@ class ProduitService(
 
   private fun mapToProduitResponseDtoMap(produit: Produit): Map<String, Any?> {
 
-    val stockDetails = enRayonRepository.findAllByProduitAndSupprimer(produit)
+    val stockDetails = enRayonRepository.findAllByProduitIdAndSupprimer(produit.id!!)
       .filter { it.quantite!! > 0 }
       .map { er ->
         mapOf(
           "enRayonId" to er.id,
-          "productNom" to er.produit?.nom!!,
-          "depotNom" to er.produit!!.nom,
-          "rayonNom" to er.rayon?.nom,
+          "productNom" to "er.produit?.nom!!",
+          "depotNom" to "er.produit!!.nom",
+          "rayonNom" to "er.rayon?.nom",
           "quantite" to er.quantite!!,
           "datePeremption" to er.datePeremption,
           "numeroLot" to ""
@@ -403,9 +486,9 @@ class ProduitService(
       "prixVenteConseille" to 0.toBigDecimal(),
       "prixVenteActuel" to BigDecimal.ZERO,
       "quantiteTotaleEnStock" to quantiteTotale,
-      "dateCreation" to produit.createdAt,
+//      "dateCreation" to produit.createdAt,
       "contenuDetail" to produit.contenuDetail,
-      "dateModification" to produit.updatedAt,
+//      "dateModification" to produit.updatedAt,
       "stock" to produit.stock,
       "stockMin" to produit.stockMin,
       "stockMax" to produit.stockMax,
@@ -478,9 +561,9 @@ class ProduitService(
     val currentUser = userUtils.getCurrentUser()
     val employe = employeRepository.findByUser(currentUser!!)
 
-    val caisse = caisseRepository.findByEmployeAndEtat(
+    val caisse = caisseRepository.findByUserAndEtat(
       employe,
-      Caisse.ETAT_OUVERT
+      "En cours"
     ) ?: throw NotFoundException("Aucune caisse ouverte pour l'employé avec l'ID: ${employe.id}")
 
     var retourProduit = RetourProduit().apply {
@@ -492,10 +575,9 @@ class ProduitService(
     retourProduit = retourProduitRepository.save(retourProduit)
 
     produitsRetour.forEach { produitRetourRequest ->
-      var produitConcerner = concernerRepository.findByVenteAndProduit(
-        vente,
-        produitRepository.findById(produitRetourRequest.produitId.toInt())
-          .orElseThrow { NotFoundException("Produit non trouvé avec l'ID: ${produitRetourRequest.produitId}") }
+      var produitConcerner = concernerRepository.findByVenteIdAndProduitId(
+        vente.id!!.toLong(),
+        produitRepository.findById(produitRetourRequest.produitId.toInt()).get().id!!.toInt()
       ) ?: throw NotFoundException("Produit non trouvé dans la vente avec l'ID: ${produitRetourRequest.produitId}")
 
       if (produitRetourRequest.quantiteRetour <= 0) {
@@ -525,7 +607,7 @@ class ProduitService(
       produitRepository.save(produit)
 
       // Update or create EnRayon
-      val enRayon = enRayonRepository.findById(produitRetourRequest.rayonId!!.toInt()).get()
+      val enRayon = enRayonRepository.findById(produitRetourRequest.rayonId!!.toString()).get()
 //      enRayon.quantite = enRayon.quantite!! + produitRetourRequest.quantiteRetour
       enRayon.quantiteRestante = enRayon.quantiteRestante!! + produitRetourRequest.quantiteRetour
       enRayonRepository.save(enRayon)
@@ -541,9 +623,10 @@ class ProduitService(
     val now = LocalDateTime.now()
     val startOfMonth = now.withDayOfMonth(1).toLocalDate().atStartOfDay()
 
-    val toutesLesVentes = concernerRepository.findByProduit(produit)
+    val toutesLesVentes = concernerRepository.findByProduitId(produit.id!!.toInt())
     val ventesDuMois = toutesLesVentes.filter { v ->
-      v?.vente?.dateVente?.isAfter(startOfMonth) == true
+      var vente = venteRepository.findById(v?.venteId!!).get()
+      vente.dateVente?.isAfter(startOfMonth) == true
     }
 
     val totalQuantiteMois = ventesDuMois.sumOf { it?.quantite ?: 0 }
@@ -589,7 +672,8 @@ class ProduitService(
     )
 
     val ventesList = toutesLesVentes.map { c ->
-      val v = c?.vente
+      var vente = venteRepository.findById(c!!.venteId!!).get()
+      val v = vente
       val pu = c?.prixUnit?.toBigDecimal() ?: BigDecimal.ZERO
       val qte = c?.quantite ?: 0
       val red = c?.reduction?.toBigDecimal() ?: BigDecimal.ZERO
@@ -608,12 +692,13 @@ class ProduitService(
 
     val toutesLesCommandes = produitCmdRepository.findByProduit(produit)
     val commandesDuMois = toutesLesCommandes.filter { lc ->
-      lc?.commande?.dateCreation?.isAfter(startOfMonth) == true
+      var commande = commandeRepository.findById(lc.commandeId!!.toLong()).get()
+      commande?.dateCreation?.isAfter(startOfMonth) == true
     }
 
     val totalQtCmdMois = commandesDuMois.sumOf { it?.qtiteCmd ?: 0 }
     val totalCoutMois = commandesDuMois.fold(BigDecimal.ZERO) { acc, c ->
-      val pa = c?.prixAchat?.toBigDecimal() ?: BigDecimal.ZERO
+      val pa = c?.prixPublic?.toBigDecimal() ?: BigDecimal.ZERO
       val q = c?.qtiteCmd?.toBigDecimal() ?: BigDecimal.ZERO
       acc.add(pa * q)
     }
@@ -627,7 +712,7 @@ class ProduitService(
 
     val totalQtCmd = toutesLesCommandes.sumOf { it?.qtiteCmd ?: 0 }
     val totalCout = toutesLesCommandes.fold(BigDecimal.ZERO) { acc, c ->
-      val pa = c?.prixAchat?.toBigDecimal() ?: BigDecimal.ZERO
+      val pa = c?.prixPublic?.toBigDecimal() ?: BigDecimal.ZERO
       val q = c?.qtiteCmd?.toBigDecimal() ?: BigDecimal.ZERO
       acc.add(pa * q)
     }
@@ -643,9 +728,10 @@ class ProduitService(
     var commandePriceTotalCommande = 0;
 
     val commandesList = toutesLesCommandes.map { c ->
-      val cmd = c?.commande
-      val pa = c?.prixAchat?.toBigDecimal() ?: BigDecimal.ZERO
-      val pv = c?.prixVente ?: BigDecimal.ZERO
+      var commande = commandeRepository.findById(c.commandeId!!.toLong()).get()
+      val cmd = commande
+      val pa = c?.puCmd?.toBigDecimal() ?: BigDecimal.ZERO
+      val pv = c?.prixPublic ?: BigDecimal.ZERO
       val qc = c?.qtiteCmd ?: 0
       val qr = c?.qtiteRecu ?: 0
       val totCmd = pa * (qc.toBigDecimal())
@@ -667,7 +753,7 @@ class ProduitService(
       )
     }
 
-    val entreesEnStock = enRayonRepository.findAllByProduitAndSupprimer(produit, 0)
+    val entreesEnStock = enRayonRepository.findAllByProduitIdAndSupprimer(produit.id!!, 0)
     val quantiteStockTotal = entreesEnStock.sumOf { it?.quantite ?: 0 }
     val stockSummary = mapOf(
       "totalCommandeValue" to totalCout,
@@ -684,8 +770,8 @@ class ProduitService(
         "codeFournisseur" to e?.fournisseur?.code,
         "dateLivraison" to e?.dateLivraison,
         "datePeremption" to e?.datePeremption,
-        "prixAchat" to (produit.prixAchat ?: BigDecimal.ZERO),
-        "prixVente" to (produit.prixVente ?: BigDecimal.ZERO),
+        "prixAchat" to (e.prixAchat ?: BigDecimal.ZERO),
+        "prixVente" to (e.prixVente ?: BigDecimal.ZERO),
         "reduction" to (e?.reduction ?: BigDecimal.ZERO),
         "quantiteRecu" to (e?.quantite ?: 0),
         "quantiteStock" to (e?.quantiteRestante ?: 0)
@@ -693,12 +779,13 @@ class ProduitService(
     }
 
     val stockSorties = toutesLesVentes.map { c ->
+      var vente = venteRepository.findById(c!!.venteId!!.toLong()).get()
       mapOf(
         "nom" to produit.nom,
         "quantite" to (c?.quantite ?: 0),
-        "detail" to "Vente #${c?.vente?.id}",
+        "detail" to "Vente #${vente?.id}",
         "forme" to "Vente",
-        "dateOperation" to c?.vente?.dateVente,
+        "dateOperation" to vente?.dateVente,
         "operation" to "SORTIE_VENTE"
       )
     }

@@ -5,6 +5,7 @@ import com.example.backend.dtos.ProduitDetailIncrementEnRayonDto
 import com.example.backend.dtos.ProduitEnRayonDto
 import com.example.backend.dtos.RayonDto
 import com.example.backend.models.EnRayon
+import com.example.backend.models.Rayon
 import com.example.backend.services.EnRayonService
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
@@ -65,7 +66,7 @@ class EnRayonController(private val enRayonService: EnRayonService) {
   @CrossOrigin(origins = ["http://localhost:4200"])
   @PreAuthorize("isAuthenticated()")
   @GetMapping("/par-nom-rayon")
-  fun getProduitsEnRayonParNomRayon(@RequestParam nomRayon: String): ResponseEntity<List<EnRayon>> =
+  fun getProduitsEnRayonParNomRayon(@RequestParam nomRayon: String): ResponseEntity<List<Rayon>> =
     ResponseEntity.ok(enRayonService.getProduitsEnRayonParNomRayon(nomRayon))
 
   @CrossOrigin(origins = ["http://localhost:4200"])

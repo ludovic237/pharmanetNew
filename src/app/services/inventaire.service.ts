@@ -19,17 +19,22 @@ export class InventaireService {
     });
   }
 
-  getInventaire(etat: string | null, dateDebut: Date | null, dateFin: Date | null): Observable<any> {
+  getInventaire(page: number, size: number,etat: string | null, dateDebut: Date | null, dateFin: Date | null): Observable<any> {
     const params: any = {};
     if (etat) params.etat = etat;
     if (dateDebut) params.dateDebut = dateDebut.toISOString();
     if (dateFin) params.dateFin = dateFin.toISOString();
 
-    return this.http.get<any>(`${this.apiUrl}/list`, {params, headers: this.getHeaders()});
+    return this.http.get<any>(`${this.apiUrl}/list?page=${page}&size=${size}`, {params, headers: this.getHeaders()});
+  }
+
+  listerProduitsParInventaireAsMap(inventaireId:string, page: number, size: number): Observable<any> {
+    const params: any = {};
+    return this.http.get<any>(`${this.apiUrl}/pageable/${inventaireId}/products?page=${page}&size=${size}`, {headers: this.getHeaders()});
   }
 
   addInventaire(inventaire: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/ajouter`, inventaire, {headers: this.getHeaders()});
+    return this.http.post(`${this.apiUrl}/create`, inventaire, {headers: this.getHeaders()});
   }
 
   updateInventaire(inventaire: any): Observable<any> {

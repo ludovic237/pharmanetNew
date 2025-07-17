@@ -35,7 +35,7 @@ import {UsersService} from "@services/users.service";
 import {VentesService} from "@services/ventes.service";
 import {PrescripteursService} from "@services/prescripteurs.service";
 import {DomHandlerService} from "@services/dom-handler.service";
-import {MatPaginator} from "@angular/material/paginator";
+import {MatPaginator, PageEvent} from "@angular/material/paginator";
 
 @Component({
   selector: 'app-entree',
@@ -167,8 +167,9 @@ export class EntreeComponent implements OnInit {
     });
   }
 
-  public onPageChanged(event: number) {
-    this.page = event;
+  public onPageChanged(event: PageEvent) {
+    this.page = event.pageIndex + 1;
+    this.count = event.pageSize
     this.fetchEnRayonsPageable();
   }
 

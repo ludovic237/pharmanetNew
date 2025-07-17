@@ -8,7 +8,7 @@ import java.time.LocalDateTime
 @Entity
 @Table(name = "produit_inventaire")
 class ProduitInventaire {
-@Id
+  @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY) // Use IDENTITY for auto-increment
   @Column(name = "id", nullable = false)
   var id: Int? = null
@@ -25,10 +25,10 @@ class ProduitInventaire {
   @JoinColumn(name = "en_rayon_id")
   var enRayon: EnRayon? = null
 
-  @Column(name = "stock_avant")
+  @Column(name = "stockAvant")
   var stockAvant: Int? = null
 
-  @Column(name = "stock_valide")
+  @Column(name = "stockValide")
   var stockValide: Int? = null
 
   @Column(name = "date_debut")
@@ -45,5 +45,5 @@ class ProduitInventaire {
 
   @ColumnDefault("0")
   @Column(name = "supprimer", nullable = false)
-  var supprimer: Int? = 0
+  var  supprimer: Int? = 0
 }

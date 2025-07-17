@@ -14,7 +14,7 @@
              [matAutocomplete]="auto">
       <mat-autocomplete #auto="matAutocomplete">
         <mat-option *ngFor="let option of medOptions" [value]="option.name" (click)="openMedicamentDialog(option)">
-          {{ option.name }} - {{ option.type }}
+          {{ option.name }} - {{ option.type }} -  <span *ngIf="option.stock>0" class="badge badge-green">{{ option.stock }}</span><span *ngIf="option.stock<=0" class="badge badge-red">{{ option.stock }}</span>
         </mat-option>
       </mat-autocomplete>
     </mat-form-field>
@@ -224,7 +224,7 @@
     <div [ngClass]="{'show': showOptions}">
       <mat-card>
         <mat-card-content>
-          <p><strong>Total :</strong> {{ total+totaleReduction }} FCFA</p>
+          <p><strong>Total :</strong> {{ total }} FCFA</p>
           <p><strong>Réduction :</strong> {{ totaleReduction }} FCFA</p>
           <h3><strong>Net à payer :</strong> {{ netAPayer }} FCFA</h3>
           <div fxLayout="row" fxLayoutGap="16px">

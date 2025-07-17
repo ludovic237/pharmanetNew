@@ -9,41 +9,31 @@ import java.time.LocalDateTime
 @Entity
 @Table(name = "en_rayon")
 class EnRayon {
-@Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY) // Use IDENTITY for auto-increment
+  @Id
   @Column(name = "id", nullable = false)
-  var id: Int? = null
+  var id: String? = null
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "produit_id")
-  var produit: com.example.backend.models.Produit? = null
-
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "rayon_id")
-  var rayon: com.example.backend.models.Rayon? = null
+  @Column(name = "produit_id")
+  var produitId: Int? = null
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "fournisseur_id")
   var fournisseur: com.example.backend.models.Fournisseur? = null
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "unite_id")
-  var unite: com.example.backend.models.Unite? = null
-
-  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "commande_id")
   var commande: Commande? = null
 
-  @Column(name = "date_livraison")
+  @Column(name = "dateLivraison")
   var dateLivraison: LocalDateTime? = null
 
-  @Column(name = "date_peremption")
+  @Column(name = "datePeremption")
   var datePeremption: LocalDateTime? = null
 
-  @Column(name = "prix_achat")
+  @Column(name = "prixAchat")
   var prixAchat: Int? = null
 
-  @Column(name = "prix_vente")
+  @Column(name = "prixVente")
   var prixVente: Int? = null
 
   @Column(name = "reduction")
@@ -52,10 +42,10 @@ class EnRayon {
   @Column(name = "quantite")
   var quantite: Int? = null
 
-  @Column(name = "quantite_restante")
+  @Column(name = "quantiteRestante")
   var quantiteRestante: Int? = null
 
   @ColumnDefault("0")
   @Column(name = "supprimer")
-  var supprimer: Int? = 0
+  var  supprimer: Int? = 0
 }

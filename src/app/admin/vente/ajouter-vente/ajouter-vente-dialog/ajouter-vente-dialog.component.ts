@@ -43,7 +43,7 @@ import {MatToolbarModule} from "@angular/material/toolbar";
 })
 export class AjouterVenteDialogComponent implements OnInit {
 
-  type="detail"
+  type = "detail"
   public enRayonList: any[] = [];
   public modifiedProducts: any[] = [];
   public displayedColumns: string[] = [
@@ -153,10 +153,10 @@ export class AjouterVenteDialogComponent implements OnInit {
     return diffInDays > 90;
   }
 
-  augmenterDetail(){
+  augmenterDetail() {
     const dialogRef = this.dialog.open(UpdateProduitDetailDialogComponent, {
       data: {
-        id:this.data.id
+        id: this.data.id
       },
       maxWidth: "400px",
       // width: "80%",
@@ -169,4 +169,20 @@ export class AjouterVenteDialogComponent implements OnInit {
     });
   }
 
+  getDaysToExpiration(datePeremtion: any) {
+    const today = new Date();
+    const expirationDate = new Date(datePeremtion)
+    const diff = expirationDate.getTime() - today.getTime()
+    return Math.ceil(diff / (1000 * 60 * 60 * 24))
+  }
+
+  getDaysAfterExpiration(datePeremtion: any) {
+    const today = new Date();
+    const expirationDate = new Date(datePeremtion)
+    if(today<=expirationDate){
+      return 0
+    }
+    const diff = today.getTime() - expirationDate.getTime()
+    return Math.ceil(diff / (1000 * 60 * 60 * 24))
+  }
 }

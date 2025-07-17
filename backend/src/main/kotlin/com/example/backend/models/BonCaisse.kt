@@ -8,8 +8,7 @@ import java.time.LocalDateTime
 @Entity
 @Table(name = "bon_caisse")
 class BonCaisse {
-@Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY) // Use IDENTITY for auto-increment
+  @Id
   @Column(name = "id", nullable = false)
   var id: Int? = null
 
@@ -29,16 +28,16 @@ class BonCaisse {
   @Column(name = "montant")
   var montant: Int? = null
 
-  @Column(name = "date_generer")
+  @Column(name = "dateGenerer")
   var dateGenerer: LocalDateTime? = null
 
-  @Column(name = "date_encaisser")
+  @Column(name = "dateEncaisser")
   var dateEncaisser: LocalDateTime? = null
 
   @Column(name = "type", length = 50)
-  var type: String? = "Générer"
+  var type: String? = null
 
   @ColumnDefault("0")
   @Column(name = "supprimer")
-  var supprimer: Int? = 0
+  var  supprimer: Int? = 0
 }

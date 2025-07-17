@@ -1,6 +1,7 @@
 package com.example.backend.controllers
 
 import com.example.backend.dtos.InventaireRequestDto
+import com.example.backend.dtos.InventaireUpdateRequestDto
 import com.example.backend.models.Inventaire
 import com.example.backend.models.ProduitInventaire
 import com.example.backend.models.User
@@ -24,7 +25,6 @@ class InventaireController(
   @PreAuthorize("isAuthenticated()")
   @PostMapping("/create")
   fun creerInventaire(
-    @RequestParam nom: String,
     @RequestBody data: InventaireRequestDto
   ): ResponseEntity<Inventaire> {
     val inventaire = inventaireService.creerInventaire(data)
@@ -43,11 +43,9 @@ class InventaireController(
   @PreAuthorize("isAuthenticated()")
   @PutMapping("/update/{id}")
   fun mettreAJourInventaire(
-    @PathVariable id: Long,
-    @RequestParam(required = false) nom: String?,
-    @RequestParam(required = false) etat: String?
+    @RequestBody data: InventaireUpdateRequestDto
   ): ResponseEntity<Inventaire> {
-    val inventaire = inventaireService.mettreAJourInventaire(id, nom, etat)
+    val inventaire = inventaireService.mettreAJourInventaire(data)
     return ResponseEntity.ok(inventaire)
   }
 
@@ -82,9 +80,9 @@ class InventaireController(
 
   @CrossOrigin(origins = ["http://localhost:4200"])
   @PreAuthorize("isAuthenticated()")
-  @GetMapping("pageable//{id}/products")
+  @GetMapping("/pageable/{id}/products")
   fun listerProduitsParInventaireAsMap(
-    @PathVariable id: Long,
+    @PathVariable id: String,
     @RequestParam(defaultValue = "0") page: Int,
     @RequestParam(defaultValue = "10") size: Int,
     @RequestParam(defaultValue = "id") sort: String,

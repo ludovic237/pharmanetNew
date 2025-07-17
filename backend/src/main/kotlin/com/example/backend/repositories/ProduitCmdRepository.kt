@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository
 
 interface ProduitCmdRepository : JpaRepository<ProduitCmd, Int> {
   fun findByCommandeId(commandeId: Long): List<ProduitCmd>
-  fun findByCommandeAndProduit(commande: Commande,produit: Produit): ProduitCmd
+  fun findByCommandeIdAndProduit(commande: Long,produit: Produit): ProduitCmd
   fun findByProduit(produit: Produit): List<ProduitCmd>
   fun findByCommandeIdAndId(commandeId: Long,id:Int): ProduitCmd
 }

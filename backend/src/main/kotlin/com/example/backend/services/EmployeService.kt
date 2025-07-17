@@ -30,22 +30,21 @@ class EmployeService(
       prenom = registerRequest.lastName
       telephone = registerRequest.phone
       email = registerRequest.email
-      registrationDate = LocalDateTime.now()
-      createdDate = LocalDateTime.now()
-      updatedDate = LocalDateTime.now()
-      username = registerRequest.email
+//      registrationDate = LocalDateTime.now()
+//      createdDate = LocalDateTime.now()
+//      updatedDate = LocalDateTime.now()
+//      username = registerRequest.email
       supprimer = 0
-      password = passwordEncoder.encode(registerRequest.password)
-      role = registerRequest.role // Initialize and set a default role
+//      password = passwordEncoder.encode(registerRequest.password)
+      fonction = registerRequest.role // Initialize and set a default role
     }
 
     println("Registering user: $user")
     println(passwordEncoder.encode(registerRequest.password))
-    println(user.password)
-    println(user.toString())
     // Save the user
     user = userRepository.save(user)
     var employe = Employe().apply {
+      password = passwordEncoder.encode(registerRequest.password)
       this.user = user
       identifiant = employe.identifiant
     }

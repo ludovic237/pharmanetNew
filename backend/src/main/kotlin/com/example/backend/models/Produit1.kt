@@ -7,8 +7,7 @@ import java.time.LocalDateTime
 @Entity
 @Table(name = "produit1")
 class Produit1 {
-@Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY) // Use IDENTITY for auto-increment
+  @Id
   @Column(name = "id", nullable = false)
   var id: Int? = null
 
@@ -27,25 +26,25 @@ class Produit1 {
   @Column(name = "stock")
   var stock: Int? = null
 
-  @Column(name = "stock_max")
+  @Column(name = "stockMax")
   var stockMax: Int? = null
 
-  @Column(name = "stock_min")
+  @Column(name = "stockMin")
   var stockMin: Int? = null
 
-  @Column(name = "date_peremption")
+  @Column(name = "datePeremption")
   var datePeremption: LocalDateTime? = null
 
-  @Column(name = "date_cmd")
+  @Column(name = "dateCmd")
   var dateCmd: LocalDateTime? = null
 
-  @Column(name = "stock_mag")
+  @Column(name = "stockMag")
   var stockMag: Int? = null
 
-  @Column(name = "prix_public")
+  @Column(name = "prixPublic")
   var prixPublic: Double? = null
 
-  @Column(name = "prix_achat")
+  @Column(name = "prixAchat")
   var prixAchat: Double? = null
 
   @ManyToOne(fetch = FetchType.LAZY)

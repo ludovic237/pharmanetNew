@@ -5,31 +5,36 @@
       <h2 *ngIf="caisseStatus !== 'open'">Caisse fermée</h2>
       <div fxLayout="row" fxLayoutGap="8px">
         <!--        <button mat-raised-button color="primary" (click)="manageCaisse()">Fermer la caisse</button>-->
-        <div *ngIf="caisseStatus === 'open'">
-          <button mat-flat-button color="warn" (click)="fermerCaisse()">Fermer la caisse</button>
-        </div>
-        <div *ngIf="caisseStatus === 'none'">
-          <button mat-flat-button color="primary" (click)="ouvrirCaisse()">Ouvrir la caisse</button>
-        </div>
-        <div *ngIf="caisseStatus === 'pending'">
-          <button mat-flat-button color="primary" (click)="manageCaisse()">Continuer billetage</button>
-        </div>
-        <div *ngIf="caisseStatus === 'other'">
-          <button mat-flat-button color="primary" (click)="handleOtherStatus()">Autre action</button>
+        <div *ngIf="caisseStatus !=='alreadyopen'">
+          <div *ngIf="caisseStatus === 'open'">
+            <button mat-flat-button color="warn" (click)="fermerCaisse()">Fermer la caisse</button>
+          </div>
+          <div *ngIf="caisseStatus != 'alreadyopen'">
+            <div *ngIf="caisseStatus === 'none'">
+              <button mat-flat-button color="primary" (click)="ouvrirCaisse()">Ouvrir la caisse</button>
+            </div>
+          </div>
+          <div *ngIf="caisseStatus === 'pending'">
+            <button mat-flat-button color="primary" (click)="manageCaisse()">Continuer billetage</button>
+          </div>
+          <div *ngIf="caisseStatus === 'other'">
+            <button mat-flat-button color="primary" (click)="handleOtherStatus()">Autre action</button>
+          </div>
+
+          <button *ngIf="caisseStatus !== 'pending' && caisseStatus !== 'closed' && caisseStatus !== 'none'"
+                  mat-flat-button color="accent"
+                  (click)="showBonCaisse()">Gérer les Bons de Caisse
+          </button>
+          <button *ngIf="caisseStatus !== 'pending' && caisseStatus !== 'closed' && caisseStatus !== 'none'"
+                  mat-flat-button color="warn"
+                  (click)="showDepense()">Entrez une Dépense
+          </button>
+          <button *ngIf="caisseStatus !== 'pending' && caisseStatus !== 'closed' && caisseStatus !== 'none'"
+                  mat-flat-button color="primary"
+                  (click)="onRefresh()">Rafraîchir les Données
+          </button>
         </div>
 
-        <button *ngIf="caisseStatus !== 'pending' && caisseStatus !== 'closed' && caisseStatus !== 'none'"
-                mat-flat-button color="accent"
-                (click)="showBonCaisse()">Gérer les Bons de Caisse
-        </button>
-        <button *ngIf="caisseStatus !== 'pending' && caisseStatus !== 'closed' && caisseStatus !== 'none'"
-                mat-flat-button color="warn"
-                (click)="showDepense()">Entrez une Dépense
-        </button>
-        <button *ngIf="caisseStatus !== 'pending' && caisseStatus !== 'closed' && caisseStatus !== 'none'"
-                mat-flat-button color="primary"
-                (click)="onRefresh()">Rafraîchir les Données
-        </button>
         <button *ngIf="caisseStatus !== 'pending' && caisseStatus !== 'closed' && caisseStatus !== 'none'"
                 mat-flat-button color="accent"
                 (click)="showVente()">Afficher les Ventes
@@ -89,6 +94,9 @@
       <tr mat-header-row *matHeaderRowDef="headerColumns"></tr>
       <tr mat-row *matRowDef="let row; columns: headerColumns;"></tr>
     </table>
+    <mat-paginator [length]="totalItemsEnCours" [pageSize]="countEnCours" [pageSizeOptions]="[5, 10, 25, 100]"
+                   (page)="onPageChangedVenteEnCours($event)">
+    </mat-paginator>
   </mat-card>
 </div>
 
@@ -253,7 +261,7 @@
           </mat-tab>
         </mat-tab-group>
 
-        <div fxLayout="row wrap" fxLayoutAlign="space-between center" class="w-100 p-3">
+        <div  *ngIf="caisseStatus !=='alreadyopen'" fxLayout="row wrap" fxLayoutAlign="space-between center" class="w-100 p-3">
           <button *ngIf="caisseStatus !== 'pending' && caisseStatus !== 'closed' && caisseStatus !== 'none'"
                   mat-stroked-button
                   (click)="onAnnuler()">Annuler
