@@ -177,6 +177,7 @@ class ProduitService(
     )
   }
 
+
   fun getProduitEnRayonDetailById(id: Int): List<Map<String, Any?>> {
     if (id < 700) {
       var produit = produitDetailRepository.findById(id).get()

@@ -33,7 +33,7 @@ import { Injectable } from '@angular/core';
     }
 
     searchProductsParam(param: any): Observable<any> {
-      return this.http.get<any>(`${this.baseUrl}/products/search`, {params: param, headers: this.getHeaders()});
+      return this.http.get<any>(`${this.baseUrl}/products/search/param`, {params: param, headers: this.getHeaders()});
     }
 
     getFilteredProducts(filters: any, page: number, size: number): Observable<any> {
