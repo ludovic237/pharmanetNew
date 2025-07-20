@@ -1,0 +1,76 @@
+<mat-toolbar color="primary">
+  <mat-icon>check_box</mat-icon>
+  <span style="margin-left: 8px;">Validation Inventaire</span>
+</mat-toolbar>
+
+<mat-dialog-content>
+  <!-- Section: Approbation -->
+  <mat-card style="margin-bottom: 16px;">
+    <div style="font-size: 1.1rem; font-weight: bold; color: #555;">
+      Approbation et application des ajustements
+    </div>
+  </mat-card>
+
+  <!-- Section: Récapitulatif des écarts -->
+  <mat-card style="margin-bottom: 16px; background-color: #fff3cd; padding: 16px; border-radius: 8px;">
+    <div style="display: flex; align-items: center;">
+      <mat-icon color="warn">warning</mat-icon>
+      <b style="margin-left: 8px;">Récapitulatif des Écarts</b>
+    </div>
+    <div style="margin-left: 32px; margin-top: 8px; font-size: 0.9rem;">
+      {{ recapitulatif.ecartsDetectes }} écarts détectés • Impact
+      financier: {{ recapitulatif.impactFinancier | currency:'EUR' }}
+    </div>
+  </mat-card>
+
+  <!-- Section: Produits manquants et excédentaires -->
+  <div fxLayout="row" fxLayoutGap="16px" style="margin-bottom: 16px;">
+    <mat-card fxFlex="50" style="background-color: #f8d7da; padding: 16px; border-radius: 8px;">
+      <b>Produits manquants</b>
+      <div style="margin-top: 8px; font-size: 0.9rem;">
+                <span style="background-color: #f5c6cb; padding: 4px 12px; border-radius: 4px;">
+                  {{ produitsManquants.quantite }} produits • {{ produitsManquants.impact | currency:'EUR' }}
+                </span>
+      </div>
+    </mat-card>
+    <mat-card fxFlex="50" style="background-color: #d4edda; padding: 16px; border-radius: 8px;">
+      <b>Produits excédentaires</b>
+      <div style="margin-top: 8px; font-size: 0.9rem;">
+                <span style="background-color: #c3e6cb; padding: 4px 12px; border-radius: 4px;">
+                  {{ produitsExcedentaires.quantite }} produits • {{ produitsExcedentaires.impact | currency:'EUR' }}
+                </span>
+      </div>
+    </mat-card>
+  </div>
+
+  <!-- Section: Commentaire -->
+  <mat-card style="margin-bottom: 16px; padding: 16px">
+    <b>Commentaire de validation:</b>
+    <mat-form-field appearance="outline" style="width: 100%; margin-top: 8px;">
+      <textarea matInput rows="3" [(ngModel)]="commentaire"
+                placeholder="Commentaire obligatoire pour les écarts importants..."></textarea>
+    </mat-form-field>
+    <div *ngIf="commentaireErreur" style="color: red; font-size: 0.9rem; margin-top: 4px;">
+      {{ commentaireErreur }}
+    </div>
+  </mat-card>
+</mat-dialog-content>
+
+<mat-dialog-actions >
+  <mat-toolbar>
+    <div fxLayout="row" fxLayoutAlign="space-between center">
+      <div mat-dialog-actions>
+        <button mat-raised-button color="primary" (click)="validerInventaire()">
+          <mat-icon>check_box</mat-icon>
+          Valider l'inventaire
+        </button>
+        <button mat-raised-button color="accent" (click)="retourAuxEcarts()">
+          <mat-icon>arrow_back</mat-icon>
+          Retour aux écarts
+        </button>
+      </div>
+    </div>
+  </mat-toolbar>
+
+
+</mat-dialog-actions>

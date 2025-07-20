@@ -1,11 +1,19 @@
-import {ChangeDetectionStrategy, Component, Inject, OnInit} from '@angular/core';
+import {Component, Inject, OnInit} from '@angular/core';
+import {FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef} from "@angular/material/dialog";
+import {CategorieService} from "@services/categories.service";
+import {EtageresService} from "@services/etageres.service";
+import {MagasinService} from "@services/magasins.service";
+import {RayonService} from "@services/rayons.service";
+import {FabriquantService} from "@services/fabriquants.service";
+import {FormeService} from "@services/formes.service";
+import {ProductService} from "@services/products.service";
+import {MatSnackBar, MatSnackBarModule} from "@angular/material/snack-bar";
 import {InventaireService} from "@services/inventaire.service";
 import {MatMenuModule} from "@angular/material/menu";
 import {MatListModule} from "@angular/material/list";
 import {MatChipsModule} from "@angular/material/chips";
 import {MatSlideToggleModule} from "@angular/material/slide-toggle";
-import {FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {MatCheckboxModule} from "@angular/material/checkbox";
 import {MatFormFieldModule} from "@angular/material/form-field";
 import {MatInputModule} from "@angular/material/input";
@@ -20,38 +28,22 @@ import {MatTableModule} from "@angular/material/table";
 import {MatCardModule} from "@angular/material/card";
 import {MatButtonModule} from "@angular/material/button";
 import {MatDatepickerModule} from "@angular/material/datepicker";
-import {MatNativeDateModule, provideNativeDateAdapter} from "@angular/material/core";
+import {MatNativeDateModule} from "@angular/material/core";
 import {MatSelectModule} from "@angular/material/select";
 import {FlexLayoutModule} from "@ngbracket/ngx-layout";
 import {MatStepperModule} from "@angular/material/stepper";
 import {MatRadioModule} from "@angular/material/radio";
-import {MatSnackBar, MatSnackBarModule} from "@angular/material/snack-bar";
 import {NgxPaginationModule} from "ngx-pagination";
-import {MatPaginator} from "@angular/material/paginator";
-import {ProductService} from "@services/products.service";
-import {
-  AjouterVenteDialogComponent
-} from "../../../vente/ajouter-vente/ajouter-vente-dialog/ajouter-vente-dialog.component";
+import {MatPaginator, PageEvent} from "@angular/material/paginator";
 import {
   InventaireEnrayonDetailDialogComponent
 } from "../inventaire-enrayon-detail-dialog/inventaire-enrayon-detail-dialog.component";
-import {CategorieService} from "@services/categories.service";
-import {EtageresService} from "@services/etageres.service";
-import {MagasinService} from "@services/magasins.service";
-import {RayonService} from "@services/rayons.service";
-import {FabriquantService} from "@services/fabriquants.service";
-import {FormeService} from "@services/formes.service";
-import {
-  DetailProduitDialogComponent
-} from "../../../products/product-list/detail-produit-dialog/detail-produit-dialog.component";
-import {InventaireSaisieDialogComponent} from "../inventaire-saisie-dialog/inventaire-saisie-dialog.component";
-import {FournisseursService} from "@services/fournisseurs.service";
+import {MatTooltipModule} from "@angular/material/tooltip";
 
 @Component({
-  selector: 'app-inventaire-dialog',
-  providers: [provideNativeDateAdapter()],
-  // changeDetection: ChangeDetectionStrategy.OnPush,
+  selector: 'app-inventaire-saisie-dialog',
   imports: [
+    MatTooltipModule,
     MatDialogModule,
     MatMenuModule,
     MatListModule,
@@ -80,16 +72,11 @@ import {FournisseursService} from "@services/fournisseurs.service";
     MatDatepickerModule,
     MatNativeDateModule,
     MatSelectModule,
-    FlexLayoutModule,
     FormsModule,
     ReactiveFormsModule,
     FlexLayoutModule,
     // Material
     MatStepperModule,
-    MatTableModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
     MatRadioModule,
     MatIconModule,
     MatCardModule,
@@ -98,10 +85,11 @@ import {FournisseursService} from "@services/fournisseurs.service";
     NgxPaginationModule,
     MatPaginator,
   ],
-  templateUrl: './inventaire-dialog.component.html',
-  styleUrl: './inventaire-dialog.component.scss'
+  templateUrl: './inventaire-saisie-dialog.component.html',
+  styleUrl: './inventaire-saisie-dialog.component.scss'
 })
-export class InventaireDialogComponent implements OnInit {
+export class InventaireSaisieDialogComponent implements OnInit {
+
   public form: FormGroup;
   isEdit: boolean = false;
   searchQuery: string = '';
@@ -120,7 +108,6 @@ export class InventaireDialogComponent implements OnInit {
   public magasins: any[];
   public formes: any[];
   public fabriquants: any[];
-  public fournisseurs: any[];
   public etagere: any[];
 
 
@@ -128,12 +115,11 @@ export class InventaireDialogComponent implements OnInit {
   medOptions: { name: string }[] = [];
 
   constructor(
-    private dialogRef: MatDialogRef<InventaireDialogComponent>,
+    private dialogRef: MatDialogRef<InventaireSaisieDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
     private fb: FormBuilder,
     public categorieService: CategorieService,
     public etageresService: EtageresService,
-    public fournisseurService: FournisseursService,
     public magasinService: MagasinService,
     public rayonService: RayonService,
     public fabriquantService: FabriquantService,
@@ -146,47 +132,22 @@ export class InventaireDialogComponent implements OnInit {
       categorieId: null,
       rayonId: [null],
       etagereId: [null],
-      fournisseurId: [null],
       magasinId: null,
       formeId: [null],
       fabriquantId: [null],
+      productSan: ['']
     });
-  }
-
-
-  ngOnInit(): void {
-    // this.form = this.fb.group({
-    //   productSan: ['']
-    // });
-    // this.myGroup = new FormGroup({
-    //   firstName: new FormControl()
-    // });
-    this.isEdit = this.data?.type === 'edit';
-    if (this.data.type === 'edit') {
-      this.data.dateDebut = this.data.dateDebut || new Date(); // Default to today's date
+    if (this.data.id) {
       this.getInventaireInfo();
     }
+  }
+
+  ngOnInit() {
     this.medControl.valueChanges.subscribe((searchTerm) => {
       if (searchTerm) {
         this.searchProducts(searchTerm);
       }
     });
-    this.fetchProducts();
-
-    this.getCategories();
-    this.getRayon();
-    this.getEtagere();
-    this.getMagasin();
-    this.getForme();
-    this.getFabriquants();
-    this.getFournisseur();
-  }
-
-  fetchProducts(): void {
-    // this.inventaireService.getProducts().subscribe((products: any[]) => {
-    //   this.products = products;
-    //   this.filteredProducts = products;
-    // });
   }
 
   public searchProducts(searchTerm: string): void {
@@ -217,93 +178,6 @@ export class InventaireDialogComponent implements OnInit {
     });
   }
 
-  filterProducts(): void {
-    this.filteredProducts = this.products.filter(product =>
-      product.name.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
-      product.id.toString().includes(this.searchQuery)
-    );
-  }
-
-  selectAll(checked: boolean): void {
-    this.filteredProducts.forEach(product => (product.selected = checked));
-  }
-
-  addSelectedProducts(): void {
-    const formatDate = (date: string | null): string | null => {
-      if (!date) return null;
-      const parsedDate = new Date(date);
-      return `${parsedDate.getFullYear()}-${String(parsedDate.getMonth() + 1).padStart(2, '0')}-${String(parsedDate.getDate()).padStart(2, '0')}T${String(parsedDate.getHours()).padStart(2, '0')}:${String(parsedDate.getMinutes()).padStart(2, '0')}:${String(parsedDate.getSeconds()).padStart(2, '0')}`;
-    };
-
-    const formattedStartDate = formatDate(this.startDate);
-    const formattedEndDate = formatDate(this.endDate);
-    this.data.dateDebut = formattedStartDate;
-    this.data.dateFin = formattedEndDate;
-
-    const selectedProducts = this.filteredProducts.filter(product => product.selected);
-    this.data = {
-      dateDeDebut: new Date(),
-      produitList: this.filteredProducts.map((product: any) => ({
-        produitId: product.id,
-        rayonId: product.rayonId,
-        quantiteReel: product.quantityReal,
-        quantiteSysteme: product.quantitySystem
-      }))
-    }
-    this.inventaireService.addInventaire(this.data).subscribe({
-      next: (response: any) => {
-        this.snackBar.open('Inventory created successfully!', '×', {
-          panelClass: 'success',
-          verticalPosition: 'top',
-          duration: 3000
-        });
-        this.dialogRef.close(response);
-      },
-      error: (err: any) => {
-        console.error('Error creating inventory:', err);
-        this.snackBar.open('Failed to create inventory.', '×', {
-          panelClass: 'error',
-          verticalPosition: 'top',
-          duration: 3000
-        });
-      }
-    });
-    // this.dialogRef.close(selectedProducts);
-  }
-
-  beginInventory(): void {
-    this.inventaireService.createInventaire(this.form.value).subscribe({
-      next: (response: any) => {
-        this.snackBar.open('Inventory created successfully!', '×', {
-          panelClass: 'success',
-          verticalPosition: 'top',
-          duration: 3000
-        });
-        // this.dialogRef.close(response);
-        const dialogRef = this.dialog.open(InventaireSaisieDialogComponent, {
-          data: null,
-          width: "80%",
-          panelClass: ['theme-dialog'],
-          autoFocus: false,
-        });
-        dialogRef.afterClosed().subscribe(dialogResult => {
-          if (dialogResult) {
-
-          }
-        });
-      },
-      error: (err: any) => {
-        console.error('Error creating inventory:', err);
-        this.snackBar.open('Failed to create inventory.', '×', {
-          panelClass: 'error',
-          verticalPosition: 'top',
-          duration: 3000
-        });
-      }
-    });
-    // this.dialogRef.close(selectedProducts);
-  }
-
   onCancel(): void {
     this.dialogRef.close();
   }
@@ -329,7 +203,21 @@ export class InventaireDialogComponent implements OnInit {
         );
 
         if (uniqueProducts.length > 0) {
-          this.filteredProducts = [...this.filteredProducts, ...uniqueProducts];
+          this.filteredProducts = [
+            ...uniqueProducts.map((data: any) => ({
+              ...data,
+              produitId: data.product.id,
+              rayonId: data.product.rayonId,
+              nom: data.product.nom,
+              dateLivraison: data.product.dateLivraison,
+              datePeremption: data.product.datePeremption,
+              quantityReal: 0,
+              isActive: true,
+              quantitySystem: data.product.stock
+            })),
+            ...this.filteredProducts
+          ];
+          this.totalItems = this.filteredProducts.length;
         } else {
           this.snackBar.open('Products with the same rayonId already exist.', '×', {
             panelClass: 'error',
@@ -388,6 +276,8 @@ export class InventaireDialogComponent implements OnInit {
   }
 
   onCloturer(): void {
+    console.log("this.data")
+    console.log(this.data)
     this.inventaireService.cloturerInventaire(this.data.id).subscribe({
       next: (response) => {
         this.snackBar.open('Inventory closed successfully!', '×', {
@@ -395,7 +285,10 @@ export class InventaireDialogComponent implements OnInit {
           verticalPosition: 'top',
           duration: 3000
         });
-        this.dialogRef.close(response);
+        this.dialogRef.close({
+          type: "cloture"
+          , data: response
+        });
       },
       error: (err) => {
         console.error('Error closing inventory:', err);
@@ -406,6 +299,49 @@ export class InventaireDialogComponent implements OnInit {
         });
       }
     });
+  }
+
+  addSelectedProducts(): void {
+    const formatDate = (date: string | null): string | null => {
+      if (!date) return null;
+      const parsedDate = new Date(date);
+      return `${parsedDate.getFullYear()}-${String(parsedDate.getMonth() + 1).padStart(2, '0')}-${String(parsedDate.getDate()).padStart(2, '0')}T${String(parsedDate.getHours()).padStart(2, '0')}:${String(parsedDate.getMinutes()).padStart(2, '0')}:${String(parsedDate.getSeconds()).padStart(2, '0')}`;
+    };
+
+    const formattedStartDate = formatDate(this.startDate);
+    const formattedEndDate = formatDate(this.endDate);
+    this.data.dateDebut = formattedStartDate;
+    this.data.dateFin = formattedEndDate;
+
+    const selectedProducts = this.filteredProducts.filter(product => product.selected);
+    this.data = {
+      dateDeDebut: new Date(),
+      produitList: this.filteredProducts.map((product: any) => ({
+        produitId: product.id,
+        rayonId: product.rayonId,
+        quantiteReel: product.quantityReal,
+        quantiteSysteme: product.quantitySystem
+      }))
+    }
+    this.inventaireService.addInventaire(this.data).subscribe({
+      next: (response: any) => {
+        this.snackBar.open('Inventory created successfully!', '×', {
+          panelClass: 'success',
+          verticalPosition: 'top',
+          duration: 3000
+        });
+        this.dialogRef.close(response);
+      },
+      error: (err: any) => {
+        console.error('Error creating inventory:', err);
+        this.snackBar.open('Failed to create inventory.', '×', {
+          panelClass: 'error',
+          verticalPosition: 'top',
+          duration: 3000
+        });
+      }
+    });
+    // this.dialogRef.close(selectedProducts);
   }
 
   onScan(event: Event): void {
@@ -423,12 +359,16 @@ export class InventaireDialogComponent implements OnInit {
           next: (data: any) => {
             console.log("openMedicamentDialog")
             console.log(data)
-            this.filteredProducts = [...this.filteredProducts, {
+            this.filteredProducts = [{
               ...data,
               quantityReal: 0,
               comparison: 0,
-              quantitySystem: data.stock
-            }];
+              quantitySystem: data.stock,
+              isActive: data.active ?? true,
+            },
+              ...this.filteredProducts];
+            // this.count = data.pageable.pageSize;
+            this.totalItems = this.filteredProducts.length;
           },
           error: (err: any) => {
             console.error('Failed to fetch products in stock:', err);
@@ -440,27 +380,24 @@ export class InventaireDialogComponent implements OnInit {
     }
   }
 
-  deleteRow(product: any): void {
-    this.filteredProducts = this.filteredProducts.filter(p => p.rayonId !== product.rayonId);
-  }
-
   getInventaireInfo() {
     this.inventaireService.listerProduitsParInventaireAsMap(this.data.id, this.page - 1,
       this.count,).subscribe({
       next: (data: any) => {
-        console.log("openMedicamentDialog")
-        console.log(data)
-        this.filteredProducts = [...this.filteredProducts,
+
+        this.filteredProducts = [
           ...data.content.map((product: any) => ({
             ...product,
-            produitId: product.id,
-            rayonId: product.rayonId,
-            quantityReal: product.quantiteReelle,
-            quantitySystem: product.quantiteSysteme
-          }))];
+            produitId: product.id ?? 0,
+            rayonId: product.rayonId ?? 0,
+            quantityReal: product.quantiteReelle ?? 0,
+            quantitySystem: product.quantiteSysteme ?? 0
+          })),
+          ...this.filteredProducts];
         this.form = this.fb.group({
           productSan: ['']
         });
+
       },
       error: (err: any) => {
         console.error('Failed to fetch products in stock:', err);
@@ -469,82 +406,74 @@ export class InventaireDialogComponent implements OnInit {
     });
   }
 
-  public getCategories() {
-    this.categorieService.getCategories().subscribe({
+  toggleProductState(product: any): void {
+    product.isActive = !product.isActive;
+  }
+
+  toggleAllProductsState(): void {
+    const allActive = this.filteredProducts.every(product => product.isActive);
+    this.filteredProducts.forEach(product => product.isActive = !allActive);
+  }
+
+  addProductToInventory(product: any) {
+    const data = {
+      id: this.data.id,
+      produitId: product.produitId,
+      rayonId: product.rayonId,
+      quantiteReel: product.quantityReal,
+      quantiteSysteme: product.quantitySystem,
+      isValid: product.isActive
+    }
+    console.log("addProductToInventory")
+    console.log(data)
+    this.inventaireService.addProductToInventory(data).subscribe({
       next: (data: any) => {
-        this.categories = data;
+        if (data.statut == "CLOTURER") {
+          product.isActive = false; // Set the product as active after adding to inventory
+        } else {
+          product.isActive = true; // Set the product as active after adding to inventory
+        }
+
+        // product.isActive = true; // Set the product as active after adding to inventory
       },
-      error: (err) => {
-        console.error('Error fetching products:', err);
-      }
+      error: (err: any) => {
+        console.error('Failed to fetch products in stock:', err);
+        alert('Une erreur est survenue lors de la récupération des produits en rayon.');
+      },
     });
   }
 
-  public getRayon() {
-    this.rayonService.getRayons().subscribe({
-      next: (data: any[]) => {
-        this.rayons = data;
+  deleteRow(product: any): void {
+    const data = {
+      id: this.data.id,
+      produitId: product.produitId,
+      rayonId: product.rayonId,
+      quantiteReel: product.quantityReal,
+      quantiteSysteme: product.quantitySystem,
+      isValid: false
+    }
+    console.log("deleteRow");
+    console.log(product);
+    console.log(data);
+    this.inventaireService.invalideProductToInventory(product.produitInventaireId).subscribe({
+      next: (data: any) => {
+        this.snackBar.open(data.message, '×', {
+          panelClass: 'success',
+          verticalPosition: 'top',
+          duration: 3000
+        });
+        this.filteredProducts = this.filteredProducts.filter(p => p.rayonId !== product.rayonId);
       },
-      error: (err) => {
-        console.error('Error fetching products:', err);
-      }
+      error: (err: any) => {
+        console.error('Failed to fetch products in stock:', err);
+        alert('Une erreur est survenue lors de la récupération des produits en rayon.');
+      },
     });
   }
 
-  public getFournisseur() {
-    this.fournisseurService.getFournisseurs().subscribe({
-      next: (data: any[]) => {
-        this.fournisseurs = data;
-      },
-      error: (err) => {
-        console.error('Error fetching products:', err);
-      }
-    });
+  onPageChanged(event: PageEvent): void {
+    this.page = event.pageIndex + 1;
+    this.count = event.pageSize
+    // this.fetchComparaisonData();
   }
-
-  public getMagasin() {
-    this.magasinService.getMagasins().subscribe({
-      next: (data: any[]) => {
-        this.magasins = data;
-      },
-      error: (err) => {
-        console.error('Error fetching products:', err);
-      }
-    });
-  }
-
-  public getForme() {
-    this.formeService.getFormes().subscribe({
-      next: (data: any[]) => {
-        this.formes = data;
-      },
-      error: (err) => {
-        console.error('Error fetching products:', err);
-      }
-    });
-  }
-
-  public getFabriquants() {
-    this.fabriquantService.getFabriquants().subscribe({
-      next: (data: any[]) => {
-        this.fabriquants = data;
-      },
-      error: (err) => {
-        console.error('Error fetching products:', err);
-      }
-    });
-  }
-
-  public getEtagere() {
-    // this.etageresService.getEtageress().subscribe({
-    //   next: (data: any[]) => {
-    //     this.etagere = data;
-    //   },
-    //   error: (err) => {
-    //     console.error('Error fetching products:', err);
-    //   }
-    // });
-  }
-
-
 }

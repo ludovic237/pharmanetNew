@@ -1,0 +1,221 @@
+<mat-toolbar color="primary">
+  <mat-icon>balance</mat-icon>
+  <span>Comparaison Stocks</span>
+</mat-toolbar>
+<mat-dialog-content>
+  <mat-card>
+    <p>Analyse des écarts système vs physique</p>
+
+    <mat-tab-group  (selectedTabChange)="onTabChange($event)">
+      <mat-tab label="Tous">
+        <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+          <!-- Product Column -->
+          <ng-container matColumnDef="product">
+            <th mat-header-cell *matHeaderCellDef> Produit </th>
+            <td mat-cell *matCellDef="let element">
+              <div>
+                <strong>{{ element.product }}</strong>
+                <p>Code: {{ element.code }}</p>
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- System Column -->
+          <ng-container matColumnDef="system">
+            <th mat-header-cell *matHeaderCellDef> Système </th>
+            <td mat-cell *matCellDef="let element"> {{ element.system }} </td>
+          </ng-container>
+
+          <!-- Physical Column -->
+          <ng-container matColumnDef="physical">
+            <th mat-header-cell *matHeaderCellDef> Physique </th>
+            <td mat-cell *matCellDef="let element"> {{ element.physical }} </td>
+          </ng-container>
+
+          <!-- Difference Column -->
+          <ng-container matColumnDef="difference">
+            <th mat-header-cell *matHeaderCellDef> Écart </th>
+            <td mat-cell *matCellDef="let element">
+        <span [ngClass]="element.difference > 0 ? 'positive' : element.difference < 0 ? 'negative' : 'neutral'">
+          {{ element.difference }}
+        </span>
+            </td>
+          </ng-container>
+
+          <!-- Status Column -->
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef> Statut </th>
+            <td mat-cell *matCellDef="let element">
+              <mat-icon [ngStyle]="{ color: element.status.color }">{{ element.status.icon }}</mat-icon>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+      </mat-tab>
+      <mat-tab label="Écarts uniquement">
+        <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+          <!-- Product Column -->
+          <ng-container matColumnDef="product">
+            <th mat-header-cell *matHeaderCellDef> Produit </th>
+            <td mat-cell *matCellDef="let element">
+              <div>
+                <strong>{{ element.product }}</strong>
+                <p>Code: {{ element.code }}</p>
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- System Column -->
+          <ng-container matColumnDef="system">
+            <th mat-header-cell *matHeaderCellDef> Système </th>
+            <td mat-cell *matCellDef="let element"> {{ element.system }} </td>
+          </ng-container>
+
+          <!-- Physical Column -->
+          <ng-container matColumnDef="physical">
+            <th mat-header-cell *matHeaderCellDef> Physique </th>
+            <td mat-cell *matCellDef="let element"> {{ element.physical }} </td>
+          </ng-container>
+
+          <!-- Difference Column -->
+          <ng-container matColumnDef="difference">
+            <th mat-header-cell *matHeaderCellDef> Écart </th>
+            <td mat-cell *matCellDef="let element">
+        <span [ngClass]="element.difference > 0 ? 'positive' : element.difference < 0 ? 'negative' : 'neutral'">
+          {{ element.difference }}
+        </span>
+            </td>
+          </ng-container>
+
+          <!-- Status Column -->
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef> Statut </th>
+             <td mat-cell *matCellDef="let element">
+              <mat-icon [ngStyle]="{ color: element.status.color }">{{ element.status.icon }}</mat-icon>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+      </mat-tab>
+      <mat-tab label="Manquants">
+        <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+          <!-- Product Column -->
+          <ng-container matColumnDef="product">
+            <th mat-header-cell *matHeaderCellDef> Produit </th>
+            <td mat-cell *matCellDef="let element">
+              <div>
+                <strong>{{ element.product }}</strong>
+                <p>Code: {{ element.code }}</p>
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- System Column -->
+          <ng-container matColumnDef="system">
+            <th mat-header-cell *matHeaderCellDef> Système </th>
+            <td mat-cell *matCellDef="let element"> {{ element.system }} </td>
+          </ng-container>
+
+          <!-- Physical Column -->
+          <ng-container matColumnDef="physical">
+            <th mat-header-cell *matHeaderCellDef> Physique </th>
+            <td mat-cell *matCellDef="let element"> {{ element.physical }} </td>
+          </ng-container>
+
+          <!-- Difference Column -->
+          <ng-container matColumnDef="difference">
+            <th mat-header-cell *matHeaderCellDef> Écart </th>
+            <td mat-cell *matCellDef="let element">
+        <span [ngClass]="element.difference > 0 ? 'positive' : element.difference < 0 ? 'negative' : 'neutral'">
+          {{ element.difference }}
+        </span>
+            </td>
+          </ng-container>
+
+          <!-- Status Column -->
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef> Statut </th>
+             <td mat-cell *matCellDef="let element">
+              <mat-icon [ngStyle]="{ color: element.status.color }">{{ element.status.icon }}</mat-icon>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+      </mat-tab>
+      <mat-tab label="Excédents">
+        <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+          <!-- Product Column -->
+          <ng-container matColumnDef="product">
+            <th mat-header-cell *matHeaderCellDef> Produit </th>
+            <td mat-cell *matCellDef="let element">
+              <div>
+                <strong>{{ element.product }}</strong>
+                <p>Code: {{ element.code }}</p>
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- System Column -->
+          <ng-container matColumnDef="system">
+            <th mat-header-cell *matHeaderCellDef> Système </th>
+            <td mat-cell *matCellDef="let element"> {{ element.system }} </td>
+          </ng-container>
+
+          <!-- Physical Column -->
+          <ng-container matColumnDef="physical">
+            <th mat-header-cell *matHeaderCellDef> Physique </th>
+            <td mat-cell *matCellDef="let element"> {{ element.physical }} </td>
+          </ng-container>
+
+          <!-- Difference Column -->
+          <ng-container matColumnDef="difference">
+            <th mat-header-cell *matHeaderCellDef> Écart </th>
+            <td mat-cell *matCellDef="let element">
+        <span [ngClass]="element.difference > 0 ? 'positive' : element.difference < 0 ? 'negative' : 'neutral'">
+          {{ element.difference }}
+        </span>
+            </td>
+          </ng-container>
+
+          <!-- Status Column -->
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef> Statut </th>
+             <td mat-cell *matCellDef="let element">
+              <mat-icon [ngStyle]="{ color: element.status.color }">{{ element.status.icon }}</mat-icon>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+      </mat-tab>
+    </mat-tab-group>
+    <mat-paginator [length]="totalItems" [pageSize]="count" [pageSizeOptions]="[5, 10, 25, 100]"
+                   (page)="onPageChanged($event)">
+    </mat-paginator>
+
+  </mat-card>
+</mat-dialog-content>
+<mat-dialog-actions>
+  <mat-toolbar >
+    <div fxLayout="row" fxLayoutAlign="space-between center">
+      <div mat-dialog-actions>
+        <button mat-button (click)="onCancel()">Cancel</button>
+        <!-- Button for "add" type -->
+        <button mat-raised-button
+                color="primary"
+                (click)="EffectuerValidation()">
+          Effectuer validation
+        </button>
+
+      </div>
+    </div>
+  </mat-toolbar>
+</mat-dialog-actions>
+

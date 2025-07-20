@@ -67,22 +67,60 @@
     <td mat-cell *matCellDef="let element"> {{ element.etat }}</td>
   </ng-container>
 
+  <ng-container matColumnDef="totalProduitsManquant">
+    <th mat-header-cell *matHeaderCellDef> Total manquant</th>
+    <td mat-cell *matCellDef="let element"> {{ element.totalProduitsManquant }}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="totalProduitsExcedent">
+    <th mat-header-cell *matHeaderCellDef> Total excedent</th>
+    <td mat-cell *matCellDef="let element"> {{ element.totalProduitsExcedent }}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="totalProduitsEcart">
+    <th mat-header-cell *matHeaderCellDef>Total ecart</th>
+    <td mat-cell *matCellDef="let element"> {{ element.totalProduitsEcart }}</td>
+  </ng-container>
+
   <ng-container matColumnDef="actions">
     <th mat-header-cell *matHeaderCellDef> Actions</th>
     <td mat-cell *matCellDef="let element">
-      <button mat-icon-button color="primary" (click)="editItem(element)">
-        <mat-icon>edit</mat-icon>
-      </button>
-      <button mat-icon-button color="warn" (click)="deleteItem(element.id)">
-        <mat-icon>delete</mat-icon>
-      </button>
+      <!-- Edit button: only when etat is 'en cours' -->
+      <div class="p-2 actions">
+        <button mat-mini-fab color="primary"  class="ml-2"
+                *ngIf="element.etat?.toLowerCase() === 'en_cours'"
+                (click)="editItem(element)">
+          <mat-icon>edit</mat-icon>
+        </button>
+
+        <!-- Show Comparison button: always visible -->
+        <button mat-mini-fab color="warn"  class="ml-2"
+                *ngIf="element.etat?.toLowerCase() === 'cloturer' || element.etat?.toLowerCase() === 'cloturé'"
+                (click)="showComparison(element)">
+          <mat-icon>compare_arrows</mat-icon>
+        </button>
+
+        <!-- Delete button: always visible -->
+        <button mat-mini-fab color="warn"  class="ml-2"
+                (click)="deleteItem(element.id)">
+          <mat-icon>delete</mat-icon>
+        </button>
+
+        <!-- Validate button: always visible (add this if not already present) -->
+        <button mat-mini-fab color="accent"  class="ml-2"
+                *ngIf="element.etat?.toLowerCase() === 'cloturer'"
+                (click)="validateItem(element)">
+          <mat-icon>check_circle</mat-icon>
+        </button>
+      </div>
+
     </td>
   </ng-container>
 
   <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
   <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
 </table>
-
+<mat-divider></mat-divider>
 <mat-paginator [length]="totalItems" [pageSize]="count" [pageSizeOptions]="[5, 10, 25, 100]"
                (page)="onPageChanged($event)">
 </mat-paginator>

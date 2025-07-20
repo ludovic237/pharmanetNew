@@ -62,4 +62,15 @@ class Vente {
   @ColumnDefault("0")
   @Column(name = "supprimer")
   var  supprimer: Int? = 0
+
+  companion object {
+    const val VENTE_COMPTANT = "COMPTANT"
+    const val VENTE_ASSURANCE = "ASSURANCE"
+    const val VENTE_CREDIT = "CREDIT"
+
+    const val VENTE_TYPE_PAIEMENT_ELECTRONIQUE = "ELECTRONIQUE"
+    const val VENTE_TYPE_PAIEMENT_ESPECE = "ESPECE"
+    const val VENTE_TYPE_PAIEMENT_TICKET = "TICKET"
+    const val VENTE_TYPE_PAIEMENT_MIXTE = "MIXTE"
+  }
 }

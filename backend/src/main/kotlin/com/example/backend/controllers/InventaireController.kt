@@ -1,5 +1,7 @@
 package com.example.backend.controllers
 
+import com.example.backend.dtos.InventaireNewCreatetDto
+import com.example.backend.dtos.InventaireOneProductUpdateRequestDto
 import com.example.backend.dtos.InventaireRequestDto
 import com.example.backend.dtos.InventaireUpdateRequestDto
 import com.example.backend.models.Inventaire
@@ -33,7 +35,17 @@ class InventaireController(
 
   @CrossOrigin(origins = ["http://localhost:4200"])
   @PreAuthorize("isAuthenticated()")
-  @PutMapping("/close/{id}")
+  @PostMapping("/create-new")
+  fun creerInventaireNew(
+    @RequestBody data: InventaireNewCreatetDto
+  ): ResponseEntity<Inventaire> {
+    val inventaire = inventaireService.creerInventaireNew(data)
+    return ResponseEntity.ok(inventaire)
+  }
+
+  @CrossOrigin(origins = ["http://localhost:4200"])
+  @PreAuthorize("isAuthenticated()")
+  @GetMapping("/close/{id}")
   fun cloturerInventaire(@PathVariable id: Long): ResponseEntity<Inventaire> {
     val inventaire = inventaireService.cloturerInventaire(id)
     return ResponseEntity.ok(inventaire)
@@ -51,6 +63,26 @@ class InventaireController(
 
   @CrossOrigin(origins = ["http://localhost:4200"])
   @PreAuthorize("isAuthenticated()")
+  @PutMapping("/update/valid/product/{id}")
+  fun addProductToInventory(
+    @RequestBody data: InventaireOneProductUpdateRequestDto
+  ): ResponseEntity<ProduitInventaire> {
+    val inventaire = inventaireService.valideProductToInventory(data)
+    return ResponseEntity.ok(inventaire)
+  }
+
+  @CrossOrigin(origins = ["http://localhost:4200"])
+  @PreAuthorize("isAuthenticated()")
+  @DeleteMapping("/update/invalid/product/{id}")
+  fun invalideProductToInventory(
+    @PathVariable id: String
+  ): ResponseEntity<Map<String, Any?>> {
+    val inventaire = inventaireService.invalideProductToInventory(id)
+    return ResponseEntity.ok(inventaire)
+  }
+
+  @CrossOrigin(origins = ["http://localhost:4200"])
+  @PreAuthorize("isAuthenticated()")
   @GetMapping("/list")
   fun listerInventaires(
     @RequestParam(defaultValue = "0") page: Int,
@@ -60,6 +92,20 @@ class InventaireController(
   ): ResponseEntity<Page<Inventaire>> {
     val pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.fromString(direction), sort))
     val inventaires = inventaireService.listerInventaires(pageable)
+    return ResponseEntity.ok(inventaires)
+  }
+
+  @CrossOrigin(origins = ["http://localhost:4200"])
+  @PreAuthorize("isAuthenticated()")
+  @GetMapping("/list/new")
+  fun listerInventairesCustom(
+    @RequestParam(defaultValue = "0") page: Int,
+    @RequestParam(defaultValue = "10") size: Int,
+    @RequestParam(defaultValue = "id") sort: String,
+    @RequestParam(defaultValue = "asc") direction: String
+  ): ResponseEntity<Page<Map<String, Any?>>> {
+    val pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.fromString(direction), sort))
+    val inventaires = inventaireService.listerInventairesCustom(pageable)
     return ResponseEntity.ok(inventaires)
   }
 
@@ -86,11 +132,50 @@ class InventaireController(
     @RequestParam(defaultValue = "0") page: Int,
     @RequestParam(defaultValue = "10") size: Int,
     @RequestParam(defaultValue = "id") sort: String,
-    @RequestParam(defaultValue = "asc") direction: String
+    @RequestParam(defaultValue = "desc") direction: String
+//    @RequestParam(defaultValue = "asc") direction: String
   ): ResponseEntity<Page<Map<String, Any?>>> {
+//    val pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "dateDebut"))
     val pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.fromString(direction), sort))
     val produits = inventaireService.listerProduitsParInventaireAsMap(id, pageable)
     return ResponseEntity.ok(produits)
+  }
+
+  @CrossOrigin(origins = ["http://localhost:4200"])
+  @PreAuthorize("isAuthenticated()")
+  @GetMapping("/pageable/{id}/filter/products")
+  fun listerProduitsParInventaireAvecFiltre(
+    @PathVariable id: String,
+    @RequestParam(defaultValue = "equal") filtre: String,
+    @RequestParam(defaultValue = "0") page: Int,
+    @RequestParam(defaultValue = "10") size: Int,
+    @RequestParam(defaultValue = "id") sort: String,
+    @RequestParam(defaultValue = "desc") direction: String
+//    @RequestParam(defaultValue = "asc") direction: String
+  ): ResponseEntity<Page<Map<String, Any?>>> {
+//    val pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "dateDebut"))
+    val pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.fromString(direction), sort))
+    val produits = inventaireService.listerProduitsParInventaireAvecFiltre(id, pageable,filtre)
+    return ResponseEntity.ok(produits)
+  }
+
+  @CrossOrigin(origins = ["http://localhost:4200"])
+  @PreAuthorize("isAuthenticated()")
+  @GetMapping("/info/produit_inventaire/{id}")
+  fun getInfoProduitsInventaire(
+    @PathVariable id: String
+  ): ResponseEntity<Map<String, Any?>> {
+    val produits = inventaireService.getInfoProduitsInventaire(id)
+    return ResponseEntity.ok(produits)
+  }
+
+  @CrossOrigin(origins = ["http://localhost:4200"])
+  @PreAuthorize("isAuthenticated()")
+  @GetMapping("/terminer/{id}")
+  fun terminerInventaire(@PathVariable id: Long,
+                         @RequestParam commentaire: String): ResponseEntity<Inventaire> {
+    val inventaire = inventaireService.terminerInventaire(id,commentaire)
+    return ResponseEntity.ok(inventaire)
   }
 
 }

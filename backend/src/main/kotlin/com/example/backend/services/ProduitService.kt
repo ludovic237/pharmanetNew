@@ -205,7 +205,7 @@ class ProduitService(
       val produit = produitRepository.findById(id)
         .filter { it.supprimer == 0 }
         .orElseThrow { NotFoundException("Produit non trouvé avec ID: $id") }
-      var enRayonList = enRayonRepository.findAllByProduitIdAndSupprimer(produit.id!!).map { enRayon ->
+      var enRayonList = enRayonRepository.findAllByProduitIdAndSupprimerAndQuantiteRestanteGreaterThan(produit.id!!).map { enRayon ->
         mapOf(
           "id" to produit.id,
           "rayonId" to enRayon.id,

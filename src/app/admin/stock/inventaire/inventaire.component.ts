@@ -33,6 +33,11 @@ import {
 } from "../../commandes/lister-ajouter-commande/ajouter-commande-dialog/ajouter-commande-dialog.component";
 import {MatDialog} from "@angular/material/dialog";
 import {InventaireDialogComponent} from "./inventaire-dialog/inventaire-dialog.component";
+import {InventaireSaisieDialogComponent} from "./inventaire-saisie-dialog/inventaire-saisie-dialog.component";
+import {
+  InventaireComparaisonDialogComponent
+} from "./inventaire-comparaison-dialog/inventaire-comparaison-dialog.component";
+import {InventaireValdationDialogComponent} from "./inventaire-valdation-dialog/inventaire-valdation-dialog.component";
 
 @Component({
   selector: 'app-inventaire',
@@ -88,7 +93,7 @@ import {InventaireDialogComponent} from "./inventaire-dialog/inventaire-dialog.c
 export class InventaireComponent implements OnInit {
 
   inventaire: any[] = [];
-  displayedColumns: string[] = ['id', 'dateDebut', 'dateFin', 'etat', 'actions'];
+  displayedColumns: string[] = ['id', 'dateDebut', 'dateFin', 'etat', 'totalProduitsManquant', 'totalProduitsExcedent', 'totalProduitsEcart', 'actions'];
   etat: string | null = null;
   dateDebut: Date | null = null;
   dateFin: Date | null = null;
@@ -127,7 +132,6 @@ export class InventaireComponent implements OnInit {
   }
 
   onPageChanged(event: PageEvent): void {
-
     this.page = event.pageIndex + 1;
     this.count = event.pageSize
     this.fetchInventaire();
@@ -135,7 +139,7 @@ export class InventaireComponent implements OnInit {
 
   editItem(item: any): void {
     // Open dialog for editing item
-    const dialogRef = this.dialog.open(InventaireDialogComponent, {
+    const dialogRef = this.dialog.open(InventaireSaisieDialogComponent, {
       data: {
         type: "edit",
         id: item.id,
@@ -146,7 +150,21 @@ export class InventaireComponent implements OnInit {
     });
     dialogRef.afterClosed().subscribe((data: any) => {
       console.log('Dialog closed', data);
-
+      if (data.type === "cloture"){
+        const dialogRef = this.dialog.open(InventaireComparaisonDialogComponent, {
+          data: {
+            type: "edit",
+            id: item.id,
+          },
+          width: "80%",
+          panelClass: ['theme-dialog'],
+          autoFocus: false,
+        });
+        dialogRef.afterClosed().subscribe((data: any) => {
+          console.log('Dialog closed', data);
+          this.fetchInventaire();
+        });
+      }
     });
   }
 
@@ -162,7 +180,7 @@ export class InventaireComponent implements OnInit {
     });
     dialogRef.afterClosed().subscribe((data: any) => {
       console.log('Dialog closed', data);
-
+      this.fetchInventaire();
     });
   }
 
@@ -171,4 +189,41 @@ export class InventaireComponent implements OnInit {
       this.fetchInventaire();
     });
   }
+
+  showComparison(item: any): void {
+    const dialogRef = this.dialog.open(InventaireComparaisonDialogComponent, {
+      data: {
+        type: "edit",
+        id: item.id,
+      },
+      width: "80%",
+      panelClass: ['theme-dialog'],
+      autoFocus: false,
+    });
+    dialogRef.afterClosed().subscribe((data: any) => {
+      console.log('Dialog closed', data);
+      this.fetchInventaire();
+      if (data.type === "valider") {
+        this.validateItem(item);
+      }
+    });
+  }
+
+
+  validateItem(item: any): void {
+    const dialogRef = this.dialog.open(InventaireValdationDialogComponent, {
+      data: {
+        type: "edit",
+        id: item.id,
+      },
+      // width: "80%",
+      panelClass: ['theme-dialog'],
+      autoFocus: false,
+    });
+    dialogRef.afterClosed().subscribe((data: any) => {
+      console.log('Dialog closed', data);
+      this.fetchInventaire();
+    });
+  }
+
 }

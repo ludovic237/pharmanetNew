@@ -28,6 +28,11 @@ export class InventaireService {
     return this.http.get<any>(`${this.apiUrl}/list?page=${page}&size=${size}`, {params, headers: this.getHeaders()});
   }
 
+  listerProduitsParInventaireAvecFiltre(inventaireId:string,filtre:string, page: number, size: number): Observable<any> {
+    const params: any = {};
+    return this.http.get<any>(`${this.apiUrl}/pageable/${inventaireId}/filter/products?filtre=${filtre}&page=${page}&size=${size}`, {headers: this.getHeaders()});
+  }
+
   listerProduitsParInventaireAsMap(inventaireId:string, page: number, size: number): Observable<any> {
     const params: any = {};
     return this.http.get<any>(`${this.apiUrl}/pageable/${inventaireId}/products?page=${page}&size=${size}`, {headers: this.getHeaders()});
@@ -37,8 +42,20 @@ export class InventaireService {
     return this.http.post(`${this.apiUrl}/create`, inventaire, {headers: this.getHeaders()});
   }
 
+  createInventaire(inventaire: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/create-new`, inventaire, {headers: this.getHeaders()});
+  }
+
   updateInventaire(inventaire: any): Observable<any> {
     return this.http.put(`${this.apiUrl}/mettre-a-jour/${inventaire.id}`, inventaire, {headers: this.getHeaders()});
+  }
+
+  addProductToInventory(inventaire: any): Observable<any> {
+    return this.http.put(`${this.apiUrl}/update/valid/product/${inventaire.id}`, inventaire, {headers: this.getHeaders()});
+  }
+
+  invalideProductToInventory(produitInventaireId: any): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/update/invalid/product/${produitInventaireId}`, {headers: this.getHeaders()});
   }
 
   deleteInventaire(id: number): Observable<any> {
@@ -49,7 +66,16 @@ export class InventaireService {
     localStorage.setItem('inventairePage', page.toString());
   }
 
-  cloturerInventaire(inventaire: any): Observable<any> {
-    return this.http.put(`${this.apiUrl}/close/${inventaire.id}`, inventaire, {headers: this.getHeaders()});
+  cloturerInventaire(inventaireId: any): Observable<any> {
+    return this.http.get(`${this.apiUrl}/close/${inventaireId}`, {headers: this.getHeaders()});
+  }
+
+  terminerInventaire(inventaireId: any,commentaire:String): Observable<any> {
+    return this.http.get(`${this.apiUrl}/terminer/${inventaireId}?commentaire=${commentaire}`,{headers: this.getHeaders()});
+  }
+
+  getInfoProduitsInventaire(inventaireId:string): Observable<any> {
+    const params: any = {};
+    return this.http.get<any>(`${this.apiUrl}/info/produit_inventaire/${inventaireId}`, {headers: this.getHeaders()});
   }
 }

@@ -9,7 +9,10 @@ import org.springframework.data.jpa.repository.JpaRepository
 
 interface ProduitInventaireRepository : JpaRepository<ProduitInventaire, Int> {
 
+  fun findByInventaire(inventaire: Inventaire): List<ProduitInventaire>
   fun findByInventaire(inventaire: Inventaire, pageable: Pageable): Page<ProduitInventaire>
-  fun findByInventaireAndEnRayon(inventaire: Inventaire, enRayon: EnRayon): ProduitInventaire
+  fun findByInventaireAndEnRayon(inventaire: Inventaire, enRayon: EnRayon): ProduitInventaire?
+//  fun findByInventaireExistsAndEnRayonExists(inventaire: Inventaire, enRayon: EnRayon): Boolean
+//  fun findByInventaireAndEnRayon(inventaire: Inventaire, enRayon: EnRayon): ProduitInventaire
 
 }
