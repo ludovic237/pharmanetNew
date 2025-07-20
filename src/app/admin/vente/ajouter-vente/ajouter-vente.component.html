@@ -227,12 +227,16 @@
           <p><strong>Total :</strong> {{ total }} FCFA</p>
           <p><strong>Réduction :</strong> {{ totaleReduction }} FCFA</p>
           <h3><strong>Net à payer :</strong> {{ netAPayer }} FCFA</h3>
-          <div fxLayout="row" fxLayoutGap="16px">
-            <button mat-raised-button color="primary" (click)="onPayer('comptant')">Comptant</button>
-            <button mat-raised-button (click)="onPayer('assurance')">Assurance</button>
-            <button mat-raised-button color="warn" (click)="onPayer('credit')">Crédit</button>
-          </div>
         </mat-card-content>
+        <mat-card-footer>
+          <mat-toolbar>
+            <div mat-dialog-actions class="w-100 p-3" fxLayout="row" fxLayoutAlign="space-between center">
+              <button mat-raised-button color="primary" (click)="onPayer('comptant')">Comptant</button>
+              <button mat-raised-button (click)="onPayer('assurance')">Assurance</button>
+              <button mat-raised-button color="warn" (click)="onPayer('credit')">Crédit</button>
+            </div>
+          </mat-toolbar>
+        </mat-card-footer>
       </mat-card>
     </div>
   </div>

@@ -31,7 +31,7 @@ import {MatAccordion, MatExpansionModule} from "@angular/material/expansion";
 import {Settings, SettingsService} from "@services/settings.service";
 import {MatTabsModule} from "@angular/material/tabs";
 import {AjouterVenteDialogComponent} from "./ajouter-vente-dialog/ajouter-vente-dialog.component";
-import {MatDialog} from "@angular/material/dialog";
+import {MatDialog, MatDialogActions} from "@angular/material/dialog";
 import {EnrayonsService} from "@services/enrayons.service";
 import {ProductService} from "@services/products.service";
 import {MatRadioButton, MatRadioGroup, MatRadioModule} from "@angular/material/radio";
@@ -86,7 +86,8 @@ interface VenteLigne {
     MatDatepickerModule,
     MatNativeDateModule,
     MatSelectModule,
-    FlexLayoutModule
+    FlexLayoutModule,
+    MatDialogActions
   ],
   templateUrl: './ajouter-vente.component.html',
   styleUrl: './ajouter-vente.component.scss'
@@ -277,10 +278,13 @@ export class AjouterVenteComponent implements OnInit {
       })
       .reduce((a, b) => a + b, 0);
 
+    console.log("this.dataSource.data")
+    console.log(this.dataSource.data)
     this.totaleReduction = this.dataSource.data
       .map(l => {
         this.applicableReduction = 0;
-        if (this.selectedClient && this.selectedClient.reduction) {
+        if (this.selectedClient && this.selectedClient.reduction != undefined) {
+          console.log("ici")
           this.applicableReduction = Math.min(this.selectedClient.reduction, l.reduction);
         } else {
           this.applicableReduction = l.reduction;
@@ -292,7 +296,6 @@ export class AjouterVenteComponent implements OnInit {
       })
       .reduce((a, b) => a + b, 0);
 
-    console.log(this.totaleReduction)
 
     var reductionData = Math.ceil((this.totaleReduction / 5) * 5) + "";
     var firstData = reductionData.substr(0, reductionData.length - 2).toString();
@@ -311,7 +314,6 @@ export class AjouterVenteComponent implements OnInit {
       }
       this.totaleReduction = parseInt(firstData + lastData);
     }
-    console.log(this.totaleReduction)
 
     this.netAPayer = this.total-this.totaleReduction;
   }
