@@ -132,6 +132,9 @@ export class RetourProduitComponent implements OnInit {
     this.searchReferenceControl.valueChanges.subscribe((searchTerm) => {
       if (searchTerm && searchTerm.length >= 3) {
         this.produitsRetournes = [...[]];
+        this.totalPrix = 0;
+        this.totalReduction = 0;
+        this.netTotal = 0;
         this.ventesService.searchVenteByReference(searchTerm).subscribe({
           next: (data: any) => {
             this.produitsAchetes = data.produits.map((produit:any) =>({
