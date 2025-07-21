@@ -108,7 +108,9 @@
         </div>
       </mat-card-content>
       <mat-card-footer>
-        <button mat-raised-button color="accent" class="action-button" (click)="validerRetour()">Valider retour</button>
+        <button mat-raised-button color="accent" class="action-button"
+                [disabled]="produitsRetournes.length === 0 || !searchReferenceControl.value"
+                (click)="validerRetour()">Valider retour</button>
       </mat-card-footer>
     </mat-card>
   </div>
