@@ -35,7 +35,7 @@ class CustomUserDetailsService(
     return User(
       employe.identifiant!!,
       employe.password!!,
-      user!!.role!!.map { SimpleGrantedAuthority(it.toString()) }
+      user!!.fonction!!.map { SimpleGrantedAuthority(it.toString()) }
     )
 
   }
