@@ -312,21 +312,23 @@ CREATE TABLE audit_logs
 );
 
 alter table inventaire
-  add column employe_id       int       null,
-  add column rayon_id       int       null,
-  add column categorie_id    int       null,
-  add column fabriquant_id   int       null,
-  add column forme_id        int       null,
-  add column fournisseur_id  int       null,
-  add column commentaire   varchar(255) null,
-  add foreign key (employe_id ) references employe (id),
-  add foreign key (rayon_id ) references rayon (id),
-  add foreign key (categorie_id ) references categorie (id),
-  add foreign key (fabriquant_id ) references fabriquant (id),
-  add foreign key (forme_id ) references forme (id),
-  add foreign key (fournisseur_id ) references fournisseur (id);
+  add column employe_id     int          null,
+  add column rayon_id       int          null,
+  add column categorie_id   int          null,
+  add column fabriquant_id  int          null,
+  add column forme_id       int          null,
+  add column fournisseur_id int          null,
+  add column commentaire    varchar(255) null,
+  add foreign key (employe_id) references employe (id),
+  add foreign key (rayon_id) references rayon (id),
+  add foreign key (categorie_id) references categorie (id),
+  add foreign key (fabriquant_id) references fabriquant (id),
+  add foreign key (forme_id) references forme (id),
+  add foreign key (fournisseur_id) references fournisseur (id);
 
 alter table user
+  add password varchar(255) not null,
+  add username varchar(255) not null,
   modify password varchar(255) null,
   modify username varchar(255) null;
 

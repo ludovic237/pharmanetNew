@@ -307,5 +307,7 @@ alter table inventaire
   add foreign key (fournisseur_id ) references fournisseur (id);
 
 alter table user
+  add password varchar(255) not null ,
+  add username varchar(255) not null,
   modify password varchar(255) null,
   modify username varchar(255) null;
