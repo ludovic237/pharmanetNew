@@ -2,7 +2,8 @@ package com.example.backend.controllers
 
 import com.example.backend.dtos.CaisseClotureRequestDto
 import com.example.backend.dtos.CaisseOuvertureRequestDto
-import com.example.backend.models.Caisse
+import com.example.backend.repositories.EmployeRepository
+import com.example.backend.repositories.UserRepository
 import com.example.backend.services.CaisseException
 import com.example.backend.services.CaisseService
 import com.example.backend.utility.UserUtils
@@ -18,7 +19,9 @@ import org.springframework.web.bind.annotation.*
 @RequestMapping("/api/caisses")
 class CaisseController(
   private val userUtils: UserUtils,
-  private val caisseService: CaisseService
+  private val caisseService: CaisseService,
+  private val employeRepository: EmployeRepository,
+  private val userRepository: UserRepository
 ) {
 
   @CrossOrigin(origins = ["http://localhost:4200"])
@@ -87,9 +90,10 @@ class CaisseController(
     val activeCaisse = caisseService.getActiveCaisse()
     val attenteCloture = caisseService.getCaisseAttenteCloture()
     val userCurrentId = userUtils.getCurrentUserId()
+    var employe = employeRepository.findByUser(userRepository.findById(userCurrentId!!.toInt()).get())
 
     val response = when {
-      activeCaisse != null && activeCaisse.user?.id == userCurrentId?.toInt() -> {
+      activeCaisse != null && activeCaisse.user?.id == employe.id?.toInt() -> {
         mapOf(
           "status" to "active",
           "caisseDetails" to mapOf(
@@ -102,7 +106,7 @@ class CaisseController(
           )
         )
       }
-      activeCaisse != null && activeCaisse.user?.id != userCurrentId?.toInt() -> {
+      activeCaisse != null && activeCaisse.user?.id != employe.id?.toInt() -> {
         mapOf(
           "status" to "already_open",
           "caisseDetails" to mapOf(
@@ -116,7 +120,7 @@ class CaisseController(
         )
       }
 
-      attenteCloture != null && attenteCloture.user?.id == userCurrentId?.toInt() -> {
+      attenteCloture != null && attenteCloture.user?.id == employe.id?.toInt() -> {
         mapOf(
           "status" to "pending_closure",
           "caisseDetails" to mapOf(
