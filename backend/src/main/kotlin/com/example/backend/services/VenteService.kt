@@ -70,10 +70,15 @@ class VenteService(
       "existing" -> prescripteurRepository.findById(venteRequestDto.prescripteurInfo.id!!)
         .orElseThrow { RuntimeException("Prescripteur introuvable avec l'ID: ${venteRequestDto.prescripteurInfo.id}") }
 
-      "new" -> Prescripteur().apply {
-        this.nom = venteRequestDto.prescripteurInfo.name
-          ?: throw RuntimeException("Nom du prescripteur requis pour un nouveau prescripteur")
-      }.also { prescripteurRepository.save(it) }
+   "new" -> {
+          if (!venteRequestDto.prescripteurInfo.name.isNullOrEmpty()) {
+            Prescripteur().apply {
+              this.nom = venteRequestDto.prescripteurInfo.name
+            }.also { prescripteurRepository.save(it) }
+          } else {
+            null // Skip creating the prescripteur and continue
+          }
+        }
 
       "none" -> null
       else -> throw RuntimeException("Type de prescripteur invalide: ${venteRequestDto.prescripteurInfo.type}")
