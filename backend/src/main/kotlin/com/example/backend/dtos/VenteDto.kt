@@ -17,7 +17,9 @@ data class ProduitAssocieDto(
 data class VenteRequestDto(
   val clientInfo: ClientInfo,
   val prescripteurInfo: PrescripteurInfo,
+  val reductionEnabled: Boolean,
   val prixTotal: Double,
+  val prixReduction: Double,
   val commentaire: String,
   val etat: String, // State of the sale: "COMPTANT", "ASSURANCE", or "CREDIT"
   val produits: List<ProduitAssocieDto> // List of associated products with quantity and price

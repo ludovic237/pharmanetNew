@@ -88,13 +88,18 @@ class VenteService(
       this.reference = genererReference(venteRepository.countMois().toInt())
       this.dateVente = LocalDateTime.now()
       this.etat = venteRequestDto.etat
-      this.prixTotal = venteRequestDto.prixTotal
+      this.prixTotal = (venteRequestDto.prixTotal?: 0.0 - venteRequestDto.prixReduction?: 0.0)
       this.commentaire = venteRequestDto.commentaire
       this.user = client
       this.prescripteur = prescripteur
       this.supprimer = 0
     }
     val savedVente = venteRepository.save(nouvelleVente)
+
+    if (venteRequestDto.reductionEnabled) {
+      employe.faireReductionMax = employe?.faireReductionMax!! - venteRequestDto?.prixReduction!!.toInt()
+      employeRepository.save(employe)
+    }
 
     venteRequestDto.produits.forEach { produitAssocieDto ->
       if (produitAssocieDto.type?.toLowerCase() == "detail".toLowerCase()) {
@@ -410,7 +415,8 @@ class VenteService(
     prescripteurId: String?,
     caisseId: String?
   ): Page<Map<String, Any?>> {
-    val spec = VenteRepository.filterVentes(0,1,
+    val spec = VenteRepository.filterVentes(
+      0, 1,
       etat, dateVente, dateEncaissement, userId, employeId, prescripteurId, caisseId
     )
     return venteRepository.findAll(spec, pageable).map { vente ->
@@ -462,8 +468,9 @@ class VenteService(
     pageable: Pageable,
   ): Page<Map<String, Any?>> {
 //      return venteRepository.findByPrixPercuGreaterThan(0.0).map { vente ->
-    val spec = VenteRepository.filterVentes(0,0,
-      "null", "null","null","null","null","null","null",
+    val spec = VenteRepository.filterVentes(
+      0, 0,
+      "null", "null", "null", "null", "null", "null", "null",
     )
     return venteRepository.findAll(spec, pageable).map { vente ->
       mapOf(
@@ -485,8 +492,9 @@ class VenteService(
     pageable: Pageable,
   ): Page<Map<String, Any?>> {
 //      return venteRepository.findByPrixPercuGreaterThan(0.0).map { vente ->
-    val spec = VenteRepository.filterVentes(0,1,
-      "null", "null","null","null","null","null","null",
+    val spec = VenteRepository.filterVentes(
+      0, 1,
+      "null", "null", "null", "null", "null", "null", "null",
     )
     return venteRepository.findAll(spec, pageable).map { vente ->
       mapOf(

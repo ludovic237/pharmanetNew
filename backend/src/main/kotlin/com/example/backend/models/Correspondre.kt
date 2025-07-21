@@ -1,14 +1,12 @@
 package com.example.backend.models
 
-import jakarta.persistence.Column
-import jakarta.persistence.Entity
-import jakarta.persistence.Id
-import jakarta.persistence.Table
+import jakarta.persistence.*
 
 @Entity
 @Table(name = "correspondre")
 class Correspondre {
   @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY) // Use IDENTITY for auto-increment
   @Column(name = "ID_VENTE", nullable = false)
   var idVente: Int? = null
 

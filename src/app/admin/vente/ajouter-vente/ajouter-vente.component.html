@@ -184,7 +184,8 @@
             </mat-panel-title>
           </mat-expansion-panel-header>
           <div>
-            <mat-slide-toggle [formControl]="reductionEnabled">
+            <mat-slide-toggle *ngIf="this.clientTypeControl.value == 'new'"
+                              [formControl]="reductionEnabled">
               Activer la réduction
             </mat-slide-toggle>
             <mat-form-field appearance="outline">

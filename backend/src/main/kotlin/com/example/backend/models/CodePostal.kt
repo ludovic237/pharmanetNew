@@ -6,6 +6,7 @@ import jakarta.persistence.*
 @Table(name = "code_postal")
 class CodePostal {
   @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY) // Use IDENTITY for auto-increment
   @Column(name = "id", nullable = false)
   var id: Int? = null
 

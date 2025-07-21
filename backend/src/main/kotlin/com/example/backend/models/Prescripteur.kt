@@ -1,15 +1,13 @@
 package com.example.backend.models
 
-import jakarta.persistence.Column
-import jakarta.persistence.Entity
-import jakarta.persistence.Id
-import jakarta.persistence.Table
+import jakarta.persistence.*
 import org.hibernate.annotations.ColumnDefault
 
 @Entity
 @Table(name = "prescripteur")
 class Prescripteur {
   @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY) // Use IDENTITY for auto-increment
   @Column(name = "id", nullable = false)
   var id: Int? = null
 
@@ -27,5 +25,5 @@ class Prescripteur {
 
   @ColumnDefault("0")
   @Column(name = "supprimer")
-  var  supprimer: Int? = 0
+  var supprimer: Int? = 0
 }

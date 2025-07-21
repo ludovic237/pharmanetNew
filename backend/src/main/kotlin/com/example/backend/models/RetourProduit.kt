@@ -9,6 +9,7 @@ import java.time.LocalDateTime
 @Table(name = "retour_produit")
 class RetourProduit {
   @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY) // Use IDENTITY for auto-increment
   @Column(name = "id", nullable = false)
   var id: Int? = null
 

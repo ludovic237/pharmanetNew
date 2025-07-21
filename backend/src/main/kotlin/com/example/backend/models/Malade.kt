@@ -7,6 +7,7 @@ import org.hibernate.annotations.ColumnDefault
 @Table(name = "malade")
 class Malade {
   @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY) // Use IDENTITY for auto-increment
   @Column(name = "id", nullable = false)
   var id: Int? = null
 

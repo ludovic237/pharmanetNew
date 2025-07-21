@@ -20,10 +20,10 @@ class User {
   @Column(name = "email", length = 64)
   var email: String? = null
 
-  @Column(name = "password", nullable = false)
+  @Column(name = "password", nullable = true)
   var password: String? = null
 
-  @Column(name = "username", nullable = false)
+  @Column(name = "username", nullable = true)
   var username: String? = null
 
   @Column(name = "fonction", length = 64)

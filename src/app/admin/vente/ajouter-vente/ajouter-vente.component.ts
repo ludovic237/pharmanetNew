@@ -99,7 +99,8 @@ export class AjouterVenteComponent implements OnInit {
   selectedClient: any
   selectedOLdClient: any
   selectedOLdPrescripteur: any
-  reductionOptions: number[] = Array.from({length: 101}, (_, i) => i); // Generates percentages from 0 to 100
+  // reductionOptions: number[] = Array.from({length: 101}, (_, i) => i); // Generates percentages from 0 to 100
+  reductionOptions: number[] = [0, 1, 2, 3, 4, 5]; // Generates percentages from 0 to 100
   tauxReduction = new FormControl({value: 0, disabled: true}); // Initially disabled
   reductionEnabled = new FormControl(false); // Toggle state
 
@@ -185,6 +186,40 @@ export class AjouterVenteComponent implements OnInit {
 
   ngOnInit(): void {
 
+    this.reductionOptions = [0, 1, 2, 3, 4, 5]; // Set reduction options
+
+    this.reductionEnabled.valueChanges.subscribe((isEnabled) => {
+      if (!isEnabled) {
+        console.log('Reduction toggle deactivated');
+        // Add logic to handle deactivation
+        this.applicableReduction = 0; // Reset applicable reduction
+        this.tauxReduction.reset(0); // Reset the reduction percentage to 0
+        this.calculeTotaux();
+      }
+    });
+
+    this.clientTypeControl.valueChanges.subscribe((value) => {
+      if (value === 'new') {
+        this.reductionOptions = [0, 1, 2, 3, 4, 5]
+        this.reductionEnabled.setValue(true); // Enable the toggle
+        this.applicableReduction = 0; // Reset applicable reduction
+        this.tauxReduction.reset(0); // Reset the reduction percentage to 0
+      } else {
+        this.reductionOptions = [0]
+        this.reductionEnabled.setValue(false); // Disable the toggle
+        this.applicableReduction = 0; // Reset applicable reduction
+      }
+    });
+
+    this.tauxReduction.valueChanges.subscribe((percent) => {
+      if (this.reductionEnabled.value) {
+        console.log("percent")
+        console.log(percent)
+        this.applicableReduction = percent; // Assign selected value to applicableReduction
+        this.calculeTotaux();
+      }
+    });
+
     this.prescripteurSearchControl.valueChanges.subscribe((searchTerm) => {
       if (searchTerm) {
         this.searchPrescripteurs(searchTerm);
@@ -259,18 +294,18 @@ export class AjouterVenteComponent implements OnInit {
 
     this.total = this.dataSource.data
       .map(l => {
-        this.applicableReduction = 0;
-        if (this.selectedClient && this.selectedClient.reduction) {
-          // Compare client's reduction with product's reduction
-          this.applicableReduction = Math.min(this.selectedClient.reduction, l.reduction);
-        } else {
-          // No reduction for non-existing client
-          this.applicableReduction = l.reduction;
-        }
-
-        if (!this.selectedClient) {
-          this.applicableReduction = 0
-        }
+        // this.applicableReduction = 0;
+        // if (this.selectedClient && this.selectedClient.reduction) {
+        //   // Compare client's reduction with product's reduction
+        //   this.applicableReduction = Math.min(this.selectedClient.reduction, l.reduction);
+        // } else {
+        //   // No reduction for non-existing client
+        //   this.applicableReduction = l.reduction;
+        // }
+        //
+        // if (!this.selectedClient) {
+        //   this.applicableReduction = 0
+        // }
 
         // Calculate total price after applying the reduction
         const reducedPrice = l.prixTotal;
@@ -282,16 +317,26 @@ export class AjouterVenteComponent implements OnInit {
     console.log(this.dataSource.data)
     this.totaleReduction = this.dataSource.data
       .map(l => {
-        this.applicableReduction = 0;
-        if (this.selectedClient && this.selectedClient.reduction != undefined) {
-          console.log("ici")
-          this.applicableReduction = Math.min(this.selectedClient.reduction, l.reduction);
-        } else {
-          this.applicableReduction = l.reduction;
+        console.log("this.clientTypeControl.value")
+        console.log(this.clientTypeControl.value)
+        if (this.clientTypeControl.value == 'new'){
+          this.applicableReduction = Math.min(this.applicableReduction, l.reduction);
         }
-        if (!this.selectedClient) {
-          this.applicableReduction = 0
+        else {
+          this.applicableReduction = 0;
+          if (this.selectedClient && this.selectedClient.reduction != undefined) {
+            console.log("ici")
+            this.applicableReduction = Math.min(this.selectedClient.reduction, l.reduction);
+          } else {
+            this.applicableReduction = l.reduction;
+          }
+          if (!this.selectedClient) {
+            this.applicableReduction = 0
+          }
         }
+
+        console.log("this.applicableReduction")
+        console.log(this.applicableReduction)
         return (l.prixTotal * (this.applicableReduction / 100));
       })
       .reduce((a, b) => a + b, 0);
@@ -301,7 +346,7 @@ export class AjouterVenteComponent implements OnInit {
     var firstData = reductionData.substr(0, reductionData.length - 2).toString();
     var lastData = "";
     var finalReductionTotal = 0;
-    if (reductionData.length >= 3) {
+    if (reductionData.length >= 2) {
       var second = parseInt(reductionData.substr(reductionData.length - 2));
       if (second < 100 && second >= 75) {
         lastData = "75";
@@ -548,7 +593,9 @@ export class AjouterVenteComponent implements OnInit {
     const paymentVenteData: any = {
       clientInfo: clientInfo,
       prescripteurInfo: prescripteurInfo,
-      prixTotal: this.total, // Total price of the sale
+      reductionEnabled: this.reductionEnabled.value,
+      prixTotal: this.total,
+      prixReduction: this.totaleReduction,
       commentaire: comments, // Sale comments
       etat: mode.toUpperCase(), // Sale state: "COMPTANT", "ASSURANCE", or "CREDIT"
       produits: venteLignes.map(ligne => ({
