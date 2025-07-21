@@ -180,6 +180,20 @@ export class InventaireComponent implements OnInit {
     });
     dialogRef.afterClosed().subscribe((data: any) => {
       console.log('Dialog closed', data);
+      const dialogRef = this.dialog.open(InventaireSaisieDialogComponent, {
+        data: {
+          type: "edit",
+          id: data.id,
+        },
+        width: "80%",
+        panelClass: ['theme-dialog'],
+        autoFocus: false,
+      });
+      dialogRef.afterClosed().subscribe(dialogResult => {
+        if (dialogResult) {
+
+        }
+      });
       this.fetchInventaire();
     });
   }

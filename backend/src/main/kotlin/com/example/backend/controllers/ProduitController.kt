@@ -105,6 +105,7 @@ class ProduitController(
   fun getAllProduits(
     @RequestParam(defaultValue = "0") page: String,
     @RequestParam(defaultValue = "10") size: String,
+    @RequestParam(required = false) search: String,
     @RequestParam(defaultValue = "id") sortBy: String
   ): ResponseEntity<Page<ProduitResponseDto>> {
     val pageNumber = page.toIntOrNull() ?: 0 // Default to 0 if conversion fails

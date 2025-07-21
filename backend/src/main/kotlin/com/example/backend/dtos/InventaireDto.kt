@@ -14,11 +14,11 @@ data class InventaireRequestDto(
 )
 
 data class InventaireNewCreatetDto(
-  val rayonId: String,
-  val categorieId: String,
-  val fabriquantId: String,
-  val formeId: String,
-  val fournisseurId: String,
+  val rayonId: String?,
+  val categorieId: String?,
+  val fabriquantId: String?,
+  val formeId: String?,
+  val fournisseurId: String?,
 )
 
 data class InventaireUpdateRequestDto(

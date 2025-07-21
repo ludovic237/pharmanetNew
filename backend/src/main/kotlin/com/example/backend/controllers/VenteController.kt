@@ -67,6 +67,7 @@ class VenteController(
     @RequestParam(defaultValue = "0") page: String,
     @RequestParam(defaultValue = "10") size: String,
     @RequestParam(defaultValue = "id") sortBy: String,
+    @RequestParam(required = false) search: String,
   ): ResponseEntity<Page<Map<String, Any?>>> {
     val pageNumber = page.toIntOrNull()?.coerceAtLeast(0) ?: 0
     val pageSize = size.toIntOrNull()?.coerceAtLeast(1) ?: 10
@@ -90,6 +91,7 @@ class VenteController(
     @RequestParam(defaultValue = "0") page: String,
     @RequestParam(defaultValue = "10") size: String,
     @RequestParam(defaultValue = "id") sortBy: String,
+    @RequestParam(required = false) search: String,
     @RequestParam(required = false) etat: String?,
     @RequestParam(required = false) dateVente: String?,
     @RequestParam(required = false) dateEncaissement: String?,
@@ -118,6 +120,7 @@ class VenteController(
     @RequestParam(defaultValue = "0") page: String,
     @RequestParam(defaultValue = "10") size: String,
     @RequestParam(defaultValue = "id") sortBy: String,
+    @RequestParam(required = false) search: String,
   ): ResponseEntity<Page<Map<String, Any?>>> {
     val pageNumber = page.toIntOrNull()?.coerceAtLeast(0) ?: 0
     val pageSize = size.toIntOrNull()?.coerceAtLeast(1) ?: 10

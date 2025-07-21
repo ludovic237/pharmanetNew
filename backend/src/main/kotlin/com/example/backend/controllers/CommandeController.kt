@@ -58,6 +58,7 @@ class CommandeController(
     @RequestParam(defaultValue = "0") page: String,
     @RequestParam(defaultValue = "10") size: String,
     @RequestParam(defaultValue = "id") sortBy: String,
+    @RequestParam(required = false) search: String,
     @RequestParam(required = false) etat: String?,
     @RequestParam(required = false) fournisseurId: String?,
     @RequestParam(required = false) startDate: String?,

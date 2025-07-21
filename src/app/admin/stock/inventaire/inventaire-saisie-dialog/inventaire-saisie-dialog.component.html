@@ -101,6 +101,7 @@
       <td mat-cell *matCellDef="let product" class="admin-table mat-mdc-table mat-mdc-cell">
         <div class="p-2 actions">
           <button mat-mini-fab class="ml-2"
+                  [disabled]="product.quantityReal<=0"
                   [color]="product.isActive ? 'primary' : 'warn'"
                   (click)="addProductToInventory(product)"
                   [matTooltip]="product.isActive ? 'Valider quantite' : 'Mettre a jour la quantite'"
@@ -109,7 +110,7 @@
               {{ product.isActive ? 'checked' : 'cancel' }}
             </mat-icon>
           </button>
-          <button mat-mini-fab matTooltip="Supprimer de l'inventaire"  class="ml-2"
+          <button *ngIf="product.produitInventaireId" mat-mini-fab matTooltip="Supprimer de l'inventaire"  class="ml-2"
                   color="warn"
                   (click)="deleteRow(product)">
             <mat-icon>delete</mat-icon>

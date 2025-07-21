@@ -56,14 +56,40 @@ class InventaireService(
 
   @Transactional
   fun creerInventaireNew(data: InventaireNewCreatetDto): Inventaire {
-    var currentUser = userUtils.getCurrentUser()
-    var employe = employeRepository.findByUser(currentUser!!)
+    val currentUser = userUtils.getCurrentUser()
+    val employe = employeRepository.findByUser(currentUser!!)
+    val rayon = if (data.rayonId != null) {
+      rayonRepository.findById(data.rayonId.toInt()).orElse(null)
+    } else {
+      null
+    }
+    val categorie = if (data.categorieId != null) {
+      categorieRepository.findById(data.categorieId.toInt()).orElse(null)
+    } else {
+      null
+    }
+    val fabriquant = if (data.fabriquantId != null) {
+      fabriquantRepository.findById(data.fabriquantId.toInt()).orElse(null)
+    } else {
+      null
+    }
+    val forme = if (data.formeId != null) {
+      formeRepository.findById(data.formeId.toInt()).orElse(null)
+    } else {
+      null
+    }
+    val fournisseur = if (data.fournisseurId != null) {
+      fournisseurRepository.findById(data.fournisseurId.toInt()).orElse(null)
+    } else {
+      null
+    }
+
     val inventaire = Inventaire().apply {
-      this.rayon = rayonRepository.findById(data.rayonId.toInt()).get()
-      this.categorie = categorieRepository.findById(data.categorieId.toInt()).get()
-      this.fabriquant = fabriquantRepository.findById(data.fabriquantId.toInt()).get()
-      this.forme = formeRepository.findById(data.formeId.toInt()).get()
-      this.fournisseur = fournisseurRepository.findById(data.fournisseurId.toInt()).get()
+      this.rayon = rayon
+      this.categorie = categorie
+      this.fabriquant = fabriquant
+      this.forme = forme
+      this.fournisseur = fournisseur
       this.employe = employe
       this.supprimer = 0
       this.dateDebut = LocalDateTime.now()
@@ -187,7 +213,7 @@ class InventaireService(
     return inventaireRepository.findAll(pageable)
   }
 
-  fun listerInventairesCustom(pageable: Pageable): Page<Map<String,Any?>> {
+  fun listerInventairesCustom(pageable: Pageable): Page<Map<String, Any?>> {
     return inventaireRepository.findAll(pageable).map { inventaire ->
       var produitInventaireList = produitInventorieRepository.findByInventaire(inventaire)
       var totalProduits = 0
@@ -246,14 +272,24 @@ class InventaireService(
   }
 
   @Transactional
-  fun listerProduitsParInventaireAsMap(inventaireId: String, pageable: Pageable): Page<Map<String, Any?>> {
+  fun listerProduitsParInventaireAsMap(
+    search: String,
+    inventaireId: String,
+    pageable: Pageable
+  ): Page<Map<String, Any?>> {
     val inventaire = inventaireRepository.findById(inventaireId.toInt())
       .orElseThrow { IllegalArgumentException("Inventaire introuvable avec l'ID: $inventaireId") }
 
-    val produitsPage = produitInventorieRepository.findByInventaire(inventaire, pageable)
+    val produitsPage = if (search.isNotEmpty()) {
+      val produitList = produitRepository.findByNomContaining(search).map { it.id }
+      val enRayonList = enRayonRepository.findAllByProduitIdInAndSupprimer(produitList)
+      produitInventorieRepository.findByInventaireAndEnRayonIn(inventaire, enRayonList, pageable)
+    } else {
+      produitInventorieRepository.findByInventaire(inventaire, pageable)
+    }
 
-    return produitsPage.map { produit ->
-      var active = when (produit.statut) {
+    return produitsPage!!.map { produit ->
+      val active = when (produit.statut) {
         Inventaire.INVENTAIRE_EN_COURS -> true
         Inventaire.INVENTAIRE_CLOTURER -> false
         else -> true

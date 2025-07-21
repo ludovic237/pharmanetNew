@@ -132,12 +132,18 @@ class InventaireController(
     @RequestParam(defaultValue = "0") page: Int,
     @RequestParam(defaultValue = "10") size: Int,
     @RequestParam(defaultValue = "id") sort: String,
+    @RequestParam(required = false) search: String,
     @RequestParam(defaultValue = "desc") direction: String
 //    @RequestParam(defaultValue = "asc") direction: String
   ): ResponseEntity<Page<Map<String, Any?>>> {
-//    val pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "dateDebut"))
-    val pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.fromString(direction), sort))
-    val produits = inventaireService.listerProduitsParInventaireAsMap(id, pageable)
+
+    var newSort = if (direction.equals("asc", ignoreCase = true)) {
+      Sort.by(Sort.Direction.ASC, sort)
+    } else {
+      Sort.by(Sort.Direction.DESC, sort)
+    }
+    val pageable = PageRequest.of(page, size, newSort)
+    val produits = inventaireService.listerProduitsParInventaireAsMap(search,id, pageable)
     return ResponseEntity.ok(produits)
   }
 

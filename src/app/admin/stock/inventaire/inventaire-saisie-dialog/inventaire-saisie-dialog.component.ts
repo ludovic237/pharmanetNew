@@ -433,7 +433,7 @@ export class InventaireSaisieDialogComponent implements OnInit {
         } else {
           product.isActive = true; // Set the product as active after adding to inventory
         }
-
+        this.getInventaireInfo();
         // product.isActive = true; // Set the product as active after adding to inventory
       },
       error: (err: any) => {

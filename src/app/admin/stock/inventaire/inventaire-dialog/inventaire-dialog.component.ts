@@ -145,7 +145,6 @@ export class InventaireDialogComponent implements OnInit {
     this.form = this.fb.group({
       categorieId: null,
       rayonId: [null],
-      etagereId: [null],
       fournisseurId: [null],
       magasinId: null,
       formeId: [null],
@@ -279,18 +278,7 @@ export class InventaireDialogComponent implements OnInit {
           verticalPosition: 'top',
           duration: 3000
         });
-        // this.dialogRef.close(response);
-        const dialogRef = this.dialog.open(InventaireSaisieDialogComponent, {
-          data: null,
-          width: "80%",
-          panelClass: ['theme-dialog'],
-          autoFocus: false,
-        });
-        dialogRef.afterClosed().subscribe(dialogResult => {
-          if (dialogResult) {
-
-          }
-        });
+        this.dialogRef.close(response);
       },
       error: (err: any) => {
         console.error('Error creating inventory:', err);
