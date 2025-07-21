@@ -21,10 +21,10 @@ class Malade {
   var modeReglement: String? = null
 
   @Column(name = "poid", nullable = false)
-  var poid: Double? = null
+  var poid: Double? = 0.0
 
   @Column(name = "taille", nullable = false)
-  var taille: Double? = null
+  var taille: Double? = 0.0
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "CodePostal_id")

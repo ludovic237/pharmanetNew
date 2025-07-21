@@ -14,13 +14,13 @@ class ProduitVendu {
   var qtiteVendu: Int? = null
 
   @Column(name = "tva")
-  var tva: Double? = null
+  var tva: Double? = 0.0
 
   @Column(name = "prixUnit")
-  var prixUnit: Double? = null
+  var prixUnit: Double? = 0.0
 
   @Column(name = "montantTTC")
-  var montantTTC: Double? = null
+  var montantTTC: Double? = 0.0
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "produit_id")

@@ -17,7 +17,7 @@ class Transaction {
   var user: com.example.backend.models.User? = null
 
   @Column(name = "montant", nullable = false)
-  var montant: Double? = null
+  var montant: Double? = 0.0
 
   @Column(name = "type", nullable = false, length = 32)
   var type: String? = null

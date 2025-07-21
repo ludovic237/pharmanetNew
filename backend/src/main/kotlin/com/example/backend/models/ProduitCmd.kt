@@ -12,7 +12,7 @@ class ProduitCmd {
   var id: Int? = null
 
   @Column(name = "prixPublic")
-  var prixPublic: Double? = null
+  var prixPublic: Double? = 0.0
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "produit_id")
@@ -22,19 +22,19 @@ class ProduitCmd {
   var commandeId: Long? = null
 
   @Column(name = "puCmd")
-  var puCmd: Double? = null
+  var puCmd: Double? = 0.0
 
   @Column(name = "ptCmd")
-  var ptCmd: Double? = null
+  var ptCmd: Double? = 0.0
 
   @Column(name = "qtiteCmd")
   var qtiteCmd: Int? = null
 
   @Column(name = "puRecept")
-  var puRecept: Double? = null
+  var puRecept: Double? = 0.0
 
   @Column(name = "ptRecept")
-  var ptRecept: Double? = null
+  var ptRecept: Double? = 0.0
 
   @Column(name = "qtiteRecu")
   var qtiteRecu: Int? = null

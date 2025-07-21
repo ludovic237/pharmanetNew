@@ -21,13 +21,13 @@ class Concerner {
   var enRayonId: String? = null
 
   @Column(name = "prixUnit")
-  var prixUnit: Int? = null
+  var prixUnit: Int? = 0
 
   @Column(name = "quantite")
-  var quantite: Int? = null
+  var quantite: Int? = 0
 
   @Column(name = "reduction")
-  var reduction: Int? = null
+  var reduction: Int? = 0
 
   @ColumnDefault("0")
   @Column(name = "supprimer")

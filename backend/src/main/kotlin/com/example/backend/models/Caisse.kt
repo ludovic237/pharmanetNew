@@ -32,10 +32,10 @@ class Caisse {
   var session: String? = null
 
   @Column(name = "fondCaisseOuvert")
-  var fondCaisseOuvert: Double? = null
+  var fondCaisseOuvert: Double? = 0.0
 
   @Column(name = "fondCaisseFerme")
-  var fondCaisseFerme: Double? = null
+  var fondCaisseFerme: Double? = 0.0
 
   @Column(name = "etat", length = 16)
   var etat: String? = null

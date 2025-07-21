@@ -6,7 +6,6 @@ import com.example.backend.models.User // Your entity
 import com.example.backend.repositories.CaisseRepository
 import com.example.backend.repositories.UserRepository // Import UserRepository
 import org.springframework.security.core.context.SecurityContextHolder
-import org.springframework.security.core.userdetails.UserDetails // Import UserDetails
 import org.springframework.stereotype.Component
 
 @Component
@@ -15,7 +14,7 @@ class UserUtils(
   private val caisseRepository: CaisseRepository // Inject UserRepository
 ) {
 
-  fun getCurrentUserId(): Long? {
+  fun getCurrentEmployeId(): Long? {
     val authentication = SecurityContextHolder.getContext().authentication
     println("getCurrentUserId authentication: $authentication") // Keep for debugging if needed
 
@@ -24,18 +23,18 @@ class UserUtils(
       println("Principal type: ${principal?.javaClass?.name}") // Debug: See the actual type
 
       // The principal is usually UserDetails after standard authentication
-      if (principal is UserDetails) {
-        val username = principal.username // This holds the email you used for login
-        println("Username from principal: $username")
+      if (principal is Employe) {
+//        val username = principal.username // This holds the email you used for login
+//        println("Username from principal: $username")
+//
+//        // Fetch your custom User entity using the email (username)
+//        val user:User = userRepository.findByEmail(username)
 
-        // Fetch your custom User entity using the email (username)
-        val user:User = userRepository.findByEmail(username)
-
-        if (user.id != null) {
-          println("User found in DB: ID = ${user.id}")
-          return user.id!!.toLong()
+        if (principal.id != null) {
+          println("User found in DB: ID = ${principal.id}")
+          return principal.id!!.toLong()
         } else {
-          println("User not found in DB for email: $username")
+          println("User not found in DB for email: ${principal.identifiant}")
           // This case should ideally not happen if the user is authenticated,
           // but good to handle defensively.
           return null

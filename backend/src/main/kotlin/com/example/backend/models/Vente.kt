@@ -13,10 +13,10 @@ class Vente {
   var id: Long? = null
 
   @Column(name = "prixTotal")
-  var prixTotal: Double? = null
+  var prixTotal: Double? = 0.0
 
   @Column(name = "prixPercu")
-  var prixPercu: Double? = null
+  var prixPercu: Double? = 0.0
 
   @Column(name = "dateVente")
   var dateVente: LocalDateTime? = null

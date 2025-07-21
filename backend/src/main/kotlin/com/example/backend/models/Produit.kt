@@ -46,7 +46,7 @@ class Produit {
 
   @ColumnDefault("0")
   @Column(name = "reductionMax")
-  var reductionMax: Int? = null
+  var reductionMax: Int? = 0
 
   @Column(name = "grossiste_id", length = 100)
   var grossisteId: String? = null

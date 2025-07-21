@@ -20,10 +20,10 @@ class Depense {
   var designation: String? = null
 
   @Column(name = "quantite")
-  var quantite: Int? = null
+  var quantite: Int? = 0
 
   @Column(name = "prixUnitaire")
-  var prixUnitaire: Int? = null
+  var prixUnitaire: Int? = 0
 
   @Column(name = "dateDepense")
   var dateDepense: LocalDateTime? = null

@@ -27,10 +27,10 @@ class LigneCaisse {
   var dateLigne: LocalDateTime? = null
 
   @Column(name = "debit")
-  var debit: Double? = null
+  var debit: Double? = 0.0
 
   @Column(name = "credit")
-  var credit: Double? = null
+  var credit: Double? = 0.0
 
   @Column(name = "type", nullable = false, length = 32)
   var type: String? = null

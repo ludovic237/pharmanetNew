@@ -128,7 +128,7 @@ class CaisseService(
 
   @Transactional
   fun cloturerCaisse(fondCaisseFerme: Int, fermetureCaisse: String): CaisseDto {
-    val currentUser = userUtils.getCurrentUserId()
+    val currentUser = userUtils.getCurrentEmployeId()
     val clotureCaisse = getCaisseAttenteCloture()
 
     if (clotureCaisse != null && clotureCaisse.user?.user?.id?.toLong() == currentUser) {

@@ -31,19 +31,19 @@ class EnRayon {
   var datePeremption: LocalDateTime? = null
 
   @Column(name = "prixAchat")
-  var prixAchat: Int? = null
+  var prixAchat: Int? = 0
 
   @Column(name = "prixVente")
-  var prixVente: Int? = null
+  var prixVente: Int? = 0
 
   @Column(name = "reduction")
-  var reduction: Int? = null
+  var reduction: Int? = 0
 
   @Column(name = "quantite")
-  var quantite: Int? = null
+  var quantite: Int? = 0
 
   @Column(name = "quantiteRestante")
-  var quantiteRestante: Int? = null
+  var quantiteRestante: Int? = 0
 
   @ColumnDefault("0")
   @Column(name = "supprimer")

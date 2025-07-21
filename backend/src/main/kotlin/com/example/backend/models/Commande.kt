@@ -38,10 +38,10 @@ class Commande (
   var uniteGratuite: Int? = null,
 
   @Column(name = "montantCmd")
-  var montantCmd: Double? = null,
+  var montantCmd: Double? = 0.0,
 
   @Column(name = "montantRecu")
-  var montantRecu: Double? = null,
+  var montantRecu: Double? = 0.0,
 
   @Column(name = "etat", length = 32)
   var etat: String? = null,

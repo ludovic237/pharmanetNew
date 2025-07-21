@@ -31,7 +31,7 @@ class ProduitDetail {
   var reductionMax: Int? = null
 
   @Column(name = "prix", nullable = false)
-  var prix: Int? = null
+  var prix: Int? = 0
 
   @Column(name = "grossiste_list", nullable = false, length = 100)
   var grossisteList: String? = null

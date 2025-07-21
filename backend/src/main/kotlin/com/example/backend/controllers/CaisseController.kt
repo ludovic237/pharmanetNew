@@ -89,8 +89,8 @@ class CaisseController(
     val isOuverte = caisseService.isCaisseOuverte()
     val activeCaisse = caisseService.getActiveCaisse()
     val attenteCloture = caisseService.getCaisseAttenteCloture()
-    val userCurrentId = userUtils.getCurrentUserId()
-    var employe = employeRepository.findByUser(userRepository.findById(userCurrentId!!.toInt()).get())
+    val employeCurrentId = userUtils.getCurrentEmployeId()
+    var employe = employeRepository.findById(employeCurrentId!!.toInt()).get()
 
     val response = when {
       activeCaisse != null && activeCaisse.user?.id == employe.id?.toInt() -> {

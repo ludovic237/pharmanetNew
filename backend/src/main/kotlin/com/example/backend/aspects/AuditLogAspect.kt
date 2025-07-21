@@ -6,7 +6,6 @@ import com.example.backend.services.AuditLogService
 import com.example.backend.utility.UserUtils
 import org.aspectj.lang.JoinPoint
 import org.aspectj.lang.annotation.*
-import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Component
 
 @Component
@@ -70,7 +69,7 @@ class AuditLogAspect(
     val truncatedArguments = if (arguments.length > maxLength) arguments.substring(0, maxLength) else arguments
 
     val userActionLog = AuditLog()
-    userActionLog.userId = userUtils.getCurrentUserId()
+    userActionLog.userId = userUtils.getCurrentEmployeId()
     userActionLog.action = "BEFORE"
     userActionLog.methodName = methodName
     userActionLog.arguments = truncatedArguments // Use the truncated value
@@ -82,7 +81,7 @@ class AuditLogAspect(
   fun logAfterReturning(joinPoint: JoinPoint, result: Any?) {
     val methodName = joinPoint.signature.name
     val userActionLog = AuditLog()
-    userActionLog.userId = userUtils.getCurrentUserId()
+    userActionLog.userId = userUtils.getCurrentEmployeId()
     userActionLog.action = "AFTER_RETURNING"
     userActionLog.methodName = methodName
 //    userActionLog.result = result?.toString()
@@ -95,7 +94,7 @@ class AuditLogAspect(
   fun logAfterThrowing(joinPoint: JoinPoint, exception: Throwable) {
     val methodName = joinPoint.signature.name
     val userActionLog = AuditLog()
-    userActionLog.userId = userUtils.getCurrentUserId()
+    userActionLog.userId = userUtils.getCurrentEmployeId()
     userActionLog.action = "AFTER_THROWING"
     userActionLog.methodName = methodName
 //    userActionLog.exception = if (exception.message!!.length > 255) exception.message!!.substring(

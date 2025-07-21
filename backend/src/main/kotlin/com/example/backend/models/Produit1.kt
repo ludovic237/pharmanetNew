@@ -42,10 +42,10 @@ class Produit1 {
   var stockMag: Int? = null
 
   @Column(name = "prixPublic")
-  var prixPublic: Double? = null
+  var prixPublic: Double? = 0.0
 
   @Column(name = "prixAchat")
-  var prixAchat: Double? = null
+  var prixAchat: Double? = 0.0
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "categorie_id")
