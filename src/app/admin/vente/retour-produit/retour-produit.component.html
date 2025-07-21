@@ -39,13 +39,14 @@
             <th mat-header-cell *matHeaderCellDef> Action</th>
             <td mat-cell *matCellDef="let produit">
               <mat-form-field style=" width: 100px;"
-                appearance="outline" class="quantity-input">
+                              appearance="outline" class="quantity-input">
                 <mat-label>Quantité</mat-label>
                 <input matInput type="number"
-                       [(ngModel)]="produit.quantiteRetour" min="1" max="{{ produit.quantite }}">
+                       value="{{ produit.quantiteRetour }}"
+                       [(ngModel)]="produit.quantiteRetour" min="0" max="{{ produit.quantite }}">
               </mat-form-field>
               <button mat-button color="primary"
-                      [disabled]="produit.quantite === 0"
+                      [disabled]="produit.quantiteRetour <=0"
                       (click)="moveToRetournes(produit, produit.quantiteRetour)">
                 Retourner
               </button>
@@ -164,16 +165,16 @@
     </mat-card-content>
   </mat-card>
 
-<!--  @if (retourProduitList.length) {-->
-    <div fxLayout="row wrap">
-      <div fxFlex="100">
-        <mat-card class="text-center">
-          <mat-paginator [length]="totalItems" [pageSize]="count" [pageSizeOptions]="[5, 10, 25, 100]"
-                         (page)="onPageChanged($event)">
-          </mat-paginator>
-        </mat-card>
-      </div>
+  <!--  @if (retourProduitList.length) {-->
+  <div fxLayout="row wrap">
+    <div fxFlex="100">
+      <mat-card class="text-center">
+        <mat-paginator [length]="totalItems" [pageSize]="count" [pageSizeOptions]="[5, 10, 25, 100]"
+                       (page)="onPageChanged($event)">
+        </mat-paginator>
+      </mat-card>
     </div>
-<!--  }-->
+  </div>
+  <!--  }-->
 
 </div>

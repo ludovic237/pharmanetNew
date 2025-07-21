@@ -134,7 +134,10 @@ export class RetourProduitComponent implements OnInit {
         this.produitsRetournes = [...[]];
         this.ventesService.searchVenteByReference(searchTerm).subscribe({
           next: (data: any) => {
-            this.produitsAchetes = data.produits
+            this.produitsAchetes = data.produits.map((produit:any) =>({
+              ...produit,
+                quantiteRetour: 0 // Initialize quantiteRetour to 0
+            }))
             this.vente = data.vente
 
             this.snackBar.open('Retour validé avec succès.', '×', {panelClass: 'success', duration: 3000});
