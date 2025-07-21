@@ -2,14 +2,10 @@ package com.example.backend.repositories;
 
 import com.example.backend.models.*
 import jakarta.persistence.criteria.Predicate
-import org.bouncycastle.util.test.FixedSecureRandom.BigInteger
 import org.springframework.data.jpa.domain.Specification
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor
 import org.springframework.data.jpa.repository.Query
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 
 interface VenteRepository : JpaRepository<Vente, Long> , JpaSpecificationExecutor<Vente> {
   fun findByCaisseId(caisseId: Long): List<Vente>?
@@ -32,6 +28,7 @@ interface VenteRepository : JpaRepository<Vente, Long> , JpaSpecificationExecuto
 
   companion object {
     fun filterVentes(
+      activeCaisse: Caisse?,
       supprimer: Int?,
       prixPercu: Int?,
       etat: String?,
@@ -55,8 +52,13 @@ interface VenteRepository : JpaRepository<Vente, Long> , JpaSpecificationExecuto
 //          predicates.add(criteriaBuilder.equal(root.get<LocalDateTime>("dateEncaissement").`as`(LocalDate::class.java), date))
 //        }
 
+
         if (!etat.isNullOrEmpty() && etat != "null") {
           predicates.add(criteriaBuilder.equal(root.get<String>("etat"), etat))
+        }
+
+        if (activeCaisse != null) {
+          predicates.add(criteriaBuilder.equal(root.get<User>("caisse").get<Long>("id"), activeCaisse.id))
         }
 
         if (supprimer != null) {

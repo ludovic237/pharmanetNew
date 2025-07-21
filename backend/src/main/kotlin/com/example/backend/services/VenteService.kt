@@ -86,10 +86,12 @@ class VenteService(
     val dateTimeNow = LocalDateTime.now()
     val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
     val formattedDateTimeNow = dateTimeNow.format(formatter)
+    val activeCaisse = caisseService.getActiveCaisse()
     // Create the sale
     val nouvelleVente = Vente().apply {
       this.id = "${formattedDateTimeNow}".toLong()
       this.employe = employe
+      this.caisse = activeCaisse
       this.reference = genererReference(venteRepository.countMois().toInt())
       this.dateVente = LocalDateTime.now()
       this.etat = venteRequestDto.etat
@@ -346,6 +348,7 @@ class VenteService(
 
   @Transactional
   fun chargerVentesEnCoursNonEncaisser(venteId: Long): Map<String, Any?> {
+    val activeCaisse = caisseService.getActiveCaisse()
     val ventes = venteRepository.findById(venteId).get()
     if (ventes.prixPercu != null && ventes.prixPercu!! > 0) {
       throw RuntimeException("La vente est déjà encaissée.")
@@ -420,7 +423,9 @@ class VenteService(
     prescripteurId: String?,
     caisseId: String?
   ): Page<Map<String, Any?>> {
+    val activeCaisse = caisseService.getActiveCaisse()
     val spec = VenteRepository.filterVentes(
+      activeCaisse,
       0, 1,
       etat, dateVente, dateEncaissement, userId, employeId, prescripteurId, caisseId
     )
@@ -473,7 +478,9 @@ class VenteService(
     pageable: Pageable,
   ): Page<Map<String, Any?>> {
 //      return venteRepository.findByPrixPercuGreaterThan(0.0).map { vente ->
+    val activeCaisse = caisseService.getActiveCaisse()
     val spec = VenteRepository.filterVentes(
+      activeCaisse,
       0, 0,
       "null", "null", "null", "null", "null", "null", "null",
     )
@@ -497,7 +504,9 @@ class VenteService(
     pageable: Pageable,
   ): Page<Map<String, Any?>> {
 //      return venteRepository.findByPrixPercuGreaterThan(0.0).map { vente ->
+    val activeCaisse = caisseService.getActiveCaisse()
     val spec = VenteRepository.filterVentes(
+      activeCaisse,
       0, 1,
       "null", "null", "null", "null", "null", "null", "null",
     )
