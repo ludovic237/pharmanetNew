@@ -29,6 +29,7 @@ import {NgxPaginationModule} from "ngx-pagination";
 import {MatPaginator} from "@angular/material/paginator";
 import {ProductService} from "@services/products.service";
 import {InventaireService} from "@services/inventaire.service";
+import {AuthService} from "@services/auth.service";
 
 @Component({
   selector: 'app-inventaire-enrayon-detail-dialog',
@@ -87,12 +88,13 @@ export class InventaireEnrayonDetailDialogComponent implements OnInit{
   selectedProducts: any[] = [];
   filteredProducts: any[] = [];
 
-  constructor(
+   constructor(
+    public authService: AuthService,
+    public snackBar:MatSnackBar,
     private dialogRef: MatDialogRef<InventaireEnrayonDetailDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
     private fb: FormBuilder,
     private productService: ProductService,
-    public snackBar: MatSnackBar,
     private inventaireService: InventaireService,
   ) {
 
@@ -119,6 +121,17 @@ openMedicamentDialog(med: any): void {
     },
     error: (err: any) => {
       console.error('Failed to fetch products in stock:', err);
+      if (err.status === 401 || err.status === 403){
+        this.authService.logout();
+        this.snackBar.open('Déconnexion réussie.', '×', {
+          panelClass: 'success',
+          verticalPosition: 'top',
+          duration: 3000,
+        });
+        // Redirect to login page or clear session
+        window.location.href = '/sign-in';
+      }
+      else
       alert('Une erreur est survenue lors de la récupération des produits en rayon.');
     },
   });

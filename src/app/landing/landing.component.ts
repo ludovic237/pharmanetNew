@@ -1,4 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
+import {AuthService} from "@services/auth.service";
+import {MatSnackBar} from "@angular/material/snack-bar";
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
@@ -25,7 +27,9 @@ import { Settings, SettingsService } from '@services/settings.service';
 })
 export class LandingComponent implements OnInit {
   public settings: Settings;
-  constructor(public settingsService: SettingsService, public router: Router, public domHandlerService: DomHandlerService) {
+   constructor(
+    public authService: AuthService,
+    public snackBar:MatSnackBar,public settingsService: SettingsService, public router: Router, public domHandlerService: DomHandlerService) {
     this.settings = this.settingsService.settings;
   }
 

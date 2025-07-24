@@ -1,7 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
+import {AuthService} from "@services/auth.service";
+import {MatSnackBar} from "@angular/material/snack-bar";
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { GoogleMapsModule } from '@angular/google-maps'; 
+import { GoogleMapsModule } from '@angular/google-maps';
 import { FlexLayoutModule } from '@ngbracket/ngx-layout';
 import { RouterModule } from '@angular/router';
 
@@ -17,7 +19,7 @@ import { RouterModule } from '@angular/router';
     templateUrl: './footer.component.html',
     styleUrls: ['./footer.component.scss']
 })
-export class FooterComponent implements OnInit { 
+export class FooterComponent implements OnInit {
   center: google.maps.LatLngLiteral = { lat: 40.678178, lng: -73.944158};
   zoom = 7;
   markerOptions: google.maps.MarkerOptions = { draggable: false };
@@ -25,7 +27,9 @@ export class FooterComponent implements OnInit {
     { lat: 40.678178, lng: -73.944158 }
   ];
 
-  constructor() { }
+   constructor(
+    public authService: AuthService,
+    public snackBar:MatSnackBar,) { }
 
   ngOnInit() { }
 

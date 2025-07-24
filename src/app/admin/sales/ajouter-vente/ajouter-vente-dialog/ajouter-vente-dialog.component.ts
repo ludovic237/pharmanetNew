@@ -14,6 +14,7 @@ import {MatTableModule} from "@angular/material/table";
 import {MatIconModule} from "@angular/material/icon";
 import {MatDividerModule} from "@angular/material/divider";
 import {MatSnackBar} from "@angular/material/snack-bar";
+import {AuthService} from "@services/auth.service";
 
 @Component({
   selector: 'app-ajouter-vente-dialog',
@@ -51,9 +52,10 @@ export class AjouterVenteDialogComponent {
   ];
   public form: FormGroup;
 
-  constructor(public dialogRef: MatDialogRef<AjouterVenteDialogComponent>,
+   constructor(
+    public authService: AuthService,
+    public snackBar:MatSnackBar,public dialogRef: MatDialogRef<AjouterVenteDialogComponent>,
               public enRayonService: EnrayonsService, // Replace with actual service
-              public snackBar: MatSnackBar,
               @Inject(MAT_DIALOG_DATA) public data: any,
               public fb: FormBuilder) {
   }

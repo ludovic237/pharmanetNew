@@ -25,10 +25,14 @@ import {NgxPaginationModule} from "ngx-pagination";
 import {PipesModule} from "../../../theme/pipes/pipes.module";
 import {ProduitdetailsService} from "@services/produitdetails.service";
 import {ProductDetailInfoDialogComponent} from "./product-detail-info-dialog/product-detail-info-dialog.component";
+import {MatPaginatorModule, PageEvent} from "@angular/material/paginator";
+import {AuthService} from "@services/auth.service";
+import {MatSnackBar} from "@angular/material/snack-bar";
 
 @Component({
   selector: 'app-product-detail-list',
   imports: [
+    MatPaginatorModule,
     MatTableModule,
     RouterModule,
     FlexLayoutModule,
@@ -51,7 +55,7 @@ import {ProductDetailInfoDialogComponent} from "./product-detail-info-dialog/pro
   templateUrl: './product-detail-list.component.html',
   styleUrl: './product-detail-list.component.scss'
 })
-export class ProductDetailListComponent  implements OnInit {
+export class ProductDetailListComponent implements OnInit {
   // displayedColumns: string[] = ['image', 'category', 'name', 'oldPrice', 'newPrice', 'actions'];
   displayedColumns: string[] = ['nom', 'reference', 'quantiteStock', 'grossiste', 'reduction', 'actions'];
 
@@ -60,7 +64,7 @@ export class ProductDetailListComponent  implements OnInit {
   public products: Array<ProductNew> = [];
   public categories: Array<any> = [];
   public viewCol: number = 25;
-  public page = 0; // Default to 0 if undefined
+  public page = 1; // Default to 0 if undefined
   public size = 100;  // Default to 10 if undefined
   public totalItems = 0;  // Default to 10 if undefined
   public totalPages = 50;  // Default to 10 if undefined
@@ -69,6 +73,8 @@ export class ProductDetailListComponent  implements OnInit {
   public form: FormGroup;
 
   constructor(
+    public authService: AuthService,
+    public snackBar: MatSnackBar,
     public appService: AppService,
     public productService: ProductService,
     public produitdetailsService: ProduitdetailsService,
@@ -90,23 +96,33 @@ export class ProductDetailListComponent  implements OnInit {
   }
 
   public getAllProductsDetail() {
-    this.produitdetailsService.getProduitDetailsList().subscribe({
+    this.produitdetailsService.getProduitDetailsList(this.searchText, this.page - 1, this.count).subscribe({
       next: (data: any) => {
-        this.count = data.numberOfElements;
+        this.count = data.pageable.pageSize;
         this.totalItems = data.totalElements;
         this.products = data.content; // Les produits pour la page actuelle
       },
       error: (err) => {
+        if (err.status === 401 || err.status === 403) {
+          this.authService.logout();
+          this.snackBar.open('Déconnexion réussie.', '×', {
+            panelClass: 'success',
+            verticalPosition: 'top',
+            duration: 3000,
+          });
+          // Redirect to login page or clear session
+          window.location.href = '/sign-in';
+        }
         console.error('Error fetching products:', err);
       }
     });
   }
 
   searchUsers(): void {
-    this.productService.searchProducts(this.searchText, this.page, 40).subscribe({
+    this.productService.searchProducts(this.searchText, this.page - 1, this.count).subscribe({
       // this.productService.searchProducts(this.searchTerm, this.page, this.count).subscribe({
       next: (data: any) => {
-        this.count = data.numberOfElements;
+        this.count = data.pageable.pageSize;
         this.totalItems = data.totalElements;
         this.products = data.content; // Les produits pour la page actuelle
       },
@@ -131,12 +147,6 @@ export class ProductDetailListComponent  implements OnInit {
     });
   }
 
-  public onPageChanged(event: number) {
-    this.page = event;
-    this.getAllProductsDetail();
-    this.domHandlerService.winScroll(0, 0);
-  }
-
   @HostListener('window:resize')
   public onWindowResize(): void {
     (this.domHandlerService.window?.innerWidth < 1280) ? this.viewCol = 33.3 : this.viewCol = 25;
@@ -153,14 +163,24 @@ export class ProductDetailListComponent  implements OnInit {
     });
     dialogRef.afterClosed().subscribe(dialogResult => {
       if (dialogResult) {
-       this.produitdetailsService.removeProduitDetail(product.id).subscribe({
-         next: (data) => {
-           this.getAllProductsDetail();
-         },
-         error: (err) => {
-           console.error('Error fetching products:', err);
-         }
-       });
+        this.produitdetailsService.removeProduitDetail(product.id).subscribe({
+          next: (data) => {
+            this.getAllProductsDetail();
+          },
+          error: (err) => {
+            if (err.status === 401 || err.status === 403) {
+              this.authService.logout();
+              this.snackBar.open('Déconnexion réussie.', '×', {
+                panelClass: 'success',
+                verticalPosition: 'top',
+                duration: 3000,
+              });
+              // Redirect to login page or clear session
+              window.location.href = '/sign-in';
+            }
+            console.error('Error fetching products:', err);
+          }
+        });
       }
     });
   }
@@ -171,18 +191,28 @@ export class ProductDetailListComponent  implements OnInit {
         this.getAllProductsDetail();
       },
       error: (err) => {
+        if (err.status === 401 || err.status === 403) {
+          this.authService.logout();
+          this.snackBar.open('Déconnexion réussie.', '×', {
+            panelClass: 'success',
+            verticalPosition: 'top',
+            duration: 3000,
+          });
+          // Redirect to login page or clear session
+          window.location.href = '/sign-in';
+        }
         console.error('Error fetching products:', err);
       }
     });
   }
 
   public addProduitDetail() {
-        let dialogRef = this.dialog.open(ProductDetailInfoDialogComponent, {
-          data: null
-        });
-        dialogRef.afterClosed().subscribe((user: User) => {
-          this.getAllProductsDetail()
-        });
+    let dialogRef = this.dialog.open(ProductDetailInfoDialogComponent, {
+      data: null
+    });
+    dialogRef.afterClosed().subscribe((user: User) => {
+      this.getAllProductsDetail()
+    });
   }
 
   getDetailProduit(product: any) {
@@ -204,9 +234,26 @@ export class ProductDetailListComponent  implements OnInit {
         });
       },
       error: (err) => {
+        if (err.status === 401 || err.status === 403) {
+          this.authService.logout();
+          this.snackBar.open('Déconnexion réussie.', '×', {
+            panelClass: 'success',
+            verticalPosition: 'top',
+            duration: 3000,
+          });
+          // Redirect to login page or clear session
+          window.location.href = '/sign-in';
+        }
         console.error('Error fetching products:', err);
       }
     });
+  }
+
+  public onPageChanged(event: PageEvent) {
+    this.page = event.pageIndex + 1;
+    this.count = event.pageSize;
+    this.getAllProductsDetail();
+    this.domHandlerService.winScroll(0, 0);
   }
 
 }

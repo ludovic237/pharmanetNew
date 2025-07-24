@@ -385,7 +385,7 @@ export class SwiperConfig implements SwiperOptions {
   public pagination?: boolean | any;
   public hashNavigation?: boolean | any;
 
-  constructor(config: SwiperOptions = {}) {
+   constructor(config: SwiperOptions = {}) {
     this.assign(config);
   }
 

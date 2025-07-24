@@ -1,19 +1,21 @@
 export class Product {
-    constructor(public id: number,
-                public name: string,
-                public images: Array<any>,
-                public oldPrice: number,
-                public newPrice: number,
-                public discount: number,
-                public ratingsCount: number,
-                public ratingsValue: number,
-                public description: string,
-                public availibilityCount: number,
-                public cartCount: number,
-                public color: Array<string>,
-                public size: Array<string>,
-                public weight: number,
-                public categoryId: number){ }
+  constructor(
+    public id: number,
+    public name: string,
+    public images: Array<any>,
+    public oldPrice: number,
+    public newPrice: number,
+    public discount: number,
+    public ratingsCount: number,
+    public ratingsValue: number,
+    public description: string,
+    public availibilityCount: number,
+    public cartCount: number,
+    public color: Array<string>,
+    public size: Array<string>,
+    public weight: number,
+    public categoryId: number) {
+  }
 }
 
 export interface ProductNew {
@@ -31,7 +33,7 @@ export interface ProductNew {
   prixVenteConseille: number;
   quantiteTotaleEnStock: number;
   seuil: number;
-  stockDetails:  any[]
+  stockDetails: any[]
   tva: number;
   uniteMesure: string;
 }

@@ -1,14 +1,15 @@
 import { DecimalPipe } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { RouterModule } from '@angular/router';
-import { Product } from '@models/product'; 
+import { Product } from '@models/product';
 import { AppService } from '@services/app.service';
 import { RatingComponent } from '@shared-components/rating/rating.component';
+import {AuthService} from "@services/auth.service";
 
 @Component({
     selector: 'app-compare',
@@ -26,11 +27,13 @@ import { RatingComponent } from '@shared-components/rating/rating.component';
 })
 export class CompareComponent implements OnInit {
 
-  constructor(public appService: AppService, public snackBar: MatSnackBar) { }
+   constructor(
+    public authService: AuthService,
+    public snackBar:MatSnackBar,public appService: AppService) { }
 
   ngOnInit() {
-    this.appService.Data.cartList.forEach(cartProduct => {
-      this.appService.Data.compareList.forEach(product => {
+    this.appService.Data.cartList.forEach((cartProduct:any) => {
+      this.appService.Data.compareList.forEach((product:any) => {
         if (cartProduct.id == product.id) {
           product.cartCount = cartProduct.cartCount;
         }

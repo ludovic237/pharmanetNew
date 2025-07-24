@@ -36,6 +36,7 @@ import {MatStepperModule} from "@angular/material/stepper";
 import {MatRadioModule} from "@angular/material/radio";
 import {NgxPaginationModule} from "ngx-pagination";
 import {MatPaginator, PageEvent} from "@angular/material/paginator";
+import {AuthService} from "@services/auth.service";
 
 @Component({
   selector: 'app-inventaire-comparaison-dialog',
@@ -95,7 +96,8 @@ export class InventaireComparaisonDialogComponent implements OnInit {
 
   filteredProducts: any[] = [];
 
-  constructor(
+   constructor(
+    public authService: AuthService,
     private dialogRef: MatDialogRef<InventaireComparaisonDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
     private fb: FormBuilder,
@@ -166,6 +168,17 @@ export class InventaireComparaisonDialogComponent implements OnInit {
       },
       error: (err: any) => {
         console.error('Failed to fetch products in stock:', err);
+        if (err.status === 401 || err.status === 403){
+          this.authService.logout();
+          this.snackBar.open('Déconnexion réussie.', '×', {
+            panelClass: 'success',
+            verticalPosition: 'top',
+            duration: 3000,
+          });
+          // Redirect to login page or clear session
+          window.location.href = '/sign-in';
+        }
+        else
         alert('Une erreur est survenue lors de la récupération des produits en rayon.');
       },
     });

@@ -14,6 +14,8 @@ import {NgxPaginationModule} from 'ngx-pagination';
 import {MatDividerModule} from '@angular/material/divider';
 import {MatButtonModule} from '@angular/material/button';
 import {FormeService} from "@services/formes.service";
+import {AuthService} from "@services/auth.service";
+import {MatSnackBar} from "@angular/material/snack-bar";
 
 @Component({
   selector: 'app-formes',
@@ -37,7 +39,9 @@ export class FormesComponent implements OnInit {
   domHandlerService = inject(DomHandlerService);
   public settings: Settings;
 
-  constructor(public appService: AppService, public formeService: FormeService, public dialog: MatDialog, public settingsService: SettingsService) {
+   constructor(
+    public authService: AuthService,
+    public snackBar:MatSnackBar,public appService: AppService, public formeService: FormeService, public dialog: MatDialog, public settingsService: SettingsService) {
     this.settings = this.settingsService.settings;
   }
 

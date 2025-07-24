@@ -109,7 +109,7 @@
       </mat-card-content>
       <mat-card-footer>
         <button mat-raised-button color="accent" class="action-button"
-                [disabled]="produitsRetournes.length === 0 || !searchReferenceControl.value"
+                [disabled]="produitsRetournes.length <= 0"
                 (click)="validerRetour()">Valider retour</button>
       </mat-card-footer>
     </mat-card>

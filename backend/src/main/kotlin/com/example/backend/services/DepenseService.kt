@@ -16,7 +16,7 @@ class DepenseService(
   }
 
   fun createDepense(designation: String, prixUnitaire: Int): Depense {
-    var caisseId = caisseService.getActiveCaisse()!!.id
+    var caisseId = caisseService.getCaisseActive()!!.id
     val depense = Depense().apply {
       this.caisseId = caisseId.toString()
       this.designation = designation

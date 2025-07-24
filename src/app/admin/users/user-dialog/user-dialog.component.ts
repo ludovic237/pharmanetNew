@@ -1,4 +1,6 @@
 import { Component, Inject, OnInit } from '@angular/core';
+import {AuthService} from "@services/auth.service";
+import {MatSnackBar} from "@angular/material/snack-bar";
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { User, UserContacts, UserProfile, UserSettings, UserSocial, UserWork } from '../../../common/models/user.model';
@@ -37,16 +39,18 @@ import { FlexLayoutModule } from '@ngbracket/ngx-layout';
 export class UserDialogComponent implements OnInit {
   public form: FormGroup;
   public passwordHide:boolean = true;
-  constructor(public dialogRef: MatDialogRef<UserDialogComponent>,
+   constructor(
+    public authService: AuthService,
+    public snackBar:MatSnackBar,public dialogRef: MatDialogRef<UserDialogComponent>,
               @Inject(MAT_DIALOG_DATA) public user: User,
               public fb: FormBuilder) {
     this.form = this.fb.group({
       id: null,
       username: [null, Validators.compose([Validators.required, Validators.minLength(5)])],
-      password: [null, Validators.compose([Validators.required, Validators.minLength(6)])],       
+      password: [null, Validators.compose([Validators.required, Validators.minLength(6)])],
       profile: this.fb.group({
         name: null,
-        surname: null,  
+        surname: null,
         birthday: null,
         gender: null,
         image: null
@@ -59,7 +63,7 @@ export class UserDialogComponent implements OnInit {
       contacts: this.fb.group({
         email: null,
         phone: null,
-        address: null          
+        address: null
       }),
       social: this.fb.group({
         facebook: null,
@@ -78,7 +82,7 @@ export class UserDialogComponent implements OnInit {
   ngOnInit() {
     if(this.user){
       this.form.setValue(this.user);
-    } 
+    }
     else{
       this.user = new User();
       this.user.profile = new UserProfile();
@@ -86,7 +90,7 @@ export class UserDialogComponent implements OnInit {
       this.user.contacts = new UserContacts();
       this.user.social = new UserSocial();
       this.user.settings = new UserSettings();
-    } 
+    }
   }
 
   close(): void {

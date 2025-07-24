@@ -1,4 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
+import {AuthService} from "@services/auth.service";
+import {MatSnackBar} from "@angular/material/snack-bar";
 import { FormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
@@ -26,7 +28,9 @@ export class BrandsComponent implements OnInit {
   public brands: { name: string, image: string }[] = [];
   public searchText: string;
 
-  constructor(public appService: AppService) { }
+   constructor(
+    public authService: AuthService,
+    public snackBar:MatSnackBar,public appService: AppService) { }
 
   ngOnInit() {
     this.brands = this.appService.getBrands();

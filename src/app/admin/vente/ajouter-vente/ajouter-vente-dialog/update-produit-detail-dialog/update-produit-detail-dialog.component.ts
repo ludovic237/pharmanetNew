@@ -15,6 +15,7 @@ import {FlexLayoutModule} from "@ngbracket/ngx-layout";
 import {EnrayonsService} from "@services/enrayons.service";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {MatToolbarModule} from "@angular/material/toolbar";
+import {AuthService} from "@services/auth.service";
 
 @Component({
   selector: 'app-update-produit-detail-dialog',
@@ -41,13 +42,14 @@ export class UpdateProduitDetailDialogComponent {
 
   formGroup: FormGroup;
 
-  constructor(public dialogRef: MatDialogRef<UpdateProduitDetailDialogComponent>,
-              public enRayonService: EnrayonsService, // Replace with actual service
-              public snackBar: MatSnackBar,
-              @Inject(MAT_DIALOG_DATA) public data: any,
-              public fb: FormBuilder,
-              public dialog: MatDialog,
-              private formBuilder: FormBuilder) {
+  constructor(
+    public authService: AuthService,
+    public snackBar: MatSnackBar, public dialogRef: MatDialogRef<UpdateProduitDetailDialogComponent>,
+    public enRayonService: EnrayonsService, // Replace with actual service
+    @Inject(MAT_DIALOG_DATA) public data: any,
+    public fb: FormBuilder,
+    public dialog: MatDialog,
+    private formBuilder: FormBuilder) {
     this.formGroup = this.formBuilder.group({
       product: ['', Validators.required]
     });
@@ -56,11 +58,21 @@ export class UpdateProduitDetailDialogComponent {
   onSubmit(form: FormGroup) {
     console.log('Valid?', form.valid);
     console.log('product:', form.value.product);
-    this.enRayonService.decrementerStock(""+form.value.product,""+this.data.id).subscribe({
+    this.enRayonService.decrementerStock("" + form.value.product, "" + this.data.id).subscribe({
       next: (data) => {
 
       },
-      error: (err) => {
+      error: (err:any) => {
+        if (err.status === 401 || err.status === 403){
+          this.authService.logout();
+          this.snackBar.open('Déconnexion réussie.', '×', {
+            panelClass: 'success',
+            verticalPosition: 'top',
+            duration: 3000,
+          });
+          // Redirect to login page or clear session
+          window.location.href = '/sign-in';
+        }
         console.error('Error loading clients:', err);
       }
     });

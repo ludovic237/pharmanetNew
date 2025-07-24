@@ -37,8 +37,18 @@ class CaisseService(
     return caisseRepository.existsByEtatAndSupprimer("Ouvert", 0)
   }
 
-  fun getActiveCaisse(): Caisse? {
+  fun getCaisseActive(): Caisse? {
     return caisseRepository.findByEtatAndSupprimer("Ouvert", 0)
+      .firstOrNull()
+  }
+
+  fun getCaisseFermer(): Caisse? {
+    return caisseRepository.findByEtatAndSupprimer("Clot", 0)
+      .firstOrNull()
+  }
+
+  fun getCaisseEnCours(): Caisse? {
+    return caisseRepository.findByEtatAndSupprimer("En cours", 0)
       .firstOrNull()
   }
 
@@ -68,9 +78,10 @@ class CaisseService(
       this.ouvertureCaisse = requestDto.ouvertureCaisse
       this.dateOuvert = LocalDateTime.now()
       this.session = genererSessionId()
-      this.etat = "En cours"
+      this.etat = "Ouvert"
       this.supprimer = 0
     }
+
 
     val savedCaisse = caisseRepository.save(nouvelleCaisse)
     return mapToCaisseDto(savedCaisse)
@@ -117,28 +128,78 @@ class CaisseService(
   }
 
   fun setCaisseToPendingClosure(): Caisse {
-    val activeCaisse = getActiveCaisse() ?: throw CaisseException("Aucune caisse active trouvée.")
-    if (activeCaisse.etat!!.toLowerCase() != "En cours".toLowerCase()) {
-      throw CaisseException("La caisse n'est pas dans un état actif.")
-    }
+    val activeCaisse = getCaisseActive() ?: throw CaisseException("Aucune caisse active trouvée.")
+    val getCurrentEmploye = employeRepository.findById(userUtils.getCurrentEmployeId()!!.toInt()).get()
 
-    activeCaisse.etat = "En cours1"
-    return caisseRepository.save(activeCaisse)
+    if (activeCaisse?.user==getCurrentEmploye){
+      if (activeCaisse.etat!!.toLowerCase() == "Ouvert".toLowerCase()) {
+        activeCaisse.etat = "En cours"
+        activeCaisse.dateFerme = LocalDateTime.now()
+        caisseRepository.save(activeCaisse)
+      }
+      return caisseRepository.save(activeCaisse)
+    }
+    else {
+      return caisseRepository.save(activeCaisse)
+    }
   }
 
   @Transactional
   fun cloturerCaisse(fondCaisseFerme: Int, fermetureCaisse: String): CaisseDto {
     val currentUser = userUtils.getCurrentEmployeId()
     val clotureCaisse = getCaisseAttenteCloture()
+    val caisseEnCours = getCaisseEnCours()
+    val employeCurrentId = userUtils.getCurrentEmployeId()
+    var employeCurrent = employeRepository.findById(employeCurrentId!!.toInt()).get()
 
-    if (clotureCaisse != null && clotureCaisse.user?.user?.id?.toLong() == currentUser) {
-      clotureCaisse.apply {
-        this.fermetureCaisse = fermetureCaisse
-        this.fondCaisseFerme = fondCaisseFerme.toDouble()
-        this.dateFerme = LocalDateTime.now()
-        this.etat = "Clot"
+    val caisseEnCoursCurrentUser = caisseRepository.findByUserAndEtatAndSupprimer(employeCurrent,"En cours",0).firstOrNull()
+
+
+
+    if (caisseEnCours != null && caisseEnCoursCurrentUser?.user?.id?.toLong() == currentUser) {
+      caisseEnCoursCurrentUser.apply {
+        this?.fermetureCaisse = fermetureCaisse
+        this?.fondCaisseFerme = fondCaisseFerme.toDouble()
+        this?.dateFerme = LocalDateTime.now()
+        this?.etat = "Clot"
       }
-      val updatedCaisse = caisseRepository.save(clotureCaisse)
+      val updatedCaisse = caisseRepository.save(caisseEnCoursCurrentUser!!)
+      return mapToCaisseDto(updatedCaisse)
+    } else {
+      throw CaisseException("Unauthorized or no caisse found for closure.")
+    }
+  }
+
+  @Transactional
+  fun mettreCaisseEnAttente(): CaisseDto {
+    val currentUser = userUtils.getCurrentEmployeId()
+    val caisseActive = getCaisseActive()
+    if (caisseActive != null && caisseActive.user?.id?.toLong() == currentUser) {
+      caisseActive.apply {
+        this.etat = "En cours"
+      }
+      val updatedCaisse = caisseRepository.save(caisseActive)
+      return mapToCaisseDto(updatedCaisse)
+    } else {
+      throw CaisseException("Unauthorized or no caisse found for closure.")
+    }
+  }
+
+  @Transactional
+  fun ouvrirNouvelleCaisse(caisse : CaisseOuvertureRequestDto): CaisseDto {
+    val currentUser = userUtils.getCurrentUser()
+    val currentEmployeId= userUtils.getCurrentEmployeId()
+    val employeData = employeRepository.findByUser(currentUser!!)
+    val caisseActive = getCaisseActive()
+
+    if (caisseActive != null && caisseActive.user?.id?.toLong() == currentEmployeId) {
+      var caisse = Caisse().apply {
+        this.fondCaisseOuvert = caisse.fondCaisseOuvert.toDouble()?:0.0
+        this.ouvertureCaisse = caisse.ouvertureCaisse?:""
+        this.dateOuvert = LocalDateTime.now()
+        this.etat = "Ouvert"
+      }
+      val updatedCaisse = caisseRepository.save(caisse)
       return mapToCaisseDto(updatedCaisse)
     } else {
       throw CaisseException("Unauthorized or no caisse found for closure.")

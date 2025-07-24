@@ -36,10 +36,10 @@ export class SignInComponent implements OnInit {
   loginForm: FormGroup;
   registerForm: FormGroup;
 
-  constructor(public formBuilder: FormBuilder,
-              public router: Router,
-              private authService: AuthService,
-              public snackBar: MatSnackBar) {
+   constructor(
+    public authService: AuthService,
+    public snackBar:MatSnackBar,public formBuilder: FormBuilder,
+              public router: Router) {
   }
 
   ngOnInit() {
@@ -84,6 +84,17 @@ export class SignInComponent implements OnInit {
         },
         error: (err) => {
           console.log('Login failed:', err);
+          if (err.status === 401 || err.status === 403){
+            this.authService.logout();
+            this.snackBar.open('Déconnexion réussie.', '×', {
+              panelClass: 'success',
+              verticalPosition: 'top',
+              duration: 3000,
+            });
+            // Redirect to login page or clear session
+            window.location.href = '/sign-in';
+          }
+          else
           this.snackBar.open(err.error.message, '×', {
             panelClass: 'error',
             verticalPosition: 'top',

@@ -1,4 +1,6 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import {AuthService} from "@services/auth.service";
+import {MatSnackBar} from "@angular/material/snack-bar";
 import { customers, orders, products, refunds } from '../../../common/data/dashboard.data';
 import { FlexLayoutModule } from '@ngbracket/ngx-layout';
 import { MatCardModule } from '@angular/material/card';
@@ -29,7 +31,9 @@ export class InfoCardsComponent implements OnInit {
   @ViewChild('resizedDiv') resizedDiv: ElementRef;
   public previousWidthOfResizedDiv: number = 0;
 
-  constructor() { }
+   constructor(
+    public authService: AuthService,
+    public snackBar:MatSnackBar,) { }
 
   ngOnInit() {
     this.orders = orders;

@@ -18,7 +18,7 @@ interface ProduitDetailRepository : JpaRepository<ProduitDetail, Int>, JpaSpecif
 
   fun findByNomContainsIgnoreCaseAndSupprimer(nom: String, supprimer: Int, pageable: Pageable): Page<ProduitDetail>
 
-  fun findByNomContainingIgnoreCaseAndSupprimer(nom: String, supprimer: Int, pageable: Pageable): Page<ProduitDetail>
+  fun findByNomContainingIgnoreCaseAndSupprimer(nom: String?, supprimer: Int, pageable: Pageable): Page<ProduitDetail>
 
   fun findByIdAndStockGreaterThanAndSupprimer(
     produit: Int,

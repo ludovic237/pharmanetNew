@@ -1,4 +1,6 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import {AuthService} from "@services/auth.service";
+import {MatSnackBar} from "@angular/material/snack-bar";
 import { SwiperConfigInterface, SwiperDirective, SwiperModule } from '../../../theme/components/swiper/swiper.module';
 import { Product } from '@models/product';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -60,12 +62,14 @@ export class ProductComponent implements OnInit {
   public relatedProducts: Array<Product>;
   public settings: Settings;
 
-  constructor(public settingsService: SettingsService,
+   constructor(
+    public authService: AuthService,
+    public snackBar:MatSnackBar,public settingsService: SettingsService,
               public appService: AppService,
               private activatedRoute: ActivatedRoute,
               public dialog: MatDialog,
               public formBuilder: FormBuilder,
-              public domHandlerService: DomHandlerService) { 
+              public domHandlerService: DomHandlerService) {
     this.settings = this.settingsService.settings;
   }
 
@@ -107,14 +111,14 @@ export class ProductComponent implements OnInit {
     this.appService.getProductById(id).subscribe(data => {
       this.product = data;
       this.image = data.images[0].medium;
-      this.zoomImage = data.images[0].big; 
+      this.zoomImage = data.images[0].big;
       if (this.domHandlerService.isBrowser) {
         this.config.observer = false;
         setTimeout(() => {
           this.config.observer = true;
           // this.directiveRef.update()
         });
-      }  
+      }
     });
   }
 

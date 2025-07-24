@@ -21,6 +21,8 @@ import {MatNativeDateModule} from "@angular/material/core";
 import {MatSelectModule} from "@angular/material/select";
 import {FlexLayoutModule} from "@ngbracket/ngx-layout";
 import {MatGridListModule} from "@angular/material/grid-list";
+import {MatSnackBar} from "@angular/material/snack-bar";
+import {AuthService} from "@services/auth.service";
 
 @Component({
   selector: 'app-gestion-caisse-dialog',
@@ -65,7 +67,9 @@ export class GestionCaisseDialogComponent {
   totalAutres: number = 0;
   totalFond: number = 0;
 
-  constructor(
+   constructor(
+    public authService: AuthService,
+    public snackBar:MatSnackBar,
     private fb: FormBuilder,
     public dialogRef: MatDialogRef<GestionCaisseDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,

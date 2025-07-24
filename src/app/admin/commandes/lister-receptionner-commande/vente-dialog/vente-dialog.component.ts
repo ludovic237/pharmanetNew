@@ -18,6 +18,7 @@ import {FlexLayoutModule} from "@ngbracket/ngx-layout";
 import {jsPDF} from "jspdf";
 import QRCode from "qrcode";
 import {VentesService} from "@services/ventes.service";
+import {AuthService} from "@services/auth.service";
 
 @Component({
   selector: 'app-vente-dialog',
@@ -46,7 +47,8 @@ export class VenteDialogComponent {
   displayedColumns: string[] = ['montant', 'montantPerçu', 'dateEncaissement', 'dateVente', 'etat', 'ref', 'actions'];
   ventes: any[] = []; // Replace with actual data source
 
-  constructor(
+   constructor(
+    public authService: AuthService,
     public dialogRef: MatDialogRef<VenteDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any[],
     public venteService: VentesService, // Replace with actual VenteService

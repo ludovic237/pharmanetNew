@@ -16,6 +16,7 @@ import {MatAutocompleteModule} from "@angular/material/autocomplete";
 import {FlexLayoutModule} from "@ngbracket/ngx-layout";
 import {DepenseService} from "@services/depenses.service";
 import {MatSnackBar} from "@angular/material/snack-bar";
+import {AuthService} from "@services/auth.service";
 
 @Component({
   selector: 'app-depense-dialog',
@@ -46,7 +47,9 @@ export class DepenseDialogComponent implements OnInit {
   displayedColumns: string[] = ['id', 'designation', 'quantite', 'prixUnitaire', 'dateEpense', 'actions'];
   depenseForm: FormGroup;
 
-  constructor(private fb: FormBuilder, private depenseService: DepenseService, private snackBar: MatSnackBar) {
+   constructor(
+    public authService: AuthService,
+    private fb: FormBuilder, private depenseService: DepenseService, private snackBar: MatSnackBar) {
     this.depenseForm = this.fb.group({
       designation: ['', Validators.required],
       // quantite: [0, [Validators.required, Validators.min(1)]],

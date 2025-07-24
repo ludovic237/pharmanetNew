@@ -52,6 +52,7 @@ import {NgxPaginationModule} from "ngx-pagination";
 import {DomHandlerService} from "@services/dom-handler.service";
 import {FournisseursService} from "@services/fournisseurs.service";
 import {MatPaginator, PageEvent} from "@angular/material/paginator";
+import {AuthService} from "@services/auth.service";
 
 interface Commande {
   id: string;
@@ -140,8 +141,9 @@ export class ListerAjouterCommandeComponent implements OnInit {
   etats: string[] = ['all', 'en_attente', 'livree', 'en_cours', 'annulee'];
   selectedEtats: string = 'all'; // Default to "All"
 
-  constructor(public appSettings: SettingsService,
-              public snackBar: MatSnackBar,
+   constructor(
+    public authService: AuthService,
+    public snackBar:MatSnackBar,public appSettings: SettingsService,
               public enRayonService: EnrayonsService,
               public commandesService: CommandesService,
               public fournisseursService: FournisseursService,

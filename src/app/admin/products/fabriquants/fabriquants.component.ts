@@ -1,4 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
+import {AuthService} from "@services/auth.service";
+import {MatSnackBar} from "@angular/material/snack-bar";
 import { MatDialog } from '@angular/material/dialog';
 import { Category } from '@models/category';
 import { AppService } from '@services/app.service';
@@ -38,7 +40,9 @@ export class FabriquantsComponent implements OnInit {
   public count = 6;
   domHandlerService = inject(DomHandlerService);
   public settings: Settings;
-  constructor(public appService: AppService,
+   constructor(
+    public authService: AuthService,
+    public snackBar:MatSnackBar,public appService: AppService,
               public fabriquantService: FabriquantService, public dialog: MatDialog, public settingsService: SettingsService) {
     this.settings = this.settingsService.settings;
   }

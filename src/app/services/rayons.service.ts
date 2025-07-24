@@ -9,7 +9,8 @@ import {Rayon} from "@models/product";
 export class RayonService {
   private url = 'api/rayons';
 
-  constructor(private http: HttpClient) {
+  constructor(
+    private http: HttpClient) {
   }
 
   private getHeaders(): HttpHeaders {

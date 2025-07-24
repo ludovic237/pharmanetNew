@@ -12,8 +12,9 @@ import java.time.LocalDate
 @Repository
 interface CaisseRepository : JpaRepository<Caisse, Int>, JpaSpecificationExecutor<Caisse> {
   fun findByEtatAndSupprimer(etat: String, supprimer: Int = 0): List<Caisse>
+//  fun findByUserAndEtatAndSupprimer(employe: Employe,etat: String, supprimer: Int = 0): List<Caisse>
   fun existsByEtatAndSupprimer(etat: String, supprimer: Int = 0): Boolean
-  fun findByUserAndEtatAndSupprimer(employe: Employe, etat: String, supprimer: Int = 0): Caisse
+  fun findByUserAndEtatAndSupprimer(employe: Employe, etat: String, supprimer: Int = 0): List<Caisse>
   fun findByUserAndEtat(employe: Employe, etat: String): Caisse
   fun findByUserAndSupprimerOrderByDateOuvertDesc(employe: Employe, supprimer: Int = 0): List<Caisse>
 

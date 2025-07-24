@@ -1,4 +1,6 @@
 import { Component, Inject, OnInit } from '@angular/core';
+import {AuthService} from "@services/auth.service";
+import {MatSnackBar} from "@angular/material/snack-bar";
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -22,7 +24,9 @@ import { FlexLayoutModule } from '@ngbracket/ngx-layout';
 })
 export class FormeDialogComponent implements OnInit {
   public form: FormGroup;
-  constructor(public dialogRef: MatDialogRef<FormeDialogComponent>,
+   constructor(
+    public authService: AuthService,
+    public snackBar:MatSnackBar,public dialogRef: MatDialogRef<FormeDialogComponent>,
               @Inject(MAT_DIALOG_DATA) public data: any,
               public fb: FormBuilder) { }
 

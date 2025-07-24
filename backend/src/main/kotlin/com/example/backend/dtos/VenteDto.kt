@@ -64,6 +64,11 @@ data class EncaissementDto(
   val ticket: TicketDto? // Ticket payment amount
 )
 
+data class EncaissementDirectDto(
+  var encaissementDto: EncaissementDto,
+  val venteRequestDto: VenteRequestDto,
+)
+
 data class ElectroniqueDto(
   val numeroTelephone: String,
   val montantElectronique: Int

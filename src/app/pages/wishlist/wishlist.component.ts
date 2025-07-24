@@ -1,5 +1,5 @@
 import { DecimalPipe } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
@@ -9,6 +9,7 @@ import { RouterModule } from '@angular/router';
 import { Product } from '@models/product';
 import { AppService } from '@services/app.service';
 import { ControlsComponent } from '@shared-components/controls/controls.component';
+import {AuthService} from "@services/auth.service";
 
 @Component({
     selector: 'app-wishlist',
@@ -26,11 +27,13 @@ import { ControlsComponent } from '@shared-components/controls/controls.componen
 })
 export class WishlistComponent implements OnInit {
   public quantity: number = 1;
-  constructor(public appService: AppService, public snackBar: MatSnackBar) { }
+   constructor(
+    public authService: AuthService,
+    public appService: AppService, public snackBar: MatSnackBar) { }
 
   ngOnInit() {
-    this.appService.Data.cartList.forEach(cartProduct => {
-      this.appService.Data.wishList.forEach(product => {
+    this.appService.Data.cartList.forEach((cartProduct:any) => {
+      this.appService.Data.wishList.forEach((product:any) => {
         if (cartProduct.id == product.id) {
           product.cartCount = cartProduct.cartCount;
         }
@@ -54,7 +57,7 @@ export class WishlistComponent implements OnInit {
   }
 
   public addToCart(product: Product): void {
-    const currentProduct = this.appService.Data.cartList.find(item => item.id === product.id);
+    const currentProduct = this.appService.Data.cartList.find((item:any) => item.id === product.id);
     if (currentProduct) {
       const availableCount = product.availibilityCount;
       const addedCount = currentProduct.cartCount + this.quantity;

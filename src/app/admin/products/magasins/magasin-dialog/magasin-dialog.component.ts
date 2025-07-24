@@ -1,4 +1,6 @@
 import { Component, Inject, OnInit } from '@angular/core';
+import {AuthService} from "@services/auth.service";
+import {MatSnackBar} from "@angular/material/snack-bar";
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -6,6 +8,7 @@ import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/materia
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { FlexLayoutModule } from '@ngbracket/ngx-layout';
+
 
 @Component({
     selector: 'app-magasin-dialog',
@@ -16,13 +19,15 @@ import { FlexLayoutModule } from '@ngbracket/ngx-layout';
         MatSelectModule,
         MatCheckboxModule,
         MatButtonModule,
-        FlexLayoutModule 
+        FlexLayoutModule
     ],
     templateUrl: './magasin-dialog.component.html'
 })
 export class MagasinDialogComponent implements OnInit {
   public form: FormGroup;
-  constructor(public dialogRef: MatDialogRef<MagasinDialogComponent>,
+   constructor(
+    public authService: AuthService,
+    public snackBar:MatSnackBar,public dialogRef: MatDialogRef<MagasinDialogComponent>,
               @Inject(MAT_DIALOG_DATA) public data: any,
               public fb: FormBuilder) { }
 

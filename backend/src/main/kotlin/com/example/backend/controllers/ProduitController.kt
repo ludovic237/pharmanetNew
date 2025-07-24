@@ -105,7 +105,7 @@ class ProduitController(
   fun getAllProduits(
     @RequestParam(defaultValue = "0") page: String,
     @RequestParam(defaultValue = "10") size: String,
-    @RequestParam(required = false) search: String,
+    @RequestParam(required = false) search: String?,
     @RequestParam(defaultValue = "id") sortBy: String
   ): ResponseEntity<Page<ProduitResponseDto>> {
     val pageNumber = page.toIntOrNull() ?: 0 // Default to 0 if conversion fails
@@ -130,7 +130,7 @@ class ProduitController(
   @PreAuthorize("isAuthenticated()")
   @GetMapping("/products/search/param")
   fun searchProductsParam(
-    @RequestParam("query") query: String,
+    @RequestParam("query") query: String?,
     @RequestParam("page", defaultValue = "0") page: Int,
     @RequestParam("size", defaultValue = "10") size: Int,
     @RequestParam(required = false) rayonId: String?,

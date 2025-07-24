@@ -1,35 +1,37 @@
 import {HttpClient, HttpHeaders} from '@angular/common/http';
-    import { Injectable } from '@angular/core';
-    import { Observable } from 'rxjs';
+import {Injectable} from '@angular/core';
+import {Observable} from 'rxjs';
 
-    @Injectable({
-      providedIn: 'root'
-    })
-    export class PrescripteursService {
-      private url = 'api/prescripteurs';
+@Injectable({
+  providedIn: 'root'
+})
+export class PrescripteursService {
+  private url = 'api/prescripteurs';
 
-      constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient) {
+  }
 
-      private getHeaders(): HttpHeaders {
-        const token = localStorage.getItem('token');
-        return new HttpHeaders({
-          'Authorization': `Bearer ${token}`
-        });
-      }
+  private getHeaders(): HttpHeaders {
+    const token = localStorage.getItem('token');
+    return new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+  }
 
-      getPrescripteurs(): Observable<any[]> {
-        return this.http.get<any[]>(this.url, {headers: this.getHeaders()});
-      }
+  getPrescripteurs(): Observable<any[]> {
+    return this.http.get<any[]>(this.url, {headers: this.getHeaders()});
+  }
 
-      addPrescripteur(prescripteur: any): Observable<any> {
-        return this.http.post<any>(this.url, prescripteur, {headers: this.getHeaders()});
-      }
+  addPrescripteur(prescripteur: any): Observable<any> {
+    return this.http.post<any>(this.url, prescripteur, {headers: this.getHeaders()});
+  }
 
-      updatePrescripteur(id: number, prescripteur: any): Observable<any> {
-        return this.http.put<any>(`${this.url}/${id}`, prescripteur, {headers: this.getHeaders()});
-      }
+  updatePrescripteur(id: number, prescripteur: any): Observable<any> {
+    return this.http.put<any>(`${this.url}/${id}`, prescripteur, {headers: this.getHeaders()});
+  }
 
-      deletePrescripteur(id: number): Observable<void> {
-        return this.http.delete<void>(`${this.url}/${id}`, {headers: this.getHeaders()});
-      }
-    }
+  deletePrescripteur(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.url}/${id}`, {headers: this.getHeaders()});
+  }
+}

@@ -1,5 +1,7 @@
 import { DecimalPipe } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
+import {AuthService} from "@services/auth.service";
+import {MatSnackBar} from "@angular/material/snack-bar";
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
@@ -28,10 +30,12 @@ export class CartComponent implements OnInit {
   grandTotal: number = 0;
   cartItemCount: any[] = [];
   cartItemCountTotal = 0;
-  constructor(public appService: AppService) { }
+   constructor(
+    public authService: AuthService,
+    public snackBar:MatSnackBar,public appService: AppService) { }
 
   ngOnInit() {
-    this.appService.Data.cartList.forEach(product => {
+    this.appService.Data.cartList.forEach((product:any) => {
       this.total[product.id] = product.cartCount * product.newPrice;
       this.grandTotal += product.cartCount * product.newPrice;
       this.cartItemCount[product.id] = product.cartCount;
@@ -55,7 +59,7 @@ export class CartComponent implements OnInit {
       this.appService.Data.totalPrice = this.grandTotal;
       this.appService.Data.totalCartCount = this.cartItemCountTotal;
 
-      this.appService.Data.cartList.forEach(product => {
+      this.appService.Data.cartList.forEach((product:any) => {
         this.cartItemCount.forEach((count, index) => {
           if (product.id == index) {
             product.cartCount = count;
@@ -90,7 +94,7 @@ export class CartComponent implements OnInit {
   }
 
   public clear() {
-    this.appService.Data.cartList.forEach(product => {
+    this.appService.Data.cartList.forEach((product:any) => {
       this.appService.resetProductCartCount(product);
     });
     this.appService.Data.cartList.length = 0;

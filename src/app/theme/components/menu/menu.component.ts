@@ -1,4 +1,6 @@
-import { Component, OnInit } from '@angular/core'; 
+import { Component, inject, OnInit } from '@angular/core';
+import {AuthService} from "@services/auth.service";
+import {MatSnackBar} from "@angular/material/snack-bar";
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
@@ -28,8 +30,10 @@ import { FlexLayoutModule } from '@ngbracket/ngx-layout';
     templateUrl: './menu.component.html'
 })
 export class MenuComponent implements OnInit {
-  
-  constructor(private domHandlerService: DomHandlerService) { }
+
+   constructor(
+    public authService: AuthService,
+    public snackBar:MatSnackBar,private domHandlerService: DomHandlerService) { }
 
   ngOnInit() { }
 
@@ -40,7 +44,7 @@ export class MenuComponent implements OnInit {
           if(el.children[0].classList.contains('mega-menu')){
             el.classList.add('mega-menu-pane');
           }
-        }        
+        }
     });
   }
 

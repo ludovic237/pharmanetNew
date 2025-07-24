@@ -11,6 +11,8 @@ import { AppService } from '@services/app.service';
 import { Subscription, filter, map } from 'rxjs';
 import { DecimalPipe } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import {AuthService} from "@services/auth.service";
+import {MatSnackBar} from "@angular/material/snack-bar";
 
 @Component({
     selector: 'app-checkout',
@@ -42,7 +44,9 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   grandTotal = 0;
   watcher: Subscription;
 
-  constructor(public appService: AppService, public formBuilder: FormBuilder, public mediaObserver: MediaObserver) {
+   constructor(
+    public authService: AuthService,
+    public snackBar:MatSnackBar,public appService: AppService, public formBuilder: FormBuilder, public mediaObserver: MediaObserver) {
     this.watcher = mediaObserver.asObservable()
       .pipe(filter((changes: MediaChange[]) => changes.length > 0), map((changes: MediaChange[]) => changes[0]))
       .subscribe((change: MediaChange) => {
@@ -62,7 +66,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.appService.Data.cartList.forEach(product => {
+    this.appService.Data.cartList.forEach((product:any) => {
       this.grandTotal += product.cartCount * product.newPrice;
     });
     this.countries = this.appService.getCountries();

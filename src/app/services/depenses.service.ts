@@ -8,7 +8,7 @@ import { Observable } from 'rxjs';
 export class DepenseService {
   private apiUrl = '/api/depenses';
 
-  constructor(private http: HttpClient) {}
+   constructor(private http: HttpClient) {}
 
   private getHeaders(): HttpHeaders {
     const token = localStorage.getItem('token');

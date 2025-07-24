@@ -1,5 +1,7 @@
 import { NgClass } from '@angular/common';
 import { Component } from '@angular/core';
+import {AuthService} from "@services/auth.service";
+import {MatSnackBar} from "@angular/material/snack-bar";
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
@@ -21,7 +23,9 @@ import { Settings, SettingsService } from '@services/settings.service';
 export class OptionsComponent {
   public showOptions: boolean = false;
   public settings: Settings;
-  constructor(public appSettings: SettingsService) {
+   constructor(
+    public authService: AuthService,
+    public snackBar:MatSnackBar,public appSettings: SettingsService) {
     this.settings = this.appSettings.settings;
   }
 

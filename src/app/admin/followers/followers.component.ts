@@ -1,4 +1,6 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
+import {AuthService} from "@services/auth.service";
+import {MatSnackBar} from "@angular/material/snack-bar";
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
@@ -43,7 +45,9 @@ export class FollowersComponent {
   public count = 6;
   domHandlerService = inject(DomHandlerService);
 
-  constructor(public dialog: MatDialog) { }
+   constructor(
+    public authService: AuthService,
+    public snackBar:MatSnackBar,public dialog: MatDialog) { }
 
   public onPageChanged(event: any) {
     this.page = event;

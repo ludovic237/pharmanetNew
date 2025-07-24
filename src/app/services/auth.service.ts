@@ -9,7 +9,8 @@ import {User, UserNew} from "../model/data";
 export class AuthService {
   private baseUrl = '/api/auth';
 
-  constructor(private http: HttpClient) {
+   constructor(
+    private http: HttpClient) {
   }
 
   private loggedIn = new BehaviorSubject<boolean>(false);

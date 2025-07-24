@@ -1,4 +1,6 @@
 import { Component } from '@angular/core';
+import {AuthService} from "@services/auth.service";
+import {MatSnackBar} from "@angular/material/snack-bar";
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { Title } from '@angular/platform-browser';
@@ -26,7 +28,9 @@ export class BreadcrumbComponent {
   }[] = [];
 
   public settings: Settings;
-  constructor(public settingsService: SettingsService,
+   constructor(
+    public authService: AuthService,
+    public snackBar:MatSnackBar,public settingsService: SettingsService,
               public router: Router,
               public activatedRoute: ActivatedRoute,
               public title: Title,

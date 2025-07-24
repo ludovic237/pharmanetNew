@@ -3,6 +3,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
 import { Category } from '@models/category';
 import { DomHandlerService } from '@services/dom-handler.service';
+import {AuthService} from "@services/auth.service";
+import {MatSnackBar} from "@angular/material/snack-bar";
 
 @Component({
     selector: 'app-category-list',
@@ -17,11 +19,13 @@ export class CategoryListComponent {
   @Output() change: EventEmitter<any> = new EventEmitter();
   mainCategories: Category[];
 
-  constructor(public domHandlerService: DomHandlerService) { }
+   constructor(
+    public authService: AuthService,
+    public snackBar:MatSnackBar,public domHandlerService: DomHandlerService) { }
 
   public ngDoCheck() {
     if(this.categories && !this.mainCategories) {
-      this.mainCategories = this.categories.filter(category => category.parentId == this.categoryParentId); 
+      this.mainCategories = this.categories.filter(category => category.parentId == this.categoryParentId);
     }
   }
 
@@ -29,7 +33,7 @@ export class CategoryListComponent {
     if(this.domHandlerService.window?.innerWidth < 960){
       event.stopPropagation();
       event.preventDefault();
-    }    
+    }
   }
 
   public changeCategory(event: any){

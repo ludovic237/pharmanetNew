@@ -1,22 +1,25 @@
 package com.example.backend.controllers
 
 import com.example.backend.config.SecurityConfig
+import com.example.backend.models.Caisse
 import com.example.backend.models.Employe
 import com.example.backend.models.User
+import com.example.backend.repositories.CaisseRepository
 import com.example.backend.repositories.EmployeRepository
 import com.example.backend.repositories.UserRepository
+import com.example.backend.services.CaisseService
 import com.example.backend.services.CustomUserDetailsService
 import com.example.backend.utility.JwtUtil
 import com.example.backend.utility.UserUtils
 import org.springframework.http.ResponseEntity
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
-import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.crypto.password.PasswordEncoder
 
 import org.springframework.web.bind.annotation.*
-import java.util.*
+import java.time.LocalDateTime
+import java.time.LocalTime
 
 
 @RestController
@@ -25,11 +28,12 @@ class AuthController(
   private var authenticationManager: AuthenticationManager? = null,
   private var jwtUtil: JwtUtil,
   var userRepository: UserRepository,
+  var caisseService: CaisseService,
   var securityConfig: SecurityConfig,
   var userUtils: UserUtils,
   private val userDetailsService: CustomUserDetailsService,
   private val passwordEncoder: PasswordEncoder, // Injected here
-  private val employeRepository: EmployeRepository
+  private val employeRepository: EmployeRepository, private val caisseRepository: CaisseRepository
 ) {
 
   fun AuthController(authenticationManager: AuthenticationManager) {
@@ -65,6 +69,24 @@ class AuthController(
       val token = jwtUtil.generateToken(authentication)
 
       println("Generated token: $token")
+      val activeCaisse = caisseService.getCaisseActive()
+      val caisseEnCoursCurrentUser = caisseRepository.findByUserAndEtatAndSupprimer(employe,"En cours",0).firstOrNull()
+      val caisseFermer = caisseService.getCaisseFermer()
+
+      if (activeCaisse==null && caisseEnCoursCurrentUser!=null &&  caisseEnCoursCurrentUser?.user?.id != employe.id!!.toInt()){
+        var nouvelleCaisse = Caisse().apply {
+          this.user = employe
+          this.fondCaisseOuvert = 0.0
+          this.ouvertureCaisse = "0"
+          this.dateOuvert = LocalDateTime.now()
+          this.session = genererSessionId()
+          this.etat = "Ouvert"
+          this.supprimer = 0
+        }
+        caisseRepository.save(nouvelleCaisse)
+      }
+
+
       ResponseEntity.ok(
         mapOf(
           "message" to "Login successful",
@@ -92,6 +114,20 @@ class AuthController(
   @CrossOrigin(origins = ["http://localhost:4200"])
   @PostMapping("/logout")
   fun logout(): ResponseEntity<*> {
+    val getCurrentEmploye = employeRepository.findById(userUtils.getCurrentEmployeId()!!.toInt()).get()
+    val currentUser = userUtils.getCurrentEmployeId()
+    val activeCaisse = caisseService.getCaisseActive()
+    if (activeCaisse?.user==getCurrentEmploye){
+     val clotureCaisse =  caisseRepository.findByUserAndEtat(getCurrentEmploye,"En cours")
+      clotureCaisse.apply {
+        this.fermetureCaisse = fermetureCaisse
+        this.fondCaisseFerme = fondCaisseFerme?.toDouble()
+        this.dateFerme = LocalDateTime.now()
+        this.etat = "Clot"
+      }
+      val updatedCaisse = caisseRepository.save(clotureCaisse)
+    }
+
     SecurityContextHolder.clearContext()
     return ResponseEntity.ok(mapOf("message" to "Logout successful"))
   }
@@ -127,6 +163,16 @@ class AuthController(
 
 
     return ResponseEntity.ok(mapOf("message" to "User registered successfully"))
+  }
+
+  private fun genererSessionId(): String {
+    // Ge un identifiant de session simple, vous pouvez le rendre plus complexe
+    var heure = LocalTime.now()
+    return when (heure) {
+      in LocalTime.of(5, 0)..LocalTime.of(11, 59) -> "matin"
+      in LocalTime.of(12, 0)..LocalTime.of(23, 59) -> "soir"
+      else -> "soir"
+    }
   }
 }
 

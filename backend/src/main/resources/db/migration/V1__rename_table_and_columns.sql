@@ -332,4 +332,10 @@ alter table user
   modify password varchar(255) null,
   modify username varchar(255) null;
 
-
+CREATE TABLE application_settings
+(
+  id           BIGINT AUTO_INCREMENT PRIMARY KEY,
+  key_name      VARCHAR(255)   NULL,
+  value       Text  NULL,
+  type  VARCHAR(50) default '0'
+);

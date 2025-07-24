@@ -31,7 +31,7 @@ class BonCaisseService(
   fun createBon(bon: BonCaisseData): BonCaisse {
     val dateCode = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyMMddHHmmss"))
     val bonCaisse = BonCaisse().apply {
-      caisse = caisseService.getActiveCaisse()
+      caisse = caisseService.getCaisseActive()
 //      caisseIdEncaisser = caisseService.getActiveCaisse()?.id
       nomClient = bon.nomClient
       montant = bon.montant
@@ -52,7 +52,7 @@ class BonCaisseService(
 
     existingBon.type = "Encaisser" // Transition to Encaisser
     existingBon.dateEncaisser = LocalDateTime.now() // Set the encaisser date
-    existingBon.caisseIdEncaisser = caisseService.getActiveCaisse()!!.id
+    existingBon.caisseIdEncaisser = caisseService.getCaisseActive()!!.id
 
     return bonCaisseRepository.save(existingBon)
   }

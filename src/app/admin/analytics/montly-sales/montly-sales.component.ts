@@ -1,4 +1,6 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import {AuthService} from "@services/auth.service";
+import {MatSnackBar} from "@angular/material/snack-bar";
 import { MatCardModule } from '@angular/material/card';
 import { FlexLayoutModule } from '@ngbracket/ngx-layout';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
@@ -26,7 +28,9 @@ export class MontlySalesComponent implements OnInit {
   @ViewChild('resizedDiv') resizedDiv: ElementRef;
   public previousWidthOfResizedDiv: number = 0;
 
-  constructor() { }
+   constructor(
+    public authService: AuthService,
+    public snackBar:MatSnackBar,) { }
 
   ngOnInit() {
     this.data = montly_sales;

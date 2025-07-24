@@ -9,6 +9,7 @@ import {ReactiveFormsModule} from "@angular/forms";
 import {MatFormFieldModule} from "@angular/material/form-field";
 import {MatAutocompleteModule} from "@angular/material/autocomplete";
 import {MatInputModule} from "@angular/material/input";
+import {AppSettingsService} from "@services/app-settings.service";
 
 @Component({
   selector: 'app-root',
@@ -33,6 +34,7 @@ export class AppComponent {
   constructor(public settingsService: SettingsService,
               public router: Router,
               public translate: TranslateService,
+              public appSettingsService: AppSettingsService,
               public domHandlerService: DomHandlerService) {
     this.settings = this.settingsService.settings;
     translate.addLangs(['en', 'de', 'fr', 'ru', 'tr']);
@@ -41,6 +43,7 @@ export class AppComponent {
   }
 
   ngOnInit() {
+    this.appSettingsService.refreshSetting()
     if (this.domHandlerService.isBrowser) {
       setTimeout(() => {
         this.isServer = false;

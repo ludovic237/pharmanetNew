@@ -1,4 +1,6 @@
 import { Component } from '@angular/core';
+import {AuthService} from "@services/auth.service";
+import {MatSnackBar} from "@angular/material/snack-bar";
 import { TilesComponent } from './tiles/tiles.component';
 import { InfoCardsComponent } from './info-cards/info-cards.component';
 import { MontlySalesComponent } from './montly-sales/montly-sales.component';

@@ -18,7 +18,8 @@ export interface TicketCaisse {
 export class TicketCaisseService {
   private url = 'api/admin/tickets';
 
-  constructor(private http: HttpClient) {}
+   constructor(
+   private http: HttpClient) {}
 
   private getHeaders(): HttpHeaders {
     const token = localStorage.getItem('token');

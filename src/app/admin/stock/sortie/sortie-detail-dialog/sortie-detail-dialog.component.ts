@@ -16,6 +16,7 @@ import {MatAutocompleteModule} from "@angular/material/autocomplete";
 import {FlexLayoutModule} from "@ngbracket/ngx-layout";
 import {MatTabsModule} from "@angular/material/tabs";
 import {MatFormFieldModule} from "@angular/material/form-field";
+import {AuthService} from "@services/auth.service";
 
 @Component({
   selector: 'app-sortie-detail-dialog',
@@ -46,19 +47,20 @@ import {MatFormFieldModule} from "@angular/material/form-field";
   templateUrl: './sortie-detail-dialog.component.html',
   styleUrl: './sortie-detail-dialog.component.scss'
 })
-export class SortieDetailDialogComponent implements OnInit{
+export class SortieDetailDialogComponent implements OnInit {
 
   sortieForm: FormGroup;
   // DataSource pour le tableau Material
-  dataSource:any[] = [];
+  dataSource: any[] = [];
   // Colonnes à afficher dans le tableau
   displayedColumns: string[] = ['nomProduit', 'quantite', 'action'];
 
-  constructor(public dialogRef: MatDialogRef<SortieDetailDialogComponent>,
-              public enRayonService: EnrayonsService, // Replace with actual service
-              public snackBar: MatSnackBar,
-              @Inject(MAT_DIALOG_DATA) public data: any,
-              public fb: FormBuilder) {
+  constructor(
+    public authService: AuthService,
+    public snackBar: MatSnackBar, public dialogRef: MatDialogRef<SortieDetailDialogComponent>,
+    public enRayonService: EnrayonsService,
+    @Inject(MAT_DIALOG_DATA) public data: any,
+    public fb: FormBuilder) {
   }
 
   ngOnInit(): void {

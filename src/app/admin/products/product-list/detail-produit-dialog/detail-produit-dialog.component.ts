@@ -21,6 +21,7 @@ import {ProductService} from "@services/products.service";
 import {ProduitRayonInfoDialogComponent} from "../produit-rayon-info-dialog/produit-rayon-info-dialog.component";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {RayonInfoDialogComponent} from "../rayon-info-dialog/rayon-info-dialog.component";
+import {AuthService} from "@services/auth.service";
 
 @Component({
   selector: 'app-detail-produit-dialog',
@@ -55,49 +56,52 @@ export class DetailProduitDialogComponent implements OnInit {
   selectedTabIndex: number = 0;
 
   public form: FormGroup;
-  constructor(public dialogRef: MatDialogRef<DetailProduitDialogComponent>,
-              public productService: ProductService,
-              public dialog: MatDialog,
-              public snackBar: MatSnackBar,
-              @Inject(MAT_DIALOG_DATA) public data: any,
-              public fb: FormBuilder) {
+
+  constructor(
+    public authService: AuthService,
+    public dialogRef: MatDialogRef<DetailProduitDialogComponent>,
+    public productService: ProductService,
+    public dialog: MatDialog,
+    public snackBar: MatSnackBar,
+    @Inject(MAT_DIALOG_DATA) public data: any,
+    public fb: FormBuilder) {
 
   }
 
   // Vente
-  ventesMoisDS:any[]       = [];
-  ventesTotalDS:any[]      = [];
-  ventesListDS : any[]      = [];
-  ventesMoisCols     = ['nom','quantite','reduction','vente'];
-  ventesTotalCols    = ['nom','quantite','reduction','vente'];
-  ventesListCols     = ['date','vendeur','client','prixUnitaire','quantite','prixTotal','reduction','prixVente'];
+  ventesMoisDS: any[] = [];
+  ventesTotalDS: any[] = [];
+  ventesListDS: any[] = [];
+  ventesMoisCols = ['nom', 'quantite', 'reduction', 'vente'];
+  ventesTotalCols = ['nom', 'quantite', 'reduction', 'vente'];
+  ventesListCols = ['date', 'vendeur', 'client', 'prixUnitaire', 'quantite', 'prixTotal', 'reduction', 'prixVente'];
 
   // Commande
-  commandesMoisDS:any[]    = [];
-  commandesTotalDS:any[]   = [];
-  commandesListDS :any[]   = [];
-  commandesMoisCols  = ['nom','quantite','cout'];
-  commandesTotalCols = ['nom','quantite','cout'];
-  commandesListCols  = [
-    'date','produitId','commandeId','fournisseur',
-    'prixAchat','prixVente','quantiteCommandee','quantiteRecue',
-    'totalCommandee','totalRecu','etat','action'
+  commandesMoisDS: any[] = [];
+  commandesTotalDS: any[] = [];
+  commandesListDS: any[] = [];
+  commandesMoisCols = ['nom', 'quantite', 'cout'];
+  commandesTotalCols = ['nom', 'quantite', 'cout'];
+  commandesListCols = [
+    'date', 'produitId', 'commandeId', 'fournisseur',
+    'prixAchat', 'prixVente', 'quantiteCommandee', 'quantiteRecue',
+    'totalCommandee', 'totalRecu', 'etat', 'action'
   ];
 
   // Stock résumé
-  totalCommande      = 0;
-  stockTotal         = 0;
+  totalCommande = 0;
+  stockTotal = 0;
 
   // Entrée en rayon
-  stockEntryDS       :any[]= [];
-  stockEntryCols     = [
-    'nom','fournisseurId','dateLivraison','datePeremption',
-    'prixAchat','prixVente','reduction','quantiteRecu','quantiteStock','action'
+  stockEntryDS: any[] = [];
+  stockEntryCols = [
+    'nom', 'fournisseurId', 'dateLivraison', 'datePeremption',
+    'prixAchat', 'prixVente', 'reduction', 'quantiteRecu', 'quantiteStock', 'action'
   ];
 
   // Sortie
-  sortieDS           :any[]= [];
-  sortieCols         = ['nom','quantite','detail','forme','dateOperation','operation'];
+  sortieDS: any[] = [];
+  sortieCols = ['nom', 'quantite', 'detail', 'forme', 'dateOperation', 'operation'];
 
   ngOnInit(): void {
     // TODO: remplacer par vos services
@@ -110,10 +114,10 @@ export class DetailProduitDialogComponent implements OnInit {
     this.commandesListDS = this.data.commandesList;
 
     this.totalCommande = this.data.stockSummary.totalCommandeValue;
-    this.stockTotal    = this.data.stockSummary.stockTotalQuantity;
+    this.stockTotal = this.data.stockSummary.stockTotalQuantity;
 
     this.stockEntryDS = this.data.stockEntries;
-    this.sortieDS     = this.data.stockSorties;
+    this.sortieDS = this.data.stockSorties;
   }
 
   deleteProduct(productId: number): void {
@@ -152,8 +156,8 @@ export class DetailProduitDialogComponent implements OnInit {
     const dialogRef = this.dialog.open(ProduitRayonInfoDialogComponent, {
       width: '800px',
       data: {
-        data:product,
-        type:"info"
+        data: product,
+        type: "info"
       }
     });
 

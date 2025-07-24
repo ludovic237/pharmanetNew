@@ -1,67 +1,69 @@
-import { Component, HostListener, OnInit, ViewChild } from '@angular/core';
-import { NavigationEnd, Router, RouterModule } from '@angular/router';
-import { Category } from '@models/category';
-import { Product } from '@models/product';
-import { AppService } from '@services/app.service';
-import { DomHandlerService } from '@services/dom-handler.service';
-import { Settings, SettingsService } from '@services/settings.service';
-import { SidenavMenuService } from '@services/sidenav-menu.service';
-import { MatSidenavModule } from '@angular/material/sidenav';
-import { MatIconModule } from '@angular/material/icon';
-import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatBadgeModule } from '@angular/material/badge';
-import { SidenavMenuComponent } from '../theme/components/sidenav-menu/sidenav-menu.component';
-import { TranslateModule } from '@ngx-translate/core';
-import { TopMenuComponent } from '../theme/components/top-menu/top-menu.component';
-import { MatMenuModule } from '@angular/material/menu';
-import { CategoryListComponent } from '../shared-components/category-list/category-list.component';
-import { DecimalPipe } from '@angular/common';
-import { MenuComponent } from '../theme/components/menu/menu.component';
-import { BreadcrumbComponent } from '../theme/components/breadcrumb/breadcrumb.component';
-import { OptionsComponent } from '../theme/components/options/options.component';
-import { FooterComponent } from '../theme/components/footer/footer.component';
-import { FlexLayoutModule } from '@ngbracket/ngx-layout';
-import { MatButtonModule } from '@angular/material/button';
+import {Component, HostListener, OnInit, ViewChild} from '@angular/core';
+import {NavigationEnd, Router, RouterModule} from '@angular/router';
+import {Category} from '@models/category';
+import {Product} from '@models/product';
+import {AppService} from '@services/app.service';
+import {DomHandlerService} from '@services/dom-handler.service';
+import {Settings, SettingsService} from '@services/settings.service';
+import {SidenavMenuService} from '@services/sidenav-menu.service';
+import {MatSidenavModule} from '@angular/material/sidenav';
+import {MatIconModule} from '@angular/material/icon';
+import {MatToolbarModule} from '@angular/material/toolbar';
+import {MatBadgeModule} from '@angular/material/badge';
+import {SidenavMenuComponent} from '../theme/components/sidenav-menu/sidenav-menu.component';
+import {TranslateModule} from '@ngx-translate/core';
+import {TopMenuComponent} from '../theme/components/top-menu/top-menu.component';
+import {MatMenuModule} from '@angular/material/menu';
+import {CategoryListComponent} from '../shared-components/category-list/category-list.component';
+import {DecimalPipe} from '@angular/common';
+import {MenuComponent} from '../theme/components/menu/menu.component';
+import {BreadcrumbComponent} from '../theme/components/breadcrumb/breadcrumb.component';
+import {OptionsComponent} from '../theme/components/options/options.component';
+import {FooterComponent} from '../theme/components/footer/footer.component';
+import {FlexLayoutModule} from '@ngbracket/ngx-layout';
+import {MatButtonModule} from '@angular/material/button';
 import {MenuPharmaComponent} from "../theme/components/menu/menu-pharma.component";
 
 @Component({
-    selector: 'app-pages',
-    imports: [
-        RouterModule,
-        FlexLayoutModule,
-        MatSidenavModule,
-        MatIconModule,
-        MatToolbarModule,
-        MatMenuModule,
-        MatBadgeModule,
-        MatButtonModule,
-        TranslateModule,
-        SidenavMenuComponent,
-        TopMenuComponent,
-        CategoryListComponent,
-        MenuPharmaComponent,
-        BreadcrumbComponent,
-        OptionsComponent,
-        FooterComponent,
-        DecimalPipe
-    ],
-    templateUrl: './pages.component.html',
-    styleUrl: './pages.component.scss',
-    providers: [SidenavMenuService]
+  selector: 'app-pages',
+  imports: [
+    RouterModule,
+    FlexLayoutModule,
+    MatSidenavModule,
+    MatIconModule,
+    MatToolbarModule,
+    MatMenuModule,
+    MatBadgeModule,
+    MatButtonModule,
+    TranslateModule,
+    SidenavMenuComponent,
+    TopMenuComponent,
+    CategoryListComponent,
+    MenuPharmaComponent,
+    BreadcrumbComponent,
+    OptionsComponent,
+    FooterComponent,
+    DecimalPipe
+  ],
+  templateUrl: './pages.component.html',
+  styleUrl: './pages.component.scss',
+  providers: [SidenavMenuService]
 })
 export class PagesComponent implements OnInit {
   public showBackToTop: boolean = false;
   public categories: Category[];
   public category: Category = new Category(0, '', false, 0);
   public sidenavMenuItems: Array<any>;
-  @ViewChild('sidenav', { static: true }) sidenav: any;
+  @ViewChild('sidenav', {static: true}) sidenav: any;
 
   public settings: Settings;
-  constructor(public settingsService: SettingsService,
-              public appService: AppService,
-              public sidenavMenuService: SidenavMenuService,
-              public router: Router,
-              public domHandlerService: DomHandlerService) {
+
+  constructor(
+    public settingsService: SettingsService,
+    public appService: AppService,
+    public sidenavMenuService: SidenavMenuService,
+    public router: Router,
+    public domHandlerService: DomHandlerService) {
     this.settings = this.settingsService.settings;
   }
 
@@ -101,7 +103,7 @@ export class PagesComponent implements OnInit {
   }
 
   public clear() {
-    this.appService.Data.cartList.forEach(product => {
+    this.appService.Data.cartList.forEach((product:any) => {
       this.appService.resetProductCartCount(product);
     });
     this.appService.Data.cartList.length = 0;
@@ -119,7 +121,8 @@ export class PagesComponent implements OnInit {
     event.preventDefault();
   }
 
-  public search() { }
+  public search() {
+  }
 
 
   public scrollToTop() {
@@ -128,8 +131,7 @@ export class PagesComponent implements OnInit {
     var scrollInterval = setInterval(() => {
       if (this.domHandlerService.window?.pageYOffset != 0) {
         this.domHandlerService.window?.scrollBy(0, scrollStep);
-      }
-      else {
+      } else {
         clearInterval(scrollInterval);
       }
     }, 10);
@@ -147,14 +149,12 @@ export class PagesComponent implements OnInit {
     if (header_toolbar) {
       if (scrollTop >= header_toolbar.clientHeight) {
         this.settings.mainToolbarFixed = true;
-      }
-      else {
+      } else {
         if (!this.domHandlerService.winDocument.documentElement.classList.contains('cdk-global-scrollblock')) {
           this.settings.mainToolbarFixed = false;
         }
       }
-    }
-    else {
+    } else {
       this.settings.mainToolbarFixed = true;
     }
     ($event.target.documentElement.scrollTop > 300) ? this.showBackToTop = true : this.showBackToTop = false;

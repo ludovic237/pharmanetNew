@@ -21,6 +21,8 @@ import { DatePipe } from '@angular/common';
 import { DomHandlerService } from '@services/dom-handler.service';
 import { NgxSpinnerService } from 'ngx-spinner';
 import {MatTableModule} from "@angular/material/table";
+import {AuthService} from "@services/auth.service";
+import {MatSnackBar} from "@angular/material/snack-bar";
 
 @Component({
   selector: 'app-users-new',
@@ -56,7 +58,9 @@ export class UsersNewComponent implements OnInit {
   public settings: Settings;
   domHandlerService = inject(DomHandlerService);
 
-  constructor(public settingsService: SettingsService,
+   constructor(
+    public authService: AuthService,
+    public snackBar:MatSnackBar,public settingsService: SettingsService,
               public dialog: MatDialog,
               public usersService: UsersService,
               private ngxSpinnerService: NgxSpinnerService){
@@ -74,7 +78,17 @@ export class UsersNewComponent implements OnInit {
         this.users = users
         this.totalItems = users.length;
       },
-      error: () => {
+      error: (err:any) => {
+        if (err.status === 401 || err.status === 403){
+          this.authService.logout();
+          this.snackBar.open('Déconnexion réussie.', '×', {
+            panelClass: 'success',
+            verticalPosition: 'top',
+            duration: 3000,
+          });
+          // Redirect to login page or clear session
+          window.location.href = '/sign-in';
+        }
         this.users = [];
         this.ngxSpinnerService.hide()
       }
@@ -114,7 +128,17 @@ export class UsersNewComponent implements OnInit {
       next: () => {
         this.users = this.users.filter(user => user.id !== userId);
       },
-      error: (err) => {
+      error: (err:any) => {
+        if (err.status === 401 || err.status === 403){
+          this.authService.logout();
+          this.snackBar.open('Déconnexion réussie.', '×', {
+            panelClass: 'success',
+            verticalPosition: 'top',
+            duration: 3000,
+          });
+          // Redirect to login page or clear session
+          window.location.href = '/sign-in';
+        }
         console.error('Error deleting user:', err);
       }
     });

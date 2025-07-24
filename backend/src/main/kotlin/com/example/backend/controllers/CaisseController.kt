@@ -2,6 +2,7 @@ package com.example.backend.controllers
 
 import com.example.backend.dtos.CaisseClotureRequestDto
 import com.example.backend.dtos.CaisseOuvertureRequestDto
+import com.example.backend.repositories.CaisseRepository
 import com.example.backend.repositories.EmployeRepository
 import com.example.backend.repositories.UserRepository
 import com.example.backend.services.CaisseException
@@ -21,31 +22,16 @@ class CaisseController(
   private val userUtils: UserUtils,
   private val caisseService: CaisseService,
   private val employeRepository: EmployeRepository,
+  private val caisseRepository: CaisseRepository,
   private val userRepository: UserRepository
 ) {
-
-  @CrossOrigin(origins = ["http://localhost:4200"])
-  @PreAuthorize("isAuthenticated()")
-  @PostMapping("/ouvrir")
-  fun ouvrirCaisse(@RequestBody ouvertureRequestDto: CaisseOuvertureRequestDto): ResponseEntity<Any> {
-    return try {
-      val caisseDto = caisseService.ouvrirCaisse(ouvertureRequestDto)
-      ResponseEntity.ok(caisseDto)
-    } catch (e: CaisseException) {
-      ResponseEntity.status(HttpStatus.CONFLICT).body(mapOf("error" to e.message))
-    } catch (e: Exception) {
-      ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .body(mapOf("error" to "Une erreur interne est survenue: ${e.message}"))
-    }
-  }
-
 
   @CrossOrigin(origins = ["http://localhost:4200"])
   @PreAuthorize("isAuthenticated()")
   @GetMapping("/active/details")
   fun getActiveCaisseDetails(): ResponseEntity<Map<String, Any?>> {
     return try {
-      val activeCaisse = caisseService.getActiveCaisse()
+      val activeCaisse = caisseService.getCaisseActive()
       if (activeCaisse != null) {
         val employeName = activeCaisse.user?.user?.nom ?: "Inconnu"
         val caisseDetails = mapOf(
@@ -87,59 +73,77 @@ class CaisseController(
   @GetMapping("/ouverte")
   fun isCaisseOuverte(): ResponseEntity<Map<String, Any?>> {
     val isOuverte = caisseService.isCaisseOuverte()
-    val activeCaisse = caisseService.getActiveCaisse()
+    val caisseActive = caisseService.getCaisseActive()
+    val caisseEnCours = caisseService.getCaisseEnCours()
     val attenteCloture = caisseService.getCaisseAttenteCloture()
+    val caisseFermer = caisseService.getCaisseFermer()
     val employeCurrentId = userUtils.getCurrentEmployeId()
-    var employe = employeRepository.findById(employeCurrentId!!.toInt()).get()
+    var employeCurrent = employeRepository.findById(employeCurrentId!!.toInt()).get()
 
-    val response = when {
-      activeCaisse != null && activeCaisse.user?.id == employe.id?.toInt() -> {
+    val caisseEnCoursCurrentUser = caisseRepository.findByUserAndEtatAndSupprimer(employeCurrent,"En cours",0).firstOrNull()
+
+
+    val response: Map<String, Any?> =
+      if (caisseActive != null && caisseActive.user?.id == employeCurrent?.id?.toInt()) {
         mapOf(
           "status" to "active",
           "caisseDetails" to mapOf(
-            "id" to activeCaisse.id,
-            "etat" to activeCaisse.etat,
-            "session" to activeCaisse.session,
-            "nomEmploye" to (activeCaisse.user?.user?.nom ?: "Inconnu"),
-            "dateOuvert" to activeCaisse.dateOuvert,
-            "dateFerme" to activeCaisse.dateFerme
+            "id" to caisseActive.id,
+            "etat" to caisseActive.etat,
+            "session" to caisseActive.session,
+            "nomEmploye" to (caisseActive.user?.user?.nom ?: "Inconnu"),
+            "dateOuvert" to caisseActive.dateOuvert,
+            "dateFerme" to caisseActive.dateFerme
           )
         )
-      }
-      activeCaisse != null && activeCaisse.user?.id != employe.id?.toInt() -> {
+      } else if (employeCurrent != null && caisseEnCoursCurrentUser != null && caisseEnCoursCurrentUser?.user?.id == employeCurrent.id?.toInt()) {
         mapOf(
-          "status" to "already_open",
+          "status" to "pending",
           "caisseDetails" to mapOf(
-            "id" to activeCaisse.id,
-            "etat" to activeCaisse.etat,
-            "session" to activeCaisse.session,
-            "nomEmploye" to (activeCaisse.user?.user?.nom ?: "Inconnu"),
-            "dateOuvert" to activeCaisse.dateOuvert,
-            "dateFerme" to activeCaisse.dateFerme
+            "id" to caisseEnCoursCurrentUser?.id,
+            "etat" to caisseEnCoursCurrentUser?.etat,
+            "session" to caisseEnCoursCurrentUser?.session,
+            "nomEmploye" to (caisseEnCoursCurrentUser?.user?.user?.nom ?: "Inconnu"),
+            "dateOuvert" to caisseEnCoursCurrentUser?.dateOuvert,
+            "dateFerme" to caisseEnCoursCurrentUser?.dateFerme
           )
         )
-      }
-
-      attenteCloture != null && attenteCloture.user?.id == employe.id?.toInt() -> {
+      } else if (caisseActive != null && caisseEnCoursCurrentUser != null) {
         mapOf(
-          "status" to "pending_closure",
+          "status" to "already",
           "caisseDetails" to mapOf(
-            "id" to attenteCloture.id,
-            "session" to attenteCloture.session,
-            "etat" to attenteCloture.etat,
-            "nomEmploye" to (attenteCloture.user!!.user?.nom ?: "Inconnu"),
-            "dateOuvert" to attenteCloture.dateOuvert,
-            "dateFerme" to attenteCloture.dateFerme
+            "id" to caisseActive.id,
+            "etat" to caisseActive.etat,
+            "session" to caisseActive.session,
+            "nomEmploye" to (caisseActive.user?.user?.nom ?: "Inconnu"),
+            "dateOuvert" to caisseActive.dateOuvert,
+            "dateFerme" to caisseActive.dateFerme
           )
         )
-      }
-      else -> {
+      } else if (caisseActive == null && caisseEnCours != null) {
         mapOf(
-          "status" to "none",
+          "status" to "open",
+          "caisseDetails" to mapOf(
+            "id" to caisseActive?.id,
+            "etat" to caisseActive?.etat,
+            "session" to caisseActive?.session,
+            "nomEmploye" to (caisseActive?.user?.user?.nom ?: "Inconnu"),
+            "dateOuvert" to caisseActive?.dateOuvert,
+            "dateFerme" to caisseActive?.dateFerme
+          )
+        )
+      } else if (caisseActive == null ) {
+        mapOf(
+          "status" to "close",
+          "caisseDetails" to null
+        )
+      } else {
+        mapOf(
+          "status" to "close",
           "caisseDetails" to null
         )
       }
-    }
+
 
     return ResponseEntity.ok(response)
   }
@@ -148,15 +152,15 @@ class CaisseController(
   @PreAuthorize("isAuthenticated()")
   @PutMapping("/active/attente-cloture")
   fun setCaisseToPendingClosure(): ResponseEntity<Map<String, Any?>> {
-      return try {
-          val updatedCaisse = caisseService.setCaisseToPendingClosure()
-          ResponseEntity.ok(mapOf("message" to "La caisse a été mise en attente de clôture.", "caisse" to updatedCaisse))
-      } catch (e: CaisseException) {
-          ResponseEntity.status(HttpStatus.CONFLICT).body(mapOf("error" to e.message))
-      } catch (e: Exception) {
-          ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-              .body(mapOf("error" to "Une erreur interne est survenue: ${e.message}"))
-      }
+    return try {
+      val updatedCaisse = caisseService.setCaisseToPendingClosure()
+      ResponseEntity.ok(mapOf("message" to "La caisse a été mise en attente de clôture.", "caisse" to updatedCaisse))
+    } catch (e: CaisseException) {
+      ResponseEntity.status(HttpStatus.CONFLICT).body(mapOf("error" to e.message))
+    } catch (e: Exception) {
+      ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .body(mapOf("error" to "Une erreur interne est survenue: ${e.message}"))
+    }
   }
 
 
@@ -167,7 +171,42 @@ class CaisseController(
     @RequestBody caisseClotureRequest: CaisseClotureRequestDto
   ): ResponseEntity<Any> {
     return try {
-      val caisseDto = caisseService.cloturerCaisse(caisseClotureRequest.fondCaisseFerme, caisseClotureRequest.fermetureCaisse)
+      val caisseDto =
+        caisseService.cloturerCaisse(caisseClotureRequest.fondCaisseFerme, caisseClotureRequest.fermetureCaisse)
+      ResponseEntity.ok(caisseDto)
+    } catch (e: CaisseException) {
+      ResponseEntity.status(HttpStatus.CONFLICT).body(mapOf("error" to e.message))
+    } catch (e: Exception) {
+      ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .body(mapOf("error" to "Une erreur interne est survenue: ${e.message}"))
+    }
+  }
+
+
+  @CrossOrigin(origins = ["http://localhost:4200"])
+  @PreAuthorize("isAuthenticated()")
+  @GetMapping("/en_cours")
+  fun mettreCaisseEnAttente(): ResponseEntity<Any> {
+    return try {
+      val caisseDto = caisseService.mettreCaisseEnAttente()
+      ResponseEntity.ok(caisseDto)
+    } catch (e: CaisseException) {
+      ResponseEntity.status(HttpStatus.CONFLICT).body(mapOf("error" to e.message))
+    } catch (e: Exception) {
+      ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .body(mapOf("error" to "Une erreur interne est survenue: ${e.message}"))
+    }
+  }
+
+
+  @CrossOrigin(origins = ["http://localhost:4200"])
+  @PreAuthorize("isAuthenticated()")
+  @PostMapping("/ouvrir")
+  fun ouvrirNouvelleCaisse(
+    @RequestBody caisseOuvertureRequest: CaisseOuvertureRequestDto
+  ): ResponseEntity<Any> {
+    return try {
+      val caisseDto = caisseService.ouvrirNouvelleCaisse(caisseOuvertureRequest)
       ResponseEntity.ok(caisseDto)
     } catch (e: CaisseException) {
       ResponseEntity.status(HttpStatus.CONFLICT).body(mapOf("error" to e.message))
@@ -186,7 +225,8 @@ class CaisseController(
       if (caisseDetails != null) {
         ResponseEntity.ok(caisseDetails)
       } else {
-        ResponseEntity.status(HttpStatus.NOT_FOUND).body(mapOf("error" to "Aucune caisse en attente de clôture trouvée"))
+        ResponseEntity.status(HttpStatus.NOT_FOUND)
+          .body(mapOf("error" to "Aucune caisse en attente de clôture trouvée"))
       }
     } catch (e: Exception) {
       ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -210,32 +250,32 @@ class CaisseController(
   @PreAuthorize("isAuthenticated()")
   @GetMapping("/all/pageable")
   fun getAllCaisses(
-      @RequestParam(defaultValue = "0") page: Int,
-      @RequestParam(defaultValue = "10") size: Int,
-      @RequestParam(defaultValue = "id") sortBy: String
+    @RequestParam(defaultValue = "0") page: Int,
+    @RequestParam(defaultValue = "10") size: Int,
+    @RequestParam(defaultValue = "id") sortBy: String
   ): ResponseEntity<Page<Map<String, Any?>>> {
-      return try {
-          val pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, sortBy))
-          val caisses = caisseService.getAllCaisses(pageable)
-          ResponseEntity.ok(caisses)
-      } catch (e: Exception) {
-          ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Page.empty())
-      }
+    return try {
+      val pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, sortBy))
+      val caisses = caisseService.getAllCaisses(pageable)
+      ResponseEntity.ok(caisses)
+    } catch (e: Exception) {
+      ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Page.empty())
+    }
   }
 
   @CrossOrigin(origins = ["http://localhost:4200"])
   @PreAuthorize("isAuthenticated()")
   @GetMapping("/all/filter")
   fun getFilteredCaisses(
-      @RequestParam(required = false) caisseId: Long?,
-      @RequestParam(required = false) startDate: String?,
-      @RequestParam(required = false) endDate: String?,
-      @RequestParam(defaultValue = "0") page: Int,
-      @RequestParam(defaultValue = "10") size: Int
+    @RequestParam(required = false) caisseId: Long?,
+    @RequestParam(required = false) startDate: String?,
+    @RequestParam(required = false) endDate: String?,
+    @RequestParam(defaultValue = "0") page: Int,
+    @RequestParam(defaultValue = "10") size: Int
   ): ResponseEntity<Page<Map<String, Any?>>> {
-      val pageable = PageRequest.of(page, size)
-      val caisses = caisseService.getFilteredCaisses(caisseId, startDate, endDate, pageable)
-      return ResponseEntity.ok(caisses)
+    val pageable = PageRequest.of(page, size)
+    val caisses = caisseService.getFilteredCaisses(caisseId, startDate, endDate, pageable)
+    return ResponseEntity.ok(caisses)
   }
 
 }

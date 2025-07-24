@@ -19,6 +19,7 @@ import {jsPDF} from "jspdf";
 import QRCode from "qrcode";
 import {VentesService} from "@services/ventes.service";
 import {MatPaginatorModule, PageEvent} from "@angular/material/paginator";
+import {AuthService} from "@services/auth.service";
 
 @Component({
   selector: 'app-vente-dialog',
@@ -53,7 +54,8 @@ export class VenteDialogComponent implements OnInit{
   displayedColumns: string[] = ['montant', 'montantPerçu', 'dateEncaissement', 'dateVente', 'etat', 'ref', 'actions'];
   ventes: any[] = []; // Replace with actual data source
 
-  constructor(
+   constructor(
+    public authService: AuthService,
     public dialogRef: MatDialogRef<VenteDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any[],
     public venteService: VentesService, // Replace with actual VenteService
@@ -82,6 +84,17 @@ export class VenteDialogComponent implements OnInit{
       },
       error: (err: any) => {
         console.error('Failed to fetch BonCaisse list:', err);
+        if (err.status === 401 || err.status === 403){
+          this.authService.logout();
+          this.snackBar.open('Déconnexion réussie.', '×', {
+            panelClass: 'success',
+            verticalPosition: 'top',
+            duration: 3000,
+          });
+          // Redirect to login page or clear session
+          window.location.href = '/sign-in';
+        }
+        else
         this.snackBar.open('Erreur lors de la récupération des bons de caisse.', '×', {
           panelClass: 'error',
           verticalPosition: 'top',
@@ -109,6 +122,17 @@ export class VenteDialogComponent implements OnInit{
       },
       error: (err: any) => {
         console.error('Erreur lors de la récupération des informations de la vente:', err);
+        if (err.status === 401 || err.status === 403){
+          this.authService.logout();
+          this.snackBar.open('Déconnexion réussie.', '×', {
+            panelClass: 'success',
+            verticalPosition: 'top',
+            duration: 3000,
+          });
+          // Redirect to login page or clear session
+          window.location.href = '/sign-in';
+        }
+        else
         this.snackBar.open('Erreur lors de la récupération des informations de la vente.', '×', {
           panelClass: 'error',
           duration: 3000,

@@ -1,4 +1,4 @@
-import {Component, HostListener, OnInit} from '@angular/core';
+import {Component, HostListener, OnInit, ViewChild} from '@angular/core';
 import {MatButtonModule} from '@angular/material/button';
 import {MatCardModule} from '@angular/material/card';
 import {MatChipsModule} from '@angular/material/chips';
@@ -16,7 +16,7 @@ import {PipesModule} from '../../../theme/pipes/pipes.module';
 import {CommonModule, DecimalPipe} from '@angular/common';
 import {ProductService} from "@services/products.service";
 import {CategorieService} from "@services/categories.service";
-import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
+import {FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
 import {MatInputModule} from "@angular/material/input";
 import {MatSelectModule} from "@angular/material/select";
 import {MatCheckboxModule} from "@angular/material/checkbox";
@@ -25,7 +25,9 @@ import {MatButtonToggleModule} from "@angular/material/button-toggle";
 import {User} from "@models/user.model";
 import {UserDialogComponent} from "../../users/user-dialog/user-dialog.component";
 import {DetailProduitDialogComponent} from "./detail-produit-dialog/detail-produit-dialog.component";
-import {MatPaginatorModule, PageEvent} from "@angular/material/paginator";
+import {MatPaginator, MatPaginatorModule, PageEvent} from "@angular/material/paginator";
+import {AuthService} from "@services/auth.service";
+import {MatSnackBar} from "@angular/material/snack-bar";
 
 @Component({
   selector: 'app-product-list',
@@ -65,63 +67,117 @@ export class ProductListComponent implements OnInit {
   public size = 100;  // Default to 10 if undefined
   public totalItems = 0;  // Default to 10 if undefined
   public totalPages = 50;  // Default to 10 if undefined
-  public count = 5;
+  public count = 10;
   public searchTerm: string = '';
   public form: FormGroup;
+  searchControl = new FormControl('');
 
-  constructor(
+  @ViewChild(MatPaginator) paginator: MatPaginator;
+
+   constructor(
+    public authService: AuthService,
+    public snackBar:MatSnackBar,
     public appService: AppService,
     public productService: ProductService,
     public categorieService: CategorieService,
     public dialog: MatDialog,
     public fb: FormBuilder,
     public domHandlerService: DomHandlerService) {
+    this.form = this.fb.group({
+      searchForm: [""],
+    });
   }
 
   ngOnInit(): void {
-    this.form = this.fb.group({
-      searchForm: [null],
+
+    this.searchControl.valueChanges.subscribe((searchTerm) => {
+      if (this.page == -1) {
+        this.page = 1
+      }
+      this.searchText = searchTerm;
+      if (searchTerm == "") {
+        this.page = 0
+        this.getAllProducts()
+      } else {
+        this.paginator.firstPage();
+        if (this.page > 0) {
+          this.page = 0
+        }
+        this.productService.searchProducts(searchTerm, this.page - 1, this.count).subscribe({
+          // this.productService.searchProducts(this.searchTerm, this.page, this.count).subscribe({
+          next: (data: any) => {
+            this.count = data.pageable.pageSize;
+            this.totalItems = data.totalElements;
+            this.products = data.content; // Les produits pour la page actuelle
+          },
+          error: (err) => {
+            console.error('Error searching products:', err);
+          }
+        });
+      }
     });
+
     if (this.domHandlerService.window?.innerWidth < 1280) {
       this.viewCol = 33.3;
     }
     ;
     this.getCategories();
+    if (!this.form.get('searchForm')?.value) {
+      console.log('Formulaire vide');
+    }
   }
 
   public getAllProducts() {
-    this.productService.getProducts(this.page-1, this.count).subscribe({
+    this.productService.getProducts(this.page - 1, this.count).subscribe({
       next: (data: any) => {
         this.count = data.pageable.pageSize;
         this.totalItems = data.totalElements;
         this.products = data.content; // Les produits pour la page actuelle
       },
-      error: (err) => {
-        console.error('Error fetching products:', err);
-      }
+        error: (err) => {
+           if (err.status === 401 || err.status === 403){
+             this.authService.logout();
+             this.snackBar.open('Déconnexion réussie.', '×', {
+               panelClass: 'success',
+               verticalPosition: 'top',
+               duration: 3000,
+             });
+             // Redirect to login page or clear session
+             window.location.href = '/sign-in';
+           }
+           console.error('Error fetching products:', err);
+         }
     });
   }
 
-  searchUsers(): void {
-    this.productService.searchProducts(this.searchText, this.page, 40).subscribe({
-      // this.productService.searchProducts(this.searchTerm, this.page, this.count).subscribe({
-      next: (data: any) => {
-        this.count = data.numberOfElements;
-        this.totalItems = data.totalElements;
-        this.products = data.content; // Les produits pour la page actuelle
-      },
-      error: (err) => {
-        console.error('Error searching products:', err);
-      }
-    });
+  searchUsers(event: Event): void {
+    this.page = 0
+    console.log("this.searchText")
+    console.log(this.searchText)
+    const input = (event.target as HTMLInputElement).value;
+    if (input) {
+      this.searchText = input
+      this.productService.searchProducts(input, this.page, this.count).subscribe({
+        // this.productService.searchProducts(this.searchTerm, this.page, this.count).subscribe({
+        next: (data: any) => {
+          this.count = data.pageable.pageSize;
+          this.totalItems = data.totalElements;
+          this.products = data.content; // Les produits pour la page actuelle
+        },
+        error: (err) => {
+          console.error('Error searching products:', err);
+        }
+      });
+    }
+
   }
 
   public searchProducts(): void {
     console.log('Searching for products with term:', this.form.value);
-    this.productService.searchProducts(this.form.value.searchForm, this.page, 40).subscribe({
+    this.productService.searchProducts(this.searchText, this.page - 1, this.count).subscribe({
       // this.productService.searchProducts(this.searchTerm, this.page, this.count).subscribe({
       next: (data: any) => {
-        this.count = data.numberOfElements;
+        this.count = data.pageable.pageSize;
         this.totalItems = data.totalElements;
         this.products = data.content; // Les produits pour la page actuelle
       },
@@ -132,9 +188,31 @@ export class ProductListComponent implements OnInit {
   }
 
   public onPageChanged(event: PageEvent) {
-    this.page = event.pageIndex + 1;
-    this.count = event.pageSize;
-    this.getAllProducts();
+    console.log('Page changed:', event);
+    console.log("this.searchText");
+    console.log(this.searchText);
+    console.log(this.page);
+    if (this.searchText === "" || this.searchText === undefined) {
+      // this.page = 0; // Reset to the first page
+      // if (this.page == 1) {
+      //
+      // }
+      if (this.page == 0){
+        this.page = 1
+        this.paginator.firstPage(); // Ensure the paginator UI resets
+        this.getAllProducts();
+      }
+      else {
+        this.page = event.pageIndex + 1;
+        this.getAllProducts();
+      }
+
+    } else {
+      this.page = event.pageIndex + 1;
+      this.count = event.pageSize;
+      this.searchProducts();
+    }
+
     this.domHandlerService.winScroll(0, 0);
   }
 
@@ -168,9 +246,19 @@ export class ProductListComponent implements OnInit {
         this.categories = data;
         this.getAllProducts();
       },
-      error: (err) => {
-        console.error('Error fetching products:', err);
-      }
+        error: (err) => {
+           if (err.status === 401 || err.status === 403){
+             this.authService.logout();
+             this.snackBar.open('Déconnexion réussie.', '×', {
+               panelClass: 'success',
+               verticalPosition: 'top',
+               duration: 3000,
+             });
+             // Redirect to login page or clear session
+             window.location.href = '/sign-in';
+           }
+           console.error('Error fetching products:', err);
+         }
     });
   }
 
@@ -203,9 +291,19 @@ export class ProductListComponent implements OnInit {
           }
         });
       },
-      error: (err) => {
-        console.error('Error fetching products:', err);
-      }
+        error: (err) => {
+           if (err.status === 401 || err.status === 403){
+             this.authService.logout();
+             this.snackBar.open('Déconnexion réussie.', '×', {
+               panelClass: 'success',
+               verticalPosition: 'top',
+               duration: 3000,
+             });
+             // Redirect to login page or clear session
+             window.location.href = '/sign-in';
+           }
+           console.error('Error fetching products:', err);
+         }
     });
   }
 

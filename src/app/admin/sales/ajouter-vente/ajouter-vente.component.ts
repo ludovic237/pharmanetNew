@@ -39,6 +39,7 @@ import {UsersService} from "@services/users.service";
 import {PrescripteursService} from "@services/prescripteurs.service";
 import {MatSlideToggleModule} from "@angular/material/slide-toggle";
 import {MatSnackBar} from "@angular/material/snack-bar";
+import {AuthService} from "@services/auth.service";
 
 interface VenteLigne {
   id: string;
@@ -145,7 +146,8 @@ export class AjouterVenteComponent implements OnInit {
   public showOptions: boolean = false;
   public settings: Settings;
 
-  constructor(public appSettings: SettingsService,
+   constructor(
+    public authService: AuthService,public appSettings: SettingsService,
               public snackBar: MatSnackBar,
               public enRayonService: EnrayonsService,
               public productService: ProductService,

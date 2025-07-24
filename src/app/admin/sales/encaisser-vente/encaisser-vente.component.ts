@@ -45,6 +45,7 @@ import {BonCaisseDialogComponent} from "./bon-caisse-dialog/bon-caisse-dialog.co
 import {DepenseService} from "@services/depenses.service";
 import {DepenseDialogComponent} from "./depense-dialog/depense-dialog.component";
 import {VenteDialogComponent} from "./vente-dialog/vente-dialog.component";
+import {AuthService} from "@services/auth.service";
 
 interface LigneHeader {
   netAPayer?: number;
@@ -142,16 +143,17 @@ export class EncaisserVenteComponent {
   // Paiement
   netAPayer = 0;
 
-  constructor(public appSettings: SettingsService,
-              public snackBar: MatSnackBar,
-              public enRayonService: EnrayonsService,
-              public ticketCaisseService: TicketCaisseService,
-              public depenseService: DepenseService,
-              public bonCaisseService: BonCaisseService,
-              public productService: ProductService,
-              public ventesService: VentesService,
-              public prescripteursService: PrescripteursService,
-              public dialog: MatDialog) {
+  constructor(
+    public authService: AuthService, public appSettings: SettingsService,
+    public snackBar: MatSnackBar,
+    public enRayonService: EnrayonsService,
+    public ticketCaisseService: TicketCaisseService,
+    public depenseService: DepenseService,
+    public bonCaisseService: BonCaisseService,
+    public productService: ProductService,
+    public ventesService: VentesService,
+    public prescripteursService: PrescripteursService,
+    public dialog: MatDialog) {
 
   }
 
@@ -328,45 +330,45 @@ export class EncaisserVenteComponent {
     console.log('Validation successful for tab:', this.selectedTabIndex);
     console.log(encaissementDetails)
 
-this.ventesService.encaisserVente(this.venteId, encaissementDetails).subscribe({
-  next: () => {
-    // Clear the leftDataSource table
-    this.leftDataSource.data = [];
+    this.ventesService.encaisserVente(this.venteId, encaissementDetails).subscribe({
+      next: () => {
+        // Clear the leftDataSource table
+        this.leftDataSource.data = [];
 
-    // Refresh the data
-    this.onRefresh();
+        // Refresh the data
+        this.onRefresh();
 
-    // Reset encaissementDetails values
-    this.venteId = 0;
-    this.montantEncaisse = 0;
-    this.montantElectronique = 0;
-    this.numeroTelephone = '';
-    this.numeroTicket = '';
-    this.montantTicket = 0;
-    this.montantEspece = 0;
-    this.numeroTelephoneMixte = '';
-    this.montantElectroniqueMixte = 0;
-    this.numeroTicketMixte = '';
-    this.montantTicketMixte = 0;
-    this.totalEncaisse = 0;
-    this.rendu = 0;
+        // Reset encaissementDetails values
+        this.venteId = 0;
+        this.montantEncaisse = 0;
+        this.montantElectronique = 0;
+        this.numeroTelephone = '';
+        this.numeroTicket = '';
+        this.montantTicket = 0;
+        this.montantEspece = 0;
+        this.numeroTelephoneMixte = '';
+        this.montantElectroniqueMixte = 0;
+        this.numeroTicketMixte = '';
+        this.montantTicketMixte = 0;
+        this.totalEncaisse = 0;
+        this.rendu = 0;
 
-    // Show success message
-    this.snackBar.open("Vente successfully", '×', {
-      panelClass: 'success',
-      verticalPosition: 'top',
-      duration: 3000
+        // Show success message
+        this.snackBar.open("Vente successfully", '×', {
+          panelClass: 'success',
+          verticalPosition: 'top',
+          duration: 3000
+        });
+      },
+      error: (err: any) => {
+        console.error('Failed to fetch BonCaisse list:', err);
+        this.snackBar.open('Erreur lors de la récupération des bons de caisse.', '×', {
+          panelClass: 'error',
+          verticalPosition: 'top',
+          duration: 3000,
+        });
+      }
     });
-  },
-  error: (err: any) => {
-    console.error('Failed to fetch BonCaisse list:', err);
-    this.snackBar.open('Erreur lors de la récupération des bons de caisse.', '×', {
-      panelClass: 'error',
-      verticalPosition: 'top',
-      duration: 3000,
-    });
-  }
-});
   }
 
   onTicketInputChange(event: Event): void {

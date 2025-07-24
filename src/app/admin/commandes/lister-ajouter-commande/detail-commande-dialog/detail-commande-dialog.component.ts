@@ -30,6 +30,7 @@ import {MatDatepickerModule} from "@angular/material/datepicker";
 import {MatNativeDateModule} from "@angular/material/core";
 import {MatStepperModule} from "@angular/material/stepper";
 import {MatTooltip} from "@angular/material/tooltip";
+import {AuthService} from "@services/auth.service";
 
 @Component({
   selector: 'app-detail-commande-dialog',
@@ -107,13 +108,15 @@ export class DetailCommandeDialogComponent implements OnInit {
   typeCommande: string = '';
   fournisseurId: string = '';
 
-  constructor(public dialogRef: MatDialogRef<DetailCommandeDialogComponent>,
-              @Inject(MAT_DIALOG_DATA) public data: any,
-              public snackBar: MatSnackBar,
-              private fb: FormBuilder,
-              private productService: ProductService,
-              private fournisseursService: FournisseursService,
-              private commandesService: CommandesService) {
+  constructor(
+    public authService: AuthService,
+    public dialogRef: MatDialogRef<DetailCommandeDialogComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: any,
+    public snackBar: MatSnackBar,
+    private fb: FormBuilder,
+    private productService: ProductService,
+    private fournisseursService: FournisseursService,
+    private commandesService: CommandesService) {
     this.selectedProducts = this.fb.array([]);
   }
 
@@ -192,7 +195,7 @@ export class DetailCommandeDialogComponent implements OnInit {
         next: (response) => {
           console.log('Commande created:', response);
           this.dialogRef.close();
-          this.snackBar.open('Commande created' , '×', {
+          this.snackBar.open('Commande created', '×', {
             panelClass: 'success',
             verticalPosition: 'top',
             duration: 3000
@@ -209,12 +212,12 @@ export class DetailCommandeDialogComponent implements OnInit {
     }
   }
 
-  increment(item: any, field:  'prixUnitaire' |'qtiteCmd' |'qtiteRecu' | 'prixVente' | 'prixAchat') {
+  increment(item: any, field: 'prixUnitaire' | 'qtiteCmd' | 'qtiteRecu' | 'prixVente' | 'prixAchat') {
     item[field]++;
     // this.selectedProducts.value = this.enRayonList.filter(item => item.quantiteRestante > 0);
   }
 
-  decrement(item: any, field: 'prixUnitaire' |'qtiteCmd' |'qtiteRecu' | 'prixVente' | 'prixAchat') {
+  decrement(item: any, field: 'prixUnitaire' | 'qtiteCmd' | 'qtiteRecu' | 'prixVente' | 'prixAchat') {
     if (item[field] > 0) {
       item[field]--;
     }
@@ -262,7 +265,7 @@ export class DetailCommandeDialogComponent implements OnInit {
     //   datePeremption: produit.datePeremption || null,
     // }));
 
-    this.commandesService.receptionComplete(this.commande.id,'partiel', receptionPayload).subscribe({
+    this.commandesService.receptionComplete(this.commande.id, 'partiel', receptionPayload).subscribe({
       next: (response) => {
         this.snackBar.open('Réception enregistrée avec succès', '×', {
           panelClass: 'success',

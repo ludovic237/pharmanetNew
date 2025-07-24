@@ -5,6 +5,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { Product } from '@models/product';
 import { FlexLayoutModule } from '@ngbracket/ngx-layout';
 import { AppService } from '@services/app.service';
+import {AuthService} from "@services/auth.service";
 
 @Component({
     selector: 'app-controls',
@@ -24,7 +25,9 @@ export class ControlsComponent implements OnInit {
   public count: number = 1;
   public align = 'center center';
 
-  constructor(public appService: AppService, public snackBar: MatSnackBar) { }
+   constructor(
+    public authService: AuthService,
+    public snackBar:MatSnackBar,public appService: AppService) { }
 
   ngOnInit() {
     if (this.product) {
@@ -45,7 +48,7 @@ export class ControlsComponent implements OnInit {
     else {
       this.align = 'center center';
     }
-  } 
+  }
 
   public increment() {
     if (this.count < this.product.availibilityCount) {
@@ -83,7 +86,7 @@ export class ControlsComponent implements OnInit {
   }
 
   public addToCart(product: Product): void {
-    const currentProduct = this.appService.Data.cartList.find(item => item.id === product.id);
+    const currentProduct = this.appService.Data.cartList.find((item:any) => item.id === product.id);
     if (currentProduct) {
       const availableCount = this.product.availibilityCount;
       const addedCount = currentProduct.cartCount + this.count;

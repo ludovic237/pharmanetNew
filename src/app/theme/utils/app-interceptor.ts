@@ -6,8 +6,10 @@ import { map, catchError } from 'rxjs/operators';
 
 @Injectable()
 export class AppInterceptor implements HttpInterceptor {
-    constructor( private spinner: NgxSpinnerService) {}
-  
+     constructor(
+    public authService: AuthService,
+    public snackBar:MatSnackBar, private spinner: NgxSpinnerService) {}
+
     intercept (req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
 
         this.spinner.show();
@@ -19,7 +21,7 @@ export class AppInterceptor implements HttpInterceptor {
             return event;
           }),
           catchError((error: HttpErrorResponse) => {
-            const started = Date.now();            
+            const started = Date.now();
             const elapsed = Date.now() - started;
             console.log(`Request for ${req.urlWithParams} failed after ${elapsed} ms.`);
            // debugger;
@@ -27,5 +29,5 @@ export class AppInterceptor implements HttpInterceptor {
           })
         );
 
-    }  
+    }
 }

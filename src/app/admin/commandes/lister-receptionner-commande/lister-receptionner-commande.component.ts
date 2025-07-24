@@ -45,6 +45,7 @@ import {DepenseService} from "@services/depenses.service";
 import {DepenseDialogComponent} from "./depense-dialog/depense-dialog.component";
 import {VenteDialogComponent} from "./vente-dialog/vente-dialog.component";
 import {MatStepper, MatStepperModule} from "@angular/material/stepper";
+import {AuthService} from "@services/auth.service";
 
 interface Commande {
   id: string;
@@ -124,7 +125,9 @@ export class ListerReceptionnerCommandeComponent {
   // Formulaire global
   form: FormGroup;
 
-  constructor(
+   constructor(
+    public authService: AuthService,
+    public snackBar:MatSnackBar,
     private fb: FormBuilder,
     private snack: MatSnackBar
   ) {

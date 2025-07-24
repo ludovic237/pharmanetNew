@@ -2,6 +2,8 @@ import { Component, ElementRef, Inject, ViewChild, ViewEncapsulation } from '@an
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
+import {AuthService} from "@services/auth.service";
+import {MatSnackBar} from "@angular/material/snack-bar";
 
 @Component({
     selector: 'app-product-zoom',
@@ -17,7 +19,9 @@ import { MatIconModule } from '@angular/material/icon';
 export class ProductZoomComponent {
   @ViewChild('zoomImage', { static: true }) zoomImage: ElementRef;
 
-  constructor(public dialogRef: MatDialogRef<ProductZoomComponent>,
+   constructor(
+    public authService: AuthService,
+    public snackBar:MatSnackBar,public dialogRef: MatDialogRef<ProductZoomComponent>,
               @Inject(MAT_DIALOG_DATA) public image: any) { }
 
   public close(): void {

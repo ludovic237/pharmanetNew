@@ -17,6 +17,8 @@ import {RayonService} from "@services/rayons.service";
 import {Rayon} from "@models/product";
 import {CommonModule} from "@angular/common";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
+import {AuthService} from "@services/auth.service";
+import {MatSnackBar} from "@angular/material/snack-bar";
 
 @Component({
   selector: 'app-rayons',
@@ -43,7 +45,9 @@ export class RayonsComponent implements OnInit {
   domHandlerService = inject(DomHandlerService);
   public settings: Settings;
 
-  constructor(
+   constructor(
+    public authService: AuthService,
+    public snackBar:MatSnackBar,
     public appService: AppService,
     public rayonService: RayonService,
     public dialog: MatDialog, public settingsService: SettingsService) {

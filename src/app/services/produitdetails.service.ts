@@ -9,7 +9,8 @@ import {Product, Rayon} from "@models/product";
 export class ProduitdetailsService {
   private url = 'api/produits-detail';
 
-  constructor(private http: HttpClient) {
+  constructor(
+    private http: HttpClient) {
   }
 
   private getHeaders(): HttpHeaders {
@@ -24,30 +25,30 @@ export class ProduitdetailsService {
     const params = new HttpParams().set('nom', nom);
 
     // Effectue la requête GET vers l'endpoint /api/produits-detail/search
-    return this.http.get<any[]>(`${this.url}/search/pageable`, { headers: this.getHeaders(), params: params });
+    return this.http.get<any[]>(`${this.url}/search/pageable`, {headers: this.getHeaders(), params: params});
   }
 
-  getProduitDetailsList(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.url}/list/pageable`, { headers: this.getHeaders() });
+  getProduitDetailsList(searchTerm: string, page: number, size: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.url}/list/pageable?query=${searchTerm}&page=${page}&size=${size}`, {headers: this.getHeaders()});
   }
 
-  getProduitDetailsInfo(produitId:string): Observable<any[]> {
-    return this.http.get<any[]>(`${this.url}/info/`+produitId, { headers: this.getHeaders() });
+  getProduitDetailsInfo(produitId: string): Observable<any[]> {
+    return this.http.get<any[]>(`${this.url}/info/` + produitId, {headers: this.getHeaders()});
   }
 
   createProductDetail(product: any): Observable<Product> {
     return this.http.post<any>(`${this.url}/add`, product, {headers: this.getHeaders()});
   }
 
-  updateProductDetail(produitDetailId:number, product: any): Observable<Product> {
-    return this.http.post<any>(`${this.url}/update/`+produitDetailId, product, {headers: this.getHeaders()});
+  updateProductDetail(produitDetailId: number, product: any): Observable<Product> {
+    return this.http.post<any>(`${this.url}/update/` + produitDetailId, product, {headers: this.getHeaders()});
   }
 
-  removeParentDetail(productId: number, productDetailId:number): Observable<any> {
+  removeParentDetail(productId: number, productDetailId: number): Observable<any> {
     return this.http.get<any>(`${this.url}/remove/prarent?productId=${productId}&productDetailId=${productDetailId}`, {headers: this.getHeaders()});
   }
 
-  removeProduitDetail(productDetailId:number): Observable<any> {
+  removeProduitDetail(productDetailId: number): Observable<any> {
     return this.http.get<any>(`${this.url}/remove?productDetailId=${productDetailId}`, {headers: this.getHeaders()});
   }
 

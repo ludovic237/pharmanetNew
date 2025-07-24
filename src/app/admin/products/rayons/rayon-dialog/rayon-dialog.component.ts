@@ -7,6 +7,8 @@ import {MatInputModule} from '@angular/material/input';
 import {MatSelectModule} from '@angular/material/select';
 import {FlexLayoutModule} from '@ngbracket/ngx-layout';
 import {RayonService} from "@services/rayons.service";
+import {AuthService} from "@services/auth.service";
+import {MatSnackBar} from "@angular/material/snack-bar";
 
 @Component({
   selector: 'app-rayon-dialog',
@@ -25,7 +27,9 @@ export class RayonDialogComponent implements OnInit {
   title: "Create Rayon" | "Edit Rayon" = "Create Rayon";
   public form: FormGroup;
 
-  constructor(public dialogRef: MatDialogRef<RayonDialogComponent>,
+   constructor(
+    public authService: AuthService,
+    public snackBar:MatSnackBar,public dialogRef: MatDialogRef<RayonDialogComponent>,
               public rayonService: RayonService, // Replace with actual RayonService type
               @Inject(MAT_DIALOG_DATA) public data: any,
               public fb: FormBuilder) {

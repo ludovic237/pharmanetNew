@@ -6,7 +6,8 @@ import { User } from '../common/models/user.model';
 @Injectable()
 export class UsersService {
   public url = "api/admin/users";
-  constructor(public http: HttpClient) { }
+   constructor(
+    public http: HttpClient) { }
 
   private getHeaders(): HttpHeaders {
     const token = localStorage.getItem('token');

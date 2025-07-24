@@ -25,6 +25,8 @@ import { DecimalPipe } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { PipesModule } from '../../theme/pipes/pipes.module';
 import { FormsModule } from '@angular/forms';
+import {AuthService} from "@services/auth.service";
+import {MatSnackBar} from "@angular/material/snack-bar";
 
 @Component({
     selector: 'app-products',
@@ -104,7 +106,9 @@ export class ProductsComponent implements OnInit {
   public page: any;
   public settings: Settings;
 
-  constructor(public settingsService: SettingsService,
+   constructor(
+    public authService: AuthService,
+    public snackBar:MatSnackBar,public settingsService: SettingsService,
               private activatedRoute: ActivatedRoute,
               public appService: AppService,
               public dialog: MatDialog,
@@ -134,7 +138,7 @@ export class ProductsComponent implements OnInit {
   public getAllProducts() {
     this.appService.getProducts("featured").subscribe(data => {
       this.products = data;
-      //for show more product  
+      //for show more product
       for (var index = 0; index < 3; index++) {
         this.products = this.products.concat(this.products);
       }

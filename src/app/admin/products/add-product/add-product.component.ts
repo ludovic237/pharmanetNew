@@ -1,4 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
+import {AuthService} from "@services/auth.service";
+import {MatSnackBar} from "@angular/material/snack-bar";
 import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { ActivatedRoute } from '@angular/router';
@@ -52,7 +54,9 @@ export class AddProductComponent implements OnInit {
   private sub: any;
   public id: any;
 
-  constructor(
+   constructor(
+    public authService: AuthService,
+    public snackBar:MatSnackBar,
     public categorieService: CategorieService,
     public etageresService: EtageresService,
     public magasinService: MagasinService,
@@ -109,9 +113,19 @@ export class AddProductComponent implements OnInit {
       next: (data:any) => {
         this.categories = data;
       },
-      error: (err) => {
-        console.error('Error fetching products:', err);
-      }
+        error: (err) => {
+           if (err.status === 401 || err.status === 403){
+             this.authService.logout();
+             this.snackBar.open('Déconnexion réussie.', '×', {
+               panelClass: 'success',
+               verticalPosition: 'top',
+               duration: 3000,
+             });
+             // Redirect to login page or clear session
+             window.location.href = '/sign-in';
+           }
+           console.error('Error fetching products:', err);
+         }
     });
   }
 
@@ -120,9 +134,19 @@ export class AddProductComponent implements OnInit {
       next: (data:any) => {
         this.rayons = data;
       },
-      error: (err) => {
-        console.error('Error fetching products:', err);
-      }
+        error: (err) => {
+           if (err.status === 401 || err.status === 403){
+             this.authService.logout();
+             this.snackBar.open('Déconnexion réussie.', '×', {
+               panelClass: 'success',
+               verticalPosition: 'top',
+               duration: 3000,
+             });
+             // Redirect to login page or clear session
+             window.location.href = '/sign-in';
+           }
+           console.error('Error fetching products:', err);
+         }
     });
   }
 
@@ -131,9 +155,19 @@ export class AddProductComponent implements OnInit {
       next: (data:any) => {
         this.rayons = data;
       },
-      error: (err) => {
-        console.error('Error fetching products:', err);
-      }
+        error: (err) => {
+           if (err.status === 401 || err.status === 403){
+             this.authService.logout();
+             this.snackBar.open('Déconnexion réussie.', '×', {
+               panelClass: 'success',
+               verticalPosition: 'top',
+               duration: 3000,
+             });
+             // Redirect to login page or clear session
+             window.location.href = '/sign-in';
+           }
+           console.error('Error fetching products:', err);
+         }
     });
   }
 
@@ -142,9 +176,19 @@ export class AddProductComponent implements OnInit {
       next: (data:any) => {
         this.formes = data;
       },
-      error: (err) => {
-        console.error('Error fetching products:', err);
-      }
+        error: (err) => {
+           if (err.status === 401 || err.status === 403){
+             this.authService.logout();
+             this.snackBar.open('Déconnexion réussie.', '×', {
+               panelClass: 'success',
+               verticalPosition: 'top',
+               duration: 3000,
+             });
+             // Redirect to login page or clear session
+             window.location.href = '/sign-in';
+           }
+           console.error('Error fetching products:', err);
+         }
     });
   }
 
@@ -153,9 +197,19 @@ export class AddProductComponent implements OnInit {
       next: (data:any) => {
         this.formes = data;
       },
-      error: (err) => {
-        console.error('Error fetching products:', err);
-      }
+        error: (err) => {
+           if (err.status === 401 || err.status === 403){
+             this.authService.logout();
+             this.snackBar.open('Déconnexion réussie.', '×', {
+               panelClass: 'success',
+               verticalPosition: 'top',
+               duration: 3000,
+             });
+             // Redirect to login page or clear session
+             window.location.href = '/sign-in';
+           }
+           console.error('Error fetching products:', err);
+         }
     });
   }
 
@@ -164,9 +218,19 @@ export class AddProductComponent implements OnInit {
       next: (data:any) => {
         this.etagere = data;
       },
-      error: (err) => {
-        console.error('Error fetching products:', err);
-      }
+        error: (err) => {
+           if (err.status === 401 || err.status === 403){
+             this.authService.logout();
+             this.snackBar.open('Déconnexion réussie.', '×', {
+               panelClass: 'success',
+               verticalPosition: 'top',
+               duration: 3000,
+             });
+             // Redirect to login page or clear session
+             window.location.href = '/sign-in';
+           }
+           console.error('Error fetching products:', err);
+         }
     });
   }
 

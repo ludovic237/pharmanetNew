@@ -36,6 +36,7 @@ import {FabriquantService} from "@services/fabriquants.service";
 import {FormeService} from "@services/formes.service";
 import {ProductService} from "@services/products.service";
 import {InventaireService} from "@services/inventaire.service";
+import {AuthService} from "@services/auth.service";
 
 @Component({
   selector: 'app-inventaire-valdation-dialog',
@@ -109,7 +110,8 @@ export class InventaireValdationDialogComponent implements OnInit {
   commentaire: string = '';
   commentaireErreur: string = '';
 
-  constructor(
+   constructor(
+    public authService: AuthService,
     private dialogRef: MatDialogRef<InventaireValdationDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
     private fb: FormBuilder,
@@ -146,6 +148,16 @@ export class InventaireValdationDialogComponent implements OnInit {
         // this.data.produitsEnStock = data.produitsEnStock || [];
       },
       error: (err: any) => {
+        if (err.status === 401 || err.status === 403){
+          this.authService.logout();
+          this.snackBar.open('Déconnexion réussie.', '×', {
+            panelClass: 'success',
+            verticalPosition: 'top',
+            duration: 3000,
+          });
+          // Redirect to login page or clear session
+          window.location.href = '/sign-in';
+        }
         console.error('Failed to fetch products in stock:', err);
         alert('Une erreur est survenue lors de la récupération des produits en rayon.');
       },
@@ -170,6 +182,17 @@ export class InventaireValdationDialogComponent implements OnInit {
         this.dialogRef.close()
       },
       error: (err: any) => {
+        if (err.status === 401 || err.status === 403){
+          this.authService.logout();
+          this.snackBar.open('Déconnexion réussie.', '×', {
+            panelClass: 'success',
+            verticalPosition: 'top',
+            duration: 3000,
+          });
+          // Redirect to login page or clear session
+          window.location.href = '/sign-in';
+        }
+        else
         this.snackBar.open('Failed to terminate inventory.', '×', {
           panelClass: 'error',
           verticalPosition: 'top',

@@ -1,4 +1,6 @@
-import { Component, Inject } from '@angular/core';
+import {Component, Inject, inject, OnInit} from '@angular/core';
+import {AuthService} from "@services/auth.service";
+import {MatSnackBar} from "@angular/material/snack-bar";
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { FlexLayoutModule } from '@ngbracket/ngx-layout';
@@ -14,16 +16,17 @@ import { FlexLayoutModule } from '@ngbracket/ngx-layout';
 })
 export class ConfirmDialogComponent {
 
-  constructor(public dialogRef: MatDialogRef<ConfirmDialogComponent>,
+   constructor(
+    public authService: AuthService,
+    public snackBar:MatSnackBar,public dialogRef: MatDialogRef<ConfirmDialogComponent>,
               @Inject(MAT_DIALOG_DATA) public data: any) { }
 
-  onConfirm(): void { 
+  onConfirm(): void {
     this.dialogRef.close(true);
   }
 
-  onDismiss(): void { 
+  onDismiss(): void {
     this.dialogRef.close(false);
   }
 
 }
- 

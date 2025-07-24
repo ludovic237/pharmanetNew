@@ -30,6 +30,7 @@ import {MatAutocompleteModule} from "@angular/material/autocomplete";
 import {MatNativeDateModule} from "@angular/material/core";
 import {MatStepperModule} from "@angular/material/stepper";
 import {MatRadioModule} from "@angular/material/radio";
+import {AuthService} from "@services/auth.service";
 
 @Component({
   selector: 'app-rayon-info-dialog',
@@ -114,10 +115,11 @@ import {MatRadioModule} from "@angular/material/radio";
 export class RayonInfoDialogComponent {
   detailForm: FormGroup;
 
-  constructor(
+   constructor(
+    public authService: AuthService,
+    public snackBar:MatSnackBar,
     private enRayonService:EnrayonsService,
     private fb: FormBuilder,
-    public snackBar: MatSnackBar,
     public dialogRef: MatDialogRef<RayonInfoDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any
   ) {

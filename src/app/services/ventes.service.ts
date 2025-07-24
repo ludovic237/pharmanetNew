@@ -9,7 +9,7 @@ import {Page} from "ngx-pagination";
 export class VentesService {
   private apiUrl = '/api/ventes';
 
-  constructor(private http: HttpClient) {
+   constructor(private http: HttpClient) {
   }
 
   private getHeaders(): HttpHeaders {
@@ -125,5 +125,9 @@ export class VentesService {
   // Validate the return of products
   validerRetour(venteId:number,produitsRetour: any[]): Observable<any> {
     return this.http.post(`${this.apiUrl}/retour/`+venteId, produitsRetour, { headers: this.getHeaders() });
+  }
+
+  encaisserVenteDirect(encaissementDirectData: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/encaisser_direct`, encaissementDirectData, {headers: this.getHeaders()});
   }
 }

@@ -51,7 +51,9 @@ export class UsersComponent implements OnInit {
   public settings: Settings;
   domHandlerService = inject(DomHandlerService);
 
-  constructor(public settingsService: SettingsService,
+   constructor(
+    public authService: AuthService,
+    public snackBar:MatSnackBar,public settingsService: SettingsService,
               public dialog: MatDialog,
               public usersService: UsersService,
               private ngxSpinnerService: NgxSpinnerService){

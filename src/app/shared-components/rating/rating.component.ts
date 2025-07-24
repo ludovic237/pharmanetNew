@@ -18,7 +18,8 @@ export class RatingComponent {
   @Input() showText: boolean = true;
   avg: number;
   stars: Array<string>;
-  constructor() { }
+   constructor(
+    ) { }
 
   ngDoCheck() {
     if (this.ratingsCount && this.ratingsValue && !this.avg) {

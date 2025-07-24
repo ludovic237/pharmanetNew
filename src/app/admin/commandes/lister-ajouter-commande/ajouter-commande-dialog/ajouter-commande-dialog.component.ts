@@ -19,6 +19,7 @@ import {ProductService} from "@services/products.service";
 import {MatListModule} from "@angular/material/list";
 import {CommandesService} from "@services/commandes.service";
 import {FournisseursService} from "@services/fournisseurs.service";
+import {AuthService} from "@services/auth.service";
 
 @Component({
   selector: 'app-ajouter-commande-dialog',
@@ -53,13 +54,15 @@ export class AjouterCommandeDialogComponent implements OnInit {
   fournisseurId: string = '';
   defaultDateDePeremption: string;
 
-  constructor(public dialogRef: MatDialogRef<AjouterCommandeDialogComponent>,
-              @Inject(MAT_DIALOG_DATA) public data: any,
-              public snackBar: MatSnackBar,
-              private fb: FormBuilder,
-              private productService: ProductService,
-              private fournisseursService: FournisseursService,
-              private commandesService: CommandesService) {
+  constructor(
+    public authService: AuthService,
+    public dialogRef: MatDialogRef<AjouterCommandeDialogComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: any,
+    public snackBar: MatSnackBar,
+    private fb: FormBuilder,
+    private productService: ProductService,
+    private fournisseursService: FournisseursService,
+    private commandesService: CommandesService) {
     this.selectedProducts = this.fb.array([]);
     const today = new Date();
     const twoMonthsLater = new Date(today.setMonth(today.getMonth() + 2));
@@ -71,14 +74,14 @@ export class AjouterCommandeDialogComponent implements OnInit {
     this.searchFournisseur();
   }
 
-/*  updateColumns(): void {
-    if (this.typeCommande === 'livree' || this.typeCommande === 'en_cours') {
-      this.columns = ['nom', 'prixAchat', 'prixVente', 'quantite', 'uniteGratuite','dateDePeremption', 'total', 'actions'];
-    }
-    if (this.typeCommande === 'en_cours') {
-      this.columns = ['nom', 'prixAchat', 'prixVente', 'quantite', 'uniteGratuite', 'quantiteRecu', 'total', 'actions'];
-    }
-  }*/
+  /*  updateColumns(): void {
+      if (this.typeCommande === 'livree' || this.typeCommande === 'en_cours') {
+        this.columns = ['nom', 'prixAchat', 'prixVente', 'quantite', 'uniteGratuite','dateDePeremption', 'total', 'actions'];
+      }
+      if (this.typeCommande === 'en_cours') {
+        this.columns = ['nom', 'prixAchat', 'prixVente', 'quantite', 'uniteGratuite', 'quantiteRecu', 'total', 'actions'];
+      }
+    }*/
 
   updateColumns(): void {
     this.columns = ['nom', 'prixAchat', 'prixVente', 'quantite', 'total', 'actions'];

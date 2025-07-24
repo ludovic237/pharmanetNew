@@ -9,7 +9,8 @@ import {Rayon} from "@models/product";
 export class SortiesService {
   private url = 'api/sortie-stock';
 
-  constructor(private http: HttpClient) {
+   constructor(
+    private http: HttpClient) {
   }
 
   private getHeaders(): HttpHeaders {

@@ -259,34 +259,41 @@ class ProduitService(
 
   fun searchProducts(query: String, page: Int, size: Int): Page<Map<String, Any?>> {
     val pageable = PageRequest.of(page, size)
-    val produits = produitRepository.findByNomContainingIgnoreCase(query, pageable)
-      .map {
-        mapOf(
-          "id" to it.id,
-          "nom" to it.nom,
-          "stock" to it.stock,
-          "prix" to 0,
-          "type" to "produit"
-        )
-      }
-    val details = produitDetailRepository.findByNomContainingIgnoreCaseAndSupprimer(query, 0, pageable)
-      .map {
-        mapOf(
-          "id" to it.id,
-          "nom" to it.nom,
-          "stock" to it.stock,
-          "prix" to 0,
-          "type" to "detail"
-        )
-      }
-    val mergedList = (produits + details).sortedBy { it["nom"]?.toString() }
-    val start = page * size
-    val end = minOf(start + size, mergedList.size)
-    val pageContent = if (start >= mergedList.size) emptyList() else mergedList.subList(start, end)
-    return PageImpl(pageContent, pageable, mergedList.size.toLong())
+    val produits = if (query.isNullOrBlank()){
+      produitRepository.findAll(pageable)
+        .map {
+          mapOf(
+            "id" to it.id,
+            "nom" to it.nom,
+            "stock" to it.stock,
+            "prix" to 0,
+            "type" to "produit"
+          )
+        }
+    }
+    else {
+      produitRepository.findByNomContainingIgnoreCase(query, pageable)
+        .map {
+          mapOf(
+            "id" to it.id,
+            "nom" to it.nom,
+            "stock" to it.stock,
+            "prix" to 0,
+            "type" to "produit"
+          )
+        }
+    }
+
+    val produitsMapped = produits
+    val mergedList = (produitsMapped )
+      .sortedBy { it["nom"]?.toString() }
+    val paginatedList = mergedList
+    val totalElements = produitsMapped.totalElements
+    return PageImpl(paginatedList, PageRequest.of(page, size), totalElements.toLong())
   }
 
- fun searchProductsWithParam(query: String, page: Int, size: Int,
+
+ fun searchProductsWithParam(query: String?, page: Int, size: Int,
                              rayonId: String?,
                              fabriquantId: String?,
                              etagereId: String?,

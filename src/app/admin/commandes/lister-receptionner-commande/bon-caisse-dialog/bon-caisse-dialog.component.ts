@@ -20,6 +20,7 @@ import {MatToolbarModule} from "@angular/material/toolbar";
 import {jsPDF} from "jspdf";
 import QRCode from "qrcode";
 import JsBarcode from "jsbarcode";
+import {AuthService} from "@services/auth.service";
 
 @Component({
   selector: 'app-bon-caisse-dialog',
@@ -52,7 +53,8 @@ export class BonCaisseDialogComponent {
   codeBon: string = ''; // For encaisser bon
   bonForm: FormGroup; // Form for creating bon
 
-  constructor(private fb: FormBuilder,
+   constructor(
+    public authService: AuthService,private fb: FormBuilder,
               public dialogRef: MatDialogRef<BonCaisseDialogComponent>,
               public enRayonService: EnrayonsService, // Replace with actual service
               public bonCaisseService: BonCaisseService, // Replace with actual service

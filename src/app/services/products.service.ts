@@ -9,7 +9,7 @@ import { Injectable } from '@angular/core';
   export class ProductService {
     private baseUrl = 'http://localhost:8080/api/produits';
 
-    constructor(private http: HttpClient) {
+     constructor(private http: HttpClient) {
     }
 
     private getHeaders(): HttpHeaders {
@@ -25,10 +25,16 @@ import { Injectable } from '@angular/core';
     // }
 
     getProducts(page: number, size: number): Observable<any> {
+      if (page == -1) {
+        page = 0
+      }
       return this.http.get<any>(`${this.baseUrl}?page=${page}&size=${size}`, { headers: this.getHeaders() });
     }
 
     searchProducts(searchTerm:string,page:number, size:number): Observable<any> {
+      if (page == -1) {
+        page = 0
+      }
       return this.http.get<any>(`${this.baseUrl}/products/search?query=${searchTerm}&page=${page}&size=${size}`, { headers: this.getHeaders() });
     }
 

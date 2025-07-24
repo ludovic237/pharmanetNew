@@ -19,6 +19,7 @@ import {
   UpdateProduitDetailDialogComponent
 } from "./update-produit-detail-dialog/update-produit-detail-dialog.component";
 import {MatToolbarModule} from "@angular/material/toolbar";
+import {AuthService} from "@services/auth.service";
 
 @Component({
   selector: 'app-ajouter-vente-dialog',
@@ -59,13 +60,14 @@ export class AjouterVenteDialogComponent implements OnInit {
   public form: FormGroup;
   public settings: Settings;
 
-  constructor(public dialogRef: MatDialogRef<AjouterVenteDialogComponent>,
-              public enRayonService: EnrayonsService, // Replace with actual service
-              public snackBar: MatSnackBar,
-              @Inject(MAT_DIALOG_DATA) public data: any,
-              public fb: FormBuilder,
-              public dialog: MatDialog,
-              public settingsService: SettingsService) {
+  constructor(
+    public authService: AuthService,
+    public snackBar: MatSnackBar, public dialogRef: MatDialogRef<AjouterVenteDialogComponent>,
+    public enRayonService: EnrayonsService, // Replace with actual service
+    @Inject(MAT_DIALOG_DATA) public data: any,
+    public fb: FormBuilder,
+    public dialog: MatDialog,
+    public settingsService: SettingsService) {
     this.settings = this.settingsService.settings;
   }
 
@@ -179,7 +181,7 @@ export class AjouterVenteDialogComponent implements OnInit {
   getDaysAfterExpiration(datePeremtion: any) {
     const today = new Date();
     const expirationDate = new Date(datePeremtion)
-    if(today<=expirationDate){
+    if (today <= expirationDate) {
       return 0
     }
     const diff = today.getTime() - expirationDate.getTime()

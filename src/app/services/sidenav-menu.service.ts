@@ -8,7 +8,8 @@ import { sidenavMenuItems } from '../common/data/sidenav-menu';
 @Injectable()
 export class SidenavMenuService {
 
-  constructor(private location: Location, private router: Router, private domHandlerService: DomHandlerService) { }
+   constructor(
+    private location: Location, private router: Router, private domHandlerService: DomHandlerService) { }
 
   public getSidenavMenuItems(): Array<SidenavMenu> {
     return sidenavMenuItems;
@@ -58,7 +59,7 @@ export class SidenavMenuService {
             subMenu.classList.remove('show');
             if (menuItem) {
               menuItem.classList.remove('expanded');
-            } 
+            }
           }
         }
       }

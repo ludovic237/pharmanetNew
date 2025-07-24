@@ -1,5 +1,7 @@
 import { DatePipe } from '@angular/common';
 import { Component } from '@angular/core';
+import {AuthService} from "@services/auth.service";
+import {MatSnackBar} from "@angular/material/snack-bar";
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
@@ -50,7 +52,9 @@ export class ReviewsComponent {
   public page: any;
   public count = 6;
 
-  constructor(public dialog: MatDialog, public domHandlerService: DomHandlerService) { }
+   constructor(
+    public authService: AuthService,
+    public snackBar:MatSnackBar,public dialog: MatDialog, public domHandlerService: DomHandlerService) { }
 
   public onPageChanged(event: any) {
     this.page = event;

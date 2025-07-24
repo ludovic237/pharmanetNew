@@ -20,6 +20,7 @@ import {MatToolbarModule} from "@angular/material/toolbar";
 import {jsPDF} from "jspdf";
 import QRCode from "qrcode";
 import JsBarcode from "jsbarcode";
+import {AuthService} from "@services/auth.service";
 
 @Component({
   selector: 'app-bon-caisse-dialog',
@@ -48,16 +49,18 @@ export class BonCaisseDialogComponent {
   @ViewChild('barcode', {static: false}) barcodeElement!: ElementRef;
   selectedTabIndex: number = 0;
   bons: any[] = []; // List of bons
-  displayedColumns: string[] = ['id', 'nomClient', 'codebarreId', 'dateGenerer', 'dateEncaisser','type', 'montant', 'actions'];
+  displayedColumns: string[] = ['id', 'nomClient', 'codebarreId', 'dateGenerer', 'dateEncaisser', 'type', 'montant', 'actions'];
   codeBon: string = ''; // For encaisser bon
   bonForm: FormGroup; // Form for creating bon
 
-  constructor(private fb: FormBuilder,
-              public dialogRef: MatDialogRef<BonCaisseDialogComponent>,
-              public enRayonService: EnrayonsService, // Replace with actual service
-              public bonCaisseService: BonCaisseService, // Replace with actual service
-              public snackBar: MatSnackBar,
-              @Inject(MAT_DIALOG_DATA) public data: any[]) {
+  constructor(
+    public authService: AuthService,
+    private fb: FormBuilder,
+    public dialogRef: MatDialogRef<BonCaisseDialogComponent>,
+    public enRayonService: EnrayonsService, // Replace with actual service
+    public bonCaisseService: BonCaisseService, // Replace with actual service
+    public snackBar: MatSnackBar,
+    @Inject(MAT_DIALOG_DATA) public data: any[]) {
     this.bonForm = this.fb.group({
       nomClient: ['', Validators.required],
       montant: [0, [Validators.required, Validators.min(1)]]
@@ -87,6 +90,17 @@ export class BonCaisseDialogComponent {
         },
         error: (err) => {
           console.error('Erreur lors de l\'encaissement du bon:', err);
+          if (err.status === 401 || err.status === 403){
+            this.authService.logout();
+            this.snackBar.open('Déconnexion réussie.', '×', {
+              panelClass: 'success',
+              verticalPosition: 'top',
+              duration: 3000,
+            });
+            // Redirect to login page or clear session
+            window.location.href = '/sign-in';
+          }
+          else
           this.snackBar.open('Erreur lors de l\'encaissement du bon.', '×', {
             panelClass: 'error',
             verticalPosition: 'top',
@@ -123,6 +137,17 @@ export class BonCaisseDialogComponent {
         },
         error: (err) => {
           console.error('Erreur lors de la création du bon:', err);
+          if (err.status === 401 || err.status === 403){
+            this.authService.logout();
+            this.snackBar.open('Déconnexion réussie.', '×', {
+              panelClass: 'success',
+              verticalPosition: 'top',
+              duration: 3000,
+            });
+            // Redirect to login page or clear session
+            window.location.href = '/sign-in';
+          }
+          else
           this.snackBar.open('Erreur lors de la création du bon.', '×', {
             panelClass: 'error',
             verticalPosition: 'top',
@@ -146,6 +171,17 @@ export class BonCaisseDialogComponent {
       },
       error: (err: any) => {
         console.error('Failed to fetch BonCaisse list:', err);
+        if (err.status === 401 || err.status === 403){
+          this.authService.logout();
+          this.snackBar.open('Déconnexion réussie.', '×', {
+            panelClass: 'success',
+            verticalPosition: 'top',
+            duration: 3000,
+          });
+          // Redirect to login page or clear session
+          window.location.href = '/sign-in';
+        }
+        else
         this.snackBar.open('Erreur lors de la récupération des bons de caisse.', '×', {
           panelClass: 'error',
           verticalPosition: 'top',

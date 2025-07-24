@@ -11,6 +11,10 @@ export const routes: Routes = [
                 loadComponent: () => import('./dashboard/dashboard.component').then(c => c.DashboardComponent)
             },
             {
+                path: 'setting',
+              loadComponent: () => import('./setting/setting.component').then(c => c.SettingComponent)
+            },
+            {
                 path: 'products',
                 loadChildren: () => import('./products/products.routes').then(p => p.routes)
             },

@@ -39,6 +39,8 @@ import {CategorieService} from "@services/categories.service";
 import {MatDialog} from "@angular/material/dialog";
 import {DomHandlerService} from "@services/dom-handler.service";
 import {CaisseService} from "@services/caisse.service";
+import {AuthService} from "@services/auth.service";
+import {MatSnackBar} from "@angular/material/snack-bar";
 
 @Component({
   selector: 'app-rapport-caisse',
@@ -160,7 +162,9 @@ export class RapportCaisseComponent implements OnInit {
   depensesColumns: string[] = ['designation', 'quantite', 'prixUnitaire', 'total'];
   bonCaisseEnColumns: string[] = ['nomClient', 'codebarreId', 'montant'];
 
-  constructor(
+   constructor(
+    public authService: AuthService,
+    public snackBar:MatSnackBar,
     public appService: AppService,
     public caisseService: CaisseService,
     public categorieService: CategorieService,

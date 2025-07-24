@@ -42,6 +42,7 @@ import {
   AjouterVenteDialogComponent
 } from "../../sales/ajouter-vente/ajouter-vente-dialog/ajouter-vente-dialog.component";
 import {SortieDetailDialogComponent} from "./sortie-detail-dialog/sortie-detail-dialog.component";
+import {AuthService} from "@services/auth.service";
 
 @Component({
   selector: 'app-sortie',
@@ -124,26 +125,27 @@ export class SortieComponent implements OnInit {
   public totalItems = 0;  // Default to 10 if undefined
   public count = 10;
 
-  constructor(public appSettings: SettingsService,
-              public snackBar: MatSnackBar,
-              public enRayonService: EnrayonsService,
-              public sortiesService: SortiesService,
-              public commandesService: CommandesService,
-              public fournisseursService: FournisseursService,
-              public produitdetailsService:ProduitdetailsService,
-              public productService: ProductService,
-              public ventesService: VentesService,
-              public usersService: UsersService,
-              public prescripteursService: PrescripteursService,
-              public domHandlerService: DomHandlerService,
-              public dialog: MatDialog) {
+  constructor(
+    public authService: AuthService,
+    public snackBar: MatSnackBar, public appSettings: SettingsService,
+    public enRayonService: EnrayonsService,
+    public sortiesService: SortiesService,
+    public commandesService: CommandesService,
+    public fournisseursService: FournisseursService,
+    public produitdetailsService: ProduitdetailsService,
+    public productService: ProductService,
+    public ventesService: VentesService,
+    public usersService: UsersService,
+    public prescripteursService: PrescripteursService,
+    public domHandlerService: DomHandlerService,
+    public dialog: MatDialog) {
 
   }
 
   ngOnInit(): void {
 
     this.fetchSortieProduitsEnRayon();
-    this.produitDetailSearchControl.valueChanges.subscribe((searchTerm)=>{
+    this.produitDetailSearchControl.valueChanges.subscribe((searchTerm) => {
       if (searchTerm) {
         this.searchProducts(searchTerm);
       }
@@ -157,7 +159,17 @@ export class SortieComponent implements OnInit {
       next: (data: any) => {
         this.produitDetailOptions = data.content;
       },
-      error: (err) => {
+      error: (err: any) => {
+        if (err.status === 401 || err.status === 403) {
+          this.authService.logout();
+          this.snackBar.open('Déconnexion réussie.', '×', {
+            panelClass: 'success',
+            verticalPosition: 'top',
+            duration: 3000,
+          });
+          // Redirect to login page or clear session
+          window.location.href = '/sign-in';
+        }
         console.error('Error searching products:', err);
       }
     });
@@ -186,11 +198,21 @@ export class SortieComponent implements OnInit {
       },
       error: (err: any) => {
         console.error('Error fetching products:', err);
-        this.snackBar.open('Failed to fetch products. Please try again later.', '×', {
-          panelClass: 'error',
-          verticalPosition: 'top',
-          duration: 3000
-        });
+        if (err.status === 401 || err.status === 403) {
+          this.authService.logout();
+          this.snackBar.open('Déconnexion réussie.', '×', {
+            panelClass: 'success',
+            verticalPosition: 'top',
+            duration: 3000,
+          });
+          // Redirect to login page or clear session
+          window.location.href = '/sign-in';
+        } else
+          this.snackBar.open('Failed to fetch products. Please try again later.', '×', {
+            panelClass: 'error',
+            verticalPosition: 'top',
+            duration: 3000
+          });
       }
     });
   }
@@ -229,7 +251,7 @@ export class SortieComponent implements OnInit {
 // Implémentez la logique de visualisation ici
   }
 
-  onProduitDetailSelected(event:any){
+  onProduitDetailSelected(event: any) {
 
   }
 

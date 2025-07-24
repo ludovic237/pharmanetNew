@@ -6,6 +6,8 @@ import { NavigationEnd, Router, RouterModule } from '@angular/router';
 import { FlexLayoutModule } from '@ngbracket/ngx-layout';
 import { DomHandlerService } from '@services/dom-handler.service';
 import { Settings, SettingsService } from '@services/settings.service';
+import {AuthService} from "@services/auth.service";
+import {MatSnackBar} from "@angular/material/snack-bar";
 
 @Component({
     selector: 'app-account',
@@ -30,8 +32,10 @@ export class AccountComponent implements OnInit {
     { name: 'Logout', href: '/sign-in', icon: 'power_settings_new' },
   ];
   public settings: Settings;
-  
-  constructor(public router: Router, public domHandlerService: DomHandlerService, public settingsService: SettingsService) {
+
+   constructor(
+    public authService: AuthService,
+    public snackBar:MatSnackBar,public router: Router, public domHandlerService: DomHandlerService, public settingsService: SettingsService) {
     this.settings = this.settingsService.settings;
   }
 

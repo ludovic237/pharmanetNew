@@ -1,15 +1,16 @@
 <div class="p-2">
   <mat-card>
     <div fxLayout="row wrap" fxLayoutAlign="space-between center" class="w-100 p-3">
-      <h2 *ngIf="caisseStatus === 'open'">Caisse ouverte par : {{ cashierName }}</h2>
-      <h2 *ngIf="caisseStatus !== 'open'">Caisse fermée</h2>
+      <h2 *ngIf="caisseStatus === 'active'">Caisse ouverte par : {{ cashierName }}</h2>
+      <h2 *ngIf="caisseStatus === 'already'">Caisse actuellement ouverte par : {{ cashierName }}</h2>
+      <h2 *ngIf="caisseStatus == 'close' || caisseStatus == 'pending'">Caisse fermée</h2>
       <div fxLayout="row" fxLayoutGap="8px">
         <!--        <button mat-raised-button color="primary" (click)="manageCaisse()">Fermer la caisse</button>-->
-        <div *ngIf="caisseStatus !== 'alreadyopen'" fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
-          <button *ngIf="caisseStatus === 'open'" mat-flat-button color="warn" (click)="fermerCaisse()">Fermer la
+        <div  fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
+          <button *ngIf="caisseStatus === 'active'" mat-flat-button color="warn" (click)="fermerCaisse()">Fermer la
             caisse
           </button>
-          <button *ngIf="caisseStatus === 'none'" mat-flat-button color="primary" (click)="ouvrirCaisse()">Ouvrir la
+          <button *ngIf="caisseStatus === 'open' || caisseStatus === 'close'" mat-flat-button color="primary" (click)="ouvrirCaisse()">Ouvrir la
             caisse
           </button>
           <button *ngIf="caisseStatus === 'pending'" mat-flat-button color="primary" (click)="manageCaisse()">Continuer
@@ -18,18 +19,18 @@
           <button *ngIf="caisseStatus === 'other'" mat-flat-button color="primary" (click)="handleOtherStatus()">Autre
             action
           </button>
-          <button *ngIf="caisseStatus !== 'pending' && caisseStatus !== 'closed' && caisseStatus !== 'none'"
+          <button *ngIf="caisseStatus == 'active' "
                   mat-flat-button color="accent" (click)="showBonCaisse()">Gérer les Bons de Caisse
           </button>
-          <button *ngIf="caisseStatus !== 'pending' && caisseStatus !== 'closed' && caisseStatus !== 'none'"
+          <button *ngIf="caisseStatus == 'active' "
                   mat-flat-button color="warn" (click)="showDepense()">Entrez une Dépense
           </button>
-          <button *ngIf="caisseStatus !== 'pending' && caisseStatus !== 'closed' && caisseStatus !== 'none'"
+          <button *ngIf="caisseStatus == 'active' "
                   mat-flat-button color="primary" (click)="onRefresh()">Rafraîchir les Données
           </button>
         </div>
 
-        <button *ngIf="caisseStatus !== 'pending' && caisseStatus !== 'closed' && caisseStatus !== 'none'"
+        <button *ngIf="caisseStatus !== 'active' && caisseStatus !== 'pending' && caisseStatus !== 'already'"
                 mat-flat-button color="accent" (click)="showVente()">Afficher les Ventes
         </button>
       </div>

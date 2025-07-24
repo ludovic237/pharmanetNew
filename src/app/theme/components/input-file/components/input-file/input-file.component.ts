@@ -143,7 +143,7 @@ export class InputFileComponent implements ControlValueAccessor, OnInit {
         return this.files && this.files.length < this.fileLimit;
     }
 
-    constructor(
+     constructor(
         private formBuilder: FormBuilder,
         private inputFileService: InputFileService
     ) { }

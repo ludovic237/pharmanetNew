@@ -8,7 +8,7 @@ import {HttpClient, HttpHeaders} from '@angular/common/http';
     export class FournisseursService {
       private url = 'api/fournisseurs';
 
-      constructor(private http: HttpClient) {}
+       constructor(private http: HttpClient) {}
 
       private getHeaders(): HttpHeaders {
         const token = localStorage.getItem('token');

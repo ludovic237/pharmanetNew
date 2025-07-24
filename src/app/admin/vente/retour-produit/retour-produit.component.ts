@@ -42,6 +42,7 @@ import {debounceTime, switchMap} from "rxjs";
 import {RetourProduitService} from "@services/retour-produit.service";
 import autoTable from 'jspdf-autotable';
 import {MatPaginatorModule, PageEvent} from "@angular/material/paginator";
+import {AuthService} from "@services/auth.service";
 
 @Component({
   selector: 'app-retour-produit',
@@ -120,6 +121,7 @@ export class RetourProduitComponent implements OnInit {
   netTotal = 0;
 
   constructor(
+    public authService: AuthService,
     private retourProduitService: RetourProduitService,
     private ventesService: VentesService,
     private snackBar: MatSnackBar) {
@@ -137,9 +139,9 @@ export class RetourProduitComponent implements OnInit {
         this.netTotal = 0;
         this.ventesService.searchVenteByReference(searchTerm).subscribe({
           next: (data: any) => {
-            this.produitsAchetes = data.produits.map((produit:any) =>({
+            this.produitsAchetes = data.produits.map((produit: any) => ({
               ...produit,
-                quantiteRetour: 0 // Initialize quantiteRetour to 0
+              quantiteRetour: 0 // Initialize quantiteRetour to 0
             }))
             this.vente = data.vente
 
@@ -147,6 +149,17 @@ export class RetourProduitComponent implements OnInit {
           },
           error: (err: any) => {
             console.error('Error validating retour:', err);
+            if (err.status === 401 || err.status === 403){
+              this.authService.logout();
+              this.snackBar.open('Déconnexion réussie.', '×', {
+                panelClass: 'success',
+                verticalPosition: 'top',
+                duration: 3000,
+              });
+              // Redirect to login page or clear session
+              window.location.href = '/sign-in';
+            }
+            else
             this.snackBar.open('Erreur lors de la validation du retour.', '×', {panelClass: 'error', duration: 3000});
           }
         });
@@ -167,7 +180,7 @@ export class RetourProduitComponent implements OnInit {
   }
 
   loadProduitsRetournesListe(): void {
-    this.retourProduitService.listerRetourProduitsAvecDetails(this.page-1, this.count).subscribe({
+    this.retourProduitService.listerRetourProduitsAvecDetails(this.page - 1, this.count).subscribe({
       next: (data: any) => {
         this.count = data.pageable.pageSize;
         this.totalItems = data.totalElements;
@@ -272,112 +285,112 @@ export class RetourProduitComponent implements OnInit {
     this.calculateTotals(this.produitsRetournes);
   }
 
-async generateTicket(vente: any): Promise<void> {
-  const baseWidth = 10; // Width in cm
-  const baseHeight = 10; // Base height for header and footer
-  const contentHeight = vente.produitsRetournes.length * 0.5; // Each product row takes 0.5 cm
-  const totalHeight = baseHeight + contentHeight;
+  async generateTicket(vente: any): Promise<void> {
+    const baseWidth = 10; // Width in cm
+    const baseHeight = 10; // Base height for header and footer
+    const contentHeight = vente.produitsRetournes.length * 0.5; // Each product row takes 0.5 cm
+    const totalHeight = baseHeight + contentHeight;
 
-  const doc = new jsPDF({
-    orientation: 'portrait',
-    unit: 'cm',
-    format: [baseWidth, totalHeight] // Width: 10 cm, Height: dynamic based on content
-  });
+    const doc = new jsPDF({
+      orientation: 'portrait',
+      unit: 'cm',
+      format: [baseWidth, totalHeight] // Width: 10 cm, Height: dynamic based on content
+    });
 
-  const margin = 1; // Margin in cm
-  const columnWidth = baseWidth / 5; // Divide width into 5 columns
+    const margin = 1; // Margin in cm
+    const columnWidth = baseWidth / 5; // Divide width into 5 columns
 
-  // Header
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(10); // Fixed font size for header
-  doc.text('Pharmacie ALSAS', margin, margin);
-  doc.text('Dr GAMWO Sandrine', margin, margin + 0.5);
-  doc.text('BP 38 FOUMBOT', margin, margin + 1);
-  doc.text('Tel : (+237) 233 267 487', margin, margin + 1.5);
-  doc.text(`Ticket N°: ${vente.venteReference}`, margin, margin + 2);
-  doc.text(`Vendu le: ${vente.dateRetour}`, margin, margin + 2.5);
-  doc.text(`Caissier: ${vente.caissier}`, margin, margin + 3);
-  doc.text(`Employee: ${vente.nomEmploye}`, margin, margin + 3.5);
+    // Header
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(10); // Fixed font size for header
+    doc.text('Pharmacie ALSAS', margin, margin);
+    doc.text('Dr GAMWO Sandrine', margin, margin + 0.5);
+    doc.text('BP 38 FOUMBOT', margin, margin + 1);
+    doc.text('Tel : (+237) 233 267 487', margin, margin + 1.5);
+    doc.text(`Ticket N°: ${vente.venteReference}`, margin, margin + 2);
+    doc.text(`Vendu le: ${vente.dateRetour}`, margin, margin + 2.5);
+    doc.text(`Caissier: ${vente.caissier}`, margin, margin + 3);
+    doc.text(`Employee: ${vente.nomEmploye}`, margin, margin + 3.5);
 
-/*  // Table Header
-  doc.setFontSize(0.6 * baseWidth);
-  doc.text('Libellé', margin, margin + 4);
-  doc.text('Prix U.', margin + columnWidth, margin + 4);
-  doc.text('Qte', margin + 2 * columnWidth, margin + 4);
-  doc.text('Total', margin + 3 * columnWidth, margin + 4);
-  doc.text('Rd(%)', margin + 4 * columnWidth, margin + 4);
+    /*  // Table Header
+      doc.setFontSize(0.6 * baseWidth);
+      doc.text('Libellé', margin, margin + 4);
+      doc.text('Prix U.', margin + columnWidth, margin + 4);
+      doc.text('Qte', margin + 2 * columnWidth, margin + 4);
+      doc.text('Total', margin + 3 * columnWidth, margin + 4);
+      doc.text('Rd(%)', margin + 4 * columnWidth, margin + 4);
 
-  // Table Content
-  let y = margin + 4.5;
-  vente.produitsRetournes.forEach((produit: any) => {
-    doc.text(produit.nomProduit, margin, y);
-    doc.text(`${produit.prixUnit ?? 0}`, margin + columnWidth, y);
-    doc.text(`${produit.quantiteRetournee ?? 0}`, margin + 2 * columnWidth, y);
-    doc.text(`${(produit.prixUnit ?? 0) * (produit.quantiteRetournee ?? 0)}`, margin + 3 * columnWidth, y);
-    doc.text(`${produit.reduction ?? 0}`, margin + 4 * columnWidth, y);
-    y += 0.5; // Adjust row spacing proportionally
-  });*/
+      // Table Content
+      let y = margin + 4.5;
+      vente.produitsRetournes.forEach((produit: any) => {
+        doc.text(produit.nomProduit, margin, y);
+        doc.text(`${produit.prixUnit ?? 0}`, margin + columnWidth, y);
+        doc.text(`${produit.quantiteRetournee ?? 0}`, margin + 2 * columnWidth, y);
+        doc.text(`${(produit.prixUnit ?? 0) * (produit.quantiteRetournee ?? 0)}`, margin + 3 * columnWidth, y);
+        doc.text(`${produit.reduction ?? 0}`, margin + 4 * columnWidth, y);
+        y += 0.5; // Adjust row spacing proportionally
+      });*/
 
-  // Table Content
-  const rows = vente.produitsRetournes.map((produit: any) => [
-    produit.nomProduit,
-    produit.prixUnit ?? 0,
-    produit.quantiteRetournee ?? 0,
-    (produit.prixUnit ?? 0) * (produit.quantiteRetournee ?? 0),
-    produit.reduction ?? 0,
-  ]);
+    // Table Content
+    const rows = vente.produitsRetournes.map((produit: any) => [
+      produit.nomProduit,
+      produit.prixUnit ?? 0,
+      produit.quantiteRetournee ?? 0,
+      (produit.prixUnit ?? 0) * (produit.quantiteRetournee ?? 0),
+      produit.reduction ?? 0,
+    ]);
 
-  // autoTable(doc, {
-  //   head: [['Libellé', 'Prix U.', 'Quantité', 'Total', 'Réduction']],
-  //   body: rows,
-  //   startY: margin + 4.5,
-  //   margin: { top: margin, left: margin, right: margin },
-  //   styles: {
-  //     fontSize: 2, // Reduce font size for table
-  //     cellPadding: 1, // Adjust cell padding
-  //   },
-  //   /*columnStyles: {
-  //     0: { cellWidth: 3 }, // Adjust column width for 'Libellé'
-  //     1: { cellWidth: 2 }, // Adjust column width for 'Prix U.'
-  //     2: { cellWidth: 2 }, // Adjust column width for 'Quantité'
-  //     3: { cellWidth: 3 }, // Adjust column width for 'Total'
-  //     4: { cellWidth: 2 }, // Adjust column width for 'Réduction'
-  //   },*/
-  // });
+    // autoTable(doc, {
+    //   head: [['Libellé', 'Prix U.', 'Quantité', 'Total', 'Réduction']],
+    //   body: rows,
+    //   startY: margin + 4.5,
+    //   margin: { top: margin, left: margin, right: margin },
+    //   styles: {
+    //     fontSize: 2, // Reduce font size for table
+    //     cellPadding: 1, // Adjust cell padding
+    //   },
+    //   /*columnStyles: {
+    //     0: { cellWidth: 3 }, // Adjust column width for 'Libellé'
+    //     1: { cellWidth: 2 }, // Adjust column width for 'Prix U.'
+    //     2: { cellWidth: 2 }, // Adjust column width for 'Quantité'
+    //     3: { cellWidth: 3 }, // Adjust column width for 'Total'
+    //     4: { cellWidth: 2 }, // Adjust column width for 'Réduction'
+    //   },*/
+    // });
 
-  autoTable(doc, {
-    head: [['Libellé', 'Prix U.', 'Quantité', 'Total', 'Réduction']],
-    body: rows,
-    startY: margin + 4.5,
-    // margin: { top: 1, left: margin, right: margin },
-    margin: { top: 0, left: margin, right: margin },
+    autoTable(doc, {
+      head: [['Libellé', 'Prix U.', 'Quantité', 'Total', 'Réduction']],
+      body: rows,
+      startY: margin + 4.5,
+      // margin: { top: 1, left: margin, right: margin },
+      margin: {top: 0, left: margin, right: margin},
       styles: {
         fontSize: 8, // Reduce font size for table
         // cellPadding: 1, // Adjust cell padding
       },
-  });
-
-let y = (doc as any).lastAutoTable.finalY + 1; // Get the position after the tablet the position after the table
-  doc.setFontSize(8); // Smaller font size for footer
-  doc.text('Ce ticket vaut facture', margin, y);
-  y += 0.5;
-  doc.text('Merci et bonne santé', margin, y);
-  y += 0.5;
-  doc.text('NoCT / POS85127004888', margin, y);
-
-  // QR Code
-  if (vente.venteReference) {
-    const qrCodeDataUrl = await QRCode.toDataURL(vente.venteReference);
-    doc.addImage(qrCodeDataUrl, 'PNG', baseWidth - 3, y - 1, 2, 2); // Position QR code proportionally
-  } else {
-    console.error('Erreur: La référence de la vente est manquante.');
-    this.snackBar.open('Erreur: La référence de la vente est manquante.', '×', {
-      panelClass: 'error',
-      duration: 3000,
     });
-  }
 
-  // Save PDF
-  doc.save(`Ticket_${vente.venteReference}.pdf`);
-}
+    let y = (doc as any).lastAutoTable.finalY + 1; // Get the position after the tablet the position after the table
+    doc.setFontSize(8); // Smaller font size for footer
+    doc.text('Ce ticket vaut facture', margin, y);
+    y += 0.5;
+    doc.text('Merci et bonne santé', margin, y);
+    y += 0.5;
+    doc.text('NoCT / POS85127004888', margin, y);
+
+    // QR Code
+    if (vente.venteReference) {
+      const qrCodeDataUrl = await QRCode.toDataURL(vente.venteReference);
+      doc.addImage(qrCodeDataUrl, 'PNG', baseWidth - 3, y - 1, 2, 2); // Position QR code proportionally
+    } else {
+      console.error('Erreur: La référence de la vente est manquante.');
+      this.snackBar.open('Erreur: La référence de la vente est manquante.', '×', {
+        panelClass: 'error',
+        duration: 3000,
+      });
+    }
+
+    // Save PDF
+    doc.save(`Ticket_${vente.venteReference}.pdf`);
+  }
 }

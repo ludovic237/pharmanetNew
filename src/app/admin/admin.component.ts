@@ -1,40 +1,45 @@
-import { Component, HostListener, OnInit, ViewChild } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatSidenavModule } from '@angular/material/sidenav';
-import { MatToolbarModule } from '@angular/material/toolbar';
-import { NavigationEnd, Router, RouterModule } from '@angular/router';
-import { FlexLayoutModule } from '@ngbracket/ngx-layout';
-import { AdminMenuService } from '@services/admin-menu.service';
-import { DomHandlerService } from '@services/dom-handler.service';
-import { Settings, SettingsService } from '@services/settings.service';
-import { NgScrollbarModule } from 'ngx-scrollbar';
-import { BreadcrumbComponent } from './components/breadcrumb/breadcrumb.component';
-import { FullScreenComponent } from './components/fullscreen/fullscreen.component';
-import { LangsComponent } from './components/langs/langs.component';
-import { MessagesComponent } from './components/messages/messages.component';
-import { UserMenuComponent } from './components/user-menu/user-menu.component';
-import { AdminMenuComponent } from './components/admin-menu/admin-menu.component';
+import {ChangeDetectorRef, Component, HostListener, OnInit, ViewChild} from '@angular/core';
+import {MatButtonModule} from '@angular/material/button';
+import {MatIconModule} from '@angular/material/icon';
+import {MatSidenavModule} from '@angular/material/sidenav';
+import {MatToolbarModule} from '@angular/material/toolbar';
+import {NavigationEnd, Router, RouterModule} from '@angular/router';
+import {FlexLayoutModule} from '@ngbracket/ngx-layout';
+import {AdminMenuService} from '@services/admin-menu.service';
+import {DomHandlerService} from '@services/dom-handler.service';
+import {Settings, SettingsService} from '@services/settings.service';
+import {NgScrollbarModule} from 'ngx-scrollbar';
+import {BreadcrumbComponent} from './components/breadcrumb/breadcrumb.component';
+import {FullScreenComponent} from './components/fullscreen/fullscreen.component';
+import {LangsComponent} from './components/langs/langs.component';
+import {MessagesComponent} from './components/messages/messages.component';
+import {UserMenuComponent} from './components/user-menu/user-menu.component';
+import {AdminMenuComponent} from './components/admin-menu/admin-menu.component';
+import {AppService} from "@services/app.service";
+import {AuthService} from "@services/auth.service";
+import {MatSnackBar} from "@angular/material/snack-bar";
+import {AppSettingsService} from "@services/app-settings.service";
+import {getFilteredAdminMenuPharmaItems} from "../common/data/admin-menu-pharma";
 
 @Component({
-    selector: 'app-admin',
-    imports: [
-        RouterModule,
-        MatToolbarModule,
-        FlexLayoutModule,
-        MatButtonModule,
-        MatIconModule,
-        MatSidenavModule,
-        NgScrollbarModule,
-        BreadcrumbComponent,
-        FullScreenComponent,
-        LangsComponent,
-        MessagesComponent,
-        UserMenuComponent,
-        AdminMenuComponent
-    ],
-    templateUrl: './admin.component.html',
-    styleUrl: './admin.component.scss'
+  selector: 'app-admin',
+  imports: [
+    RouterModule,
+    MatToolbarModule,
+    FlexLayoutModule,
+    MatButtonModule,
+    MatIconModule,
+    MatSidenavModule,
+    NgScrollbarModule,
+    BreadcrumbComponent,
+    FullScreenComponent,
+    LangsComponent,
+    MessagesComponent,
+    UserMenuComponent,
+    AdminMenuComponent
+  ],
+  templateUrl: './admin.component.html',
+  styleUrl: './admin.component.scss'
 })
 export class AdminComponent implements OnInit {
   @ViewChild('sidenav') sidenav: any;
@@ -43,22 +48,46 @@ export class AdminComponent implements OnInit {
   public menuItems: Array<any>;
   public toggleSearchBar: boolean = false;
 
-  constructor(public settingsService: SettingsService,
-              public router: Router,
-              private adminMenuService: AdminMenuService,
-              public domHandlerService: DomHandlerService) {
-              this.settings = this.settingsService.settings;
+  constructor(
+    private cdr: ChangeDetectorRef,
+    public authService: AuthService,
+    public snackBar: MatSnackBar, public settingsService: SettingsService,
+    public router: Router,
+    private adminMenuService: AdminMenuService,
+    private appSettingsService: AppSettingsService,
+    private appService: AppService,
+    public domHandlerService: DomHandlerService) {
+    this.settings = this.settingsService.settings;
   }
 
   ngOnInit() {
     if (this.domHandlerService.window?.innerWidth <= 960) {
       this.settings.adminSidenavIsOpened = false;
       this.settings.adminSidenavIsPinned = false;
-    };
+    }
+    ;
     setTimeout(() => {
       this.settings.theme = 'green';
     });
     this.menuItems = this.adminMenuService.getMenuItems();
+ /*   this.appSettingsService.getSetting("vente_mode").subscribe({
+      next: (data: any) => {
+        this.menuItems = getFilteredAdminMenuPharmaItems(data.key);
+        this.cdr.detectChanges(); // Force the view to update
+      },
+      error: (err: any) => {
+        if (err.status === 401 || err.status === 403) {
+          this.authService.logout();
+          this.snackBar.open('Déconnexion réussie.', '×', {
+            panelClass: 'success',
+            verticalPosition: 'top',
+            duration: 3000,
+          });
+          window.location.href = '/sign-in'; // Redirect to login
+        }
+        console.error('Error fetching settings:', err);
+      }
+    });*/
   }
 
   ngAfterViewInit() {
@@ -86,8 +115,7 @@ export class AdminComponent implements OnInit {
     var scrollInterval = setInterval(() => {
       if (this.domHandlerService.window?.pageYOffset != 0) {
         this.domHandlerService.window?.scrollBy(0, scrollStep);
-      }
-      else {
+      } else {
         clearInterval(scrollInterval);
       }
     }, 10);
@@ -103,8 +131,7 @@ export class AdminComponent implements OnInit {
     if (this.domHandlerService.window?.innerWidth <= 960) {
       this.settings.adminSidenavIsOpened = false;
       this.settings.adminSidenavIsPinned = false;
-    }
-    else {
+    } else {
       this.settings.adminSidenavIsOpened = true;
       this.settings.adminSidenavIsPinned = true;
     }

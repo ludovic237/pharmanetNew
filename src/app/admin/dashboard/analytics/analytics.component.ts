@@ -1,4 +1,6 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import {AuthService} from "@services/auth.service";
+import {MatSnackBar} from "@angular/material/snack-bar";
 import { analytics } from '../../../common/data/dashboard.data';
 import { MatCardModule } from '@angular/material/card';
 import { FlexLayoutModule } from '@ngbracket/ngx-layout';
@@ -31,7 +33,9 @@ export class AnalyticsComponent implements OnInit {
   @ViewChild('resizedDiv') resizedDiv: ElementRef;
   public previousWidthOfResizedDiv: number = 0;
 
-  constructor() { }
+   constructor(
+    public authService: AuthService,
+    public snackBar:MatSnackBar,) { }
 
   ngOnInit() {
     this.analytics = analytics;

@@ -1,5 +1,6 @@
 package com.example.backend.services
 
+import com.example.backend.dtos.EncaissementDirectDto
 import com.example.backend.dtos.EncaissementDto
 import com.example.backend.dtos.EncaissementRequestDto
 import com.example.backend.dtos.VenteRequestDto
@@ -86,7 +87,7 @@ class VenteService(
     val dateTimeNow = LocalDateTime.now()
     val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
     val formattedDateTimeNow = dateTimeNow.format(formatter)
-    val activeCaisse = caisseService.getActiveCaisse()
+    val activeCaisse = caisseService.getCaisseActive()
     // Create the sale
     val nouvelleVente = Vente().apply {
       this.id = "${formattedDateTimeNow}".toLong()
@@ -151,6 +152,208 @@ class VenteService(
   }
 
   @Transactional
+  fun encaisserVenteDirect(encaissementDirectDto: EncaissementDirectDto): Vente {
+    val currentUser = userUtils.getCurrentUser()
+      ?: throw RuntimeException("Impossible de récupérer l'utilisateur connecté.")
+
+    val employe = employeRepository.findByUser(currentUser)
+      ?: throw RuntimeException("Employé introuvable pour l'utilisateur connecté.")
+
+    if (encaissementDirectDto.venteRequestDto.etat !in listOf("COMPTANT", "ASSURANCE", "CREDIT")) {
+      throw RuntimeException("État de la vente invalide: ${encaissementDirectDto.venteRequestDto.etat}")
+    }
+
+
+    // Handle client
+    val client = when (encaissementDirectDto.venteRequestDto.clientInfo.type) {
+      "existing" -> userRepository.findById(encaissementDirectDto.venteRequestDto.clientInfo.id!!.toInt())
+        .orElseThrow { RuntimeException("Client introuvable avec l'ID: ${encaissementDirectDto.venteRequestDto.clientInfo.id}") }
+
+      "new" -> User().apply {
+        this.nom = encaissementDirectDto.venteRequestDto.clientInfo.name
+          ?: throw RuntimeException("Nom du client requis pour un nouveau client")
+        this.telephone = encaissementDirectDto.venteRequestDto.clientInfo.phone
+          ?: throw RuntimeException("Téléphone du client requis pour un nouveau client")
+      }.also { userRepository.save(it) }
+
+      "none" -> null
+      else -> throw RuntimeException("Type de client invalide: ${encaissementDirectDto.venteRequestDto.clientInfo.type}")
+    }
+
+    // Handle prescriber
+    val prescripteur = when (encaissementDirectDto.venteRequestDto.prescripteurInfo.type) {
+      "existing" -> prescripteurRepository.findById(encaissementDirectDto.venteRequestDto.prescripteurInfo.id!!)
+        .orElseThrow { RuntimeException("Prescripteur introuvable avec l'ID: ${encaissementDirectDto.venteRequestDto.prescripteurInfo.id}") }
+
+   "new" -> {
+          if (!encaissementDirectDto.venteRequestDto.prescripteurInfo.name.isNullOrEmpty()) {
+            Prescripteur().apply {
+              this.nom = encaissementDirectDto.venteRequestDto.prescripteurInfo.name
+            }.also { prescripteurRepository.save(it) }
+          } else {
+            null // Skip creating the prescripteur and continue
+          }
+        }
+
+      "none" -> null
+      else -> throw RuntimeException("Type de prescripteur invalide: ${encaissementDirectDto.venteRequestDto.prescripteurInfo.type}")
+    }
+    val dateTimeNow = LocalDateTime.now()
+    val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
+    val formattedDateTimeNow = dateTimeNow.format(formatter)
+    val activeCaisse = caisseService.getCaisseActive()
+    // Create the sale
+    val nouvelleVente = Vente().apply {
+      this.id = "${formattedDateTimeNow}".toLong()
+      this.employe = employe
+      this.caisse = activeCaisse
+      this.reference = genererReference(venteRepository.countMois().toInt())
+      this.dateVente = LocalDateTime.now()
+      this.etat = encaissementDirectDto.venteRequestDto.etat
+      this.prixTotal = (encaissementDirectDto.venteRequestDto.prixTotal?: 0.0 - encaissementDirectDto.venteRequestDto.prixReduction?: 0.0)
+      this.commentaire = encaissementDirectDto.venteRequestDto.commentaire
+      this.user = client
+      this.prescripteur = prescripteur
+      this.supprimer = 0
+      this.dateEncaissement= LocalDateTime.now()
+      this.prixPercu = encaissementDirectDto.encaissementDto.montantPercu.toDouble()?:0.0
+    }
+    val savedVente = venteRepository.save(nouvelleVente)
+
+    if (encaissementDirectDto.venteRequestDto.reductionEnabled) {
+      employe.faireReductionMax = employe?.faireReductionMax!! - encaissementDirectDto.venteRequestDto?.prixReduction!!.toInt()
+      employeRepository.save(employe)
+    }
+
+    encaissementDirectDto.venteRequestDto.produits.forEach { produitAssocieDto ->
+      if (produitAssocieDto.type?.toLowerCase() == "detail".toLowerCase()) {
+        var produitDetail = produitDetailRepository.findById(produitAssocieDto.produitId!!.toInt()).get()
+        produitDetail.stock = produitDetail.stock!! - produitAssocieDto.quantite!!
+        produitDetailRepository.save(produitDetail)
+
+        val concerner = Concerner().apply {
+          this.venteId = savedVente.id
+          this.produitId = produitDetail.id
+          this.quantite = produitAssocieDto.quantite
+          this.prixUnit = produitAssocieDto.prixUnit
+          this.type = produitAssocieDto.type
+          this.reduction = produitAssocieDto.reduction
+        }
+        concernerRepository.save(concerner)
+      } else {
+        val rayon = enRayonRepository.findById(produitAssocieDto.rayonId!!).get()
+        rayon.quantiteRestante = rayon.quantiteRestante!! - produitAssocieDto.quantite!!
+        enRayonRepository.save(rayon)
+
+        val produit = produitRepository.findById(rayon.produitId!!)
+          .orElseThrow { RuntimeException("Produit introuvable avec l'ID: ${produitAssocieDto.produitId}") }
+        produit.stock = produit.stock!! - produitAssocieDto.quantite!!
+        produitRepository.save(produit)
+
+        val concerner = Concerner().apply {
+          this.venteId = savedVente.id
+          this.produitId = produit.id
+          this.enRayonId = rayon.id
+          this.quantite = produitAssocieDto.quantite
+          this.prixUnit = produitAssocieDto.prixUnit
+          this.type = produitAssocieDto.type
+          this.reduction = produitAssocieDto.reduction
+        }
+        concernerRepository.save(concerner)
+      }
+    }
+
+    var facturation = Facturation().apply {
+      this.id = generateId()!!.toLong()
+      this.vente = savedVente
+      this.caisse = caisse
+      this.typePaiement = encaissementDirectDto.encaissementDto.typeEncaissement
+      this.montantPercu = encaissementDirectDto.encaissementDto.montantPercu
+      this.reste = encaissementDirectDto.encaissementDto.montantRendu
+      this.montantTtc = savedVente?.prixTotal!!.toInt()
+      this.dateFacture = LocalDateTime.now()
+      this.supprimer = 0
+    }
+    facturation = facturationRepository.save(facturation)
+
+    when (encaissementDirectDto.encaissementDto.typeEncaissement.toLowerCase()) {
+      "espece".toLowerCase() -> {
+        encaissementDirectDto.encaissementDto.espece?.let { montantEspece ->
+          val factureEspece = FactureEspece().apply {
+            this.facturationId = facturation!!.id?.toLong()
+            this.montant = montantEspece
+          }
+          factureEspeceRepository.save(factureEspece)
+        }
+      }
+
+      "electronique".toLowerCase() -> {
+        encaissementDirectDto.encaissementDto.electronique?.let { electronique ->
+          val factureElectronique = FactureElectronique().apply {
+            this.facturationId = facturation!!.id?.toLong()
+            this.numeroTelephone = electronique.numeroTelephone
+            this.montant = electronique.montantElectronique
+          }
+          factureElectroniqueRepository.save(factureElectronique)
+        }
+      }
+
+      "ticket".toLowerCase() -> {
+        encaissementDirectDto.encaissementDto.ticket?.let { ticket ->
+          val ticketCaisse = bonCaisseRepository.findByCodebarreId(ticket.numeroTicket)
+          ticketCaisse!!.type = "Encaisser" // Transition to Encaisser
+          ticketCaisse!!.dateEncaisser = LocalDateTime.now() // Set the encaisser date
+          ticketCaisse!!.caisseIdEncaisser = caisseService.getCaisseActive()!!.id
+          bonCaisseRepository.save(ticketCaisse)
+
+          val factureTicket = FactureTicket().apply {
+            this.facturationId = facturation!!.id?.toLong()
+            this.ticketCaisseId = ticketCaisse!!.id
+            this.montant = ticket.montantTicket
+          }
+          factureTicketRepository.save(factureTicket)
+        }
+      }
+
+      "mixte".toLowerCase() -> {
+        encaissementDirectDto.encaissementDto.espece?.let { montantEspece ->
+          val factureEspece = FactureEspece().apply {
+            this.facturationId = facturation!!.id?.toLong()
+            this.montant = montantEspece
+          }
+          factureEspeceRepository.save(factureEspece)
+        }
+        encaissementDirectDto.encaissementDto.electronique?.let { electronique ->
+          val factureElectronique = FactureElectronique().apply {
+            this.facturationId = facturation!!.id?.toLong()
+            this.numeroTelephone = electronique.numeroTelephone
+            this.montant = electronique.montantElectronique
+          }
+          factureElectroniqueRepository.save(factureElectronique)
+        }
+        encaissementDirectDto.encaissementDto.ticket?.let { ticket ->
+          val ticketCaisse = bonCaisseRepository.findByCodebarreId(ticket.numeroTicket)
+          ticketCaisse!!.type = "Encaisser" // Transition to Encaisser
+          ticketCaisse!!.dateEncaisser = LocalDateTime.now() // Set the encaisser date
+          ticketCaisse!!.caisseIdEncaisser = caisseService.getCaisseActive()!!.id
+          bonCaisseRepository.save(ticketCaisse)
+
+          val factureTicket = FactureTicket().apply {
+            this.facturationId = facturation!!.id?.toLong()
+            this.ticketCaisseId = ticketCaisse!!.id
+            this.montant = ticket.montantTicket
+          }
+          factureTicketRepository.save(factureTicket)
+        }
+      }
+
+      else -> throw RuntimeException("Type de paiement non pris en charge: ${encaissementDirectDto.encaissementDto.typeEncaissement}")
+    }
+
+    return savedVente
+  }
+
+  @Transactional
   fun encaisserVente(venteId: Long, encaissementRequestDto: EncaissementRequestDto): Facturation {
     val vente = venteRepository.findById(venteId)
       .orElseThrow { RuntimeException("Vente introuvable avec l'ID: $venteId") }
@@ -161,10 +364,11 @@ class VenteService(
 
     val currentUser = userUtils.getCurrentUser()
     val employe = employeRepository.findByUser(currentUser!!)
-    val caisse = caisseRepository.findByUserAndEtatAndSupprimer(employe, "En cours")
+    val caisse = caisseRepository.findByUserAndEtatAndSupprimer(employe, "En cours").firstOrNull()
       ?: throw RuntimeException("Aucune caisse ouverte trouvée pour l'utilisateur connecté.")
 
     val facturation = Facturation().apply {
+      this.id = generateId()!!.toLong()
       this.vente = vente
       this.caisse = caisse
       this.typePaiement = encaissementRequestDto.typePaiement
@@ -250,10 +454,11 @@ class VenteService(
 
     val currentUser = userUtils.getCurrentUser()
     val employe = employeRepository.findByUser(currentUser!!)
-    val caisse = caisseRepository.findByUserAndEtatAndSupprimer(employe, "En cours")
+    val caisse = caisseRepository.findByUserAndEtatAndSupprimer(employe, "Ouvert").firstOrNull()
       ?: throw RuntimeException("Aucune caisse ouverte trouvée pour l'utilisateur connecté.")
 
     var facturation = Facturation().apply {
+      this.id = generateId()!!.toLong()
       this.vente = vente
       this.caisse = caisse
       this.typePaiement = encaissementDto.typeEncaissement
@@ -292,7 +497,7 @@ class VenteService(
           val ticketCaisse = bonCaisseRepository.findByCodebarreId(ticket.numeroTicket)
           ticketCaisse!!.type = "Encaisser" // Transition to Encaisser
           ticketCaisse!!.dateEncaisser = LocalDateTime.now() // Set the encaisser date
-          ticketCaisse!!.caisseIdEncaisser = caisseService.getActiveCaisse()!!.id
+          ticketCaisse!!.caisseIdEncaisser = caisseService.getCaisseActive()!!.id
           bonCaisseRepository.save(ticketCaisse)
 
           val factureTicket = FactureTicket().apply {
@@ -324,7 +529,7 @@ class VenteService(
           val ticketCaisse = bonCaisseRepository.findByCodebarreId(ticket.numeroTicket)
           ticketCaisse!!.type = "Encaisser" // Transition to Encaisser
           ticketCaisse!!.dateEncaisser = LocalDateTime.now() // Set the encaisser date
-          ticketCaisse!!.caisseIdEncaisser = caisseService.getActiveCaisse()!!.id
+          ticketCaisse!!.caisseIdEncaisser = caisseService.getCaisseActive()!!.id
           bonCaisseRepository.save(ticketCaisse)
 
           val factureTicket = FactureTicket().apply {
@@ -340,15 +545,22 @@ class VenteService(
     }
     vente.prixPercu = encaissementDto.montantPercu.toDouble()
     vente.dateEncaissement = LocalDateTime.now()
-    vente.caisse = caisseService.getActiveCaisse()
+    vente.caisse = caisseService.getCaisseActive()
     venteRepository.save(vente)
 
     return facturation
   }
 
+  private fun generateId(): String? {
+    val dateTimeNow = LocalDateTime.now()
+    val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
+    val formattedDateTimeNow = dateTimeNow.format(formatter)
+    return formattedDateTimeNow
+  }
+
   @Transactional
   fun chargerVentesEnCoursNonEncaisser(venteId: Long): Map<String, Any?> {
-    val activeCaisse = caisseService.getActiveCaisse()
+    val activeCaisse = caisseService.getCaisseActive()
     val ventes = venteRepository.findById(venteId).get()
     if (ventes.prixPercu != null && ventes.prixPercu!! > 0) {
       throw RuntimeException("La vente est déjà encaissée.")
@@ -423,7 +635,7 @@ class VenteService(
     prescripteurId: String?,
     caisseId: String?
   ): Page<Map<String, Any?>> {
-    val activeCaisse = caisseService.getActiveCaisse()
+    val activeCaisse = caisseService.getCaisseActive()
     val spec = VenteRepository.filterVentes(
       activeCaisse,
       0, 1,
@@ -478,25 +690,28 @@ class VenteService(
     pageable: Pageable,
   ): Page<Map<String, Any?>> {
 //      return venteRepository.findByPrixPercuGreaterThan(0.0).map { vente ->
-    val activeCaisse = caisseService.getActiveCaisse()
-    val spec = VenteRepository.filterVentes(
-      activeCaisse,
-      0, 0,
-      "null", "null", "null", "null", "null", "null", "null",
-    )
-    return venteRepository.findAll(spec, pageable).map { vente ->
-      mapOf(
-        "id" to vente.id as Any?,
-        "netAPayer" to vente.prixTotal as Any?,
-        "reduction" to vente.reduction as Any?,
-        "reference" to vente.reference as Any?,
-        "infoClients" to (vente.user?.let { "${it.nom} (${it.telephone})" } ?: "Aucun client") as Any?,
-        "vendeur" to (vente.employe?.user?.nom ?: "Inconnu") as Any?,
-        "commentaire" to vente.commentaire as Any?,
-        "dateVente" to vente.dateVente as Any?,
-        "actions" to "edit,delete" as Any? // Placeholder for actions
+    val activeCaisse = caisseService.getCaisseActive()
+    if (activeCaisse!=null){
+      val spec = VenteRepository.filterVentes(
+        activeCaisse,
+        0, 0,
+        "null", "null", "null", "null", "null", "null", "null",
       )
+      return venteRepository.findAll(spec, pageable).map { vente ->
+        mapOf(
+          "id" to vente.id as Any?,
+          "netAPayer" to vente.prixTotal as Any?,
+          "reduction" to vente.reduction as Any?,
+          "reference" to vente.reference as Any?,
+          "infoClients" to (vente.user?.let { "${it.nom} (${it.telephone})" } ?: "Aucun client") as Any?,
+          "vendeur" to (vente.employe?.user?.nom ?: "Inconnu") as Any?,
+          "commentaire" to vente.commentaire as Any?,
+          "dateVente" to vente.dateVente as Any?,
+          "actions" to "edit,delete" as Any? // Placeholder for actions
+        )
+      }
     }
+    return Page.empty<Map<String, Any?>>()
   }
 
   @Transactional
@@ -504,7 +719,7 @@ class VenteService(
     pageable: Pageable,
   ): Page<Map<String, Any?>> {
 //      return venteRepository.findByPrixPercuGreaterThan(0.0).map { vente ->
-    val activeCaisse = caisseService.getActiveCaisse()
+    val activeCaisse = caisseService.getCaisseActive()
     val spec = VenteRepository.filterVentes(
       activeCaisse,
       0, 1,

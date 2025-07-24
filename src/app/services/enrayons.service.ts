@@ -9,7 +9,8 @@ import {Page} from "ngx-pagination";
 export class EnrayonsService {
   private apiUrl = '/api';
 
-  constructor(private http: HttpClient) {
+   constructor(
+    private http: HttpClient) {
   }
 
   private getHeaders(): HttpHeaders {

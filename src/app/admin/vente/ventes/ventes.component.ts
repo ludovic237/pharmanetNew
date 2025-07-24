@@ -39,6 +39,7 @@ import {MatRadioModule} from "@angular/material/radio";
 import {jsPDF} from "jspdf";
 import QRCode from "qrcode";
 import {MatPaginatorModule, PageEvent} from "@angular/material/paginator";
+import {AuthService} from "@services/auth.service";
 
 @Component({
   selector: 'app-ventes',
@@ -105,7 +106,7 @@ export class VentesComponent implements OnInit {
   prescripteurId: string = null;
   caisseId: string = null;
 
-  displayedColumns: string[] = ['ref','client','vendeur','montant', 'montantPerçu', 'dateEncaissement', 'dateVente', 'etat',  'actions'];
+  displayedColumns: string[] = ['ref', 'client', 'vendeur', 'montant', 'montantPerçu', 'dateEncaissement', 'dateVente', 'etat', 'actions'];
 
   etats: string[] = ['EN_COURS', 'ENCAISSE', 'ANNULER'];
   utilisateurs: any[] = [];
@@ -128,17 +129,19 @@ export class VentesComponent implements OnInit {
 
   selectedEtats: string = 'all'; // Default to "All"
 
-  constructor(public appSettings: SettingsService,
-              public snackBar: MatSnackBar,
-              public enRayonService: EnrayonsService,
-              public commandesService: CommandesService,
-              public fournisseursService: FournisseursService,
-              public productService: ProductService,
-              public ventesService: VentesService,
-              public usersService: UsersService,
-              public prescripteursService: PrescripteursService,
-              public domHandlerService: DomHandlerService,
-              public dialog: MatDialog) {
+  constructor(
+    public authService: AuthService,
+    public appSettings: SettingsService,
+    public snackBar: MatSnackBar,
+    public enRayonService: EnrayonsService,
+    public commandesService: CommandesService,
+    public fournisseursService: FournisseursService,
+    public productService: ProductService,
+    public ventesService: VentesService,
+    public usersService: UsersService,
+    public prescripteursService: PrescripteursService,
+    public domHandlerService: DomHandlerService,
+    public dialog: MatDialog) {
 
   }
 
@@ -181,6 +184,16 @@ export class VentesComponent implements OnInit {
       },
       error: (err) => {
         console.error('Error fetching commandes:', err);
+        if (err.status === 401 || err.status === 403){
+          this.authService.logout();
+          this.snackBar.open('Déconnexion réussie.', '×', {
+            panelClass: 'success',
+            verticalPosition: 'top',
+            duration: 3000,
+          });
+          // Redirect to login page or clear session
+          window.location.href = '/sign-in';
+        }
       }
     });
   }
@@ -242,7 +255,7 @@ export class VentesComponent implements OnInit {
     // Table Content
     let y = 65;
     vente.produits.forEach((produit: any) => {
-      doc.text(produit.nom+" "+produit.nom+ " "+produit.nom, 10, y);
+      doc.text(produit.nom + " " + produit.nom + " " + produit.nom, 10, y);
       doc.text(`${produit.prixUnitaire ?? 0}`, 60, y);
       doc.text(`${produit.quantite ?? 0}`, 90, y);
       doc.text(`${produit.prixTotal ?? 0}`, 110, y);

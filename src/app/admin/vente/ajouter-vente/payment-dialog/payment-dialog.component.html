@@ -1,0 +1,141 @@
+<mat-card>
+  <mat-toolbar color="primary" class="mat-toolbar">
+    <div fxLayout="row wrap">
+      <div fxLayout="row" fxLayoutAlign="space-between center">
+        <h2>Montant Facturé : {{ netAPayer }} F CFA</h2>
+      </div>
+    </div>
+
+  </mat-toolbar>
+
+  <mat-card-content>
+    <div fxLayout="row" fxLayoutAlign="space-between center">
+      <p>Effectuez le paiement en choisissant un mode</p>
+    </div>
+
+    <mat-tab-group [(selectedIndex)]="selectedTabIndex" (selectedIndexChange)="onTabChange($event)">
+      <!-- Espèce Tab -->
+      <mat-tab label="Espèce">
+        <div class="tab-content">
+          <div fxLayout="row wrap" class="p-2">
+            <mat-form-field class="w-100 mt-2" appearance="outline">
+              <mat-label>Montant encaissé</mat-label>
+              <input matInput type="number" [(ngModel)]="montantEncaisse" (ngModelChange)="calculateRendu()">
+            </mat-form-field>
+            <mat-form-field class="w-100 mt-2" appearance="outline">
+              <mat-label>Rendu</mat-label>
+              <input matInput [value]="rendu" readonly>
+            </mat-form-field>
+          </div>
+        </div>
+      </mat-tab>
+
+      <!-- Électronique Tab -->
+      <mat-tab label="Électronique">
+        <div class="tab-content">
+          <div fxLayout="row wrap" class="p-2">
+            <mat-form-field class="w-100 mt-2" appearance="outline">
+              <mat-label>Numéro de téléphone</mat-label>
+              <input matInput type="text" [(ngModel)]="numeroTelephone">
+            </mat-form-field>
+            <mat-form-field class="w-100 mt-2" appearance="outline">
+              <mat-label>Montant</mat-label>
+              <input matInput type="number" [(ngModel)]="montantElectronique" (ngModelChange)="calculateRendu()">
+            </mat-form-field>
+            <mat-form-field class="w-100 mt-2" appearance="outline">
+              <mat-label>Rendu</mat-label>
+              <input matInput [value]="rendu" readonly>
+            </mat-form-field>
+          </div>
+        </div>
+      </mat-tab>
+
+      <!-- Ticket de caisse Tab -->
+      <mat-tab label="Ticket de caisse">
+        <div class="tab-content">
+          <div fxLayout="row wrap" class="p-2">
+            <mat-form-field class="w-100 mt-2" appearance="outline">
+              <mat-label>Numéro de ticket</mat-label>
+              <input matInput type="text" [(ngModel)]="numeroTicket" (input)="onTicketInputChange($event)">
+            </mat-form-field>
+            <mat-form-field class="w-100 mt-2" appearance="outline">
+              <mat-label>Montant</mat-label>
+              <input readonly matInput type="number" [(ngModel)]="montantTicket" (ngModelChange)="calculateRendu()">
+            </mat-form-field>
+            <mat-form-field class="w-100 mt-2" appearance="outline">
+              <mat-label>Rendu</mat-label>
+              <input matInput [value]="rendu" readonly>
+            </mat-form-field>
+          </div>
+        </div>
+      </mat-tab>
+
+      <!-- Mixte Tab -->
+      <mat-tab label="Mixte">
+        <div class="tab-content">
+          <div class="p-2" fxLayout="row wrap">
+            <h3>Espèce</h3>
+            <mat-form-field class="w-100 mt-2" appearance="outline">
+              <mat-label>Montant en espèce</mat-label>
+              <input matInput type="number" [(ngModel)]="montantEspece" (ngModelChange)="calculateRendu()">
+            </mat-form-field>
+          </div>
+          <div class="p-2" fxLayout="row wrap">
+            <h3>Électronique</h3>
+            <mat-form-field class="w-100 mt-2" appearance="outline">
+              <mat-label>Numéro de téléphone</mat-label>
+              <input matInput type="text" [(ngModel)]="numeroTelephoneMixte">
+            </mat-form-field>
+            <mat-form-field class="w-100 mt-2" appearance="outline">
+              <mat-label>Montant</mat-label>
+              <input matInput type="number" [(ngModel)]="montantElectroniqueMixte"
+                     (ngModelChange)="calculateRendu()">
+            </mat-form-field>
+          </div>
+          <div class="p-2" fxLayout="row wrap">
+            <h3>Ticket</h3>
+            <mat-form-field class="w-100 mt-2" appearance="outline">
+              <mat-label>Numéro de ticket</mat-label>
+              <input matInput type="text" [(ngModel)]="numeroTicketMixte"
+                     (input)="onTicketMixteInputChange($event)">
+            </mat-form-field>
+            <mat-form-field class="w-100 mt-2" appearance="outline">
+              <mat-label>Montant</mat-label>
+              <input readonly matInput type="number" [(ngModel)]="montantTicketMixte" (ngModelChange)="calculateRendu()">
+            </mat-form-field>
+          </div>
+          <mat-divider></mat-divider>
+          <div class="p-2" fxLayout="row wrap">
+            <mat-form-field class="w-100 mt-2" appearance="outline">
+              <mat-label>Total encaissé</mat-label>
+              <input matInput [value]="totalEncaisse" readonly>
+            </mat-form-field>
+          </div>
+          <div class="p-2" fxLayout="row wrap">
+            <mat-form-field class="w-100 mt-2" appearance="outline">
+              <mat-label>Rendu</mat-label>
+              <input matInput [value]="rendu" readonly>
+            </mat-form-field>
+          </div>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+
+    <mat-divider></mat-divider>
+    <div  fxLayout="row wrap" fxLayoutAlign="space-between center"
+         class="w-100 p-3">
+      <button
+              mat-stroked-button
+              (click)="onAnnuler()">Annuler
+      </button>
+      <button [disabled]="rendu<=0"
+              mat-flat-button color="primary"
+              (click)="onValider()">Valider
+      </button>
+      <button [disabled]="rendu<=0"
+              mat-flat-button color="accent"
+              (click)="onImprimer()">Imprimer
+      </button>
+    </div>
+  </mat-card-content>
+</mat-card>

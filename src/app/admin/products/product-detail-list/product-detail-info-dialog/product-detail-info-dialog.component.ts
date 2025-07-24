@@ -27,6 +27,7 @@ import {Settings} from "@services/settings.service";
 import {InputFileModule} from "../../../../theme/components/input-file/input-file.module";
 import {MatAutocompleteModule} from "@angular/material/autocomplete";
 import {ProduitdetailsService} from "@services/produitdetails.service";
+import {AuthService} from "@services/auth.service";
 
 @Component({
   selector: 'app-product-detail-info-dialog',
@@ -74,19 +75,21 @@ export class ProductDetailInfoDialogComponent implements OnInit {
   medControl = new FormControl('');
   public settings: Settings;
 
-  parentList:any[]=[]
+  parentList: any[] = []
 
   public form: FormGroup;
 
-  constructor(public dialogRef: MatDialogRef<ProductDetailInfoDialogComponent>,
-              public productService: ProductService,
-              public productDetailService: ProduitdetailsService,
-              public enrayonsService: EnrayonsService,
-              public formBuilder: FormBuilder,
-              public dialog: MatDialog,
-              public snackBar: MatSnackBar,
-              @Inject(MAT_DIALOG_DATA) public data: any,
-              public fb: FormBuilder) {
+  constructor(
+    public authService: AuthService,
+    public dialogRef: MatDialogRef<ProductDetailInfoDialogComponent>,
+    public productService: ProductService,
+    public productDetailService: ProduitdetailsService,
+    public enrayonsService: EnrayonsService,
+    public formBuilder: FormBuilder,
+    public dialog: MatDialog,
+    public snackBar: MatSnackBar,
+    @Inject(MAT_DIALOG_DATA) public data: any,
+    public fb: FormBuilder) {
 
   }
 
@@ -110,7 +113,7 @@ export class ProductDetailInfoDialogComponent implements OnInit {
 
     console.log("this.data produit detail")
     console.log(this.data)
-    if (this.data!=null){
+    if (this.data != null) {
       this.form.patchValue(this.data);
       this.parentList = this.data.grossisteList
     }
@@ -121,16 +124,16 @@ export class ProductDetailInfoDialogComponent implements OnInit {
       next: (data: any) => {
         console.log("openMedicamentDialog");
         console.log(data);
-       /* this.parentList = [...this.parentList, {
-          ...data,
-          nom:data.nom,
-          contenuDetail:data.contenuDetail,
-          produitId:data.id,
-        }];*/
+        /* this.parentList = [...this.parentList, {
+           ...data,
+           nom:data.nom,
+           contenuDetail:data.contenuDetail,
+           produitId:data.id,
+         }];*/
         this.parentList = [...this.parentList, {
-          nom:data.nom,
-          contenuDetail:data.contenuDetail,
-          produitId:data.id,
+          nom: data.nom,
+          contenuDetail: data.contenuDetail,
+          produitId: data.id,
         }];
       },
       error: (err: any) => {
@@ -145,14 +148,14 @@ export class ProductDetailInfoDialogComponent implements OnInit {
     console.log(this.form.value);
     let result = {
       ...this.form.value,
-      data:this.parentList
+      data: this.parentList
     }
     console.log("result");
     console.log(result);
     console.log("this.data");
     console.log(this.data);
     if (this.form.valid) {
-      if (this.data==null){
+      if (this.data == null) {
         this.productDetailService.createProductDetail(result).subscribe({
           // this.productService.searchProducts(this.searchTerm, this.page, this.count).subscribe({
           next: (data: any) => {
@@ -172,10 +175,9 @@ export class ProductDetailInfoDialogComponent implements OnInit {
             });
           }
         });
-      }
-      else {
-        if (this.data.id){
-          this.productDetailService.updateProductDetail(this.data.id,result).subscribe({
+      } else {
+        if (this.data.id) {
+          this.productDetailService.updateProductDetail(this.data.id, result).subscribe({
             // this.productService.searchProducts(this.searchTerm, this.page, this.count).subscribe({
             next: (data: any) => {
               this.snackBar.open('Product detail created successfully!', '×', {
@@ -195,8 +197,7 @@ export class ProductDetailInfoDialogComponent implements OnInit {
               });
             }
           });
-        }
-        else {
+        } else {
           this.productDetailService.createProductDetail(result).subscribe({
             // this.productService.searchProducts(this.searchTerm, this.page, this.count).subscribe({
             next: (data: any) => {
@@ -248,10 +249,10 @@ export class ProductDetailInfoDialogComponent implements OnInit {
 
   delete(element: any) {
 
-    this.productDetailService.removeParentDetail(element.id,this.data.id).subscribe({
+    this.productDetailService.removeParentDetail(element.id, this.data.id).subscribe({
       next: (data) => {
         this.productDetailService.getProduitDetailsInfo(this.data.id).subscribe({
-          next: (data:any) => {
+          next: (data: any) => {
             this.form.patchValue(data);
             this.parentList = data.grossisteList
           },
@@ -261,6 +262,16 @@ export class ProductDetailInfoDialogComponent implements OnInit {
         });
       },
       error: (err) => {
+        if (err.status === 401 || err.status === 403) {
+          this.authService.logout();
+          this.snackBar.open('Déconnexion réussie.', '×', {
+            panelClass: 'success',
+            verticalPosition: 'top',
+            duration: 3000,
+          });
+          // Redirect to login page or clear session
+          window.location.href = '/sign-in';
+        }
         console.error('Error fetching products:', err);
       }
     });

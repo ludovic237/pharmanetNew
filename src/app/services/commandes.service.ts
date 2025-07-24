@@ -9,7 +9,7 @@ import {Page} from "ngx-pagination";
 export class CommandesService {
   private url = 'api/commandes';
 
-  constructor(private http: HttpClient) {
+   constructor(private http: HttpClient) {
   }
 
   private getHeaders(): HttpHeaders {

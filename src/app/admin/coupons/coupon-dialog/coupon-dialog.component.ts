@@ -1,8 +1,10 @@
 import { Component, Inject, OnInit } from '@angular/core';
+import {AuthService} from "@services/auth.service";
+import {MatSnackBar} from "@angular/material/snack-bar";
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
-import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog'; 
+import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatTabsModule } from '@angular/material/tabs';
 import { FlexLayoutModule } from '@ngbracket/ngx-layout';
 import { MatInputModule } from '@angular/material/input';
@@ -38,7 +40,9 @@ export class CouponDialogComponent implements OnInit {
   readonly separatorKeysCodes: number[] = [ENTER, COMMA];
   public products: any[] = [];
   public form: FormGroup;
-  constructor(public dialogRef: MatDialogRef<CouponDialogComponent>,
+   constructor(
+    public authService: AuthService,
+    public snackBar:MatSnackBar,public dialogRef: MatDialogRef<CouponDialogComponent>,
               @Inject(MAT_DIALOG_DATA) public data: any,
               public fb: FormBuilder) { }
 

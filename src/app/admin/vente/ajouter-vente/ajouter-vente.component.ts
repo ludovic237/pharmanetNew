@@ -39,6 +39,10 @@ import {UsersService} from "@services/users.service";
 import {PrescripteursService} from "@services/prescripteurs.service";
 import {MatSlideToggleModule} from "@angular/material/slide-toggle";
 import {MatSnackBar} from "@angular/material/snack-bar";
+import {AppService} from "@services/app.service";
+import {PaymentDialogComponent} from "./payment-dialog/payment-dialog.component";
+import {AuthService} from "@services/auth.service";
+import {AppSettingsService} from "@services/app-settings.service";
 
 interface VenteLigne {
   id: string;
@@ -94,6 +98,7 @@ interface VenteLigne {
 })
 export class AjouterVenteComponent implements OnInit {
 
+  showPaymentMode = true
   applicableReduction: number = 0
   selectedPrescripteur: any
   selectedClient: any
@@ -148,14 +153,17 @@ export class AjouterVenteComponent implements OnInit {
   public showOptions: boolean = false;
   public settings: Settings;
 
-  constructor(public appSettings: SettingsService,
-              public snackBar: MatSnackBar,
-              public enRayonService: EnrayonsService,
-              public productService: ProductService,
-              public ventesService: VentesService,
-              public usersService: UsersService,
-              public prescripteursService: PrescripteursService,
-              public dialog: MatDialog) {
+  constructor(
+    public authService: AuthService,
+    public snackBar: MatSnackBar, public appSettings: SettingsService,
+    public enRayonService: EnrayonsService,
+    public productService: ProductService,
+    public appSettingsService: AppSettingsService,
+    public appService: AppService,
+    public ventesService: VentesService,
+    public usersService: UsersService,
+    public prescripteursService: PrescripteursService,
+    public dialog: MatDialog) {
     this.settings = this.appSettings.settings;
   }
 
@@ -173,6 +181,16 @@ export class AjouterVenteComponent implements OnInit {
         }));
       },
       error: (err: any) => {
+        if (err.status === 401 || err.status === 403) {
+          this.authService.logout();
+          this.snackBar.open('Déconnexion réussie.', '×', {
+            panelClass: 'success',
+            verticalPosition: 'top',
+            duration: 3000,
+          });
+          // Redirect to login page or clear session
+          window.location.href = '/sign-in';
+        }
         console.error('Failed to load products:', err);
       }
     });
@@ -185,6 +203,52 @@ export class AjouterVenteComponent implements OnInit {
   netAPayer = 0;
 
   ngOnInit(): void {
+    this.clientTypeControl.reset('new');
+    this.reductionEnabled.reset(true)
+    this.tauxReduction.enable();
+    this.appSettingsService.getSetting("vente_mode").subscribe({
+      next: (data: any) => {
+        if (data.key != 'differe') {
+          this.showPaymentMode = true
+        } else {
+          this.showPaymentMode = false
+        }
+
+      },
+      error: (err: any) => {
+        if (err.status === 401 || err.status === 403) {
+          this.authService.logout();
+          this.snackBar.open('Déconnexion réussie.', '×', {
+            panelClass: 'success',
+            verticalPosition: 'top',
+            duration: 3000,
+          });
+          // Redirect to login page or clear session
+          window.location.href = '/sign-in';
+        }
+        console.error('Error fetching products:', err);
+      }
+    })
+    this.appService.getSystem().subscribe({
+      next: (data: any) => {
+        console.log("admin component");
+        console.log(data)
+
+      },
+      error: (err) => {
+        if (err.status === 401 || err.status === 403) {
+          this.authService.logout();
+          this.snackBar.open('Déconnexion réussie.', '×', {
+            panelClass: 'success',
+            verticalPosition: 'top',
+            duration: 3000,
+          });
+          // Redirect to login page or clear session
+          window.location.href = '/sign-in';
+        }
+        console.error('Error fetching products:', err);
+      }
+    });
 
     this.reductionOptions = [0, 1, 2, 3, 4, 5]; // Set reduction options
 
@@ -319,10 +383,9 @@ export class AjouterVenteComponent implements OnInit {
       .map(l => {
         console.log("this.clientTypeControl.value")
         console.log(this.clientTypeControl.value)
-        if (this.clientTypeControl.value == 'new'){
+        if (this.clientTypeControl.value == 'new') {
           this.applicableReduction = Math.min(this.applicableReduction, l.reduction);
-        }
-        else {
+        } else {
           this.applicableReduction = 0;
           if (this.selectedClient && this.selectedClient.reduction != undefined) {
             console.log("ici")
@@ -360,7 +423,7 @@ export class AjouterVenteComponent implements OnInit {
       this.totaleReduction = parseInt(firstData + lastData);
     }
 
-    this.netAPayer = this.total-this.totaleReduction;
+    this.netAPayer = this.total - this.totaleReduction;
   }
 
   roundReduction(value: number): number {
@@ -446,7 +509,17 @@ export class AjouterVenteComponent implements OnInit {
       },
       error: (err: any) => {
         console.error('Failed to fetch products in stock:', err);
-        alert('Une erreur est survenue lors de la récupération des produits en rayon.');
+        if (err.status === 401 || err.status === 403) {
+          this.authService.logout();
+          this.snackBar.open('Déconnexion réussie.', '×', {
+            panelClass: 'success',
+            verticalPosition: 'top',
+            duration: 3000,
+          });
+          // Redirect to login page or clear session
+          window.location.href = '/sign-in';
+        } else
+          alert('Une erreur est survenue lors de la récupération des produits en rayon.');
       },
     });
   }
@@ -466,6 +539,16 @@ export class AjouterVenteComponent implements OnInit {
         console.log(this.medOptions);
       },
       error: (err) => {
+        if (err.status === 401 || err.status === 403) {
+          this.authService.logout();
+          this.snackBar.open('Déconnexion réussie.', '×', {
+            panelClass: 'success',
+            verticalPosition: 'top',
+            duration: 3000,
+          });
+          // Redirect to login page or clear session
+          window.location.href = '/sign-in';
+        }
         console.error('Error searching products:', err);
       }
     });
@@ -531,6 +614,16 @@ export class AjouterVenteComponent implements OnInit {
         console.log('Clients loaded:', this.clientOptions);
       },
       error: (err) => {
+        if (err.status === 401 || err.status === 403) {
+          this.authService.logout();
+          this.snackBar.open('Déconnexion réussie.', '×', {
+            panelClass: 'success',
+            verticalPosition: 'top',
+            duration: 3000,
+          });
+          // Redirect to login page or clear session
+          window.location.href = '/sign-in';
+        }
         console.error('Error loading clients:', err);
       }
     });
@@ -545,6 +638,16 @@ export class AjouterVenteComponent implements OnInit {
         console.log('Prescripteurs loaded:', this.prescripteurOptions);
       },
       error: (err) => {
+        if (err.status === 401 || err.status === 403) {
+          this.authService.logout();
+          this.snackBar.open('Déconnexion réussie.', '×', {
+            panelClass: 'success',
+            verticalPosition: 'top',
+            duration: 3000,
+          });
+          // Redirect to login page or clear session
+          window.location.href = '/sign-in';
+        }
         console.error('Error loading clients:', err);
       }
     });
@@ -608,42 +711,90 @@ export class AjouterVenteComponent implements OnInit {
       }))
     };
 
-    this.ventesService.creerVenteSansEncaissement(paymentVenteData).subscribe({
-      next: (response: any) => {
-        // Reset form controls
-        this.clientTypeControl.reset('');
-        this.selectedClient = null;
-        this.selectedOLdClient = null;
-        this.clientNameControl.reset('');
-        this.clientPhoneControl.reset('');
-        this.prescripteurTypeControl.reset('existing');
-        this.selectedPrescripteur = null;
-        this.selectedOLdPrescripteur = null;
-        this.prescripteurNameControl.reset('');
-        this.commentaire.reset('');
+    if (this.showPaymentMode) {
+      const dialogRef = this.dialog.open(PaymentDialogComponent, {
+        data: paymentVenteData,
+        // maxWidth: "400px",
+        // width: "80%",
+        panelClass: ['theme-dialog'],
+        autoFocus: false,
+        direction: (this.settings.rtl) ? 'rtl' : 'ltr'
+      });
+      dialogRef.afterClosed().subscribe((modifiedProducts: any[]) => {
+        console.log("modifiedProducts")
+        console.log(modifiedProducts)
+        if (modifiedProducts) {
+          // Reset form controls
+          this.clientTypeControl.reset('');
+          this.selectedClient = null;
+          this.selectedOLdClient = null;
+          this.clientNameControl.reset('');
+          this.clientPhoneControl.reset('');
+          this.prescripteurTypeControl.reset('existing');
+          this.selectedPrescripteur = null;
+          this.selectedOLdPrescripteur = null;
+          this.prescripteurNameControl.reset('');
+          this.commentaire.reset('');
 
-        // Reset table data
-        this.dataSource.data = [];
+          // Reset table data
+          this.dataSource.data = [];
 
-        // Reset totals
-        this.total = 0;
-        this.totaleReduction = 0;
-        this.netAPayer = 0;
-        this.snackBar.open("Sale created successfully", '×', {
-          panelClass: 'success',
-          verticalPosition: 'top',
-          duration: 3000
-        });
-      },
-      error: (err: any) => {
-        console.error('Failed to create sale:', err);
-        this.snackBar.open('Failed to create sale', '×', {
-          panelClass: 'error',
-          verticalPosition: 'top',
-          duration: 3000
-        });
-      }
-    });
+          // Reset totals
+          this.total = 0;
+          this.totaleReduction = 0;
+          this.netAPayer = 0;
+        }
+      });
+
+    } else {
+      this.ventesService.creerVenteSansEncaissement(paymentVenteData).subscribe({
+        next: (response: any) => {
+          // Reset form controls
+          this.clientTypeControl.reset('');
+          this.selectedClient = null;
+          this.selectedOLdClient = null;
+          this.clientNameControl.reset('');
+          this.clientPhoneControl.reset('');
+          this.prescripteurTypeControl.reset('existing');
+          this.selectedPrescripteur = null;
+          this.selectedOLdPrescripteur = null;
+          this.prescripteurNameControl.reset('');
+          this.commentaire.reset('');
+
+          // Reset table data
+          this.dataSource.data = [];
+
+          // Reset totals
+          this.total = 0;
+          this.totaleReduction = 0;
+          this.netAPayer = 0;
+          this.snackBar.open("Sale created successfully", '×', {
+            panelClass: 'success',
+            verticalPosition: 'top',
+            duration: 3000
+          });
+        },
+        error: (err: any) => {
+          console.error('Failed to create sale:', err);
+          if (err.status === 401 || err.status === 403) {
+            this.authService.logout();
+            this.snackBar.open('Déconnexion réussie.', '×', {
+              panelClass: 'success',
+              verticalPosition: 'top',
+              duration: 3000,
+            });
+            // Redirect to login page or clear session
+            window.location.href = '/sign-in';
+          } else
+            this.snackBar.open('Failed to create sale', '×', {
+              panelClass: 'error',
+              verticalPosition: 'top',
+              duration: 3000
+            });
+        }
+      });
+    }
+
   }
 
   currentDate = new Date();

@@ -81,13 +81,11 @@ interface LigneVente {
 }
 
 enum CaisseStatus {
-  OPEN = 'open',
-  ALREADYOPEN = 'alreadyopen',
-  CLOSED = 'closed',
-  NONE = 'none',
   ACTIVE = 'active',
   PENDING = 'pending',
-  OTHER = 'other'
+  ALREADY = 'already',
+  OPEN = 'open',
+  CLOSE = 'close'
 }
 
 @Component({
@@ -157,21 +155,21 @@ export class EncaisserVenteComponent implements OnInit {
   // Paiement
   netAPayer = 0;
 
-  caisseStatus: any = CaisseStatus.OTHER;
+  caisseStatus: any = CaisseStatus.CLOSE;
   cashierName: string = 'N/A';
 
-  constructor(public appSettings: SettingsService,
-              public snackBar: MatSnackBar,
-              public enRayonService: EnrayonsService,
-              public caisseService: CaisseService,
-              public authService: AuthService,
-              public ticketCaisseService: TicketCaisseService,
-              public depenseService: DepenseService,
-              public bonCaisseService: BonCaisseService,
-              public productService: ProductService,
-              public ventesService: VentesService,
-              public prescripteursService: PrescripteursService,
-              public dialog: MatDialog) {
+  constructor(
+    public authService: AuthService,
+    public snackBar: MatSnackBar, public appSettings: SettingsService,
+    public enRayonService: EnrayonsService,
+    public caisseService: CaisseService,
+    public ticketCaisseService: TicketCaisseService,
+    public depenseService: DepenseService,
+    public bonCaisseService: BonCaisseService,
+    public productService: ProductService,
+    public ventesService: VentesService,
+    public prescripteursService: PrescripteursService,
+    public dialog: MatDialog) {
 
   }
 
@@ -182,32 +180,48 @@ export class EncaisserVenteComponent implements OnInit {
   checkCaisseStatus(): void {
     this.caisseService.isCaisseOuverte().subscribe({
       next: (response: any) => {
-        if (response.status.toLowerCase() === 'ouvert' || response.status.toLowerCase() === 'active') {
+        if (response.status.toLowerCase() === 'active') {
           this.session = response.caisseDetails.session;
-          this.caisseStatus = CaisseStatus.OPEN;
+          this.caisseStatus = CaisseStatus.ACTIVE;
           this.onRefresh();
           this.cashierName = response.caisseDetails?.nomEmploye || 'N/A';
-        } else if (response.status === 'pending_closure') {
+        } else if (response.status === 'pending') {
           this.session = response.caisseDetails.session;
           this.caisseStatus = CaisseStatus.PENDING;
           this.cashierName = response.caisseDetails?.nomEmploye || 'N/A';
-        } else if (response.status === 'none') {
-          this.caisseStatus = CaisseStatus.NONE;
+        } else if (response.status === 'already') {
+          this.session = response.caisseDetails.session;
+          this.caisseStatus = CaisseStatus.ALREADY;
           this.cashierName = response.caisseDetails?.nomEmploye || 'N/A';
-        }
-        else if (response.status === 'already_open') {
-          this.caisseStatus = CaisseStatus.ALREADYOPEN;
+        } else if (response.status === 'open') {
+          this.session = response.caisseDetails.session;
+          this.caisseStatus = CaisseStatus.OPEN;
+          this.cashierName = response.caisseDetails?.nomEmploye || 'N/A';
+        } else if (response.status === 'close') {
+          this.caisseStatus = CaisseStatus.CLOSE;
           this.cashierName = response.caisseDetails?.nomEmploye || 'N/A';
         } else {
-          this.caisseStatus = CaisseStatus.OTHER;
+          this.caisseStatus = CaisseStatus.CLOSE;
           this.cashierName = 'N/A';
         }
 
       },
       error: (err: any) => {
         console.error('Failed to check caisse status:', err);
-        this.caisseStatus = CaisseStatus.OTHER;
-        this.cashierName = 'N/A';
+        if (err.status === 401 || err.status === 403) {
+          this.authService.logout();
+          this.snackBar.open('Déconnexion réussie.', '×', {
+            panelClass: 'success',
+            verticalPosition: 'top',
+            duration: 3000,
+          });
+          // Redirect to login page or clear session
+          window.location.href = '/sign-in';
+        } else {
+          this.caisseStatus = CaisseStatus.CLOSE;
+          this.cashierName = 'N/A';
+        }
+
       }
     });
   }
@@ -239,11 +253,21 @@ export class EncaisserVenteComponent implements OnInit {
             },
             error: (err: any) => {
               console.error('Erreur lors de la clôture de la caisse:', err);
-              this.snackBar.open('Erreur lors de la clôture de la caisse.', '×', {
-                panelClass: 'error',
-                verticalPosition: 'top',
-                duration: 3000,
-              });
+              if (err.status === 401 || err.status === 403) {
+                this.authService.logout();
+                this.snackBar.open('Déconnexion réussie.', '×', {
+                  panelClass: 'success',
+                  verticalPosition: 'top',
+                  duration: 3000,
+                });
+                // Redirect to login page or clear session
+                window.location.href = '/sign-in';
+              } else
+                this.snackBar.open('Erreur lors de la clôture de la caisse.', '×', {
+                  panelClass: 'error',
+                  verticalPosition: 'top',
+                  duration: 3000,
+                });
             }
           });
         }
@@ -274,11 +298,21 @@ export class EncaisserVenteComponent implements OnInit {
             },
             error: (err: any) => {
               console.error('Erreur lors de la clôture de la caisse:', err);
-              this.snackBar.open('Erreur lors de la clôture de la caisse.', '×', {
-                panelClass: 'error',
-                verticalPosition: 'top',
-                duration: 3000,
-              });
+              if (err.status === 401 || err.status === 403) {
+                this.authService.logout();
+                this.snackBar.open('Déconnexion réussie.', '×', {
+                  panelClass: 'success',
+                  verticalPosition: 'top',
+                  duration: 3000,
+                });
+                // Redirect to login page or clear session
+                window.location.href = '/sign-in';
+              } else
+                this.snackBar.open('Erreur lors de la clôture de la caisse.', '×', {
+                  panelClass: 'error',
+                  verticalPosition: 'top',
+                  duration: 3000,
+                });
             }
           });
         }
@@ -295,11 +329,21 @@ export class EncaisserVenteComponent implements OnInit {
         },
         error: (err: any) => {
           console.error('Erreur lors de la fermeture de la caisse:', err);
-          this.snackBar.open('Erreur lors de la fermeture de la caisse.', '×', {
-            panelClass: 'error',
-            verticalPosition: 'top',
-            duration: 3000
-          });
+          if (err.status === 401 || err.status === 403) {
+            this.authService.logout();
+            this.snackBar.open('Déconnexion réussie.', '×', {
+              panelClass: 'success',
+              verticalPosition: 'top',
+              duration: 3000,
+            });
+            // Redirect to login page or clear session
+            window.location.href = '/sign-in';
+          } else
+            this.snackBar.open('Erreur lors de la fermeture de la caisse.', '×', {
+              panelClass: 'error',
+              verticalPosition: 'top',
+              duration: 3000
+            });
         }
       });
     } else if (this.caisseStatus === 'closed') {
@@ -314,11 +358,21 @@ export class EncaisserVenteComponent implements OnInit {
         },
         error: (err: any) => {
           console.error('Erreur lors de l\'ouverture de la caisse:', err);
-          this.snackBar.open('Erreur lors de l\'ouverture de la caisse.', '×', {
-            panelClass: 'error',
-            verticalPosition: 'top',
-            duration: 3000
-          });
+          if (err.status === 401 || err.status === 403) {
+            this.authService.logout();
+            this.snackBar.open('Déconnexion réussie.', '×', {
+              panelClass: 'success',
+              verticalPosition: 'top',
+              duration: 3000,
+            });
+            // Redirect to login page or clear session
+            window.location.href = '/sign-in';
+          } else
+            this.snackBar.open('Erreur lors de l\'ouverture de la caisse.', '×', {
+              panelClass: 'error',
+              verticalPosition: 'top',
+              duration: 3000
+            });
         }
       });
     } else {
@@ -355,11 +409,21 @@ export class EncaisserVenteComponent implements OnInit {
         });
       },
       error: (err: any) => {
-        this.snackBar.open('Failed', '×', {
-          panelClass: 'error',
-          verticalPosition: 'top',
-          duration: 3000
-        });
+        if (err.status === 401 || err.status === 403) {
+          this.authService.logout();
+          this.snackBar.open('Déconnexion réussie.', '×', {
+            panelClass: 'success',
+            verticalPosition: 'top',
+            duration: 3000,
+          });
+          // Redirect to login page or clear session
+          window.location.href = '/sign-in';
+        } else
+          this.snackBar.open('Failed', '×', {
+            panelClass: 'error',
+            verticalPosition: 'top',
+            duration: 3000
+          });
       }
     });
   }
@@ -385,11 +449,21 @@ export class EncaisserVenteComponent implements OnInit {
             });
           },
           error: (err: any) => {
-            this.snackBar.open('Failed', '×', {
-              panelClass: 'error',
-              verticalPosition: 'top',
-              duration: 3000
-            });
+            if (err.status === 401 || err.status === 403) {
+              this.authService.logout();
+              this.snackBar.open('Déconnexion réussie.', '×', {
+                panelClass: 'success',
+                verticalPosition: 'top',
+                duration: 3000,
+              });
+              // Redirect to login page or clear session
+              window.location.href = '/sign-in';
+            } else
+              this.snackBar.open('Failed', '×', {
+                panelClass: 'error',
+                verticalPosition: 'top',
+                duration: 3000
+              });
           }
         });
       } else {
@@ -452,8 +526,18 @@ export class EncaisserVenteComponent implements OnInit {
             alert('Numéro de ticket invalide.');
           }
         },
-        error: () => {
+        error: (err: any) => {
           this.montantTicketMixte = 0;
+          if (err.status === 401 || err.status === 403) {
+            this.authService.logout();
+            this.snackBar.open('Déconnexion réussie.', '×', {
+              panelClass: 'success',
+              verticalPosition: 'top',
+              duration: 3000,
+            });
+            // Redirect to login page or clear session
+            window.location.href = '/sign-in';
+          }
           alert('Erreur lors de la validation du ticket.');
         }
       });
@@ -520,6 +604,7 @@ export class EncaisserVenteComponent implements OnInit {
 
         // Reset encaissementDetails values
         this.venteId = 0;
+        this.netAPayer = 0;
         this.montantEncaisse = 0;
         this.montantElectronique = 0;
         this.numeroTelephone = '';
@@ -542,11 +627,21 @@ export class EncaisserVenteComponent implements OnInit {
       },
       error: (err: any) => {
         console.error('Failed to fetch BonCaisse list:', err);
-        this.snackBar.open('Erreur lors de la récupération des bons de caisse.', '×', {
-          panelClass: 'error',
-          verticalPosition: 'top',
-          duration: 3000,
-        });
+        if (err.status === 401 || err.status === 403) {
+          this.authService.logout();
+          this.snackBar.open('Déconnexion réussie.', '×', {
+            panelClass: 'success',
+            verticalPosition: 'top',
+            duration: 3000,
+          });
+          // Redirect to login page or clear session
+          window.location.href = '/sign-in';
+        } else
+          this.snackBar.open('Erreur lors de la récupération des bons de caisse.', '×', {
+            panelClass: 'error',
+            verticalPosition: 'top',
+            duration: 3000,
+          });
       }
     });
   }
@@ -582,11 +677,21 @@ export class EncaisserVenteComponent implements OnInit {
       },
       error: (err: any) => {
         console.error('Failed to fetch BonCaisse list:', err);
-        this.snackBar.open('Erreur lors de la récupération des bons de caisse.', '×', {
-          panelClass: 'error',
-          verticalPosition: 'top',
-          duration: 3000,
-        });
+        if (err.status === 401 || err.status === 403) {
+          this.authService.logout();
+          this.snackBar.open('Déconnexion réussie.', '×', {
+            panelClass: 'success',
+            verticalPosition: 'top',
+            duration: 3000,
+          });
+          // Redirect to login page or clear session
+          window.location.href = '/sign-in';
+        } else
+          this.snackBar.open('Erreur lors de la récupération des bons de caisse.', '×', {
+            panelClass: 'error',
+            verticalPosition: 'top',
+            duration: 3000,
+          });
       }
     });
   }
@@ -606,11 +711,21 @@ export class EncaisserVenteComponent implements OnInit {
       },
       error: (err: any) => {
         console.error('Failed to fetch BonCaisse list:', err);
-        this.snackBar.open('Erreur lors de la récupération des bons de caisse.', '×', {
-          panelClass: 'error',
-          verticalPosition: 'top',
-          duration: 3000,
-        });
+        if (err.status === 401 || err.status === 403) {
+          this.authService.logout();
+          this.snackBar.open('Déconnexion réussie.', '×', {
+            panelClass: 'success',
+            verticalPosition: 'top',
+            duration: 3000,
+          });
+          // Redirect to login page or clear session
+          window.location.href = '/sign-in';
+        } else
+          this.snackBar.open('Erreur lors de la récupération des bons de caisse.', '×', {
+            panelClass: 'error',
+            verticalPosition: 'top',
+            duration: 3000,
+          });
       }
     });
   }
@@ -629,9 +744,9 @@ export class EncaisserVenteComponent implements OnInit {
 
   fermerCaisse() {
     this.modalType = 'fermerCaisse';
-    this.ventesService.listerVentesNonEncaissees(this.pageEnCours,this.sizeEnCours).subscribe({
-      next: (ventes: any[]) => {
-        if (ventes.length > 0) {
+    this.ventesService.listerVentesNonEncaissees(0, 10).subscribe({
+      next: (ventes: any) => {
+        if (ventes.content.length > 0) {
           this.snackBar.open('Impossible de fermer la caisse. Des ventes non encaissées sont présentes.', '×', {
             panelClass: 'error',
             verticalPosition: 'top',
@@ -659,11 +774,21 @@ export class EncaisserVenteComponent implements OnInit {
       },
       error: (err: any) => {
         console.error('Failed to fetch unencashed sales:', err);
-        this.snackBar.open('Erreur lors de la vérification des ventes non encaissées.', '×', {
-          panelClass: 'error',
-          verticalPosition: 'top',
-          duration: 3000,
-        });
+        if (err.status === 401 || err.status === 403) {
+          this.authService.logout();
+          this.snackBar.open('Déconnexion réussie.', '×', {
+            panelClass: 'success',
+            verticalPosition: 'top',
+            duration: 3000,
+          });
+          // Redirect to login page or clear session
+          window.location.href = '/sign-in';
+        } else
+          this.snackBar.open('Erreur lors de la vérification des ventes non encaissées.', '×', {
+            panelClass: 'error',
+            verticalPosition: 'top',
+            duration: 3000,
+          });
       }
     });
   }
@@ -703,11 +828,21 @@ export class EncaisserVenteComponent implements OnInit {
       },
       error: (err: any) => {
         console.error('Erreur lors de la mise en attente de clôture de la caisse:', err);
-        this.snackBar.open('Erreur lors de la mise en attente de clôture de la caisse.', '×', {
-          panelClass: 'error',
-          verticalPosition: 'top',
-          duration: 3000,
-        });
+        if (err.status === 401 || err.status === 403) {
+          this.authService.logout();
+          this.snackBar.open('Déconnexion réussie.', '×', {
+            panelClass: 'success',
+            verticalPosition: 'top',
+            duration: 3000,
+          });
+          // Redirect to login page or clear session
+          window.location.href = '/sign-in';
+        } else
+          this.snackBar.open('Erreur lors de la mise en attente de clôture de la caisse.', '×', {
+            panelClass: 'error',
+            verticalPosition: 'top',
+            duration: 3000,
+          });
       }
     });
   }
@@ -763,16 +898,26 @@ export class EncaisserVenteComponent implements OnInit {
       },
       error: (err: any) => {
         console.error('Erreur lors de la déconnexion:', err);
-        this.snackBar.open('Erreur lors de la déconnexion.', '×', {
-          panelClass: 'error',
-          verticalPosition: 'top',
-          duration: 3000,
-        });
+        if (err.status === 401 || err.status === 403) {
+          this.authService.logout();
+          this.snackBar.open('Déconnexion réussie.', '×', {
+            panelClass: 'success',
+            verticalPosition: 'top',
+            duration: 3000,
+          });
+          // Redirect to login page or clear session
+          window.location.href = '/sign-in';
+        } else
+          this.snackBar.open('Erreur lors de la déconnexion.', '×', {
+            panelClass: 'error',
+            verticalPosition: 'top',
+            duration: 3000,
+          });
       }
     });
   }
 
-  public pageEnCours:number = 1; // Default to 0 if undefined
+  public pageEnCours: number = 1; // Default to 0 if undefined
   public sizeEnCours = 5;  // Default to 10 if undefined
   public totalItemsEnCours = 0;  // Default to 10 if undefined
   public countEnCours = 10;
@@ -785,10 +930,10 @@ export class EncaisserVenteComponent implements OnInit {
 
   onRefresh() {
     // recharger les données
-    this.ventesService.listerVentesNonEncaissees(this.pageEnCours-1,this.countEnCours).subscribe({
+    this.ventesService.listerVentesNonEncaissees(this.pageEnCours - 1, this.countEnCours).subscribe({
       next: (response: any) => {
         this.headerDataSource = response.content;
-        this.countEnCours= response.pageable.pageSize;
+        this.countEnCours = response.pageable.pageSize;
         this.totalItemsEnCours = response.totalElements;
 
         this.snackBar.open("Sale refresh success", '×', {
@@ -798,11 +943,21 @@ export class EncaisserVenteComponent implements OnInit {
         });
       },
       error: (err: any) => {
-        this.snackBar.open('Failed to refresh sale', '×', {
-          panelClass: 'error',
-          verticalPosition: 'top',
-          duration: 3000
-        });
+        if (err.status === 401 || err.status === 403) {
+          this.authService.logout();
+          this.snackBar.open('Déconnexion réussie.', '×', {
+            panelClass: 'success',
+            verticalPosition: 'top',
+            duration: 3000,
+          });
+          // Redirect to login page or clear session
+          window.location.href = '/sign-in';
+        } else
+          this.snackBar.open('Failed to refresh sale', '×', {
+            panelClass: 'error',
+            verticalPosition: 'top',
+            duration: 3000
+          });
       }
     });
   }

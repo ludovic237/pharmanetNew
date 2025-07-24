@@ -36,6 +36,7 @@ import {VentesService} from "@services/ventes.service";
 import {PrescripteursService} from "@services/prescripteurs.service";
 import {DomHandlerService} from "@services/dom-handler.service";
 import {MatPaginator, PageEvent} from "@angular/material/paginator";
+import {AuthService} from "@services/auth.service";
 
 @Component({
   selector: 'app-entree',
@@ -117,25 +118,27 @@ export class EntreeComponent implements OnInit {
     'enStock'
   ];
 
-  entrees:any[]=[]
+  entrees: any[] = []
 
   public viewCol: number = 25;
-  public page:number = 1; // Default to 0 if undefined
+  public page: number = 1; // Default to 0 if undefined
   public size = 100;  // Default to 10 if undefined
   public totalItems = 0;  // Default to 10 if undefined
   public count = 10;
 
-  constructor(public appSettings: SettingsService,
-              public snackBar: MatSnackBar,
-              public enRayonService: EnrayonsService,
-              public commandesService: CommandesService,
-              public fournisseursService: FournisseursService,
-              public productService: ProductService,
-              public ventesService: VentesService,
-              public usersService: UsersService,
-              public prescripteursService: PrescripteursService,
-              public domHandlerService: DomHandlerService,
-              public dialog: MatDialog) {
+  constructor(
+    public authService: AuthService
+    , public appSettings: SettingsService,
+    public snackBar: MatSnackBar,
+    public enRayonService: EnrayonsService,
+    public commandesService: CommandesService,
+    public fournisseursService: FournisseursService,
+    public productService: ProductService,
+    public ventesService: VentesService,
+    public usersService: UsersService,
+    public prescripteursService: PrescripteursService,
+    public domHandlerService: DomHandlerService,
+    public dialog: MatDialog) {
 
   }
 
@@ -154,14 +157,23 @@ export class EntreeComponent implements OnInit {
       this.bientotPerimee,
       this.joursAvantPeremption,
       this.enStock,
-
     ).subscribe({
       next: (data: any) => {
         this.count = data.pageable.pageSize;
         this.totalItems = data.totalElements;
         this.entrees = data.content;
       },
-      error: (err:any) => {
+      error: (err: any) => {
+        if (err.status === 401 || err.status === 403){
+          this.authService.logout();
+          this.snackBar.open('Déconnexion réussie.', '×', {
+            panelClass: 'success',
+            verticalPosition: 'top',
+            duration: 3000,
+          });
+          // Redirect to login page or clear session
+          window.location.href = '/sign-in';
+        }
         console.error('Error fetching commandes:', err);
       }
     });

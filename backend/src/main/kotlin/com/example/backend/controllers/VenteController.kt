@@ -1,5 +1,6 @@
 package com.example.backend.controllers
 
+import com.example.backend.dtos.EncaissementDirectDto
 import com.example.backend.dtos.EncaissementDto
 import com.example.backend.dtos.EncaissementRequestDto
 import com.example.backend.dtos.VenteRequestDto
@@ -46,6 +47,16 @@ class VenteController(
 
   @CrossOrigin(origins = ["http://localhost:4200"])
   @PreAuthorize("isAuthenticated()")
+  @PostMapping("/encaisser_direct")
+  fun encaisserVenteDirect(
+    @RequestBody encaissementDirectDto: EncaissementDirectDto
+  ): ResponseEntity<Vente> {
+    val vente = venteService.encaisserVenteDirect(encaissementDirectDto)
+    return ResponseEntity.ok(vente)
+  }
+
+  @CrossOrigin(origins = ["http://localhost:4200"])
+  @PreAuthorize("isAuthenticated()")
   @GetMapping("/{venteId}/non-encaissee")
   fun chargerVentesEnCoursNonEncaisser(@PathVariable venteId: Long): ResponseEntity<Map<String, Any?>> {
     val ventesEnCours = venteService.chargerVentesEnCoursNonEncaisser(venteId)
@@ -67,7 +78,7 @@ class VenteController(
     @RequestParam(defaultValue = "0") page: String,
     @RequestParam(defaultValue = "10") size: String,
     @RequestParam(defaultValue = "id") sortBy: String,
-    @RequestParam(required = false) search: String,
+    @RequestParam(required = false) search: String?,
   ): ResponseEntity<Page<Map<String, Any?>>> {
     val pageNumber = page.toIntOrNull()?.coerceAtLeast(0) ?: 0
     val pageSize = size.toIntOrNull()?.coerceAtLeast(1) ?: 10
@@ -120,7 +131,7 @@ class VenteController(
     @RequestParam(defaultValue = "0") page: String,
     @RequestParam(defaultValue = "10") size: String,
     @RequestParam(defaultValue = "id") sortBy: String,
-    @RequestParam(required = false) search: String,
+    @RequestParam(required = false) search: String?,
   ): ResponseEntity<Page<Map<String, Any?>>> {
     val pageNumber = page.toIntOrNull()?.coerceAtLeast(0) ?: 0
     val pageSize = size.toIntOrNull()?.coerceAtLeast(1) ?: 10

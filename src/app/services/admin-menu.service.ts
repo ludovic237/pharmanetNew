@@ -3,17 +3,24 @@ import { Location } from '@angular/common';
 import { Router } from '@angular/router';
 import { DomHandlerService } from './dom-handler.service';
 import { AdminMenu } from '@models/admin-menu.model';
-import { adminMenuPharmaItems } from '../common/data/admin-menu-pharma';
+import {AppService} from "@services/app.service";
+import {getFilteredAdminMenuPharmaItems} from "../common/data/admin-menu-pharma";
+import {AppSettingsService} from "@services/app-settings.service";
 // import { adminMenuItems } from '../common/data/admin-menu';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AdminMenuService {
-  constructor(private location: Location, private router: Router, public domHandlerService: DomHandlerService) { }
+  constructor(private location: Location,
+              private router: Router,
+              private appService:AppService,
+              private appSettingsService:AppSettingsService,
+              public domHandlerService: DomHandlerService) { }
 
   public getMenuItems(): Array<AdminMenu> {
-    return adminMenuPharmaItems;
+
+    return getFilteredAdminMenuPharmaItems(localStorage.getItem("vente_mode"));
   }
 
   public expandActiveSubMenu(menu: Array<AdminMenu>) {
@@ -62,7 +69,7 @@ export class AdminMenuService {
   }
 
   public closeAllSubMenus() {
-    adminMenuPharmaItems.forEach((item: AdminMenu) => {
+    getFilteredAdminMenuPharmaItems(localStorage.getItem("vente_mode")).forEach((item: AdminMenu) => {
       let subMenu = this.domHandlerService.winDocument.getElementById('sub-menu-' + item.id);
       let menuItem = this.domHandlerService.winDocument.getElementById('menu-item-' + item.id);
       if (subMenu) {

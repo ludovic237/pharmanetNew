@@ -21,6 +21,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatInputModule } from '@angular/material/input';
 import { PipesModule } from '../../../theme/pipes/pipes.module';
 import { DecimalPipe } from '@angular/common';
+import {AuthService} from "@services/auth.service";
+import {MatSnackBar} from "@angular/material/snack-bar";
 
 @Component({
     selector: 'app-product-detail',
@@ -54,7 +56,9 @@ export class ProductDetailComponent implements OnInit {
   private sub: any;
   public form: FormGroup;
 
-  constructor(public appService: AppService,
+   constructor(
+    public authService: AuthService,
+    public snackBar:MatSnackBar,public appService: AppService,
               private activatedRoute: ActivatedRoute,
               public dialog: MatDialog,
               public formBuilder: FormBuilder,
@@ -110,7 +114,7 @@ export class ProductDetailComponent implements OnInit {
           this.config.observer = true;
           // this.directiveRef.update()
         });
-      }  
+      }
     });
   }
 

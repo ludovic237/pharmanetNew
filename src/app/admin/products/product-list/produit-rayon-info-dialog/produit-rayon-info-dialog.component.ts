@@ -22,6 +22,8 @@ import {NgxPaginationModule} from "ngx-pagination";
 import {PipesModule} from "../../../../theme/pipes/pipes.module";
 import {jsPDF} from "jspdf";
 import QRCode from "qrcode";
+import {AuthService} from "@services/auth.service";
+import {MatSnackBar} from "@angular/material/snack-bar";
 
 @Component({
   selector: 'app-produit-rayon-info-dialog',
@@ -74,7 +76,9 @@ export class ProduitRayonInfoDialogComponent {
   productForm: FormGroup;
   quantiteEtiquette: number = 1;
 
-  constructor(
+   constructor(
+    public authService: AuthService,
+    public snackBar:MatSnackBar,
     private fb: FormBuilder,
     public dialogRef: MatDialogRef<ProduitRayonInfoDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any

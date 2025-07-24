@@ -1,4 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
+import {AuthService} from "@services/auth.service";
+import {MatSnackBar} from "@angular/material/snack-bar";
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { emailValidator } from '../../theme/utils/app-validators';
 import { MatCardModule } from '@angular/material/card';
@@ -23,7 +25,9 @@ import { MatInputModule } from '@angular/material/input';
 export class ContactComponent implements OnInit {
   contactForm: FormGroup;
 
-  constructor(public formBuilder: FormBuilder) { }
+   constructor(
+    public authService: AuthService,
+    public snackBar:MatSnackBar,public formBuilder: FormBuilder) { }
 
   ngOnInit() {
     this.contactForm = this.formBuilder.group({

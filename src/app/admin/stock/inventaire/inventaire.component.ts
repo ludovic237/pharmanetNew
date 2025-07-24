@@ -24,7 +24,7 @@ import {MatSelectModule} from "@angular/material/select";
 import {FlexLayoutModule} from "@ngbracket/ngx-layout";
 import {MatStepperModule} from "@angular/material/stepper";
 import {MatRadioModule} from "@angular/material/radio";
-import {MatSnackBarModule} from "@angular/material/snack-bar";
+import {MatSnackBar, MatSnackBarModule} from "@angular/material/snack-bar";
 import {NgxPaginationModule} from "ngx-pagination";
 import {MatPaginator, PageEvent} from "@angular/material/paginator";
 import {InventaireService} from "@services/inventaire.service";
@@ -38,6 +38,7 @@ import {
   InventaireComparaisonDialogComponent
 } from "./inventaire-comparaison-dialog/inventaire-comparaison-dialog.component";
 import {InventaireValdationDialogComponent} from "./inventaire-valdation-dialog/inventaire-valdation-dialog.component";
+import {AuthService} from "@services/auth.service";
 
 @Component({
   selector: 'app-inventaire',
@@ -103,7 +104,9 @@ export class InventaireComponent implements OnInit {
   public totalItems = 0;  // Default to 10 if undefined
   public count = 10;
 
-  constructor(private inventaireService: InventaireService,
+   constructor(
+    public authService: AuthService,
+    public snackBar:MatSnackBar,private inventaireService: InventaireService,
               public dialog: MatDialog) {}
 
   ngOnInit(): void {
@@ -118,6 +121,16 @@ export class InventaireComponent implements OnInit {
         this.inventaire = data.content;
       },
       error: (err:any) => {
+        if (err.status === 401 || err.status === 403){
+          this.authService.logout();
+          this.snackBar.open('Déconnexion réussie.', '×', {
+            panelClass: 'success',
+            verticalPosition: 'top',
+            duration: 3000,
+          });
+          // Redirect to login page or clear session
+          window.location.href = '/sign-in';
+        }
         console.error('Error fetching commandes:', err);
       }
     });

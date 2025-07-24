@@ -1,10 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { emailValidator, matchingPasswords } from '../../../theme/utils/app-validators';
 import { MatInputModule } from '@angular/material/input';
 import { FlexLayoutModule } from '@ngbracket/ngx-layout';
 import { MatButtonModule } from '@angular/material/button';
+import {AuthService} from "@services/auth.service";
 
 @Component({
     selector: 'app-information',
@@ -20,7 +21,9 @@ import { MatButtonModule } from '@angular/material/button';
 export class InformationComponent implements OnInit {
   infoForm: FormGroup;
   passwordForm: FormGroup;
-  constructor(public formBuilder: FormBuilder, public snackBar: MatSnackBar) { }
+   constructor(
+    public authService: AuthService,
+    public snackBar:MatSnackBar,public formBuilder: FormBuilder) { }
 
   ngOnInit() {
     this.infoForm = this.formBuilder.group({

@@ -33,7 +33,7 @@ export class MenuPharmaComponent implements OnInit {
 
   hasToken: boolean = false;
 
-  constructor(private domHandlerService: DomHandlerService) {
+   constructor(private domHandlerService: DomHandlerService) {
   }
 
   ngOnInit(): void {
