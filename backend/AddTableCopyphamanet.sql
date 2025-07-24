@@ -133,6 +133,16 @@ SET `date_cmd`        = `dateCmd`,
     `stock_max`       = `stockMax`,
     `stock_min`       = `stockMin`;
 
+ALTER TABLE `produit_detail`
+    add column reduction_max       int         null,
+    add column stock_max       int         null,
+    add column stock_min       int         null;
+
+UPDATE `produit_detail`
+SET `reduction_max`        = `reductionMax`,
+    `stock_max`       = `stockMax`,
+    `stock_min`       = `stockMin`;
+
 ALTER TABLE `user`
   add column reduction_max int null;
 
