@@ -132,7 +132,7 @@ class CaisseService(
     val getCurrentEmploye = employeRepository.findById(userUtils.getCurrentEmployeId()!!.toInt()).get()
 
     if (activeCaisse?.user == getCurrentEmploye) {
-      if (activeCaisse.etat!!.toLowerCase() == "Ouvert".toLowerCase()) {
+      if (activeCaisse.etat!!.lowercase() == "Ouvert".lowercase()) {
         activeCaisse.etat = "En cours"
         activeCaisse.dateFerme = LocalDateTime.now()
         caisseRepository.save(activeCaisse)

@@ -54,9 +54,6 @@ class AuthController(
     return try {
       // Rechercher l'employé par identifiant
       val employe = employeRepository.findByIdentifiant(loginRequest.username)
-        ?: return ResponseEntity.badRequest().body(
-          mapOf("message" to "Login failed: Invalid username or password")
-        )
 
       // Vérifier le mot de passe
 //      if (!passwordEncoder.matches(loginRequest.password, employe.password)) {
@@ -78,7 +75,7 @@ class AuthController(
       val caisseFermer = caisseService.getCaisseFermer()
 
       if (activeCaisse == null && caisseEnCoursCurrentUser != null && caisseEnCoursCurrentUser?.user?.id != employe.id!!.toInt()) {
-        var nouvelleCaisse = Caisse().apply {
+        val nouvelleCaisse = Caisse().apply {
           this.user = employe
           this.fondCaisseOuvert = 0.0
           this.ouvertureCaisse = "0"
@@ -131,7 +128,7 @@ class AuthController(
           this.dateFerme = LocalDateTime.now()
           this.etat = "Clot"
         }
-        val updatedCaisse = caisseRepository.save(activeCaisse)
+        caisseRepository.save(activeCaisse)
       }
     }
 

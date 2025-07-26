@@ -44,17 +44,17 @@ export const getFilteredAdminMenuPharmaItems = (key: string) => {
     new AdminMenu(26, 'Fabriquants', '/admin/products/fabriquants', null, 'factory', null, false, 20),
     new AdminMenu(27, 'Rayons', '/admin/products/rayons', null, 'storefront', null, false, 20),
     new AdminMenu(28, 'magasins', '/admin/products/magasins', null, 'store', null, false, 20),
-    new AdminMenu(29, 'Rapport caisse', '/admin/products/rapport-caisse', null, 'receipt_long', null, false, 20),
-    new AdminMenu(30, 'Produit detail list', '/admin/products/product-detail-list', null, 'list_alt', null, false, 20),
+    new AdminMenu(29, 'Rapport caisse', '/admin/products/rapport_caisse', null, 'receipt_long', null, false, 20),
+    new AdminMenu(30, 'Produit detail list', '/admin/products/product_detail_list', null, 'list_alt', null, false, 20),
 
     // Vente menu and submenus
     new AdminMenu(300, 'ventes', null, null, 'shopping_cart', null, true, 0),
     new AdminMenu(301, 'liste ventes', '/admin/ventes/list', null, 'list', null, false, 300),
-    ...(key === 'differe' ? [new AdminMenu(302, 'encaisser vente', '/admin/ventes/encaisser-vente', null, 'payment', null, false, 300)] : []),
-    new AdminMenu(303, 'ajouter vente', '/admin/ventes/ajouter-vente', null, 'add_shopping_cart', null, false, 300),
-    new AdminMenu(304, 'retour produit', '/admin/ventes/retour-produit', null, 'undo', null, false, 300),
+    ...(key === 'differe' ? [new AdminMenu(302, 'encaisser vente', '/admin/ventes/encaisser_vente', null, 'payment', null, false, 300)] : []),
+    new AdminMenu(303, 'ajouter vente', '/admin/ventes/ajouter_vente', null, 'add_shopping_cart', null, false, 300),
+    new AdminMenu(304, 'retour produit', '/admin/ventes/retour_produit', null, 'undo', null, false, 300),
 
-    new AdminMenu(400, 'commande', '/admin/commandes/lister-ajouter-commande', null, 'assignment', null, false, 0),
+    new AdminMenu(400, 'commande', '/admin/commandes/lister_ajouter_commande', null, 'assignment', null, false, 0),
 
     // Stock menu and submenus
     new AdminMenu(500, 'Stock', null, null, 'inventory', null, true, 0),

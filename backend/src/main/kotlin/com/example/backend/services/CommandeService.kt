@@ -177,9 +177,9 @@ class CommandeService(
       .orElseThrow { IllegalArgumentException("Commande non trouvée avec l'ID: $commandeId") }
     if (commande.etat == Commande.COMMANDE_EN_COURS || commande.etat == Commande.COMMANDE_EN_ATTENTE) {
       when (receptionType.lowercase()) {
-        Commande.COMMANDE_RECEPTION_TYPE_COMPLETE.toLowerCase() -> handleCompleteReception(commande, productCmdList)
-        Commande.COMMANDE_RECEPTION_TYPE_PARTIEL.toLowerCase() -> handlePartialReception(commande, productCmdList)
-        Commande.COMMANDE_RECEPTION_TYPE_ANNULER.toLowerCase() -> handleCancellation(commande)
+        Commande.COMMANDE_RECEPTION_TYPE_COMPLETE.lowercase() -> handleCompleteReception(commande, productCmdList)
+        Commande.COMMANDE_RECEPTION_TYPE_PARTIEL.lowercase() -> handlePartialReception(commande, productCmdList)
+        Commande.COMMANDE_RECEPTION_TYPE_ANNULER.lowercase() -> handleCancellation(commande)
         else -> throw IllegalArgumentException("Type de réception invalide: $receptionType")
       }
     } else if (commande.etat == Commande.COMMANDE_LIVREE ||
@@ -245,7 +245,7 @@ class CommandeService(
       commande.montantRecu = totalMontantRecu
       commande.montantCmd = totalMontantRecu
     }
-    else if (receptionType.toLowerCase() == Commande.COMMANDE_RECEPTION_TYPE_PARTIEL.toLowerCase()) {
+    else if (receptionType.lowercase() == Commande.COMMANDE_RECEPTION_TYPE_PARTIEL.lowercase()) {
       totalQuantiteRecu = 0
       totalMontantRecu = 0.0
       productCmdList?.forEach { produitCmd ->
@@ -279,7 +279,7 @@ class CommandeService(
       commande.dateLivraison = LocalDateTime.now()
       commande.montantRecu = totalMontantRecu
       commande.montantCmd = totalMontantRecu
-    } else if (receptionType.lowercase() == Commande.COMMANDE_RECEPTION_TYPE_COMPLETE.toLowerCase()) {
+    } else if (receptionType.lowercase() == Commande.COMMANDE_RECEPTION_TYPE_COMPLETE.lowercase()) {
       commande.dateLivraison = LocalDateTime.now()
       commande.qtiteCmd = totalQuantiteRecu
       commande.montantRecu = totalMontantRecu
@@ -345,8 +345,8 @@ class CommandeService(
 
   private fun updateCommandeState(receptionType: String, commande: Commande, totalQuantiteRecu: Int) {
     when (receptionType.lowercase()) {
-      Commande.COMMANDE_RECEPTION_TYPE_COMPLETE.toLowerCase() -> commande.etat = Commande.COMMANDE_LIVREE
-      Commande.COMMANDE_RECEPTION_TYPE_PARTIEL.toLowerCase() -> commande.etat =
+      Commande.COMMANDE_RECEPTION_TYPE_COMPLETE.lowercase() -> commande.etat = Commande.COMMANDE_LIVREE
+      Commande.COMMANDE_RECEPTION_TYPE_PARTIEL.lowercase() -> commande.etat =
         if (totalQuantiteRecu == commande.qtiteCmd) {
           Commande.COMMANDE_LIVREE
         } else {

@@ -110,7 +110,7 @@ class VenteService(
     }
 
     venteRequestDto.produits.forEach { produitAssocieDto ->
-      if (produitAssocieDto.type?.toLowerCase() == "detail".toLowerCase()) {
+      if (produitAssocieDto.type?.lowercase() == "detail".lowercase()) {
         var produitDetail = produitDetailRepository.findById(produitAssocieDto.produitId!!.toInt()).get()
         produitDetail.stock = produitDetail.stock!! - produitAssocieDto.quantite!!
         produitDetailRepository.save(produitDetail)
@@ -226,7 +226,7 @@ class VenteService(
     }
 
     encaissementDirectDto.venteRequestDto.produits.forEach { produitAssocieDto ->
-      if (produitAssocieDto.type?.toLowerCase() == "detail".toLowerCase()) {
+      if (produitAssocieDto.type?.lowercase() == "detail".lowercase()) {
         var produitDetail = produitDetailRepository.findById(produitAssocieDto.produitId!!.toInt()).get()
         produitDetail.stock = produitDetail.stock!! - produitAssocieDto.quantite!!
         produitDetailRepository.save(produitDetail)
@@ -277,8 +277,8 @@ class VenteService(
     facturation = facturationRepository.save(facturation)
     var typeEncaissement = userUtils.removeAccent(encaissementDirectDto.encaissementDto.typeEncaissement)
 
-    when (typeEncaissement.toLowerCase()) {
-      "espece".toLowerCase() -> {
+    when (typeEncaissement.lowercase()) {
+      "espece".lowercase() -> {
         encaissementDirectDto.encaissementDto.espece?.let { montantEspece ->
           val factureEspece = FactureEspece().apply {
             this.facturationId = facturation!!.id?.toLong()
@@ -288,7 +288,7 @@ class VenteService(
         }
       }
 
-      "electronique".toLowerCase() -> {
+      "electronique".lowercase() -> {
         encaissementDirectDto.encaissementDto.electronique?.let { electronique ->
           val factureElectronique = FactureElectronique().apply {
             this.facturationId = facturation!!.id?.toLong()
@@ -299,7 +299,7 @@ class VenteService(
         }
       }
 
-      "ticket".toLowerCase() -> {
+      "ticket".lowercase() -> {
         encaissementDirectDto.encaissementDto.ticket?.let { ticket ->
           val ticketCaisse = bonCaisseRepository.findByCodebarreId(ticket.numeroTicket)
           ticketCaisse!!.type = "Encaisser" // Transition to Encaisser
@@ -316,7 +316,7 @@ class VenteService(
         }
       }
 
-      "mixte".toLowerCase() -> {
+      "mixte".lowercase() -> {
         encaissementDirectDto.encaissementDto.espece?.let { montantEspece ->
           val factureEspece = FactureEspece().apply {
             this.facturationId = facturation!!.id?.toLong()
@@ -380,8 +380,8 @@ class VenteService(
       this.supprimer = 0
     }
 
-    when (encaissementRequestDto.typePaiement.toLowerCase()) {
-      "espece".toLowerCase() -> {
+    when (encaissementRequestDto.typePaiement.lowercase()) {
+      "espece".lowercase() -> {
         encaissementRequestDto.espece?.let { montantEspece ->
           val factureEspece = FactureEspece().apply {
             this.facturationId = facturation!!.id?.toLong()
@@ -391,7 +391,7 @@ class VenteService(
         }
       }
 
-      "electronique".toLowerCase() -> {
+      "electronique".lowercase() -> {
         encaissementRequestDto.electronique?.let { electronique ->
           val factureElectronique = FactureElectronique().apply {
             this.facturationId = facturation!!.id?.toLong()
@@ -402,7 +402,7 @@ class VenteService(
         }
       }
 
-      "ticket".toLowerCase() -> {
+      "ticket".lowercase() -> {
         encaissementRequestDto.ticket?.let { montantTicket ->
           val factureTicket = FactureTicket().apply {
             this.facturationId = facturation!!.id?.toLong()
@@ -412,7 +412,7 @@ class VenteService(
         }
       }
 
-      "mixte".toLowerCase() -> {
+      "mixte".lowercase() -> {
         encaissementRequestDto.espece?.let { montantEspece ->
           val factureEspece = FactureEspece().apply {
             this.facturationId = facturation!!.id?.toLong()
@@ -471,8 +471,8 @@ class VenteService(
     }
     facturation = facturationRepository.save(facturation)
 
-    when (encaissementDto.typeEncaissement.toLowerCase()) {
-      "espece".toLowerCase() -> {
+    when (encaissementDto.typeEncaissement.lowercase()) {
+      "espece".lowercase() -> {
         encaissementDto.espece?.let { montantEspece ->
           val factureEspece = FactureEspece().apply {
             this.facturationId = facturation!!.id?.toLong()
@@ -482,7 +482,7 @@ class VenteService(
         }
       }
 
-      "electronique".toLowerCase() -> {
+      "electronique".lowercase() -> {
         encaissementDto.electronique?.let { electronique ->
           val factureElectronique = FactureElectronique().apply {
             this.facturationId = facturation!!.id?.toLong()
@@ -493,7 +493,7 @@ class VenteService(
         }
       }
 
-      "ticket".toLowerCase() -> {
+      "ticket".lowercase() -> {
         encaissementDto.ticket?.let { ticket ->
           val ticketCaisse = bonCaisseRepository.findByCodebarreId(ticket.numeroTicket)
           ticketCaisse!!.type = "Encaisser" // Transition to Encaisser
@@ -510,7 +510,7 @@ class VenteService(
         }
       }
 
-      "mixte".toLowerCase() -> {
+      "mixte".lowercase() -> {
         encaissementDto.espece?.let { montantEspece ->
           val factureEspece = FactureEspece().apply {
             this.facturationId = facturation!!.id?.toLong()

@@ -7,7 +7,7 @@ import {RetourProduitComponent} from "./retour-produit/retour-produit.component"
 export const routes: Routes = [
     { path: '', redirectTo: 'list', pathMatch: 'full' },
     { path: 'list', component: VentesComponent, data: { breadcrumb: 'Liste vente' } },
-    { path: 'encaisser-vente', component: EncaisserVenteComponent, data: { breadcrumb: 'Encaisser vente' } },
-    { path: 'ajouter-vente', component: AjouterVenteComponent, data: { breadcrumb: 'Ajouter vente' } },
-    { path: 'retour-produit', component: RetourProduitComponent, data: { breadcrumb: 'Retour produit' } }
+    { path: 'encaisser_vente', component: EncaisserVenteComponent, data: { breadcrumb: 'Encaisser vente' } },
+    { path: 'ajouter_vente', component: AjouterVenteComponent, data: { breadcrumb: 'Ajouter vente' } },
+    { path: 'retour_produit', component: RetourProduitComponent, data: { breadcrumb: 'Retour produit' } }
 ];

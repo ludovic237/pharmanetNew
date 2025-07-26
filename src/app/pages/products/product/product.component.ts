@@ -163,7 +163,7 @@ export class ProductComponent implements OnInit {
   }
 
   ngOnDestroy() {
-    this.sub.unsubscribe();
+    // this.sub.unsubscribe();
   }
 
   public onSubmit(values: Object): void {

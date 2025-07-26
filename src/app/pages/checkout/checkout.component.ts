@@ -99,7 +99,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.watcher.unsubscribe();
+    // this.watcher.unsubscribe();
   }
 
   public placeOrder() {

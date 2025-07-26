@@ -162,7 +162,7 @@ export class ProductsComponent implements OnInit {
   }
 
   ngOnDestroy() {
-    this.sub.unsubscribe();
+    // this.sub.unsubscribe();
   }
 
   @HostListener('window:resize')

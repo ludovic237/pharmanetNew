@@ -72,11 +72,8 @@ class CaisseController(
   @PreAuthorize("isAuthenticated()")
   @GetMapping("/ouverte")
   fun isCaisseOuverte(): ResponseEntity<Map<String, Any?>> {
-    val isOuverte = caisseService.isCaisseOuverte()
     val caisseActive = caisseService.getCaisseActive()
     val caisseEnCours = caisseService.getCaisseEnCours()
-    val attenteCloture = caisseService.getCaisseAttenteCloture()
-    val caisseFermer = caisseService.getCaisseFermer()
     val employeCurrentId = userUtils.getCurrentEmployeId()
     var employeCurrent = employeRepository.findById(employeCurrentId!!.toInt()).get()
 
