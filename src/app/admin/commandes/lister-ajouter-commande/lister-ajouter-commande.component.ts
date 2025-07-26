@@ -440,7 +440,6 @@ fetchCommandesPageable(): void {
           autoFocus: false,
         });
         dialogRef.afterClosed().subscribe((data: any) => {
-          console.log('Dialog closed', data);
           this.fetchCommandesPageable();
         });
       },

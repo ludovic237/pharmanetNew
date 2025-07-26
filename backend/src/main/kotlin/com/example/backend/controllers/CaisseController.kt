@@ -80,7 +80,8 @@ class CaisseController(
     val employeCurrentId = userUtils.getCurrentEmployeId()
     var employeCurrent = employeRepository.findById(employeCurrentId!!.toInt()).get()
 
-    val caisseEnCoursCurrentUser = caisseRepository.findByUserAndEtatAndSupprimer(employeCurrent,"En cours",0).firstOrNull()
+    val caisseEnCoursCurrentUser =
+      caisseRepository.findByUserAndEtatAndSupprimer(employeCurrent, "En cours", 0).firstOrNull()
 
 
     val response: Map<String, Any?> =
@@ -132,7 +133,19 @@ class CaisseController(
             "dateFerme" to caisseActive?.dateFerme
           )
         )
-      } else if (caisseActive == null ) {
+      } else if (caisseActive != null && caisseEnCours == null) {
+        mapOf(
+          "status" to "already",
+          "caisseDetails" to mapOf(
+            "id" to caisseActive?.id,
+            "etat" to caisseActive?.etat,
+            "session" to caisseActive?.session,
+            "nomEmploye" to (caisseActive?.user?.user?.nom ?: "Inconnu"),
+            "dateOuvert" to caisseActive?.dateOuvert,
+            "dateFerme" to caisseActive?.dateFerme
+          )
+        )
+      } else if (caisseActive == null) {
         mapOf(
           "status" to "close",
           "caisseDetails" to null

@@ -25,8 +25,9 @@ import {MatSelectModule} from "@angular/material/select";
 import {FlexLayoutModule} from "@ngbracket/ngx-layout";
 import {MatStepperModule} from "@angular/material/stepper";
 import {MatRadioModule} from "@angular/material/radio";
-import {MatSnackBarModule} from "@angular/material/snack-bar";
+import {MatSnackBar, MatSnackBarModule} from "@angular/material/snack-bar";
 import {NgxPaginationModule} from "ngx-pagination";
+import {AuthService} from "@services/auth.service";
 
 @Component({
   selector: 'app-setting',
@@ -80,7 +81,7 @@ import {NgxPaginationModule} from "ngx-pagination";
   templateUrl: './setting.component.html',
   styleUrl: './setting.component.scss'
 })
-export class SettingComponent implements OnInit{
+export class SettingComponent implements OnInit {
 
   settingsForm: FormGroup;
 
@@ -96,7 +97,12 @@ export class SettingComponent implements OnInit{
 
   venteModes = ['differe', 'non'];
 
-  constructor(private appSettingsService: AppSettingsService) {}
+  constructor(
+    private authService: AuthService,
+    private snackBar: MatSnackBar,
+    private appSettingsService: AppSettingsService,
+  ) {
+  }
 
 
   ngOnInit(): void {
@@ -106,26 +112,40 @@ export class SettingComponent implements OnInit{
   loadSettings(): void {
     this.appSettingsService.loadSetting().subscribe({
       next: (data: any[]) => {
-        console.log(data.find((item:any) => item.keyName === 'app_name')?.value);
-        console.log(data.find((item:any) => item.keyName === 'app_name'));
+        console.log(data.find((item: any) => item.keyName === 'app_name')?.value);
+        console.log(data.find((item: any) => item.keyName === 'app_name'));
         this.settings.appName = data.find(item => item.keyName === 'app_name')?.value || '';
         this.settings.venteMode = data.find(item => item.keyName === 'vente_mode')?.value || '';
         this.settings.showMenuStats = data.find(item => item.keyName === 'show_menu_stats')?.value === 'true';
       },
-      error: (err) => console.error('Error loading settings:', err),
+      error: (err: any) => {
+        if (err.status === 401 || err.status === 403) {
+          this.authService.logout();
+          this.snackBar.open('Déconnexion réussie.', '×', {
+            panelClass: 'success',
+            verticalPosition: 'top',
+            duration: 3000,
+          });
+          // Redirect to login page or clear session
+          window.location.href = '/sign-in';
+        }
+        console.error('Error loading settings:', err)
+      },
     });
   }
 
   updateSetting(key: string, value: any): void {
     this.appSettingsService.setSetting(key, value).subscribe({
       next: () => {
-        console.log(`Setting ${key} updated to:`, value);
-        localStorage.setItem(key, value);
-        this.appSettingsService.snackBar.open('Setting updated successfully!', 'Close', { duration: 3000 });
+        this.appSettingsService.snackBar.open('Setting updated successfully!', 'Close', {duration: 3000});
+        if (key === 'vente_mode') {
+          this.appSettingsService.notifySettingsUpdated(value);
+        }
+        window.location.reload(); // Reload the page to apply changes
       },
       error: (err) => {
         console.error(`Error updating setting ${key}:`, err);
-        this.appSettingsService.snackBar.open('Failed to update setting.', 'Close', { duration: 3000 });
+        this.appSettingsService.snackBar.open('Failed to update setting.', 'Close', {duration: 3000});
       },
     });
   }

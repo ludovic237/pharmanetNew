@@ -123,7 +123,6 @@ export class ProductListComponent implements OnInit {
     ;
     this.getCategories();
     if (!this.form.get('searchForm')?.value) {
-      console.log('Formulaire vide');
     }
   }
 
@@ -152,8 +151,6 @@ export class ProductListComponent implements OnInit {
 
   searchUsers(event: Event): void {
     this.page = 0
-    console.log("this.searchText")
-    console.log(this.searchText)
     const input = (event.target as HTMLInputElement).value;
     if (input) {
       this.searchText = input
@@ -188,15 +185,7 @@ export class ProductListComponent implements OnInit {
   }
 
   public onPageChanged(event: PageEvent) {
-    console.log('Page changed:', event);
-    console.log("this.searchText");
-    console.log(this.searchText);
-    console.log(this.page);
     if (this.searchText === "" || this.searchText === undefined) {
-      // this.page = 0; // Reset to the first page
-      // if (this.page == 1) {
-      //
-      // }
       if (this.page == 0){
         this.page = 1
         this.paginator.firstPage(); // Ensure the paginator UI resets

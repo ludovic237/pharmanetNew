@@ -73,8 +73,6 @@ export class AjouterVenteDialogComponent implements OnInit {
 
   ngOnInit(): void {
     this.type = this.data.type;
-    console.log("this.type")
-    console.log(this.type)
     this.form = this.fb.group({
       id: 0,
       name: [null, Validators.required],
@@ -82,8 +80,6 @@ export class AjouterVenteDialogComponent implements OnInit {
       parentId: 0
     });
 
-    console.log("this.data");
-    console.log(this.data);
     this.enRayonList = this.data.enRayonList.map((item: any) => ({
       ...item,
       quantiteRestante: 0,

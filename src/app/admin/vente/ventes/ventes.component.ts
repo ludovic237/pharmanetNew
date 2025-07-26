@@ -226,8 +226,6 @@ export class VentesComponent implements OnInit {
   }
 
   async generateTicket(vente: any): Promise<void> {
-    console.log("vente")
-    console.log(vente)
 
     const doc = new jsPDF();
 

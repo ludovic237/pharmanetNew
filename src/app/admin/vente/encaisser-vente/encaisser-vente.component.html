@@ -6,11 +6,12 @@
       <h2 *ngIf="caisseStatus == 'close' || caisseStatus == 'pending'">Caisse fermée</h2>
       <div fxLayout="row" fxLayoutGap="8px">
         <!--        <button mat-raised-button color="primary" (click)="manageCaisse()">Fermer la caisse</button>-->
-        <div  fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
+        <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
           <button *ngIf="caisseStatus === 'active'" mat-flat-button color="warn" (click)="fermerCaisse()">Fermer la
             caisse
           </button>
-          <button *ngIf="caisseStatus === 'open' || caisseStatus === 'close'" mat-flat-button color="primary" (click)="ouvrirCaisse()">Ouvrir la
+          <button *ngIf="caisseStatus === 'open' || caisseStatus === 'close'" mat-flat-button color="primary"
+                  (click)="ouvrirCaisse()">Ouvrir la
             caisse
           </button>
           <button *ngIf="caisseStatus === 'pending'" mat-flat-button color="primary" (click)="manageCaisse()">Continuer
@@ -255,7 +256,8 @@
           </mat-tab>
         </mat-tab-group>
 
-        <div *ngIf="caisseStatus !=='alreadyopen'" fxLayout="row wrap" fxLayoutAlign="space-between center"
+        <div *ngIf="caisseStatus ==='active'" fxLayout="row wrap"
+             fxLayoutAlign="space-between center"
              class="w-100 p-3">
           <button *ngIf="caisseStatus !== 'pending' && caisseStatus !== 'closed' && caisseStatus !== 'none'"
                   mat-stroked-button

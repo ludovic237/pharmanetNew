@@ -231,7 +231,6 @@ export class AjouterVenteComponent implements OnInit {
   }
 
   onPrescripteurSelected(event: any): void {
-    console.log('Selected prescriber:', event.option.value);
     this.selectedPrescripteur = this.prescripteurOptions.find(prescripteur => prescripteur.name === event.option.value);
   }
 
@@ -362,8 +361,6 @@ export class AjouterVenteComponent implements OnInit {
           id: product.id,
           name: product.nom
         }));
-        console.log("this.medOptions");
-        console.log(this.medOptions);
       },
       error: (err) => {
         console.error('Error searching products:', err);
@@ -391,12 +388,6 @@ export class AjouterVenteComponent implements OnInit {
 
   onClientSelected(event: any): void {
     this.selectedClient = this.clientOptions.find(client => client.name === event.option.value);
-    console.log("selectedClient")
-    console.log(this.selectedClient)
-    // if (selectedClient) {
-    //   this.clientName.setValue(selectedClient.name);
-    //   this.clientPhone.setValue(selectedClient.phone);
-    // }
     this.calculeTotaux();
   }
 
@@ -442,7 +433,6 @@ export class AjouterVenteComponent implements OnInit {
         this.prescripteurOptions = data.map((prescipteur: any) => ({
           name: prescipteur.name,
         }));
-        console.log('Prescripteurs loaded:', this.prescripteurOptions);
       },
       error: (err) => {
         console.error('Error loading clients:', err);

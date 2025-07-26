@@ -92,6 +92,17 @@ class UserUtils(
     }
   }
 
+  fun removeAccent (input: String): String {
+    val accents = mapOf(
+      'é' to 'e', 'è' to 'e', 'ê' to 'e', 'ë' to 'e',
+      'à' to 'a', 'â' to 'a', 'ä' to 'a',
+      'ç' to 'c',
+      'î' to 'i', 'ï' to 'i',
+      'ô' to 'o', 'ö' to 'o',
+      'ù' to 'u', 'û' to 'u', 'ü' to 'u'
+    )
+    return input.toLowerCase().map { accents[it] ?: it }.joinToString("")
+  }
 
   fun getActiveCaisse(): Caisse? {
     return try {

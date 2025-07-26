@@ -209,7 +209,6 @@ export class ListerReceptionnerCommandeComponent {
       dateReception: this.form.value.dateReception,
       lignes: this.form.value.lignes
     };
-    console.log('Envoi reception:', payload);
     // TODO : appel API…
 
     this.snack.open('Réception enregistrée avec succès', 'OK', {duration: 2000});

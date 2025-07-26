@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
-import {Observable} from 'rxjs';
+import {BehaviorSubject, Observable} from 'rxjs';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {Category} from '@models/category';
 import {Product} from '@models/product';
@@ -28,6 +28,9 @@ export class AppSettingsService {
 
   public url = environment.url + '/data/';
   private apiUrl = 'api/admin/setting';
+
+  private settingsUpdated = new BehaviorSubject<string>(null);
+  settingsUpdated$ = this.settingsUpdated.asObservable();
 
   constructor(
     public authService: AuthService,
@@ -65,6 +68,11 @@ export class AppSettingsService {
         console.error('Error loading settings:', err);
       }
     });
+  }
+
+  // Call this method to notify components of updates
+  notifySettingsUpdated(param:string): void {
+    this.settingsUpdated.next(param);
   }
 
 }

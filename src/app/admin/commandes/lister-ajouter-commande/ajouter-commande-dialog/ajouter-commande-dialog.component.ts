@@ -158,10 +158,8 @@ export class AjouterCommandeDialogComponent implements OnInit {
         })),
         type: this.typeCommande
       };
-      console.log("Creating commande with payload:", payload);
       this.commandesService.addCommande(payload).subscribe({
         next: (response) => {
-          console.log('Commande created:', response);
           this.dialogRef.close();
           this.snackBar.open('Commande created', '×', {
             panelClass: 'success',

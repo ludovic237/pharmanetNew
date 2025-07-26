@@ -131,15 +131,14 @@ class CaisseService(
     val activeCaisse = getCaisseActive() ?: throw CaisseException("Aucune caisse active trouvée.")
     val getCurrentEmploye = employeRepository.findById(userUtils.getCurrentEmployeId()!!.toInt()).get()
 
-    if (activeCaisse?.user==getCurrentEmploye){
+    if (activeCaisse?.user == getCurrentEmploye) {
       if (activeCaisse.etat!!.toLowerCase() == "Ouvert".toLowerCase()) {
         activeCaisse.etat = "En cours"
         activeCaisse.dateFerme = LocalDateTime.now()
         caisseRepository.save(activeCaisse)
       }
       return caisseRepository.save(activeCaisse)
-    }
-    else {
+    } else {
       return caisseRepository.save(activeCaisse)
     }
   }
@@ -152,7 +151,8 @@ class CaisseService(
     val employeCurrentId = userUtils.getCurrentEmployeId()
     var employeCurrent = employeRepository.findById(employeCurrentId!!.toInt()).get()
 
-    val caisseEnCoursCurrentUser = caisseRepository.findByUserAndEtatAndSupprimer(employeCurrent,"En cours",0).firstOrNull()
+    val caisseEnCoursCurrentUser =
+      caisseRepository.findByUserAndEtatAndSupprimer(employeCurrent, "En cours", 0).firstOrNull()
 
 
 
@@ -186,18 +186,23 @@ class CaisseService(
   }
 
   @Transactional
-  fun ouvrirNouvelleCaisse(caisse : CaisseOuvertureRequestDto): CaisseDto {
+  fun ouvrirNouvelleCaisse(caisse: CaisseOuvertureRequestDto): CaisseDto {
     val currentUser = userUtils.getCurrentUser()
-    val currentEmployeId= userUtils.getCurrentEmployeId()
+    val currentEmployeId = userUtils.getCurrentEmployeId()
     val employeData = employeRepository.findByUser(currentUser!!)
     val caisseActive = getCaisseActive()
+    val caisseEnCoursCurrentUser =
+      caisseRepository.findByUserAndEtatAndSupprimer(employeData, "En cours", 0).firstOrNull()
 
-    if (caisseActive != null && caisseActive.user?.id?.toLong() == currentEmployeId) {
+    if (caisseActive == null && caisseEnCoursCurrentUser == null) {
       var caisse = Caisse().apply {
-        this.fondCaisseOuvert = caisse.fondCaisseOuvert.toDouble()?:0.0
-        this.ouvertureCaisse = caisse.ouvertureCaisse?:""
+        this.user = employeData
+        this.fondCaisseOuvert = caisse.fondCaisseOuvert.toDouble() ?: 0.0
+        this.ouvertureCaisse = caisse.ouvertureCaisse ?: ""
         this.dateOuvert = LocalDateTime.now()
         this.etat = "Ouvert"
+        this.session = genererSessionId()
+        this.supprimer = 0
       }
       val updatedCaisse = caisseRepository.save(caisse)
       return mapToCaisseDto(updatedCaisse)
@@ -253,7 +258,8 @@ class CaisseService(
       var produitRetour = produitRetourRepository.findByRetourProduitId(retourProduit.id!!.toLong())
       mapOf(
         "reference" to retourProduit.vente?.reference,
-        "produit" to produitRetour.map { produitRepository.findById(it.concerner!!.produitId!!)!!.get().nom }.joinToString { "," },
+        "produit" to produitRetour.map { produitRepository.findById(it.concerner!!.produitId!!)!!.get().nom }
+          .joinToString { "," },
         "quantite" to produitRetour.sumOf { it.quantite!! },
         "total" to produitRetour.sumOf { it.quantite!! * it.concerner?.prixUnit!! }
       )

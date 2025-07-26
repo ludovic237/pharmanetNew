@@ -67,8 +67,6 @@ export class SignInComponent implements OnInit {
       // this.router.navigate(['/']);
       this.authService.login(this.username, this.password).subscribe({
         next: (response) => {
-          console.log('Login successful:', response);
-
           localStorage.setItem('token', response.token);
           localStorage.setItem('nom', response.nom);
 
@@ -83,7 +81,6 @@ export class SignInComponent implements OnInit {
           }, 3000);
         },
         error: (err) => {
-          console.log('Login failed:', err);
           if (err.status === 401 || err.status === 403){
             this.authService.logout();
             this.snackBar.open('Déconnexion réussie.', '×', {
@@ -117,7 +114,6 @@ export class SignInComponent implements OnInit {
       // this.router.navigate(['/']);
       this.authService.registerUser(a, b, c, d, e, f).subscribe({
         next: (response) => {
-          console.log('Login successful:', response);
           this.snackBar.open('You registered successfully!', '×', {
             panelClass: 'success',
             verticalPosition: 'top',

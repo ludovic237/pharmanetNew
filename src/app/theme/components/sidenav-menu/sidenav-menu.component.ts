@@ -24,11 +24,16 @@ export class SidenavMenuComponent implements OnInit {
   @Input('menuParentId') menuParentId: any;
   parentMenu: Array<any>;
 
-   constructor(
+  // private excludedIds: number[] = [200, 144]; // Example list of IDs to exclude
+
+  constructor(
    private sidenavMenuService: SidenavMenuService) { }
 
   ngOnInit() {
-    this.parentMenu = this.menuItems.filter(item => item.parentId == this.menuParentId);
+    // this.parentMenu = this.menuItems.filter(item => item.parentId == this.menuParentId);
+    this.parentMenu = this.menuItems
+      .filter((item:any) => item.parentId == this.menuParentId);
+
   }
 
   onClick(menuId: any) {

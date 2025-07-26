@@ -121,7 +121,6 @@ export class ProductsComponent implements OnInit {
     this.count = this.counts[0];
     this.sort = this.sortings[0];
     this.sub = this.activatedRoute.params.subscribe(params => {
-      //console.log(params['name']);
     });
     if (this.domHandlerService.window?.innerWidth < 960) {
       this.sidenavOpen = false;

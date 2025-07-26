@@ -33,7 +33,7 @@ export const adminMenuPharmaItems = [
 */
 
 export const getFilteredAdminMenuPharmaItems = (key: string) => {
-  return [
+ return [
     new AdminMenu(10, 'ADMIN_NAV.DASHBOARD', '/admin', null, 'dashboard', null, false, 0),
     new AdminMenu(20, 'Catalogue', null, null, 'grid_on', null, true, 0),
     new AdminMenu(21, 'Categories', '/admin/products/categories', null, 'category', null, false, 20),
@@ -50,7 +50,7 @@ export const getFilteredAdminMenuPharmaItems = (key: string) => {
     // Vente menu and submenus
     new AdminMenu(300, 'ventes', null, null, 'shopping_cart', null, true, 0),
     new AdminMenu(301, 'liste ventes', '/admin/ventes/list', null, 'list', null, false, 300),
-    ...(key !== 'differe' ? [new AdminMenu(302, 'encaisser vente', '/admin/ventes/encaisser-vente', null, 'add_circle_outline', null, false, 300)] : []),
+    ...(key === 'differe' ? [new AdminMenu(302, 'encaisser vente', '/admin/ventes/encaisser-vente', null, 'add_circle_outline', null, false, 300)] : []),
     new AdminMenu(303, 'ajouter vente', '/admin/ventes/ajouter-vente', null, 'bar_chart', null, false, 300),
     new AdminMenu(304, 'retour produit', '/admin/ventes/retour-produit', null, 'bar_chart', null, false, 300),
 
@@ -63,6 +63,5 @@ export const getFilteredAdminMenuPharmaItems = (key: string) => {
     new AdminMenu(503, 'Inventaire', '/admin/stock/inventaire', null, 'list_alt', null, false, 500),
 
     new AdminMenu(600, 'Parametre', '/admin/setting', null, 'assignment', null, false, 0),
-
   ];
 };

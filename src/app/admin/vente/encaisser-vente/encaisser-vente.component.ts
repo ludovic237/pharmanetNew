@@ -227,7 +227,7 @@ export class EncaisserVenteComponent implements OnInit {
   }
 
   manageCaisse(): void {
-    if (this.caisseStatus === 'none') {
+    if (this.caisseStatus === 'close') {
       const dialogRef = this.dialog.open(GestionCaisseDialogComponent, {
         data: {
           type: "open",
@@ -272,7 +272,8 @@ export class EncaisserVenteComponent implements OnInit {
           });
         }
       });
-    } else if (this.caisseStatus === 'pending') {
+    }
+    else if (this.caisseStatus === 'pending') {
       const dialogRef = this.dialog.open(GestionCaisseDialogComponent, {
         data: {
           type: "",
@@ -317,7 +318,8 @@ export class EncaisserVenteComponent implements OnInit {
           });
         }
       });
-    } else if (this.caisseStatus === 'open') {
+    }
+    else if (this.caisseStatus === 'open') {
       this.caisseService.isCaisseOuverte().subscribe({
         next: () => {
           this.snackBar.open("Caisse fermée avec succès.", '×', {
@@ -346,7 +348,8 @@ export class EncaisserVenteComponent implements OnInit {
             });
         }
       });
-    } else if (this.caisseStatus === 'closed') {
+    }
+    else if (this.caisseStatus === 'closed') {
       this.caisseService.isCaisseOuverte().subscribe({
         next: () => {
           this.snackBar.open("Caisse ouverte avec succès.", '×', {
@@ -375,7 +378,8 @@ export class EncaisserVenteComponent implements OnInit {
             });
         }
       });
-    } else {
+    }
+    else {
       this.snackBar.open('Statut de la caisse inconnu.', '×', {
         panelClass: 'error',
         verticalPosition: 'top',
@@ -872,7 +876,7 @@ export class EncaisserVenteComponent implements OnInit {
         // Handle the "Yes" case
         console.log('User confirmed the action.');
         // Add logic for specific scenarios here
-        this.performActionBasedOnType();
+        this.manageCaisse();
       } else {
         // Handle the "No" or dismissal case
         console.log('User canceled the action.');

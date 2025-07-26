@@ -1,12 +1,13 @@
-import { Injectable } from '@angular/core';
-import { Location } from '@angular/common';
-import { Router } from '@angular/router';
-import { DomHandlerService } from './dom-handler.service';
-import { AdminMenu } from '@models/admin-menu.model';
+import {Injectable} from '@angular/core';
+import {Location} from '@angular/common';
+import {Router} from '@angular/router';
+import {DomHandlerService} from './dom-handler.service';
+import {AdminMenu} from '@models/admin-menu.model';
 import {AppService} from "@services/app.service";
 import {getFilteredAdminMenuPharmaItems} from "../common/data/admin-menu-pharma";
 import {AppSettingsService} from "@services/app-settings.service";
 // import { adminMenuItems } from '../common/data/admin-menu';
+
 
 @Injectable({
   providedIn: 'root'
@@ -14,13 +15,20 @@ import {AppSettingsService} from "@services/app-settings.service";
 export class AdminMenuService {
   constructor(private location: Location,
               private router: Router,
-              private appService:AppService,
-              private appSettingsService:AppSettingsService,
-              public domHandlerService: DomHandlerService) { }
+              private appService: AppService,
+              private appSettingsService: AppSettingsService,
+              public domHandlerService: DomHandlerService) {
+  }
 
   public getMenuItems(): Array<AdminMenu> {
-
+    this.appSettingsService.settingsUpdated$.subscribe((param: any) => {
+      return getFilteredAdminMenuPharmaItems(param);
+    });
     return getFilteredAdminMenuPharmaItems(localStorage.getItem("vente_mode"));
+  }
+
+  public getMenuItemsWithParam(param: string): Array<AdminMenu> {
+    return getFilteredAdminMenuPharmaItems(param);
   }
 
   public expandActiveSubMenu(menu: Array<AdminMenu>) {
@@ -44,8 +52,7 @@ export class AdminMenuService {
       if (subMenu.classList.contains('show')) {
         subMenu.classList.remove('show');
         menuItem.classList.remove('expanded');
-      }
-      else {
+      } else {
         subMenu.classList.add('show');
         menuItem.classList.add('expanded');
       }

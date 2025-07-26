@@ -275,8 +275,9 @@ class VenteService(
       this.supprimer = 0
     }
     facturation = facturationRepository.save(facturation)
+    var typeEncaissement = userUtils.removeAccent(encaissementDirectDto.encaissementDto.typeEncaissement)
 
-    when (encaissementDirectDto.encaissementDto.typeEncaissement.toLowerCase()) {
+    when (typeEncaissement.toLowerCase()) {
       "espece".toLowerCase() -> {
         encaissementDirectDto.encaissementDto.espece?.let { montantEspece ->
           val factureEspece = FactureEspece().apply {
@@ -347,7 +348,7 @@ class VenteService(
         }
       }
 
-      else -> throw RuntimeException("Type de paiement non pris en charge: ${encaissementDirectDto.encaissementDto.typeEncaissement}")
+      else -> throw RuntimeException("Type de paiement non pris en charge: ${typeEncaissement}")
     }
 
     return savedVente

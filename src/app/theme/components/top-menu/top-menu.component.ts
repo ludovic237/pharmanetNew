@@ -41,8 +41,6 @@ export class TopMenuComponent implements OnInit {
   }
 
   ngOnInit() {
-    console.log('token');
-    console.log(localStorage.getItem('token'));
     this.currency = this.currencies[0];
     this.hasToken = !!localStorage.getItem('token');
 

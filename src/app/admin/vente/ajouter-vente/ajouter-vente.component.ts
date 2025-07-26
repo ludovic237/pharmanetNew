@@ -231,8 +231,6 @@ export class AjouterVenteComponent implements OnInit {
     })
     this.appService.getSystem().subscribe({
       next: (data: any) => {
-        console.log("admin component");
-        console.log(data)
 
       },
       error: (err) => {
@@ -720,10 +718,10 @@ export class AjouterVenteComponent implements OnInit {
         autoFocus: false,
         direction: (this.settings.rtl) ? 'rtl' : 'ltr'
       });
-      dialogRef.afterClosed().subscribe((modifiedProducts: any[]) => {
+      dialogRef.afterClosed().subscribe((modifiedProducts: any) => {
         console.log("modifiedProducts")
         console.log(modifiedProducts)
-        if (modifiedProducts) {
+        if (modifiedProducts.reference) {
           // Reset form controls
           this.clientTypeControl.reset('');
           this.selectedClient = null;

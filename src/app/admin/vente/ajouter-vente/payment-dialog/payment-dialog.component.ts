@@ -209,7 +209,7 @@ export class PaymentDialogComponent implements OnInit {
     this.result.encaissementDto = encaissementDetails
 
     this.ventesService.encaisserVenteDirect(this.result).subscribe({
-      next: () => {
+      next: (data:any) => {
 
         // Show success message
         this.snackBar.open("Vente successfully", '×', {
@@ -217,7 +217,7 @@ export class PaymentDialogComponent implements OnInit {
           verticalPosition: 'top',
           duration: 3000
         });
-        this.dialogRef.close()
+        this.dialogRef.close(data)
       },
       error: (err: any) => {
         console.error('Failed to fetch BonCaisse list:', err);

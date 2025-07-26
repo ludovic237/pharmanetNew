@@ -4,6 +4,7 @@ import com.example.backend.config.SecurityConfig
 import com.example.backend.models.Caisse
 import com.example.backend.models.Employe
 import com.example.backend.models.User
+import com.example.backend.repositories.AppSettingRepository
 import com.example.backend.repositories.CaisseRepository
 import com.example.backend.repositories.EmployeRepository
 import com.example.backend.repositories.UserRepository
@@ -29,6 +30,7 @@ class AuthController(
   private var jwtUtil: JwtUtil,
   var userRepository: UserRepository,
   var caisseService: CaisseService,
+  var appSettingRepository: AppSettingRepository,
   var securityConfig: SecurityConfig,
   var userUtils: UserUtils,
   private val userDetailsService: CustomUserDetailsService,
@@ -42,7 +44,7 @@ class AuthController(
 
   @CrossOrigin(origins = ["http://localhost:4200"])
   @PostMapping("/login")
- fun login(@RequestBody loginRequest: LoginRequest): ResponseEntity<*> {
+  fun login(@RequestBody loginRequest: LoginRequest): ResponseEntity<*> {
     if (loginRequest.username.isEmpty() || loginRequest.password.isEmpty()) {
       return ResponseEntity.badRequest().body(
         mapOf("message" to "Email and password must not be empty")
@@ -70,10 +72,11 @@ class AuthController(
 
       println("Generated token: $token")
       val activeCaisse = caisseService.getCaisseActive()
-      val caisseEnCoursCurrentUser = caisseRepository.findByUserAndEtatAndSupprimer(employe,"En cours",0).firstOrNull()
+      val caisseEnCoursCurrentUser =
+        caisseRepository.findByUserAndEtatAndSupprimer(employe, "En cours", 0).firstOrNull()
       val caisseFermer = caisseService.getCaisseFermer()
 
-      if (activeCaisse==null && caisseEnCoursCurrentUser!=null &&  caisseEnCoursCurrentUser?.user?.id != employe.id!!.toInt()){
+      if (activeCaisse == null && caisseEnCoursCurrentUser != null && caisseEnCoursCurrentUser?.user?.id != employe.id!!.toInt()) {
         var nouvelleCaisse = Caisse().apply {
           this.user = employe
           this.fondCaisseOuvert = 0.0
@@ -117,16 +120,20 @@ class AuthController(
     val getCurrentEmploye = employeRepository.findById(userUtils.getCurrentEmployeId()!!.toInt()).get()
     val currentUser = userUtils.getCurrentEmployeId()
     val activeCaisse = caisseService.getCaisseActive()
-    if (activeCaisse?.user==getCurrentEmploye){
-     val clotureCaisse =  caisseRepository.findByUserAndEtat(getCurrentEmploye,"En cours")
-      clotureCaisse.apply {
-        this.fermetureCaisse = fermetureCaisse
-        this.fondCaisseFerme = fondCaisseFerme?.toDouble()
-        this.dateFerme = LocalDateTime.now()
-        this.etat = "Clot"
+    val appSetting = appSettingRepository.findByKeyName("vente_mode")
+    if (appSetting?.value !== "differe") {
+      if (activeCaisse?.user == getCurrentEmploye) {
+        val clotureCaisse = caisseRepository.findByUserAndEtat(getCurrentEmploye, "En cours")
+        activeCaisse.apply {
+          this.fermetureCaisse = fermetureCaisse
+          this.fondCaisseFerme = fondCaisseFerme?.toDouble()
+          this.dateFerme = LocalDateTime.now()
+          this.etat = "Clot"
+        }
+        val updatedCaisse = caisseRepository.save(activeCaisse)
       }
-      val updatedCaisse = caisseRepository.save(clotureCaisse)
     }
+
 
     SecurityContextHolder.clearContext()
     return ResponseEntity.ok(mapOf("message" to "Logout successful"))
