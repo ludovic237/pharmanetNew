@@ -91,11 +91,9 @@ import {EmployesService} from "@services/employes.service";
     MatSnackBarModule,
     MatChipsModule,
     NgxPaginationModule,
-    MatPaginator,
     MatButtonToggleModule,
     MatProgressSpinnerModule,
-    PipesModule,
-    DatePipe
+    PipesModule
   ],
   templateUrl: './employe.component.html',
   styleUrl: './employe.component.scss'

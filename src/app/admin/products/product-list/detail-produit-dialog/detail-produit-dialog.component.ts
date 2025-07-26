@@ -45,8 +45,7 @@ import {AuthService} from "@services/auth.service";
     MatButtonModule,
     FormsModule,
     NgxPaginationModule,
-    PipesModule,
-    DecimalPipe
+    PipesModule
   ],
   templateUrl: './detail-produit-dialog.component.html',
   styleUrl: './detail-produit-dialog.component.scss'

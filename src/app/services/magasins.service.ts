@@ -2,12 +2,13 @@ import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {Injectable} from '@angular/core';
 import {Observable} from 'rxjs';
 import {Magasin} from "@models/product";
+import {environment} from "../../environments/environment";
 
 @Injectable({
   providedIn: 'root'
 })
 export class MagasinService {
-  private url = 'api/magasins';
+  private url = environment.url+'/api/magasins';
 
   constructor(
     private http: HttpClient) {

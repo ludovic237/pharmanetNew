@@ -96,8 +96,7 @@ import {MatSnackBar} from "@angular/material/snack-bar";
     MatCardModule,
     MatSnackBarModule,
     MatChipsModule,
-    NgxPaginationModule,
-    MatPaginator,
+    NgxPaginationModule
   ],
   templateUrl: './rapport-caisse.component.html',
   styleUrl: './rapport-caisse.component.scss'

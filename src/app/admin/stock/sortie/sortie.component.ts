@@ -98,8 +98,7 @@ import {AuthService} from "@services/auth.service";
     MatCardModule,
     MatSnackBarModule,
     MatChipsModule,
-    NgxPaginationModule,
-    MatPaginator
+    NgxPaginationModule
   ],
   templateUrl: './sortie.component.html',
   styleUrl: './sortie.component.scss'

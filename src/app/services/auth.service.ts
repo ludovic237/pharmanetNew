@@ -2,14 +2,15 @@ import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {Injectable} from '@angular/core';
 import {BehaviorSubject, Observable} from 'rxjs';
 import {User, UserNew} from "../model/data";
+import {environment} from "../../environments/environment";
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
-  private baseUrl = '/api/auth';
+  private baseUrl = environment.url+'/api/auth';
 
-   constructor(
+  constructor(
     private http: HttpClient) {
   }
 
@@ -30,12 +31,12 @@ export class AuthService {
     return this.http.post(`${this.baseUrl}/register`, {firstName, lastName, role, phone, email, password});
   }
 
-  saveUser(user:UserNew): Observable<any> {
+  saveUser(user: UserNew): Observable<any> {
     return this.http.post(`${this.baseUrl}/register`, user);
   }
 
   logout(): Observable<any> {
-    return this.http.post(`${this.baseUrl}/logout`, {},{headers: this.getHeaders()});
+    return this.http.post(`${this.baseUrl}/logout`, {}, {headers: this.getHeaders()});
   }
 
   setToken(token: string) {

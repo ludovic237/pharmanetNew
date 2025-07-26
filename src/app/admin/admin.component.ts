@@ -98,9 +98,6 @@ const test2 = () => {
     NgScrollbarModule,
     BreadcrumbComponent,
     FullScreenComponent,
-    LangsComponent,
-    MessagesComponent,
-    UserMenuComponent,
     AdminMenuComponent
   ],
   templateUrl: './admin.component.html',

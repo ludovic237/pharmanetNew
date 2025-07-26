@@ -1,6 +1,7 @@
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {Injectable} from '@angular/core';
 import {Observable} from 'rxjs';
+import {environment} from "../../environments/environment";
 
 export interface BonCaisse {
   id?: number;
@@ -17,7 +18,7 @@ export interface BonCaisse {
   providedIn: 'root',
 })
 export class BonCaisseService {
-  private url = 'api/admin/bons';
+  private url = environment.url+'/api/admin/bons';
 
   constructor(private http: HttpClient) {
   }

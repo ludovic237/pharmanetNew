@@ -1,15 +1,17 @@
-import { Injectable } from '@angular/core';
-import { Router } from '@angular/router';
-import { Location } from '@angular/common';
-import { SidenavMenu } from '@models/sidenav-menu.model';
-import { DomHandlerService } from './dom-handler.service';
-import { sidenavMenuItems } from '../common/data/sidenav-menu';
+import {Injectable} from '@angular/core';
+import {Router} from '@angular/router';
+import {Location} from '@angular/common';
+import {SidenavMenu} from '@models/sidenav-menu.model';
+import {DomHandlerService} from './dom-handler.service';
+import {sidenavMenuItems} from '../common/data/sidenav-menu';
+import {environment} from "../../environments/environment";
 
 @Injectable()
 export class SidenavMenuService {
 
-   constructor(
-    private location: Location, private router: Router, private domHandlerService: DomHandlerService) { }
+  constructor(
+    private location: Location, private router: Router, private domHandlerService: DomHandlerService) {
+  }
 
   public getSidenavMenuItems(): Array<SidenavMenu> {
     return sidenavMenuItems;
@@ -40,8 +42,7 @@ export class SidenavMenuService {
       if (subMenu.classList.contains('show')) {
         subMenu.classList.remove('show');
         menuItem.classList.remove('expanded');
-      }
-      else {
+      } else {
         subMenu.classList.add('show');
         menuItem.classList.add('expanded');
       }

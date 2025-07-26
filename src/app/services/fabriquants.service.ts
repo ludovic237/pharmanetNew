@@ -2,12 +2,13 @@ import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {Injectable} from '@angular/core';
 import {Observable} from 'rxjs';
 import {Fabriquant} from "@models/product";
+import {environment} from "../../environments/environment";
 
 @Injectable({
   providedIn: 'root'
 })
 export class FabriquantService {
-  private url = 'api/fabriquants';
+  private url = environment.url+'/api/fabriquants';
 
   constructor(private http: HttpClient) {
   }

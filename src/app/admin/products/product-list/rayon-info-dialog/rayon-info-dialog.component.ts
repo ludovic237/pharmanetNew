@@ -106,8 +106,7 @@ import {AuthService} from "@services/auth.service";
     MatButtonModule,
     FormsModule,
     NgxPaginationModule,
-    PipesModule,
-    DecimalPipe
+    PipesModule
   ],
   templateUrl: './rayon-info-dialog.component.html',
   styleUrl: './rayon-info-dialog.component.scss'

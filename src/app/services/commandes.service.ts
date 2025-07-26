@@ -2,12 +2,13 @@ import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {Injectable} from '@angular/core';
 import {Observable} from 'rxjs';
 import {Page} from "ngx-pagination";
+import {environment} from "../../environments/environment";
 
 @Injectable({
   providedIn: 'root'
 })
 export class CommandesService {
-  private url = 'api/commandes';
+  private url = environment.url+'/api/commandes';
 
    constructor(private http: HttpClient) {
   }

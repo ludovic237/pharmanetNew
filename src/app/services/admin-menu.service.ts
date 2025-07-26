@@ -8,6 +8,7 @@ import {getFilteredAdminMenuPharmaItems} from "../common/data/admin-menu-pharma"
 import {AppSettingsService} from "@services/app-settings.service";
 // import { adminMenuItems } from '../common/data/admin-menu';
 
+import {environment} from "../../environments/environment";
 
 @Injectable({
   providedIn: 'root'

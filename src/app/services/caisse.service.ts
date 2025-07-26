@@ -2,12 +2,13 @@ import {HttpClient, HttpHeaders, HttpParams} from '@angular/common/http';
 import {Injectable} from '@angular/core';
 import {Observable} from 'rxjs';
 import {Categorie} from "@models/product";
+import {environment} from "../../environments/environment";
 
 @Injectable({
   providedIn: 'root'
 })
 export class CaisseService {
-  private url = 'api/caisses';
+  private url = environment.url+'/api/caisses';
 
   constructor(private http: HttpClient) {
   }

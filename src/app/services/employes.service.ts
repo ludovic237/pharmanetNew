@@ -2,10 +2,11 @@ import {HttpClient, HttpHeaders} from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { User } from '../common/models/user.model';
+import {environment} from "../../environments/environment";
 
 @Injectable()
 export class EmployesService {
-  public url = "api/admin/users-employees";
+  public url = environment.url+"/api/admin/users-employees";
    constructor(
     public http: HttpClient) { }
 

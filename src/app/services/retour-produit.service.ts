@@ -4,12 +4,13 @@ import {Observable} from 'rxjs';
 import {Product} from '@models/product';
 import {AuthService} from "@services/auth.service";
 import {MatSnackBar} from "@angular/material/snack-bar";
+import {environment} from "../../environments/environment";
 
 @Injectable({
   providedIn: 'root'
 })
 export class RetourProduitService {
-  private baseUrl = 'http://localhost:8080/api/retour-produits';
+  private baseUrl = environment.url+'/api/api/retour-produits';
 
   constructor(
     private http: HttpClient) {

@@ -55,8 +55,7 @@ import {MatSnackBar} from "@angular/material/snack-bar";
     MatButtonModule,
     FormsModule,
     NgxPaginationModule,
-    PipesModule,
-    DecimalPipe
+    PipesModule
   ],
   templateUrl: './produit-rayon-info-dialog.component.html',
   styleUrl: './produit-rayon-info-dialog.component.scss'

@@ -77,8 +77,7 @@ import {AuthService} from "@services/auth.service";
     MatCardModule,
     MatSnackBarModule,
     MatChipsModule,
-    NgxPaginationModule,
-    MatPaginator,
+    NgxPaginationModule
   ],
   templateUrl: './inventaire-enrayon-detail-dialog.component.html',
   styleUrl: './inventaire-enrayon-detail-dialog.component.scss'

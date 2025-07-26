@@ -52,7 +52,6 @@ import {AuthService} from "@services/auth.service";
     FormsModule,
     NgxPaginationModule,
     PipesModule,
-    DecimalPipe,
     CommonModule,
     FormsModule,
     MatToolbarModule,

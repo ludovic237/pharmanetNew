@@ -27,7 +27,7 @@ export class AppSettingsService {
   public Data: any = {}
 
   public url = environment.url + '/data/';
-  private apiUrl = 'api/admin/setting';
+  private apiUrl = environment.url+'/api/admin/setting';
 
   private settingsUpdated = new BehaviorSubject<string>(null);
   settingsUpdated$ = this.settingsUpdated.asObservable();

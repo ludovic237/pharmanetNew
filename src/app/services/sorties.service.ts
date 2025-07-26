@@ -2,12 +2,13 @@ import {HttpClient, HttpHeaders, HttpParams} from '@angular/common/http';
 import {Injectable} from '@angular/core';
 import {Observable} from 'rxjs';
 import {Rayon} from "@models/product";
+import {environment} from "../../environments/environment";
 
 @Injectable({
   providedIn: 'root'
 })
 export class SortiesService {
-  private url = 'api/sortie-stock';
+  private url = environment.url+'/api/sortie-stock';
 
    constructor(
     private http: HttpClient) {

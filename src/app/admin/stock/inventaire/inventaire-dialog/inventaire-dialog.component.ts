@@ -96,8 +96,7 @@ import {AuthService} from "@services/auth.service";
     MatCardModule,
     MatSnackBarModule,
     MatChipsModule,
-    NgxPaginationModule,
-    MatPaginator,
+    NgxPaginationModule
   ],
   templateUrl: './inventaire-dialog.component.html',
   styleUrl: './inventaire-dialog.component.scss'

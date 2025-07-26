@@ -2,12 +2,13 @@ import {Injectable} from '@angular/core';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import {Page} from "ngx-pagination";
+import {environment} from "../../environments/environment";
 
 @Injectable({
   providedIn: 'root'
 })
 export class InventaireService {
-  private apiUrl = '/api/admin/inventaire';
+  private apiUrl = environment.url+'/api/admin/inventaire';
 
   constructor(private http: HttpClient) {
   }

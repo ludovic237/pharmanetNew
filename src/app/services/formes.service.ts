@@ -2,12 +2,13 @@ import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {Injectable} from '@angular/core';
 import {Observable} from 'rxjs';
 import {Forme} from "@models/product";
+import {environment} from "../../environments/environment";
 
 @Injectable({
   providedIn: 'root'
 })
 export class FormeService {
-  private url = 'api/formes';
+  private url = environment.url+'/api/formes';
 
   constructor(private http: HttpClient) {
   }

@@ -91,7 +91,6 @@ import {PrescripteursService} from "@services/prescripteurs.service";
     MatSnackBarModule,
     MatChipsModule,
     NgxPaginationModule,
-    MatPaginator,
     MatButtonToggleModule,
     MatProgressSpinnerModule,
     PipesModule,

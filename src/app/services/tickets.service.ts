@@ -1,6 +1,7 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import {environment} from "../../environments/environment";
 
 export interface TicketCaisse {
   id?: number;
@@ -16,7 +17,7 @@ export interface TicketCaisse {
   providedIn: 'root',
 })
 export class TicketCaisseService {
-  private url = 'api/admin/tickets';
+  private url = environment.url+'/api/admin/tickets';
 
    constructor(
    private http: HttpClient) {}
