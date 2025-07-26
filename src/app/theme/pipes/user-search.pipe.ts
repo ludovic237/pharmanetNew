@@ -12,6 +12,9 @@ export class UserSearchPipe implements PipeTransform {
         if (user.nom) {
           return user.nom.search(searchText) !== -1;
         }
+        else if (user.identifiant){
+          return user.identifiant.search(searchText) !== -1;
+        }
         else{
           return user.nom.search(searchText) !== -1;
         }

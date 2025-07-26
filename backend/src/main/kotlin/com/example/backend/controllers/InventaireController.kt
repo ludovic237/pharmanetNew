@@ -132,7 +132,7 @@ class InventaireController(
     @RequestParam(defaultValue = "0") page: Int,
     @RequestParam(defaultValue = "10") size: Int,
     @RequestParam(defaultValue = "id") sort: String,
-    @RequestParam(required = false) search: String,
+    @RequestParam(required = false) search: String?,
     @RequestParam(defaultValue = "desc") direction: String
 //    @RequestParam(defaultValue = "asc") direction: String
   ): ResponseEntity<Page<Map<String, Any?>>> {

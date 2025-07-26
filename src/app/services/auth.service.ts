@@ -35,7 +35,7 @@ export class AuthService {
   }
 
   logout(): Observable<any> {
-    return this.http.post(`${this.baseUrl}/logout`, {});
+    return this.http.post(`${this.baseUrl}/logout`, {},{headers: this.getHeaders()});
   }
 
   setToken(token: string) {

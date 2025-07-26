@@ -59,16 +59,16 @@ class EmployeService(
     return employeRepository.findById(id.toInt())
   }
 
-//  fun updateEmployee(id: Long, updatedEmploye: Employe): Employe {
-//    val existingEmploye = employeRepository.findById(id.toInt())
-//      .orElseThrow { IllegalArgumentException("Employee not found with ID: $id") }
+  fun updateEmployee(id: Long, updatedEmploye: Employe): Employe {
+    val existingEmploye = employeRepository.findById(id.toInt())
+      .orElseThrow { IllegalArgumentException("Employee not found with ID: $id") }
 //    val employeToUpdate = existingEmploye.copy(
-//      name = updatedEmploye.name,
+//      name = updatedEmploye.,
 //      position = updatedEmploye.position,
 //      salary = updatedEmploye.salary
 //    )
-//    return employeRepository.save(employeToUpdate)
-//  }
+    return employeRepository.save(updatedEmploye)
+  }
 
   fun deleteEmployee(id: Long) {
     if (!employeRepository.existsById(id.toInt())) {

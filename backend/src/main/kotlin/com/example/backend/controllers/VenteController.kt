@@ -102,7 +102,7 @@ class VenteController(
     @RequestParam(defaultValue = "0") page: String,
     @RequestParam(defaultValue = "10") size: String,
     @RequestParam(defaultValue = "id") sortBy: String,
-    @RequestParam(required = false) search: String,
+    @RequestParam(required = false) search: String?,
     @RequestParam(required = false) etat: String?,
     @RequestParam(required = false) dateVente: String?,
     @RequestParam(required = false) dateEncaissement: String?,

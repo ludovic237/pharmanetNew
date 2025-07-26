@@ -22,6 +22,37 @@ class UserEmployeeController(
         val employee = employeeService.createEmployee(request.registerRequest,request.employee)
         return ResponseEntity.ok(mapOf("employee" to employee))
     }
+
+  @CrossOrigin(origins = ["http://localhost:4200"])
+  @PreAuthorize("isAuthenticated()")
+  @GetMapping
+  fun getAllEmployees(): ResponseEntity<List<Employe>> {
+    return ResponseEntity.ok(employeeService.getAllEmployees())
+  }
+
+  @CrossOrigin(origins = ["http://localhost:4200"])
+  @PreAuthorize("isAuthenticated()")
+  @GetMapping("/{id}")
+  fun getEmployeById(@PathVariable id: Long): ResponseEntity<Employe> {
+    return ResponseEntity.ok(employeeService.getEmployeeById(id).orElseThrow { IllegalArgumentException("User not found") })
+  }
+
+  @CrossOrigin(origins = ["http://localhost:4200"])
+  @PreAuthorize("isAuthenticated()")
+  @PutMapping("/{id}")
+  fun updateEmployee(@PathVariable id: Long, @RequestBody updatedUser: Employe): ResponseEntity<Employe> {
+    return ResponseEntity.ok(employeeService.updateEmployee(id, updatedUser))
+  }
+
+  @CrossOrigin(origins = ["http://localhost:4200"])
+  @PreAuthorize("isAuthenticated()")
+  @DeleteMapping("/{id}")
+  fun deleteEmployee(@PathVariable id: Long): ResponseEntity<Void> {
+    employeeService.deleteEmployee(id)
+    return ResponseEntity.noContent().build()
+  }
+
+
 }
 
 data class UserEmployeeRequest(

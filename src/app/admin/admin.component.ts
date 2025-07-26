@@ -22,6 +22,8 @@ import {AppSettingsService} from "@services/app-settings.service";
 import {getFilteredAdminMenuPharmaItems} from "../common/data/admin-menu-pharma";
 import {subscribe} from "node:diagnostics_channel";
 import {AdminMenu} from "@models/admin-menu.model";
+import {ConfirmationDialogComponent} from "./vente/encaisser-vente/confirmation-dialog/confirmation-dialog.component";
+import {MatDialog} from "@angular/material/dialog";
 
 const test = () => {
   return [
@@ -112,6 +114,7 @@ export class AdminComponent implements OnInit {
   public toggleSearchBar: boolean = false;
 
   constructor(
+    public dialog: MatDialog,
     private cdr: ChangeDetectorRef,
     public authService: AuthService,
     public snackBar: MatSnackBar, public settingsService: SettingsService,
@@ -193,4 +196,48 @@ export class AdminComponent implements OnInit {
     const venteMode = localStorage.getItem('vente_mode') || 'default';
     this.menuItems = this.adminMenuService.getMenuItemsWithParam(venteMode);
   }
+
+  logoutUser(): void {
+    this.authService.logout().subscribe({
+      next: () => {
+        localStorage.removeItem('token');
+        this.snackBar.open('Déconnexion réussie.', '×', {
+          panelClass: 'success',
+          verticalPosition: 'top',
+          duration: 3000,
+        });
+        // Redirect to login page or clear session
+        window.location.href = '/sign-in';
+      },
+      error: (err: any) => {
+        console.error('Erreur lors de la déconnexion:', err);
+        this.snackBar.open('Erreur lors de la déconnexion.', '×', {
+          panelClass: 'error',
+          verticalPosition: 'top',
+          duration: 3000,
+        });
+      }
+    });
+  }
+
+  showConfirmation() {
+    // recharger les données
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+      // width: '50%',
+      data: {
+        type: 'logout', data: {}
+      },
+      panelClass: ['theme-dialog'],
+      autoFocus: false,
+    });
+    dialogRef.afterClosed().subscribe((data: boolean) => {
+      if (data === true) {
+       this.logoutUser()
+      } else {
+        // Handle the "No" or dismissal case
+        console.log('User canceled the action.');
+      }
+    });
+  }
+
 }

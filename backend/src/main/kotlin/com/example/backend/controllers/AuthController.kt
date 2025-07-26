@@ -60,10 +60,11 @@ class AuthController(
 
       // Vérifier le mot de passe
 //      if (!passwordEncoder.matches(loginRequest.password, employe.password)) {
-//        return ResponseEntity.badRequest().body(
-//          mapOf("message" to "Login failed: Invalid username or password")
-//        )
-//      }
+      if (loginRequest.password != employe.password) {
+        return ResponseEntity.badRequest().body(
+          mapOf("message" to "Login failed: Invalid username or password")
+        )
+      }
 
       // Générer le token JWT
       val authentication = UsernamePasswordAuthenticationToken(employe.identifiant, null, emptyList())
@@ -117,13 +118,13 @@ class AuthController(
   @CrossOrigin(origins = ["http://localhost:4200"])
   @PostMapping("/logout")
   fun logout(): ResponseEntity<*> {
+    var user = userUtils.getCurrentUser()
     val getCurrentEmploye = employeRepository.findById(userUtils.getCurrentEmployeId()!!.toInt()).get()
     val currentUser = userUtils.getCurrentEmployeId()
     val activeCaisse = caisseService.getCaisseActive()
     val appSetting = appSettingRepository.findByKeyName("vente_mode")
     if (appSetting?.value !== "differe") {
       if (activeCaisse?.user == getCurrentEmploye) {
-        val clotureCaisse = caisseRepository.findByUserAndEtat(getCurrentEmploye, "En cours")
         activeCaisse.apply {
           this.fermetureCaisse = fermetureCaisse
           this.fondCaisseFerme = fondCaisseFerme?.toDouble()

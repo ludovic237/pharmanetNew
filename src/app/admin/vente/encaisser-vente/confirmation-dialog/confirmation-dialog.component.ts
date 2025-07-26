@@ -80,6 +80,10 @@ export class ConfirmationDialogComponent implements OnInit {
           this.title = 'Confirmation de fermeture de caisse';
           this.message = 'Êtes-vous sûr de vouloir fermer la caisse ?';
           break;
+        case 'logout':
+          this.title = 'Confirmation de fermeture de session';
+          this.message = 'Êtes-vous sûr de vouloir fermer la session ?';
+          break;
         case 'ouvrirCaisse':
           this.title = 'Confirmation d\'ouverture de caisse';
           this.message = 'Êtes-vous sûr de vouloir ouvrir la caisse ?';
