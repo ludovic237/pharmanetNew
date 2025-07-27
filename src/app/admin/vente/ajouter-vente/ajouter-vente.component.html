@@ -230,8 +230,10 @@
 
               <button [disabled]="total<=0" mat-raised-button color="primary" (click)="onPayer('comptant')">Comptant
               </button>
-              <button [disabled]="total<=0" mat-raised-button (click)="onPayer('assurance')">Assurance</button>
-              <button [disabled]="total<=0" mat-raised-button color="warn" (click)="onPayer('credit')">Crédit</button>
+              <button disabled mat-raised-button (click)="onPayer('assurance')">Assurance</button>
+              <button [disabled]="clientTypeControl.value === 'new'" mat-raised-button color="warn"
+                      (click)="onPayer('credit')">Crédit
+              </button>
             </div>
           </mat-toolbar>
         </mat-card-footer>
@@ -239,6 +241,78 @@
     </div>
   </div>
 
+</div>
+
+<div fxLayout="row" fxLayoutGap="16px">
+  <div fxFlex="100" fxLayout="row wrap">
+    <mat-accordion>
+      <mat-expansion-panel>
+        <mat-expansion-panel-header>
+          Vente a credit
+        </mat-expansion-panel-header>
+        <div>
+          <table mat-table [dataSource]="ventesCredit" class="mat-elevation-z8">
+            <ng-container matColumnDef="montant">
+              <th mat-header-cell *matHeaderCellDef>Prix total</th>
+              <td mat-cell *matCellDef="let vente">{{ vente.netAPayer }}</td>
+            </ng-container>
+            <ng-container matColumnDef="etat">
+              <th mat-header-cell *matHeaderCellDef>État</th>
+              <td mat-cell *matCellDef="let vente">{{ vente.etat }}</td>
+            </ng-container>
+            <ng-container matColumnDef="ref">
+              <th mat-header-cell *matHeaderCellDef>Réference</th>
+              <td mat-cell *matCellDef="let vente">
+                <mat-accordion>
+                  <mat-expansion-panel>
+                    <mat-expansion-panel-header>
+                      <mat-panel-title>
+                        {{ vente.reference }}
+                      </mat-panel-title>
+                    </mat-expansion-panel-header>
+                    <div>
+                      <ul>
+                        <li *ngFor="let produit of vente.produits">
+                          {{ produit.nom }} ({{ produit.quantite }})
+                        </li>
+                      </ul>
+                    </div>
+                  </mat-expansion-panel>
+                </mat-accordion>
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="vendeur">
+              <th mat-header-cell *matHeaderCellDef>Vendeur</th>
+              <td mat-cell *matCellDef="let vente">{{ vente.vendeur }}</td>
+            </ng-container>
+            <ng-container matColumnDef="client">
+              <th mat-header-cell *matHeaderCellDef>Client</th>
+              <td mat-cell *matCellDef="let vente">{{ vente.infoClients }}</td>
+            </ng-container>
+            <ng-container matColumnDef="dateVente">
+              <th mat-header-cell *matHeaderCellDef>Date de vente</th>
+              <td mat-cell *matCellDef="let vente">{{ vente.dateVente | date:'yyyy-MM-dd HH:mm:ss' }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef>Actions</th>
+              <td mat-cell *matCellDef="let vente">
+                          <button mat-raised-button color="primary" (click)="encaisserVenteCredit(vente.id)">Encaisser vente</button>
+              </td>
+            </ng-container>
+
+            <!-- Header and Row Definitions -->
+            <tr mat-header-row *matHeaderRowDef="displayedColumnsCredit"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumnsCredit;"></tr>
+          </table>
+          <mat-paginator [length]="totalItemsCredit" [pageSize]="countCredit" [pageSizeOptions]="[5, 10, 25, 100]"
+                         (page)="onPageChangedCredit($event)">
+          </mat-paginator>
+        </div>
+      </mat-expansion-panel>
+    </mat-accordion>
+
+  </div>
 </div>
 
 <!-- Récapitulatif & boutons -->

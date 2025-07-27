@@ -91,6 +91,7 @@ class AuthController(
       ResponseEntity.ok(
         mapOf(
           "message" to "Login successful",
+          "role" to "${employe.type}",
           "token" to token,
           "nom" to "${employe.user?.nom ?: "Unknown"} ${employe.user?.prenom ?: ""}"
         )

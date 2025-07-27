@@ -179,4 +179,20 @@ class VenteController(
     }
   }
 
+  @CrossOrigin(origins = ["http://localhost:4200"])
+  @PreAuthorize("isAuthenticated()")
+  @GetMapping("/vente-non-encaissees/credit")
+  fun listerVentesCreditNonEncaissees(
+    @RequestParam(defaultValue = "0") page: String,
+    @RequestParam(defaultValue = "10") size: String,
+    @RequestParam(defaultValue = "id") sortBy: String,
+    @RequestParam(required = false) search: String?,
+  ): ResponseEntity<Page<Map<String, Any?>>> {
+    val pageNumber = page.toIntOrNull()?.coerceAtLeast(0) ?: 0
+    val pageSize = size.toIntOrNull()?.coerceAtLeast(1) ?: 10
+    val pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.DESC, "dateVente"))
+    val ventes = venteService.listerVentesCreditNonEncaissees(pageable)
+    return ResponseEntity.ok(ventes)
+  }
+
 }

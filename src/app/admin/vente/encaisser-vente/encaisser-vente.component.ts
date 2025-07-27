@@ -125,6 +125,10 @@ enum CaisseStatus {
 
 export class EncaisserVenteComponent implements OnInit {
 
+  pageCredit: number = 1;
+  countCredit = 5;
+  totalItemsCredit = 0;
+
   modalType: string = "";
   session: string = "";
   selectedTabIndex: number = 0;
@@ -149,7 +153,7 @@ export class EncaisserVenteComponent implements OnInit {
   leftColumns = ['nom', 'prixUnitaire', 'quantite', 'prixTotal', 'reduction'];
   leftDataSource: any[] = [];
 
-  bottomColumns = ['prixTotal', 'etat', 'reference', 'vendeur', 'client', 'dateVente', 'actions'];
+  bottomColumns = ['ref', 'client', 'vendeur', 'montant', 'dateVente', 'etat', 'actions'];
   bottomDataSource: any[] = [];
 
   // Paiement
@@ -962,6 +966,43 @@ export class EncaisserVenteComponent implements OnInit {
             verticalPosition: 'top',
             duration: 3000
           });
+      }
+    });
+  }
+
+  envoyerEnCaisse(venteId:any){
+
+  }
+
+  public onPageChangedCredit(event: PageEvent) {
+    this.pageCredit = event.pageIndex + 1;
+    this.countCredit = event.pageSize;
+    this.fetchVentesCreditPageable();
+  }
+
+  fetchVentesCreditPageable(): void {
+
+    this.ventesService.fetchVentesCreditPageable(
+      this.pageCredit - 1,
+      this.countCredit
+    ).subscribe({
+      next: (data: any) => {
+        this.countCredit = data.pageable.pageSize;
+        this.totalItemsCredit = data.totalElements;
+        this.bottomDataSource = data.content;
+      },
+      error: (err) => {
+        console.error('Error fetching commandes:', err);
+        if (err.status === 401 || err.status === 403){
+          this.authService.logout();
+          this.snackBar.open('Déconnexion réussie.', '×', {
+            panelClass: 'success',
+            verticalPosition: 'top',
+            duration: 3000,
+          });
+          // Redirect to login page or clear session
+          window.location.href = '/sign-in';
+        }
       }
     });
   }

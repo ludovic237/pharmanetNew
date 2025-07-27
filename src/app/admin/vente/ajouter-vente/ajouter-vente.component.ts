@@ -43,6 +43,7 @@ import {AppService} from "@services/app.service";
 import {PaymentDialogComponent} from "./payment-dialog/payment-dialog.component";
 import {AuthService} from "@services/auth.service";
 import {AppSettingsService} from "@services/app-settings.service";
+import {MatPaginator, PageEvent} from "@angular/material/paginator";
 
 interface VenteLigne {
   id: string;
@@ -91,7 +92,8 @@ interface VenteLigne {
     MatNativeDateModule,
     MatSelectModule,
     FlexLayoutModule,
-    MatDialogActions
+    MatDialogActions,
+    MatPaginator
   ],
   templateUrl: './ajouter-vente.component.html',
   styleUrl: './ajouter-vente.component.scss'
@@ -130,6 +132,8 @@ export class AjouterVenteComponent implements OnInit {
   medControl = new FormControl('');
   medOptions: any[] = [];
 
+  displayedColumnsCredit: string[] = ['ref', 'client', 'vendeur', 'montant', 'dateVente', 'etat', 'actions'];
+
   // Table
   displayedColumns: string[] = [
     'nom',
@@ -144,6 +148,10 @@ export class AjouterVenteComponent implements OnInit {
   ];
 
   dataSource = new MatTableDataSource<VenteLigne>([]);
+  ventesCredit: any[] = [];
+  pageCredit: number = 1;
+  countCredit = 5;
+  totalItemsCredit = 0;
 
   // Formulaires
 
@@ -203,6 +211,7 @@ export class AjouterVenteComponent implements OnInit {
   netAPayer = 0;
 
   ngOnInit(): void {
+    this.fetchVentesCreditPageable()
     this.clientTypeControl.reset('new');
     this.reductionEnabled.reset(true)
     this.tauxReduction.enable();
@@ -710,39 +719,88 @@ export class AjouterVenteComponent implements OnInit {
     };
 
     if (this.showPaymentMode) {
-      const dialogRef = this.dialog.open(PaymentDialogComponent, {
-        data: paymentVenteData,
-        // maxWidth: "400px",
-        // width: "80%",
-        panelClass: ['theme-dialog'],
-        autoFocus: false,
-        direction: (this.settings.rtl) ? 'rtl' : 'ltr'
-      });
-      dialogRef.afterClosed().subscribe((modifiedProducts: any) => {
-        console.log("modifiedProducts")
-        console.log(modifiedProducts)
-        if (modifiedProducts.reference) {
-          // Reset form controls
-          this.clientTypeControl.reset('');
-          this.selectedClient = null;
-          this.selectedOLdClient = null;
-          this.clientNameControl.reset('');
-          this.clientPhoneControl.reset('');
-          this.prescripteurTypeControl.reset('existing');
-          this.selectedPrescripteur = null;
-          this.selectedOLdPrescripteur = null;
-          this.prescripteurNameControl.reset('');
-          this.commentaire.reset('');
+      if (mode == "credit") {
+        this.ventesService.creerVenteSansEncaissement(paymentVenteData).subscribe({
+          next: (response: any) => {
+            // Reset form controls
+            this.clientTypeControl.reset('');
+            this.selectedClient = null;
+            this.selectedOLdClient = null;
+            this.clientNameControl.reset('');
+            this.clientPhoneControl.reset('');
+            this.prescripteurTypeControl.reset('existing');
+            this.selectedPrescripteur = null;
+            this.selectedOLdPrescripteur = null;
+            this.prescripteurNameControl.reset('');
+            this.commentaire.reset('');
 
-          // Reset table data
-          this.dataSource.data = [];
+            // Reset table data
+            this.dataSource.data = [];
+            this.fetchVentesCreditPageable();
+            // Reset totals
+            this.total = 0;
+            this.totaleReduction = 0;
+            this.netAPayer = 0;
+            this.snackBar.open("Sale created successfully", '×', {
+              panelClass: 'success',
+              verticalPosition: 'top',
+              duration: 3000
+            });
+          },
+          error: (err: any) => {
+            console.error('Failed to create sale:', err);
+            if (err.status === 401 || err.status === 403) {
+              this.authService.logout();
+              this.snackBar.open('Déconnexion réussie.', '×', {
+                panelClass: 'success',
+                verticalPosition: 'top',
+                duration: 3000,
+              });
+              // Redirect to login page or clear session
+              window.location.href = '/sign-in';
+            } else
+              this.snackBar.open('Failed to create sale', '×', {
+                panelClass: 'error',
+                verticalPosition: 'top',
+                duration: 3000
+              });
+          }
+        });
+      } else {
+        const dialogRef = this.dialog.open(PaymentDialogComponent, {
+          data: paymentVenteData,
+          // maxWidth: "400px",
+          // width: "80%",
+          panelClass: ['theme-dialog'],
+          autoFocus: false,
+          direction: (this.settings.rtl) ? 'rtl' : 'ltr'
+        });
+        dialogRef.afterClosed().subscribe((modifiedProducts: any) => {
+          console.log("modifiedProducts")
+          console.log(modifiedProducts)
+          if (modifiedProducts.reference) {
+            // Reset form controls
+            this.clientTypeControl.reset('');
+            this.selectedClient = null;
+            this.selectedOLdClient = null;
+            this.clientNameControl.reset('');
+            this.clientPhoneControl.reset('');
+            this.prescripteurTypeControl.reset('existing');
+            this.selectedPrescripteur = null;
+            this.selectedOLdPrescripteur = null;
+            this.prescripteurNameControl.reset('');
+            this.commentaire.reset('');
 
-          // Reset totals
-          this.total = 0;
-          this.totaleReduction = 0;
-          this.netAPayer = 0;
-        }
-      });
+            // Reset table data
+            this.dataSource.data = [];
+            this.fetchVentesCreditPageable();
+            // Reset totals
+            this.total = 0;
+            this.totaleReduction = 0;
+            this.netAPayer = 0;
+          }
+        });
+      }
 
     } else {
       this.ventesService.creerVenteSansEncaissement(paymentVenteData).subscribe({
@@ -761,7 +819,7 @@ export class AjouterVenteComponent implements OnInit {
 
           // Reset table data
           this.dataSource.data = [];
-
+          this.fetchVentesCreditPageable();
           // Reset totals
           this.total = 0;
           this.totaleReduction = 0;
@@ -810,4 +868,50 @@ export class AjouterVenteComponent implements OnInit {
     const diffInDays = (new Date(datePeremption).getTime() - this.currentDate.getTime()) / (1000 * 60 * 60 * 24);
     return diffInDays > 90;
   }
+
+  fetchVentesCreditPageable(): void {
+    const formatDate = (date: string | null): string | null => {
+      if (!date) return null;
+      const parsedDate = new Date(date);
+      return `${parsedDate.getFullYear()}-${String(parsedDate.getMonth() + 1).padStart(2, '0')}-${String(parsedDate.getDate()).padStart(2, '0')}T${String(parsedDate.getHours()).padStart(2, '0')}:${String(parsedDate.getMinutes()).padStart(2, '0')}:${String(parsedDate.getSeconds()).padStart(2, '0')}`;
+    };
+
+    // const formattedStartDate = formatDate(this.startDate);
+    // const formattedEndDate = formatDate(this.endDate);
+
+    this.ventesService.fetchVentesCreditPageable(
+      this.pageCredit - 1,
+      this.countCredit
+    ).subscribe({
+      next: (data: any) => {
+        this.countCredit = data.pageable.pageSize;
+        this.totalItemsCredit = data.totalElements;
+        this.ventesCredit = data.content;
+      },
+      error: (err) => {
+        console.error('Error fetching commandes:', err);
+        if (err.status === 401 || err.status === 403){
+          this.authService.logout();
+          this.snackBar.open('Déconnexion réussie.', '×', {
+            panelClass: 'success',
+            verticalPosition: 'top',
+            duration: 3000,
+          });
+          // Redirect to login page or clear session
+          window.location.href = '/sign-in';
+        }
+      }
+    });
+  }
+
+  public onPageChangedCredit(event: PageEvent) {
+    this.pageCredit = event.pageIndex + 1;
+    this.countCredit = event.pageSize;
+    this.fetchVentesCreditPageable();
+  }
+
+  encaisserVenteCredit(venteId:any){
+
+  }
+
 }

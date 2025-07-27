@@ -43,6 +43,9 @@ import {MatDialog} from "@angular/material/dialog";
   styleUrl: './admin.component.scss'
 })
 export class AdminComponent implements OnInit {
+
+  nom = "No Name";
+  role = "N/A";
   @ViewChild('sidenav') sidenav: any;
   public userImage = 'images/others/admin.jpg';
   public settings: Settings;
@@ -63,6 +66,9 @@ export class AdminComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.nom = localStorage.getItem("nom")
+    this.role = localStorage.getItem("role") ? localStorage.getItem("role") : "N/A";
+
     if (this.domHandlerService.window?.innerWidth <= 960) {
       this.settings.adminSidenavIsOpened = false;
       this.settings.adminSidenavIsPinned = false;

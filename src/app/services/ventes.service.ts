@@ -45,6 +45,11 @@ export class VentesService {
   }
 
   // Load ongoing unpaid sales
+  fetchVentesCreditPageable(page: number, size: number): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/vente-non-encaissees/credit?page=${page}&size=${size}`, {headers: this.getHeaders()});
+  }
+
+  // Load ongoing unpaid sales
   listerVentes(): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/lister`, {headers: this.getHeaders()});
   }

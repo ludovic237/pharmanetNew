@@ -71,15 +71,15 @@ class VenteService(
       "existing" -> prescripteurRepository.findById(venteRequestDto.prescripteurInfo.id!!)
         .orElseThrow { RuntimeException("Prescripteur introuvable avec l'ID: ${venteRequestDto.prescripteurInfo.id}") }
 
-   "new" -> {
-          if (!venteRequestDto.prescripteurInfo.name.isNullOrEmpty()) {
-            Prescripteur().apply {
-              this.nom = venteRequestDto.prescripteurInfo.name
-            }.also { prescripteurRepository.save(it) }
-          } else {
-            null // Skip creating the prescripteur and continue
-          }
+      "new" -> {
+        if (!venteRequestDto.prescripteurInfo.name.isNullOrEmpty()) {
+          Prescripteur().apply {
+            this.nom = venteRequestDto.prescripteurInfo.name
+          }.also { prescripteurRepository.save(it) }
+        } else {
+          null // Skip creating the prescripteur and continue
         }
+      }
 
       "none" -> null
       else -> throw RuntimeException("Type de prescripteur invalide: ${venteRequestDto.prescripteurInfo.type}")
@@ -96,7 +96,7 @@ class VenteService(
       this.reference = genererReference(venteRepository.countMois().toInt())
       this.dateVente = LocalDateTime.now()
       this.etat = venteRequestDto.etat
-      this.prixTotal = (venteRequestDto.prixTotal?: 0.0 - venteRequestDto.prixReduction?: 0.0)
+      this.prixTotal = (venteRequestDto.prixTotal ?: 0.0 - venteRequestDto.prixReduction ?: 0.0)
       this.commentaire = venteRequestDto.commentaire
       this.user = client
       this.prescripteur = prescripteur
@@ -185,15 +185,15 @@ class VenteService(
       "existing" -> prescripteurRepository.findById(encaissementDirectDto.venteRequestDto.prescripteurInfo.id!!)
         .orElseThrow { RuntimeException("Prescripteur introuvable avec l'ID: ${encaissementDirectDto.venteRequestDto.prescripteurInfo.id}") }
 
-   "new" -> {
-          if (!encaissementDirectDto.venteRequestDto.prescripteurInfo.name.isNullOrEmpty()) {
-            Prescripteur().apply {
-              this.nom = encaissementDirectDto.venteRequestDto.prescripteurInfo.name
-            }.also { prescripteurRepository.save(it) }
-          } else {
-            null // Skip creating the prescripteur and continue
-          }
+      "new" -> {
+        if (!encaissementDirectDto.venteRequestDto.prescripteurInfo.name.isNullOrEmpty()) {
+          Prescripteur().apply {
+            this.nom = encaissementDirectDto.venteRequestDto.prescripteurInfo.name
+          }.also { prescripteurRepository.save(it) }
+        } else {
+          null // Skip creating the prescripteur and continue
         }
+      }
 
       "none" -> null
       else -> throw RuntimeException("Type de prescripteur invalide: ${encaissementDirectDto.venteRequestDto.prescripteurInfo.type}")
@@ -210,18 +210,21 @@ class VenteService(
       this.reference = genererReference(venteRepository.countMois().toInt())
       this.dateVente = LocalDateTime.now()
       this.etat = encaissementDirectDto.venteRequestDto.etat
-      this.prixTotal = (encaissementDirectDto.venteRequestDto.prixTotal?: 0.0 - encaissementDirectDto.venteRequestDto.prixReduction?: 0.0)
+      this.prixTotal =
+        (encaissementDirectDto.venteRequestDto.prixTotal ?: 0.0 - encaissementDirectDto.venteRequestDto.prixReduction
+        ?: 0.0)
       this.commentaire = encaissementDirectDto.venteRequestDto.commentaire
       this.user = client
       this.prescripteur = prescripteur
       this.supprimer = 0
-      this.dateEncaissement= LocalDateTime.now()
-      this.prixPercu = encaissementDirectDto.encaissementDto.montantPercu.toDouble()?:0.0
+      this.dateEncaissement = LocalDateTime.now()
+      this.prixPercu = encaissementDirectDto.encaissementDto.montantPercu.toDouble() ?: 0.0
     }
     val savedVente = venteRepository.save(nouvelleVente)
 
     if (encaissementDirectDto.venteRequestDto.reductionEnabled) {
-      employe.faireReductionMax = employe?.faireReductionMax!! - encaissementDirectDto.venteRequestDto?.prixReduction!!.toInt()
+      employe.faireReductionMax =
+        employe?.faireReductionMax!! - encaissementDirectDto.venteRequestDto?.prixReduction!!.toInt()
       employeRepository.save(employe)
     }
 
@@ -692,7 +695,7 @@ class VenteService(
   ): Page<Map<String, Any?>> {
 //      return venteRepository.findByPrixPercuGreaterThan(0.0).map { vente ->
     val activeCaisse = caisseService.getCaisseActive()
-    if (activeCaisse!=null){
+    if (activeCaisse != null) {
       val spec = VenteRepository.filterVentes(
         activeCaisse,
         0, 0,
@@ -713,6 +716,60 @@ class VenteService(
       }
     }
     return Page.empty<Map<String, Any?>>()
+  }
+
+  @Transactional
+  fun listerVentesCreditNonEncaissees(
+    pageable: Pageable,
+  ): Page<Map<String, Any?>> {
+//      return venteRepository.findByPrixPercuGreaterThan(0.0).map { vente ->
+    val spec = VenteRepository.filterVentes(
+      null,
+      0, 0,
+      "CREDIT", "null", "null", "null", "null", "null", "null",
+    )
+    return venteRepository.findAll(spec, pageable).map { vente ->
+      val produits = concernerRepository.findByVenteId(vente.id!!.toLong()).map { concerner ->
+        var nom = ""
+        var id = ""
+        if (concerner!!.type == "detail") {
+          var produitDetail = produitDetailRepository.findById(concerner.enRayonId!!.toInt()).get()
+          nom = produitDetail.nom.toString()
+          id = produitDetail.id.toString()
+        } else {
+          var produit =
+            produitRepository.findById(enRayonRepository.findById(concerner!!.enRayonId!!).get().produitId!!).get()
+          nom = produit.nom.toString()
+          id = produit.id.toString()
+        }
+
+        mapOf(
+          "id" to concerner!!.id,
+          "nom" to nom,
+          "produitId" to id,
+          "quantite" to concerner!!.quantite,
+          "prixUnitaire" to concerner!!.prixUnit,
+          "reduction" to concerner!!.reduction,
+          "prixTotal" to (concerner!!.prixUnit!! * concerner!!.quantite!!)
+        )
+      }
+
+      mapOf(
+        "id" to vente.id as Any?,
+        "prixPercu" to vente.prixPercu as Any?,
+        "netAPayer" to vente.prixTotal as Any?,
+        "reduction" to vente.reduction as Any?,
+        "reference" to vente.reference as Any?,
+        "infoClients" to (vente.user?.let { "${it.nom} (${it.telephone})" } ?: "Aucun client") as Any?,
+        "vendeur" to (vente.employe?.user?.nom ?: "Inconnu") as Any?,
+        "commentaire" to vente.commentaire as Any?,
+        "etat" to vente.etat as Any?,
+        "dateVente" to vente.dateVente as Any?,
+        "dateEncaissement" to vente.dateEncaissement as Any?,
+        "produits" to produits,
+        "actions" to "edit,delete" as Any? // Placeholder for actions
+      )
+    }
   }
 
   @Transactional
