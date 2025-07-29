@@ -10,7 +10,7 @@ import {environment} from "../../environments/environment";
   providedIn: 'root'
 })
 export class RetourProduitService {
-  private baseUrl = environment.url+'/api/api/retour-produits';
+  private baseUrl = environment.url+'/api/retour-produits';
 
   constructor(
     private http: HttpClient) {

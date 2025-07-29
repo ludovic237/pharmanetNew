@@ -147,7 +147,7 @@ export class AjouterVenteComponent implements OnInit {
     'action'
   ];
 
-  dataSource = new MatTableDataSource<VenteLigne>([]);
+  dataSource:any[] = [];
   ventesCredit: any[] = [];
   pageCredit: number = 1;
   countCredit = 5;
@@ -211,7 +211,10 @@ export class AjouterVenteComponent implements OnInit {
   netAPayer = 0;
 
   ngOnInit(): void {
+    console.log("this.dataSource");
+    console.log(this.dataSource);
     this.fetchVentesCreditPageable()
+    this.clientTypeControl.patchValue('new');
     this.clientTypeControl.reset('new');
     this.reductionEnabled.reset(true)
     this.tauxReduction.enable();
@@ -322,7 +325,7 @@ export class AjouterVenteComponent implements OnInit {
     });
 
     // Exemple d’une ligne statique
-    this.dataSource.data = [];
+    this.dataSource = [];
     this.calculeTotaux();
   }
 
@@ -363,7 +366,7 @@ export class AjouterVenteComponent implements OnInit {
 
   calculeTotaux() {
 
-    this.total = this.dataSource.data
+    this.total = this.dataSource
       .map(l => {
         // this.applicableReduction = 0;
         // if (this.selectedClient && this.selectedClient.reduction) {
@@ -384,9 +387,9 @@ export class AjouterVenteComponent implements OnInit {
       })
       .reduce((a, b) => a + b, 0);
 
-    console.log("this.dataSource.data")
-    console.log(this.dataSource.data)
-    this.totaleReduction = this.dataSource.data
+    console.log("this.dataSource")
+    console.log(this.dataSource)
+    this.totaleReduction = this.dataSource
       .map(l => {
         console.log("this.clientTypeControl.value")
         console.log(this.clientTypeControl.value)
@@ -478,15 +481,15 @@ export class AjouterVenteComponent implements OnInit {
           console.log(modifiedProducts)
           if (modifiedProducts && modifiedProducts.length > 0) {
             const newData = modifiedProducts.map(product => {
-              const existingProductIndex = this.dataSource.data.findIndex(item => item.nom === product.nom);
+              const existingProductIndex = this.dataSource.findIndex(item => item.nom === product.nom);
               if (existingProductIndex !== -1) {
                 // Update the existing product
-                this.dataSource.data[existingProductIndex] = {
-                  ...this.dataSource.data[existingProductIndex],
+                this.dataSource[existingProductIndex] = {
+                  ...this.dataSource[existingProductIndex],
                   quantite: product.quantiteRestante,
-                  // quantite: this.dataSource.data[existingProductIndex].quantite + product.quantiteRestante,
+                  // quantite: this.dataSource[existingProductIndex].quantite + product.quantiteRestante,
                   prixTotal: (product.prixVente * product.quantiteRestante),
-                  // prixTotal: this.dataSource.data[existingProductIndex].prixTotal + (product.prixVente * product.quantiteRestante),
+                  // prixTotal: this.dataSource[existingProductIndex].prixTotal + (product.prixVente * product.quantiteRestante),
                   reduction: product.reduction, // Adjust if needed
                 };
                 return null; // Skip adding a new entry
@@ -508,7 +511,7 @@ export class AjouterVenteComponent implements OnInit {
               };
             }).filter(item => item !== null);
 
-            this.dataSource.data = [...this.dataSource.data, ...newData];
+            this.dataSource = [...this.dataSource, ...newData];
             this.medControl.reset(); // Clears the medControl value
             this.calculeTotaux(); // Recalculate totals
           }
@@ -562,10 +565,10 @@ export class AjouterVenteComponent implements OnInit {
   }
 
   deleteProduct(product: VenteLigne): void {
-    const index = this.dataSource.data.findIndex(item => item.nom === product.nom);
+    const index = this.dataSource.findIndex(item => item.nom === product.nom);
     if (index !== -1) {
-      this.dataSource.data.splice(index, 1);
-      this.dataSource.data = [...this.dataSource.data]; // Refresh the table
+      this.dataSource.splice(index, 1);
+      this.dataSource = [...this.dataSource]; // Refresh the table
       this.calculeTotaux(); // Recalculate totals
     }
   }
@@ -662,7 +665,7 @@ export class AjouterVenteComponent implements OnInit {
 
   onPayer(mode: 'comptant' | 'assurance' | 'credit') {
     // Retrieve all data from the dataSource
-    const venteLignes = this.dataSource.data;
+    const venteLignes = this.dataSource;
 
     // Retrieve client information
     const clientInfo = this.selectedClient
@@ -701,6 +704,7 @@ export class AjouterVenteComponent implements OnInit {
     // Proceed with payment logic (e.g., send to backend)
 
     const paymentVenteData: any = {
+      reduction: this.applicableReduction,
       clientInfo: clientInfo,
       prescripteurInfo: prescripteurInfo,
       reductionEnabled: this.reductionEnabled.value,
@@ -735,8 +739,11 @@ export class AjouterVenteComponent implements OnInit {
             this.commentaire.reset('');
 
             // Reset table data
-            this.dataSource.data = [];
+            this.dataSource = [];
             this.fetchVentesCreditPageable();
+            this.clientTypeControl.reset('new');
+            this.reductionEnabled.reset(true)
+            this.tauxReduction.enable();
             // Reset totals
             this.total = 0;
             this.totaleReduction = 0;
@@ -790,9 +797,11 @@ export class AjouterVenteComponent implements OnInit {
             this.selectedOLdPrescripteur = null;
             this.prescripteurNameControl.reset('');
             this.commentaire.reset('');
-
+            this.clientTypeControl.reset('new');
+            this.reductionEnabled.reset(true)
+            this.tauxReduction.enable();
             // Reset table data
-            this.dataSource.data = [];
+            this.dataSource = [];
             this.fetchVentesCreditPageable();
             // Reset totals
             this.total = 0;
@@ -818,7 +827,7 @@ export class AjouterVenteComponent implements OnInit {
           this.commentaire.reset('');
 
           // Reset table data
-          this.dataSource.data = [];
+          this.dataSource = [];
           this.fetchVentesCreditPageable();
           // Reset totals
           this.total = 0;
@@ -911,7 +920,31 @@ export class AjouterVenteComponent implements OnInit {
   }
 
   encaisserVenteCredit(venteId:any){
-
+    this.ventesService.envoyerVentreCreditEnCaisse(
+      venteId
+    ).subscribe({
+      next: (data: any) => {
+        this.snackBar.open("Vente envoyer en caisse avec success", '×', {
+          panelClass: 'success',
+          verticalPosition: 'top',
+          duration: 3000
+        });
+        this.fetchVentesCreditPageable();
+      },
+      error: (err) => {
+        console.error('Error fetching commandes:', err);
+        if (err.status === 401 || err.status === 403){
+          this.authService.logout();
+          this.snackBar.open('Déconnexion réussie.', '×', {
+            panelClass: 'success',
+            verticalPosition: 'top',
+            duration: 3000,
+          });
+          // Redirect to login page or clear session
+          window.location.href = '/sign-in';
+        }
+      }
+    });
   }
 
 }

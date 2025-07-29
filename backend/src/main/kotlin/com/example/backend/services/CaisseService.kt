@@ -220,6 +220,7 @@ class CaisseService(
     var prixTotalFactureEspece = 0
     var prixTotalFactureElectronique = 0
     var prixTotalFactureTicket = 0
+    var prixTotalFactureRendu = 0.0
 
     if (facturationRepository.findByCaisse(caisse)!!.size > 0) {
       facturationRepository.findByCaisse(caisse)!!.forEach { facturation ->
@@ -242,7 +243,7 @@ class CaisseService(
       prixTotalEncaissementVente = prixTotalFactureTicket + prixTotalFactureEspece + prixTotalFactureElectronique
     }
 
-    val ventes = venteRepository.findByCaisseId(caisseId)
+    val ventes = venteRepository.findByCaisseIdAndPrixPercuGreaterThan(caisseId, 0.0)
     val bonCaisseGeneres = bonCaisseRepository.findGeneratedByCaisseId(caisseId.toString())
     val bonCaisseEncaisse = bonCaisseRepository.findEncaisseByCaisseId(caisseId.toString())
     val depensesMap = depenseRepository.findByCaisseId(caisseId.toString())!!.map { depense ->
@@ -258,7 +259,7 @@ class CaisseService(
       var produitRetour = produitRetourRepository.findByRetourProduitId(retourProduit.id!!.toLong())
       mapOf(
         "reference" to retourProduit.vente?.reference,
-        "produit" to produitRetour.map { produitRepository.findById(it.concerner!!.produitId!!)!!.get().nom }
+        "produit" to produitRetour.map { produitRepository.findById(enRayonRepository.findById(it.concerner!!.enRayonId!!)!!.get().produitId!!).get().nom }
           .joinToString { "," },
         "quantite" to produitRetour.sumOf { it.quantite!! },
         "total" to produitRetour.sumOf { it.quantite!! * it.concerner?.prixUnit!! }
@@ -277,8 +278,9 @@ class CaisseService(
     var prixTotalDetaillant = 0
     var listVenteCredit = mutableListOf<Map<String, Any?>>()
     ventes!!.stream().forEach { vente ->
-      if ((vente.reduction?.toInt() ?: 0) > 0) {
-        prixTotalVenteReduction += vente.prixTotal ?: 0.0
+      if ((vente.reduction?.toDouble() ?: 0.0) >= 0.0) {
+        prixTotalFactureRendu = (vente.prixPercu !!- vente.prixTotal!!) + prixTotalFactureRendu
+        prixTotalVenteReduction += vente.reduction?.toDouble() ?: 0.0
         listReduction.add(
           mapOf(
             "reductionPrixTotal" to (vente.prixTotal ?: 0.0),
@@ -289,8 +291,8 @@ class CaisseService(
           )
         )
       }
-      when (vente.etat) {
-        "Crédit" -> {
+      when (userUtils.removeAccent(vente.etat!!).uppercase()) {
+        "CREDIT" -> {
           listVenteCredit.add(
             mapOf(
               "reference" to vente.reference,
@@ -303,12 +305,10 @@ class CaisseService(
           )
           prixTotalVenteCredit += vente.prixTotal!!
         }
-
-        "Comptant" -> {
+        "COMPTANT" -> {
           prixTotalVenteComptant += vente.prixTotal!!
         }
-
-        "Assurance" -> {
+        "ASSURANCE" -> {
           prixTotalVenteAssurance += vente.prixTotal!!
         }
 
@@ -319,15 +319,13 @@ class CaisseService(
       val concernerList = concernerRepository.findByVenteId(vente.id!!.toLong())
       concernerList.stream().forEach { concerne ->
         var enRayon = enRayonRepository.findById(concerne!!.enRayonId!!).get()
-        when (enRayon.fournisseur?.statut) {
-          "Grossiste" -> {
+        when (userUtils.removeAccent(enRayon.fournisseur?.statut!!).uppercase()) {
+          "GROSSISTE" -> {
             prixTotalGrossiste += (concerne?.prixUnit!! * concerne?.quantite!!)
           }
-
-          "Detaillant" -> {
+          "DETAILLANT" -> {
             prixTotalDetaillant += (concerne?.prixUnit!! * concerne?.quantite!!)
           }
-
           else -> {
             prixTotalDetail += (concerne?.prixUnit!! * concerne?.quantite!!)
           }
@@ -335,9 +333,9 @@ class CaisseService(
       }
     }
     prixTotalVente = prixTotalDetail + prixTotalDetaillant + prixTotalGrossiste
-    val totalVenteComptant = ventes!!.filter { it.etat == "COMPTANT" }.sumOf { it.prixTotal ?: 0.0 }
-    val totalVenteCredit = ventes!!.filter { it.etat == "CREDIT" }.sumOf { it.prixTotal ?: 0.0 }
-    val totalVenteAssurance = ventes!!.filter { it.etat == "ASSURANCE" }.sumOf { it.prixTotal ?: 0.0 }
+    val totalVenteComptant = ventes!!.filter { userUtils.removeAccent(it.etat!!).uppercase() == "COMPTANT" }.sumOf { it.prixTotal ?: 0.0 }
+    val totalVenteCredit = ventes!!.filter { userUtils.removeAccent(it.etat!!).uppercase() == "CREDIT" }.sumOf { it.prixTotal ?: 0.0 }
+    val totalVenteAssurance = ventes!!.filter { userUtils.removeAccent(it.etat!!).uppercase() == "ASSURANCE" }.sumOf { it.prixTotal ?: 0.0 }
 
     val totalBonCaisseGeneres = bonCaisseGeneres!!.sumOf { it.montant ?: 0 }
     val totalBonCaisseEncaisse = bonCaisseEncaisse!!.sumOf { it.montant ?: 0 }
@@ -418,6 +416,8 @@ class CaisseService(
       "retourProduits" to retourProduitsMap,
       "produitRetourList" to produitRetourList,
       "listReduction" to listReduction,
+      "prixTotalVenteReduction" to prixTotalVenteReduction,
+      "prixTotalFactureRendu" to prixTotalFactureRendu,
       "totalVenteComptant" to totalVenteComptant,
       "totalVenteCredit" to totalVenteCredit,
       "totalVenteAssurance" to totalVenteAssurance,

@@ -36,7 +36,8 @@ class ProduitService(
   private val magasinRepository: MagasinRepository,
   private val fabriquantRepository: FabriquantRepository,
   private val caisseRepository: CaisseRepository,
-  private val commandeRepository: CommandeRepository
+  private val commandeRepository: CommandeRepository,
+  private  val caisseService: CaisseService
 ) {
 
   @Transactional
@@ -569,10 +570,7 @@ class ProduitService(
     val currentUser = userUtils.getCurrentUser()
     val employe = employeRepository.findByUser(currentUser!!)
 
-    val caisse = caisseRepository.findByUserAndEtat(
-      employe,
-      "En cours"
-    ) ?: throw NotFoundException("Aucune caisse ouverte pour l'employé avec l'ID: ${employe.id}")
+    val caisse =  caisseService.getCaisseActive()
 
     var retourProduit = RetourProduit().apply {
       this.vente = vente

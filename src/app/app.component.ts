@@ -43,7 +43,7 @@ export class AppComponent {
   }
 
   ngOnInit() {
-    this.appSettingsService.refreshSetting()
+    // this.appSettingsService.refreshSetting()
     if (this.domHandlerService.isBrowser) {
       setTimeout(() => {
         this.isServer = false;

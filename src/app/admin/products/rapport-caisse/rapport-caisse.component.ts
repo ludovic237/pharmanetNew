@@ -120,6 +120,7 @@ export class RapportCaisseComponent implements OnInit {
     {type: 'Grossiste', montant: 0},
     {type: 'Detaillant', montant: 0},
     {type: 'Produits Detaillés', montant: 0},
+    {type: 'Reduction', montant: 0},
     {type: 'Total', montant: 0}
   ];
 
@@ -133,6 +134,7 @@ export class RapportCaisseComponent implements OnInit {
     {mode: 'Espèce', montant: 0},
     {mode: 'Électronique', montant: 0},
     {mode: 'Bon de caisse', montant: 0},
+    {mode: 'Rendu', montant: 0},
     {mode: 'Total', montant: 0}
   ];
 
@@ -140,17 +142,20 @@ export class RapportCaisseComponent implements OnInit {
     {mode: 'Espèce', soldeReel: 0, soldeSysteme: 0, difference: 0},
     {mode: 'Électronique', soldeReel: 0, soldeSysteme: 0, difference: 0},
     {mode: 'Bon de caisse', soldeReel: 0, soldeSysteme: 0, difference: 0},
+    {mode: 'Rendu', soldeReel: 0, soldeSysteme: 0, difference: 0},
     {mode: 'Total', soldeReel: 0, soldeSysteme: 0, difference: 0}
   ];
 
-  encaissementFactureData: any[] = [
-  ];
+  encaissementFactureData: any[] = [];
 
 // DataSources pour les tableaux
   bonCaisseGeneres: any[] = [];
+  totalBonCaisseGeneres = 0;
   bonCaisseEncaisse: any[] = [];
+  totalBonCaisseEncaisse = 0;
   retourProduits: any[] = [];
   depenses: any[] = [];
+  totalDepenses = 0;
   bonCaisseEncaisseDataSource: any[] = [];
 
 // Colonnes des tableaux
@@ -158,12 +163,12 @@ export class RapportCaisseComponent implements OnInit {
   bonCaisseEncaisseColumns: string[] = ['numeroBon', 'montant'];
   retourCaisseColumns: string[] = ['reference', 'produit', 'quantite', 'total'];
   EtatColumns: string[] = ['numeroBon', 'montant'];
-  depensesColumns: string[] = ['designation', 'quantite', 'prixUnitaire', 'total'];
+  depensesColumns: string[] = ['designation', 'prixUnitaire'];
   bonCaisseEnColumns: string[] = ['nomClient', 'codebarreId', 'montant'];
 
-   constructor(
+  constructor(
     public authService: AuthService,
-    public snackBar:MatSnackBar,
+    public snackBar: MatSnackBar,
     public appService: AppService,
     public caisseService: CaisseService,
     public categorieService: CategorieService,
@@ -202,15 +207,24 @@ export class RapportCaisseComponent implements OnInit {
   }
 
   public getRapportCaisse(): void {
-    this.caisseService.getCaisseReport(5).subscribe({
+    this.caisseService.getCaisseReport(1712).subscribe({
       // this.productService.searchProducts(this.searchTerm, this.page, this.count).subscribe({
       next: (data: any) => {
         console.log("data");
         console.log(data);
         this.resultRapport = data;
         this.bonCaisseGeneres = this.resultRapport.bonCaisseGeneres
+        this.bonCaisseGeneres.forEach((item:any) => {
+          this.totalBonCaisseGeneres = this.totalBonCaisseGeneres + item.montant;
+        });
         this.bonCaisseEncaisse = this.resultRapport.bonCaisseEncaisse
+        this.bonCaisseEncaisse.forEach((item:any) => {
+          this.totalBonCaisseEncaisse = this.totalBonCaisseEncaisse + item.montant;
+        });
         this.depenses = this.resultRapport.depenses
+        this.depenses.forEach((item:any) => {
+          this.totalDepenses = this.totalDepenses + item.prixUnitaire;
+        });
         this.encaissementFactureData = this.resultRapport.encaissementFactureData
         this.retourProduits = this.resultRapport.retourProduits
         console.log("resultRapport");
@@ -219,15 +233,19 @@ export class RapportCaisseComponent implements OnInit {
           {type: 'Grossiste', montant: data.prixTotalGrossiste},
           {type: 'Detaillant', montant: data.prixTotalDetaillant},
           {type: 'Produits Detaillés', montant: data.prixTotalDetail},
-          {type: 'Total', montant: (data.prixTotalGrossiste + data.prixTotalDetaillant + data.prixTotalDetail)}
-        ];
-        this.venteParTypeData = [
-          {type: 'Comptant', montant: data.prixTotalVenteComptant},
-          {type: 'Crédit', montant: data.prixTotalVenteCredit},
-          {type: 'Assurance', montant: data.prixTotalVenteAssurance},
+          {type: 'Reduction', montant: -data.prixTotalVenteReduction},
           {
             type: 'Total',
-            montant: (data.prixTotalVenteAssurance + data.prixTotalVenteComptant + data.prixTotalVenteCredit)
+            montant: (data.prixTotalGrossiste + data.prixTotalDetaillant + data.prixTotalDetail) - data.prixTotalVenteReduction
+          }
+        ];
+        this.venteParTypeData = [
+          {type: 'Comptant', montant: data.totalVenteComptant},
+          {type: 'Crédit', montant: data.totalVenteCredit},
+          {type: 'Assurance', montant: data.totalVenteAssurance},
+          {
+            type: 'Total',
+            montant: (data.totalVenteComptant + data.totalVenteCredit + data.totalVenteAssurance)
           },
         ];
 
@@ -235,18 +253,58 @@ export class RapportCaisseComponent implements OnInit {
           {mode: 'Espèce', montant: data.soldeSystemeEspece},
           {mode: 'Électronique', montant: data.soldeSystemeElectronique},
           {mode: 'Bon de caisse', montant: data.soldeSystemeTicket},
-          {mode: 'Total', montant: (data.soldeSystemeEspece+data.soldeSystemeElectronique+data.soldeSystemeTicket)}
+          {mode: 'Rendu', montant: -data.prixTotalFactureRendu},
+          {
+            mode: 'Total',
+            montant: (data.soldeSystemeEspece + data.soldeSystemeElectronique + data.soldeSystemeTicket) - data.prixTotalFactureRendu
+          }
         ];
 
         this.etatCaisseData = [
-          {mode: 'Espèce', soldeReel: data.soldeReelEspece, soldeSysteme: data.soldeSystemeEspece, difference: (data.soldeReelEspece-data.soldeSystemeEspece)},
-          {mode: 'Électronique', soldeReel: data.soldeReelElectronique, soldeSysteme: data.soldeSystemeElectronique, difference: (data.soldeReelElectronique-data.soldeSystemeElectronique)},
-          {mode: 'Bon de caisse', soldeReel: data.soldeReelTicket, soldeSysteme: data.soldeSystemeTicket, difference: (data.soldeReelTicket-data.soldeSystemeTicket)},
-          {mode: 'Total', soldeReel: data.soldeReelTotal, soldeSysteme: data.soldeSystemelTotal, difference: (data.soldeReelTotal-data.soldeSystemelTotal)}
+          {
+            mode: 'Espèce',
+            soldeReel: data.soldeReelEspece,
+            soldeSysteme: data.soldeSystemeEspece,
+            difference: (data.soldeReelEspece - data.soldeSystemeEspece)
+          },
+          {
+            mode: 'Électronique',
+            soldeReel: data.soldeReelElectronique,
+            soldeSysteme: data.soldeSystemeElectronique,
+            difference: (data.soldeReelElectronique - data.soldeSystemeElectronique)
+          },
+          {
+            mode: 'Bon de caisse',
+            soldeReel: data.soldeReelTicket,
+            soldeSysteme: data.soldeSystemeTicket,
+            difference: (data.soldeReelTicket - data.soldeSystemeTicket)
+          },
+          {
+            mode: 'Rendu',
+            soldeReel: 0,
+            soldeSysteme: data.prixTotalFactureRendu,
+            difference: (0 - data.prixTotalFactureRendu)
+          },
+          {
+            mode: 'Total',
+            soldeReel: data.soldeReelTotal,
+            soldeSysteme: data.soldeSystemelTotal-data.prixTotalFactureRendu,
+            difference: (data.soldeReelTotal - (data.soldeSystemelTotal-data.prixTotalFactureRendu))
+          }
         ];
       },
-      error: (err) => {
+      error: (err: any) => {
         console.error('Error searching products:', err);
+        if (err.status === 401 || err.status === 403) {
+          this.authService.logout();
+          this.snackBar.open('Déconnexion réussie.', '×', {
+            panelClass: 'success',
+            verticalPosition: 'top',
+            duration: 3000,
+          });
+          // Redirect to login page or clear session
+          window.location.href = '/sign-in';
+        }
       }
     });
   }
@@ -256,7 +314,7 @@ export class RapportCaisseComponent implements OnInit {
       next: (data: any) => {
         this.caisses = data.content; // Assuming the API returns a pageable response
       },
-      error: (err:any) => {
+      error: (err: any) => {
         console.error('Error loading caisses:', err);
       }
     });

@@ -137,6 +137,7 @@ export class SettingComponent implements OnInit {
   updateSetting(key: string, value: any): void {
     this.appSettingsService.setSetting(key, value).subscribe({
       next: () => {
+        localStorage.setItem(key, value);
         this.appSettingsService.snackBar.open('Setting updated successfully!', 'Close', {duration: 3000});
         if (key === 'vente_mode') {
           this.appSettingsService.notifySettingsUpdated(value);

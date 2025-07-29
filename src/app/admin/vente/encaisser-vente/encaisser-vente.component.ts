@@ -179,6 +179,7 @@ export class EncaisserVenteComponent implements OnInit {
 
   ngOnInit(): void {
     this.checkCaisseStatus();
+    this.fetchVentesCreditPageable();
   }
 
   checkCaisseStatus(): void {
@@ -970,10 +971,6 @@ export class EncaisserVenteComponent implements OnInit {
     });
   }
 
-  envoyerEnCaisse(venteId:any){
-
-  }
-
   public onPageChangedCredit(event: PageEvent) {
     this.pageCredit = event.pageIndex + 1;
     this.countCredit = event.pageSize;
@@ -1006,5 +1003,35 @@ export class EncaisserVenteComponent implements OnInit {
       }
     });
   }
+
+  envoyerEnCaisse(venteId:any){
+    this.ventesService.envoyerVentreCreditEnCaisse(
+      venteId
+    ).subscribe({
+      next: (data: any) => {
+        this.snackBar.open("Vente envoyer en caisse avec success", '×', {
+          panelClass: 'success',
+          verticalPosition: 'top',
+          duration: 3000
+        });
+        this.fetchVentesCreditPageable();
+        this.onRefresh();
+      },
+      error: (err) => {
+        console.error('Error fetching commandes:', err);
+        if (err.status === 401 || err.status === 403){
+          this.authService.logout();
+          this.snackBar.open('Déconnexion réussie.', '×', {
+            panelClass: 'success',
+            verticalPosition: 'top',
+            duration: 3000,
+          });
+          // Redirect to login page or clear session
+          window.location.href = '/sign-in';
+        }
+      }
+    });
+  }
+
 
 }

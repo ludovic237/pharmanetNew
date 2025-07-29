@@ -11,6 +11,7 @@ import {FlexLayoutModule} from '@ngbracket/ngx-layout';
 import {AuthService} from "@services/auth.service";
 import {MatOptionModule} from "@angular/material/core";
 import {MatSelectModule} from "@angular/material/select";
+import {AppSettingsService} from "@services/app-settings.service";
 
 @Component({
   selector: 'app-sign-in',
@@ -36,10 +37,11 @@ export class SignInComponent implements OnInit {
   loginForm: FormGroup;
   registerForm: FormGroup;
 
-   constructor(
+  constructor(
     public authService: AuthService,
-    public snackBar:MatSnackBar,public formBuilder: FormBuilder,
-              public router: Router) {
+    public appSettingsService: AppSettingsService,
+    public snackBar: MatSnackBar, public formBuilder: FormBuilder,
+    public router: Router) {
   }
 
   ngOnInit() {
@@ -70,29 +72,36 @@ export class SignInComponent implements OnInit {
           localStorage.setItem('token', response.token);
           localStorage.setItem('nom', response.nom);
           localStorage.setItem('role', response.role);
-
-          this.snackBar.open(response.message, '×', {
-            panelClass: 'success',
-            verticalPosition: 'top',
-            duration: 3000
-          });
-          // Redirect after 3000 ms
-          setTimeout(() => {
-            this.router.navigate(['/admin']);
-          }, 3000);
+          this.appSettingsService.loadSetting().subscribe({
+            next: (data: any[]) => {
+              data.forEach(item => {
+                localStorage.setItem(item.keyName, item.value);
+              });
+              this.snackBar.open(response.message, '×', {
+                panelClass: 'success',
+                verticalPosition: 'top',
+                duration: 3000
+              });
+              // Redirect after 3000 ms
+              setTimeout(() => {
+                this.router.navigate(['/admin']);
+              }, 3000);
+            },
+            error: (err: any) => {
+              if (err.status === 401 || err.status === 403) {
+                this.authService.logout();
+                this.snackBar.open('Déconnexion réussie.', '×', {
+                  panelClass: 'success',
+                  verticalPosition: 'top',
+                  duration: 3000,
+                });
+                // Redirect to login page or clear session
+                window.location.href = '/sign-in';
+              }
+            },
+          })
         },
         error: (err) => {
-          if (err.status === 401 || err.status === 403){
-            this.authService.logout();
-            this.snackBar.open('Déconnexion réussie.', '×', {
-              panelClass: 'success',
-              verticalPosition: 'top',
-              duration: 3000,
-            });
-            // Redirect to login page or clear session
-            window.location.href = '/sign-in';
-          }
-          else
           this.snackBar.open(err.error.message, '×', {
             panelClass: 'error',
             verticalPosition: 'top',

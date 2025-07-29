@@ -136,4 +136,9 @@ export class VentesService {
   encaisserVenteDirect(encaissementDirectData: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/encaisser_direct`, encaissementDirectData, {headers: this.getHeaders()});
   }
+
+
+  envoyerVentreCreditEnCaisse(venteId: string): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/${venteId}/envoyer_caisse`, { headers: this.getHeaders() });
+  }
 }

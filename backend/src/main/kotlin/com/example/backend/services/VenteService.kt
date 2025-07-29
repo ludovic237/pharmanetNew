@@ -92,11 +92,16 @@ class VenteService(
     val nouvelleVente = Vente().apply {
       this.id = "${formattedDateTimeNow}".toLong()
       this.employe = employe
-      this.caisse = activeCaisse
+      this.reduction = venteRequestDto.prixReduction.toString()
+      this.caisse = if (venteRequestDto.etat == "CREDIT") {
+        null
+      } else {
+        activeCaisse
+      }
       this.reference = genererReference(venteRepository.countMois().toInt())
       this.dateVente = LocalDateTime.now()
       this.etat = venteRequestDto.etat
-      this.prixTotal = (venteRequestDto.prixTotal ?: 0.0 - venteRequestDto.prixReduction ?: 0.0)
+      this.prixTotal = (venteRequestDto.prixTotal - venteRequestDto.prixReduction)
       this.commentaire = venteRequestDto.commentaire
       this.user = client
       this.prescripteur = prescripteur
@@ -206,6 +211,7 @@ class VenteService(
     val nouvelleVente = Vente().apply {
       this.id = "${formattedDateTimeNow}".toLong()
       this.employe = employe
+      this.reduction = encaissementDirectDto.venteRequestDto.prixReduction.toString() ?: "0"
       this.caisse = activeCaisse
       this.reference = genererReference(venteRepository.countMois().toInt())
       this.dateVente = LocalDateTime.now()
@@ -265,7 +271,7 @@ class VenteService(
         concernerRepository.save(concerner)
       }
     }
-
+    val caisse = caisseService.getCaisseActive()
     var facturation = Facturation().apply {
       this.id = generateId()!!.toLong()
       this.vente = savedVente
@@ -368,9 +374,8 @@ class VenteService(
 
     val currentUser = userUtils.getCurrentUser()
     val employe = employeRepository.findByUser(currentUser!!)
-    val caisse = caisseRepository.findByUserAndEtatAndSupprimer(employe, "En cours").firstOrNull()
-      ?: throw RuntimeException("Aucune caisse ouverte trouvée pour l'utilisateur connecté.")
 
+    val caisse = caisseService.getCaisseActive()
     val facturation = Facturation().apply {
       this.id = generateId()!!.toLong()
       this.vente = vente
@@ -458,9 +463,7 @@ class VenteService(
 
     val currentUser = userUtils.getCurrentUser()
     val employe = employeRepository.findByUser(currentUser!!)
-    val caisse = caisseRepository.findByUserAndEtatAndSupprimer(employe, "Ouvert").firstOrNull()
-      ?: throw RuntimeException("Aucune caisse ouverte trouvée pour l'utilisateur connecté.")
-
+    val caisse = caisseService.getCaisseActive()
     var facturation = Facturation().apply {
       this.id = generateId()!!.toLong()
       this.vente = vente
@@ -915,5 +918,13 @@ class VenteService(
     return Normalizer.normalize(input, Normalizer.Form.NFD)
       .replace("[\\p{InCombiningDiacriticalMarks}]".toRegex(), "")
       .lowercase()
+  }
+
+  fun envoyerVentreCreditEnCaisse(venteId: String): Vente {
+    val activeCaisse = caisseService.getCaisseActive()
+    var venteCredit = venteRepository.findById(venteId.toLong()).get()
+    venteCredit.caisse = activeCaisse
+    // Generate the reference
+    return venteRepository.save(venteCredit)
   }
 }

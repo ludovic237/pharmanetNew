@@ -27,7 +27,7 @@ export class AppSettingsService {
   public Data: any = {}
 
   public url = environment.url + '/data/';
-  private apiUrl = environment.url+'/api/admin/setting';
+  private apiUrl = environment.url + '/api/admin/setting';
 
   private settingsUpdated = new BehaviorSubject<string>(null);
   settingsUpdated$ = this.settingsUpdated.asObservable();
@@ -66,12 +66,22 @@ export class AppSettingsService {
       },
       error: (err: any) => {
         console.error('Error loading settings:', err);
+        /* if (err.status === 401 || err.status === 403){
+           this.authService.logout();
+           this.snackBar.open('Déconnexion réussie.', '×', {
+             panelClass: 'success',
+             verticalPosition: 'top',
+             duration: 3000,
+           });
+           // Redirect to login page or clear session
+           window.location.href = '/sign-in';
+         }*/
       }
     });
   }
 
   // Call this method to notify components of updates
-  notifySettingsUpdated(param:string): void {
+  notifySettingsUpdated(param: string): void {
     this.settingsUpdated.next(param);
   }
 

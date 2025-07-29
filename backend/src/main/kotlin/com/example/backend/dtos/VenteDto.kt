@@ -15,6 +15,7 @@ data class ProduitAssocieDto(
 )
 
 data class VenteRequestDto(
+  val reduction: Int?,
   val clientInfo: ClientInfo,
   val prescripteurInfo: PrescripteurInfo,
   val reductionEnabled: Boolean,

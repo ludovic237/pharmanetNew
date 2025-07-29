@@ -9,6 +9,7 @@ import java.time.LocalDateTime
 @Table(name = "bon_caisse")
 class BonCaisse {
   @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "id", nullable = false)
   var id: Int? = null
 

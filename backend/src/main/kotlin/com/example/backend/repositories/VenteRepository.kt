@@ -9,6 +9,8 @@ import org.springframework.data.jpa.repository.Query
 
 interface VenteRepository : JpaRepository<Vente, Long> , JpaSpecificationExecutor<Vente> {
   fun findByCaisseId(caisseId: Long): List<Vente>?
+  fun findByCaisseIdAndPrixPercuGreaterThanEqual(caisseId: Long,prixPercu: Double?): List<Vente>?
+  fun findByCaisseIdAndPrixPercuGreaterThan(caisseId: Long,prixPercu: Double?): List<Vente>?
   fun findByIdAndSupprimer(id: Long, supprimer: Int): Vente?
   fun findByIdAndEtat(id: Long, etat: String): Vente?
 
@@ -58,7 +60,13 @@ interface VenteRepository : JpaRepository<Vente, Long> , JpaSpecificationExecuto
         }
 
         if (activeCaisse != null) {
-          predicates.add(criteriaBuilder.equal(root.get<User>("caisse").get<Long>("id"), activeCaisse.id))
+          predicates.add(criteriaBuilder.equal(root.get<Caisse>("caisse"), activeCaisse))
+        }
+        else if (activeCaisse == null) {
+          predicates.add(criteriaBuilder.isNull(root.get<Caisse>("caisse")))
+        }
+        else {
+          predicates.add(criteriaBuilder.isNull(root.get<Caisse>("caisse")))
         }
 
         if (supprimer != null) {
@@ -84,9 +92,6 @@ interface VenteRepository : JpaRepository<Vente, Long> , JpaSpecificationExecuto
           predicates.add(criteriaBuilder.equal(root.get<Prescripteur>("prescripteur").get<Long>("id"), caisseId))
         }
 
-        if (!caisseId.isNullOrEmpty() && caisseId != "null") {
-          predicates.add(criteriaBuilder.equal(root.get<Caisse>("caisse").get<Long>("id"), caisseId))
-        }
 
         criteriaBuilder.and(*predicates.toTypedArray())
       }

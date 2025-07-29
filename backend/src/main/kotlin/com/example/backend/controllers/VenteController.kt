@@ -150,6 +150,14 @@ class VenteController(
 
   @CrossOrigin(origins = ["http://localhost:4200"])
   @PreAuthorize("isAuthenticated()")
+  @GetMapping("/{venteId}/envoyer_caisse")
+  fun envoyerVentreCreditEnCaisse(@PathVariable venteId: String): ResponseEntity<Vente> {
+    val ventesEnCours = venteService.envoyerVentreCreditEnCaisse(venteId)
+    return ResponseEntity.ok(ventesEnCours)
+  }
+
+  @CrossOrigin(origins = ["http://localhost:4200"])
+  @PreAuthorize("isAuthenticated()")
   @PostMapping("/retour/{venteId}")
   fun retournerProduitsVendusEtEnRayon(
     @PathVariable venteId: Long,
