@@ -28,8 +28,8 @@ export class FabriquantService {
     return this.http.post<Fabriquant>(this.url, fabriquant, {headers: this.getHeaders()});
   }
 
-  updateFabriquant(id: number, fabriquant: Fabriquant): Observable<Fabriquant> {
-    return this.http.put<Fabriquant>(`${this.url}/${id}`, fabriquant, {headers: this.getHeaders()});
+  updateFabriquant(fabriquant: any): Observable<Fabriquant> {
+    return this.http.put<Fabriquant>(`${this.url}/${fabriquant.id}`, fabriquant, {headers: this.getHeaders()});
   }
 
   deleteFabriquant(id: number): Observable<void> {

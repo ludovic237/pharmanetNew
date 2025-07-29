@@ -15,7 +15,7 @@ export const routes: Routes = [
     { path: 'categories', component: CategoriesComponent, data: { breadcrumb: 'Categories' } },
     { path: 'product_list', component: ProductListComponent, data: { breadcrumb: 'Product List' } },
     { path: 'product_detail', component: ProductDetailComponent, data: { breadcrumb: 'Product Detail' } },
-    { path: 'product_detail-list', component: ProductDetailListComponent, data: { breadcrumb: 'Product Detail list' } },
+    { path: 'product_detail_list', component: ProductDetailListComponent, data: { breadcrumb: 'Product Detail list' } },
     { path: 'product_detail/:id', component: ProductDetailComponent, data: { breadcrumb: 'Product Detail' } },
     { path: 'add_product', component: AddProductComponent, data: { breadcrumb: 'Add Product' } },
     { path: 'add_product/:id', component: AddProductComponent, data: { breadcrumb: 'Edit Product' } },

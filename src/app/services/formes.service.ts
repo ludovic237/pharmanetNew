@@ -28,8 +28,8 @@ export class FormeService {
     return this.http.post<Forme>(this.url, forme, {headers: this.getHeaders()});
   }
 
-  updateForme(id: number, forme: Forme): Observable<Forme> {
-    return this.http.put<Forme>(`${this.url}/${id}`, forme, {headers: this.getHeaders()});
+  updateForme(forme: Forme): Observable<Forme> {
+    return this.http.put<Forme>(`${this.url}/${forme.id}`, forme, {headers: this.getHeaders()});
   }
 
   deleteForme(id: number): Observable<void> {

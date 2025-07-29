@@ -29,8 +29,8 @@ export class MagasinService {
     return this.http.post<Magasin>(this.url, magasin, {headers: this.getHeaders()});
   }
 
-  updateMagasin(id: number, magasin: Magasin): Observable<Magasin> {
-    return this.http.put<Magasin>(`${this.url}/${id}`, magasin, {headers: this.getHeaders()});
+  updateMagasin(magasin: Magasin): Observable<Magasin> {
+    return this.http.put<Magasin>(`${this.url}/${magasin.id}`, magasin, {headers: this.getHeaders()});
   }
 
   deleteMagasin(id: number): Observable<void> {

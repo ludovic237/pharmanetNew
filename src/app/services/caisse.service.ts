@@ -8,7 +8,7 @@ import {environment} from "../../environments/environment";
   providedIn: 'root'
 })
 export class CaisseService {
-  private url = environment.url+'/api/caisses';
+  private url = environment.url + '/api/caisses';
 
   constructor(private http: HttpClient) {
   }
@@ -71,7 +71,7 @@ export class CaisseService {
   // Missing getFilteredCaisses method in CaisseService
 
   // After
-  getFilteredCaisses(filters: {
+/*  getFilteredCaisses(filters: {
     caisseId: number | null;
     startDate: Date | null;
     endDate: Date | null
@@ -81,7 +81,16 @@ export class CaisseService {
       .set('startDate', filters.startDate ? filters.startDate.toISOString() : '')
       .set('endDate', filters.endDate ? filters.endDate.toISOString() : '');
 
-    return this.http.get<any>(`${this.url}/all/filter`, {params});
+    return this.http.get<any>(`${this.url}/all/filter?caisseId=${caisseId}&startDate=${startDate}&endDate=${endDate}&page=${page}&size=${size}`, {headers: this.getHeaders()});
+  }*/
+
+  getFilteredCaisses(
+    caisseId: number | null,
+    startDate: Date | null,
+    endDate: Date | null,
+    page: number, size: number
+  ): Observable<any> {
+    return this.http.get<any>(`${this.url}/all/filter?caisseId=${caisseId}&startDate=${startDate}&endDate=${endDate}&page=${page}&size=${size}`, {headers: this.getHeaders()});
   }
 
 }

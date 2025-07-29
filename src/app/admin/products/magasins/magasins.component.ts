@@ -71,11 +71,19 @@ export class MagasinsComponent implements OnInit {
   }
 
   public openMagasinDialog(data: any) {
+    let newData = {}
+    if (data == null) {
+      newData = {
+        type: "add"
+      }
+    } else {
+      newData = {
+        type: "update",
+        category: data,
+      }
+    }
     const dialogRef = this.dialog.open(MagasinDialogComponent, {
-      data: {
-        magasin: data,
-        magasins: this.magasins
-      },
+      data: newData,
       panelClass: ['theme-dialog'],
       autoFocus: false,
       direction: (this.settings.rtl) ? 'rtl' : 'ltr'
@@ -92,6 +100,7 @@ export class MagasinsComponent implements OnInit {
           this.magasins.push(magasin);
         }
       }
+      this.getMagasins();
     });
   }
 
@@ -105,10 +114,21 @@ export class MagasinsComponent implements OnInit {
     });
     dialogRef.afterClosed().subscribe(dialogResult => {
       if (dialogResult) {
-        const index: number = this.magasins.indexOf(magasin);
-        if (index !== -1) {
-          this.magasins.splice(index, 1);
-        }
+        this.magasinsService.deleteMagasin(magasin.id).subscribe({
+          next: (data) => {
+            const index: number = this.magasins.indexOf(magasin);
+            if (index !== -1) {
+              this.magasins.splice(index, 1);
+            }
+          },
+          error: (err) => {
+            console.error('Error  subscription:', err);
+            if (err.status == "403") {
+              // this.router.navigate(['/sign-in']); // Redirect to login if not authenticated
+            }
+          }
+        });
+
       }
     });
   }

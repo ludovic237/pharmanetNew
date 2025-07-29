@@ -73,11 +73,19 @@ export class FabriquantsComponent implements OnInit {
   }
 
   public openCategoryDialog(data: any) {
+    let newData = {}
+    if (data == null) {
+      newData = {
+        type: "add"
+      }
+    } else {
+      newData = {
+        type: "update",
+        fabriquant: data,
+      }
+    }
     const dialogRef = this.dialog.open(FabriquantDialogComponent, {
-      data: {
-        category: data,
-        fabriquants: this.fabriquants
-      },
+      data: newData,
       panelClass: ['theme-dialog'],
       autoFocus: false,
       direction: (this.settings.rtl) ? 'rtl' : 'ltr'
@@ -94,6 +102,7 @@ export class FabriquantsComponent implements OnInit {
           this.fabriquants.push(category);
         }
       }
+      this.getFabriquants();
     });
   }
 
@@ -107,10 +116,21 @@ export class FabriquantsComponent implements OnInit {
     });
     dialogRef.afterClosed().subscribe(dialogResult => {
       if (dialogResult) {
-        const index: number = this.fabriquants.indexOf(category);
-        if (index !== -1) {
-          this.fabriquants.splice(index, 1);
-        }
+        this.fabriquantService.deleteFabriquant(category.id).subscribe({
+          next: (data) => {
+            const index: number = this.fabriquants.indexOf(category);
+            if (index !== -1) {
+              this.fabriquants.splice(index, 1);
+            }
+          },
+          error: (err) => {
+            console.error('Error  subscription:', err);
+            if (err.status == "403") {
+              // this.router.navigate(['/sign-in']); // Redirect to login if not authenticated
+            }
+          }
+        });
+
       }
     });
   }

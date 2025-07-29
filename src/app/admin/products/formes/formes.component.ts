@@ -39,18 +39,18 @@ export class FormesComponent implements OnInit {
   domHandlerService = inject(DomHandlerService);
   public settings: Settings;
 
-   constructor(
+  constructor(
     public authService: AuthService,
-    public snackBar:MatSnackBar,public appService: AppService, public formeService: FormeService, public dialog: MatDialog, public settingsService: SettingsService) {
+    public snackBar: MatSnackBar, public appService: AppService, public formeService: FormeService, public dialog: MatDialog, public settingsService: SettingsService) {
     this.settings = this.settingsService.settings;
   }
 
   ngOnInit(): void {
-    this.getCategories();
+    this.getFormes();
   }
 
-  public getCategories() {
-    this.appService.getCategories().subscribe({
+  public getFormes() {
+    this.formeService.getFormes().subscribe({
       next: (data) => {
         this.formes = data;
         this.count = this.formes.length
@@ -70,11 +70,19 @@ export class FormesComponent implements OnInit {
   }
 
   public openCategoryDialog(data: any) {
-    const dialogRef = this.dialog.open(FormeDialogComponent, {
-      data: {
+    let newData = {}
+    if (data == null) {
+      newData = {
+        type: "add"
+      }
+    } else {
+      newData = {
+        type: "update",
         form: data,
-        formes: this.formes
-      },
+      }
+    }
+    const dialogRef = this.dialog.open(FormeDialogComponent, {
+      data: newData,
       panelClass: ['theme-dialog'],
       autoFocus: false,
       direction: (this.settings.rtl) ? 'rtl' : 'ltr'
@@ -90,6 +98,7 @@ export class FormesComponent implements OnInit {
           this.formes.push(form);
         }
       }
+      this.getFormes();
     });
   }
 
@@ -103,10 +112,20 @@ export class FormesComponent implements OnInit {
     });
     dialogRef.afterClosed().subscribe(dialogResult => {
       if (dialogResult) {
-        const index: number = this.formes.indexOf(form);
-        if (index !== -1) {
-          this.formes.splice(index, 1);
-        }
+        this.formeService.deleteForme(form.id).subscribe({
+          next: (data) => {
+            const index: number = this.formes.indexOf(form);
+            if (index !== -1) {
+              this.formes.splice(index, 1);
+            }
+          },
+          error: (err) => {
+            console.error('Error  subscription:', err);
+            if (err.status == "403") {
+              // this.router.navigate(['/sign-in']); // Redirect to login if not authenticated
+            }
+          }
+        });
       }
     });
   }

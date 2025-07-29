@@ -1,35 +1,35 @@
-import { Component, OnInit, inject } from '@angular/core';
+import {Component, OnInit, inject} from '@angular/core';
 import {AuthService} from "@services/auth.service";
 import {MatSnackBar} from "@angular/material/snack-bar";
-import { MatDialog } from '@angular/material/dialog';
-import { Category } from '@models/category';
-import { AppService } from '@services/app.service';
-import { DomHandlerService } from '@services/dom-handler.service';
-import { Settings, SettingsService } from '@services/settings.service';
-import { CategoryDialogComponent } from './category-dialog/category-dialog.component';
-import { ConfirmDialogComponent } from '@shared-components/confirm-dialog/confirm-dialog.component';
-import { MatCardModule } from '@angular/material/card';
-import { FlexLayoutModule } from '@ngbracket/ngx-layout';
-import { MatIconModule } from '@angular/material/icon';
-import { PipesModule } from '../../../theme/pipes/pipes.module';
-import { NgxPaginationModule } from 'ngx-pagination';
-import { MatDividerModule } from '@angular/material/divider';
-import { MatButtonModule } from '@angular/material/button';
+import {MatDialog} from '@angular/material/dialog';
+import {Category} from '@models/category';
+import {AppService} from '@services/app.service';
+import {DomHandlerService} from '@services/dom-handler.service';
+import {Settings, SettingsService} from '@services/settings.service';
+import {CategoryDialogComponent} from './category-dialog/category-dialog.component';
+import {ConfirmDialogComponent} from '@shared-components/confirm-dialog/confirm-dialog.component';
+import {MatCardModule} from '@angular/material/card';
+import {FlexLayoutModule} from '@ngbracket/ngx-layout';
+import {MatIconModule} from '@angular/material/icon';
+import {PipesModule} from '../../../theme/pipes/pipes.module';
+import {NgxPaginationModule} from 'ngx-pagination';
+import {MatDividerModule} from '@angular/material/divider';
+import {MatButtonModule} from '@angular/material/button';
 import {CategorieService} from "@services/categories.service";
 
 @Component({
-    selector: 'app-categories',
-    imports: [
-        FlexLayoutModule,
-        MatCardModule,
-        MatButtonModule,
-        MatIconModule,
-        MatDividerModule,
-        PipesModule,
-        NgxPaginationModule
-    ],
-    templateUrl: './categories.component.html',
-    styleUrl: './categories.component.scss'
+  selector: 'app-categories',
+  imports: [
+    FlexLayoutModule,
+    MatCardModule,
+    MatButtonModule,
+    MatIconModule,
+    MatDividerModule,
+    PipesModule,
+    NgxPaginationModule
+  ],
+  templateUrl: './categories.component.html',
+  styleUrl: './categories.component.scss'
 })
 export class CategoriesComponent implements OnInit {
   public categories: any[] = [];
@@ -39,9 +39,10 @@ export class CategoriesComponent implements OnInit {
   public count = 6;
   domHandlerService = inject(DomHandlerService);
   public settings: Settings;
-   constructor(
+
+  constructor(
     public authService: AuthService,
-    public snackBar:MatSnackBar,public appService: AppService, public categorieService: CategorieService, public dialog: MatDialog, public settingsService: SettingsService) {
+    public snackBar: MatSnackBar, public appService: AppService, public categorieService: CategorieService, public dialog: MatDialog, public settingsService: SettingsService) {
     this.settings = this.settingsService.settings;
   }
 
@@ -71,11 +72,19 @@ export class CategoriesComponent implements OnInit {
   }
 
   public openCategoryDialog(data: any) {
-    const dialogRef = this.dialog.open(CategoryDialogComponent, {
-      data: {
+    let newData = {}
+    if (data == null) {
+      newData = {
+        type: "add"
+      }
+    } else {
+      newData = {
+        type: "update",
         category: data,
-        categories: this.categories
-      },
+      }
+    }
+    const dialogRef = this.dialog.open(CategoryDialogComponent, {
+      data: newData,
       panelClass: ['theme-dialog'],
       autoFocus: false,
       direction: (this.settings.rtl) ? 'rtl' : 'ltr'
@@ -85,13 +94,13 @@ export class CategoriesComponent implements OnInit {
         const index: number = this.categories.findIndex(x => x.id == category.id);
         if (index !== -1) {
           this.categories[index] = category;
-        }
-        else {
+        } else {
           let last_category = this.categories[this.categories.length - 1];
           category.id = last_category.id + 1;
           this.categories.push(category);
         }
       }
+      this.getCategories();
     });
   }
 
@@ -105,10 +114,20 @@ export class CategoriesComponent implements OnInit {
     });
     dialogRef.afterClosed().subscribe(dialogResult => {
       if (dialogResult) {
-        const index: number = this.categories.indexOf(category);
-        if (index !== -1) {
-          this.categories.splice(index, 1);
-        }
+        this.categorieService.deleteCategorie(category.id).subscribe({
+          next: (data) => {
+            const index: number = this.categories.indexOf(category);
+            if (index !== -1) {
+              this.categories.splice(index, 1);
+            }
+          },
+          error: (err) => {
+            console.error('Error  subscription:', err);
+            if (err.status == "403") {
+              // this.router.navigate(['/sign-in']); // Redirect to login if not authenticated
+            }
+          }
+        });
       }
     });
   }

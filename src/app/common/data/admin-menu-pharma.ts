@@ -35,16 +35,16 @@ export const adminMenuPharmaItems = [
 export const getFilteredAdminMenuPharmaItems = (key: string) => {
   return [
     new AdminMenu(10, 'ADMIN_NAV.DASHBOARD', '/admin', null, 'dashboard', null, false, 0),
+
     new AdminMenu(20, 'Catalogue', null, null, 'inventory_2', null, true, 0),
     new AdminMenu(21, 'Categories', '/admin/products/categories', null, 'category', null, false, 20),
-    new AdminMenu(22, 'ADMIN_NAV.PRODUCT_LIST', '/admin/products/product-list', null, 'view_list', null, false, 20),
-    new AdminMenu(23, 'ADMIN_NAV.PRODUCT_DETAIL', '/admin/products/product-detail', null, 'visibility', null, false, 20),
-    new AdminMenu(24, 'ADMIN_NAV.ADD_PRODUCT', '/admin/products/add-product', null, 'add', null, false, 20),
+    new AdminMenu(22, 'ADMIN_NAV.PRODUCT_LIST', '/admin/products/product_list', null, 'view_list', null, false, 20),
+    new AdminMenu(23, 'ADMIN_NAV.PRODUCT_DETAIL', '/admin/products/product_detail', null, 'visibility', null, false, 20),
+    new AdminMenu(24, 'ADMIN_NAV.ADD_PRODUCT', '/admin/products/add_product', null, 'add', null, false, 20),
     new AdminMenu(25, 'Formes', '/admin/products/formes', null, 'shape_line', null, false, 20),
     new AdminMenu(26, 'Fabriquants', '/admin/products/fabriquants', null, 'factory', null, false, 20),
     new AdminMenu(27, 'Rayons', '/admin/products/rayons', null, 'storefront', null, false, 20),
     new AdminMenu(28, 'magasins', '/admin/products/magasins', null, 'store', null, false, 20),
-    new AdminMenu(29, 'Rapport caisse', '/admin/products/rapport_caisse', null, 'receipt_long', null, false, 20),
     new AdminMenu(30, 'Produit detail list', '/admin/products/product_detail_list', null, 'list_alt', null, false, 20),
 
     // Vente menu and submenus
@@ -62,9 +62,11 @@ export const getFilteredAdminMenuPharmaItems = (key: string) => {
     new AdminMenu(502, 'Sorties', '/admin/stock/sorties', null, 'output', null, false, 500),
     new AdminMenu(503, 'Inventaire', '/admin/stock/inventaire', null, 'list_alt', null, false, 500),
 
-    new AdminMenu(600, 'Parametre', null, null, 'settings', null, true, 0),
-    new AdminMenu(601, 'General', '/admin/setting/setting', null, 'tune', null, false, 600),
-    new AdminMenu(602, 'Employe', '/admin/setting/employe', null, 'people', null, false, 600),
-    new AdminMenu(603, 'Client', '/admin/setting/client', null, 'person', null, false, 600),
+    new AdminMenu(600, 'Rapport caisse', '/admin/products/rapport_caisse', null, 'receipt_long', null, false, 0),
+
+    new AdminMenu(700, 'Parametre', null, null, 'settings', null, true, 0),
+    new AdminMenu(701, 'General', '/admin/setting/setting', null, 'tune', null, false, 700),
+    new AdminMenu(702, 'Employe', '/admin/setting/employe', null, 'people', null, false, 700),
+    new AdminMenu(703, 'Client', '/admin/setting/client', null, 'person', null, false, 700),
   ];
 };

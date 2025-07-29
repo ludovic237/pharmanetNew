@@ -181,6 +181,7 @@ export class RapportCaisseComponent implements OnInit {
 // Initialisation des données des tableaux (vides selon l'image)
     this.loadCaisses();
     this.getRapportCaisse();
+    this.applyFilters();
   }
 
 // Méthode pour obtenir la classe CSS selon le type
@@ -207,7 +208,8 @@ export class RapportCaisseComponent implements OnInit {
   }
 
   public getRapportCaisse(): void {
-    this.caisseService.getCaisseReport(1712).subscribe({
+    const caisseId = this.caisseControl.value
+    this.caisseService.getCaisseReport(caisseId).subscribe({
       // this.productService.searchProducts(this.searchTerm, this.page, this.count).subscribe({
       next: (data: any) => {
         console.log("data");
@@ -321,13 +323,13 @@ export class RapportCaisseComponent implements OnInit {
   }
 
   applyFilters(): void {
-    const filters = {
-      caisseId: this.caisseControl.value,
-      startDate: this.startDate,
-      endDate: this.endDate
-    };
 
-    this.caisseService.getFilteredCaisses(filters).subscribe({
+      const caisseId = this.caisseControl.value
+      const startDate = this.startDate
+      const endDate = this.endDate
+
+
+    this.caisseService.getFilteredCaisses(caisseId,startDate,endDate,0,40).subscribe({
       next: (data: any) => {
         this.caisses = data.content;
       },
