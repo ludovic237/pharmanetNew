@@ -119,6 +119,9 @@ export class BonCaisseDialogComponent {
             console.log('Receipt generated successfully');
           });
           this.bonForm.reset();
+          this.bonForm.markAsPristine();
+          this.bonForm.markAsUntouched();
+          this.bonForm.updateValueAndValidity();
           this.loadBons(); // Refresh the list of bons
           this.showBonCaisse()
           this.selectedTabIndex = 0; // Switch to "Lister Bon" tab

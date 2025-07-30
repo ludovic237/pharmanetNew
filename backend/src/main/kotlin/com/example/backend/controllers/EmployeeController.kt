@@ -1,5 +1,6 @@
 package com.example.backend.controllers
 
+import com.example.backend.dtos.EmployeNewDto
 import com.example.backend.models.Employe
 import com.example.backend.models.User
 import com.example.backend.services.EmployeService
@@ -40,7 +41,7 @@ class UserEmployeeController(
   @CrossOrigin(origins = ["http://localhost:4200"])
   @PreAuthorize("isAuthenticated()")
   @PutMapping("/{id}")
-  fun updateEmployee(@PathVariable id: Long, @RequestBody updatedUser: Employe): ResponseEntity<Employe> {
+  fun updateEmployee(@PathVariable id: Long, @RequestBody updatedUser: EmployeNewDto): ResponseEntity<Employe> {
     return ResponseEntity.ok(employeeService.updateEmployee(id, updatedUser))
   }
 

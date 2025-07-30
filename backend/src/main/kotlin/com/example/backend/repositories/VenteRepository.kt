@@ -6,12 +6,14 @@ import org.springframework.data.jpa.domain.Specification
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor
 import org.springframework.data.jpa.repository.Query
+import java.time.LocalDateTime
 
-interface VenteRepository : JpaRepository<Vente, Long> , JpaSpecificationExecutor<Vente> {
+interface VenteRepository : JpaRepository<Vente, Long>, JpaSpecificationExecutor<Vente> {
   fun findByCaisseId(caisseId: Long): List<Vente>?
-  fun findByCaisseIdAndPrixPercuGreaterThanEqual(caisseId: Long,prixPercu: Double?): List<Vente>?
-  fun findByCaisseIdAndPrixPercuGreaterThan(caisseId: Long,prixPercu: Double?): List<Vente>?
+  fun findByCaisseIdAndPrixPercuGreaterThanEqual(caisseId: Long, prixPercu: Double?): List<Vente>?
+  fun findByCaisseIdAndPrixPercuGreaterThan(caisseId: Long, prixPercu: Double?): List<Vente>?
   fun findByIdAndSupprimer(id: Long, supprimer: Int): Vente?
+  fun findByDateVenteBetweenAndSupprimer(startDate: LocalDateTime, endDate: LocalDateTime, supprimer: Int=0): List<Vente?>
   fun findByIdAndEtat(id: Long, etat: String): Vente?
 
   @Query("SELECT v FROM Vente v WHERE v.supprimer = 0  AND (v.prixPercu = 0 OR v.prixPercu IS NULL)")
@@ -61,11 +63,9 @@ interface VenteRepository : JpaRepository<Vente, Long> , JpaSpecificationExecuto
 
         if (activeCaisse != null) {
           predicates.add(criteriaBuilder.equal(root.get<Caisse>("caisse"), activeCaisse))
-        }
-        else if (activeCaisse == null) {
+        } else if (activeCaisse == null) {
           predicates.add(criteriaBuilder.isNull(root.get<Caisse>("caisse")))
-        }
-        else {
+        } else {
           predicates.add(criteriaBuilder.isNull(root.get<Caisse>("caisse")))
         }
 
@@ -75,8 +75,7 @@ interface VenteRepository : JpaRepository<Vente, Long> , JpaSpecificationExecuto
 
         if (prixPercu == 0) {
           predicates.add(criteriaBuilder.equal(root.get<Int>("prixPercu"), prixPercu))
-        }
-        else  if (prixPercu!! > 0) {
+        } else if (prixPercu!! > 0) {
           predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get<Int>("prixPercu"), 0))
         }
 

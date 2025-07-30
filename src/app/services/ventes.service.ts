@@ -50,6 +50,11 @@ export class VentesService {
   }
 
   // Load ongoing unpaid sales
+  listerVenteParNombreDeJourEtFournisseur(fournisseurId: string, jour: string): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/nombre-jour-fournisseur?fournisseurId=${fournisseurId}&jour=${jour}`, {headers: this.getHeaders()});
+  }
+
+  // Load ongoing unpaid sales
   listerVentes(): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/lister`, {headers: this.getHeaders()});
   }

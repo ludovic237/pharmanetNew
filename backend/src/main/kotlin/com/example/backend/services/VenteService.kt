@@ -39,8 +39,8 @@ class VenteService(
 
   @Transactional
   fun creerVenteSansEncaissement(venteRequestDto: VenteRequestDto): Vente {
-    val currentUser = userUtils.getCurrentUser()
-      ?: throw RuntimeException("Impossible de récupérer l'utilisateur connecté.")
+    val currentUser =
+      userUtils.getCurrentUser() ?: throw RuntimeException("Impossible de récupérer l'utilisateur connecté.")
 
     val employe = employeRepository.findByUser(currentUser)
       ?: throw RuntimeException("Employé introuvable pour l'utilisateur connecté.")
@@ -56,8 +56,8 @@ class VenteService(
         .orElseThrow { RuntimeException("Client introuvable avec l'ID: ${venteRequestDto.clientInfo.id}") }
 
       "new" -> User().apply {
-        this.nom = venteRequestDto.clientInfo.name
-          ?: throw RuntimeException("Nom du client requis pour un nouveau client")
+        this.nom =
+          venteRequestDto.clientInfo.name ?: throw RuntimeException("Nom du client requis pour un nouveau client")
         this.telephone = venteRequestDto.clientInfo.phone
           ?: throw RuntimeException("Téléphone du client requis pour un nouveau client")
       }.also { userRepository.save(it) }
@@ -158,8 +158,8 @@ class VenteService(
 
   @Transactional
   fun encaisserVenteDirect(encaissementDirectDto: EncaissementDirectDto): Vente {
-    val currentUser = userUtils.getCurrentUser()
-      ?: throw RuntimeException("Impossible de récupérer l'utilisateur connecté.")
+    val currentUser =
+      userUtils.getCurrentUser() ?: throw RuntimeException("Impossible de récupérer l'utilisateur connecté.")
 
     val employe = employeRepository.findByUser(currentUser)
       ?: throw RuntimeException("Employé introuvable pour l'utilisateur connecté.")
@@ -365,8 +365,8 @@ class VenteService(
 
   @Transactional
   fun encaisserVente(venteId: Long, encaissementRequestDto: EncaissementRequestDto): Facturation {
-    val vente = venteRepository.findById(venteId)
-      .orElseThrow { RuntimeException("Vente introuvable avec l'ID: $venteId") }
+    val vente =
+      venteRepository.findById(venteId).orElseThrow { RuntimeException("Vente introuvable avec l'ID: $venteId") }
 
     if (vente.etat != "EN_COURS") {
       throw RuntimeException("La vente doit être en cours pour être encaissée.")
@@ -572,29 +572,26 @@ class VenteService(
     if (ventes.prixPercu != null && ventes.prixPercu!! > 0) {
       throw RuntimeException("La vente est déjà encaissée.")
     }
-    val produits = concernerRepository.findByVenteId(ventes.id!!.toLong())
-      .map { concerner ->
-        var produit =
-          produitRepository.findById(enRayonRepository.findById(concerner?.enRayonId!!).get().produitId!!!!)
-            .get()
-        var nom = produit.nom
-        if (concerner?.type === "detail") {
-          var produitDetail = produitDetailRepository.findById(concerner.enRayonId!!.toInt()).get()
-          nom = produitDetail.nom
-        }
-        mapOf(
-          "id" to concerner?.id,
-          "nom" to nom,
-          "prixUnitaire" to concerner?.prixUnit,
-          "quantite" to concerner?.quantite,
-          "prixTotal" to (concerner?.prixUnit!! * concerner.quantite!!),
-          "reduction" to concerner.reduction,
-          "type" to concerner.type
-        )
+    val produits = concernerRepository.findByVenteId(ventes.id!!.toLong()).map { concerner ->
+      var produit =
+        produitRepository.findById(enRayonRepository.findById(concerner?.enRayonId!!).get().produitId!!!!).get()
+      var nom = produit.nom
+      if (concerner?.type === "detail") {
+        var produitDetail = produitDetailRepository.findById(concerner.enRayonId!!.toInt()).get()
+        nom = produitDetail.nom
       }
+      mapOf(
+        "id" to concerner?.id,
+        "nom" to nom,
+        "prixUnitaire" to concerner?.prixUnit,
+        "quantite" to concerner?.quantite,
+        "prixTotal" to (concerner?.prixUnit!! * concerner.quantite!!),
+        "reduction" to concerner.reduction,
+        "type" to concerner.type
+      )
+    }
     return mapOf(
-      "vente" to ventes,
-      "produits" to produits
+      "vente" to ventes, "produits" to produits
     )
   }
 
@@ -618,8 +615,7 @@ class VenteService(
   @Transactional
   fun listerVentes(): List<Map<String, Any?>> {
     return venteRepository.findAll().map { vente ->
-      mapOf(
-        "netAPayer" to vente.prixTotal as Any?,
+      mapOf("netAPayer" to vente.prixTotal as Any?,
         "reduction" to vente.reduction as Any?,
         "reference" to vente.reference as Any?,
         "infoClients" to (vente.user?.let { "${it.nom} (${it.telephone})" } ?: "Aucun client") as Any?,
@@ -631,6 +627,73 @@ class VenteService(
     }
   }
 
+  @Transactional
+  fun listerVenteParNombreDeJourEtFournisseur(fournisseurId: String?, jour: Int): List<Map<String, Any?>> {
+    val dateDebut = LocalDateTime.now().minusDays(jour.toLong())
+    val dateFin = LocalDateTime.now()
+
+    val ventes = venteRepository.findByDateVenteBetweenAndSupprimer(dateDebut, dateFin)
+
+    val produits = ventes.flatMap { vente: Vente? ->
+      concernerRepository.findByVenteId(vente?.id!!).mapNotNull { concerner ->
+        if (concerner?.enRayonId!!.toLong() > 1000) {
+          val enRayon = enRayonRepository.findById(concerner?.enRayonId!!).get()
+          val produit = produitRepository.findById(enRayon?.produitId!!).orElse(null)
+          // Filtre les produits du fournisseur spécifié
+          if (fournisseurId == "null") {
+            mapOf(
+              "id" to produit.id,
+              "nom" to produit.nom,
+              "prix" to concerner.prixUnit,
+              "stock" to produit.stock,
+              "fournisseur" to enRayon.fournisseur!!.nom,
+              "dateLivraison" to enRayon.dateLivraison,
+              "datePeremption" to enRayon.datePeremption,
+              "quantiteStock" to produit.stock,
+              "prixAchat" to enRayon.prixAchat,
+              "quantiteRestante" to 0,
+            )
+          }
+          else if (fournisseurId!!.toLong() > 0.0.toLong()) {
+            if (produit != null && enRayon.fournisseur?.id?.toLong() == fournisseurId.toLong()) {
+              mapOf(
+                "id" to produit.id,
+                "nom" to produit.nom,
+                "prix" to concerner.prixUnit,
+                "stock" to produit.stock,
+                "fournisseur" to enRayon.fournisseur!!.nom,
+                "dateLivraison" to enRayon.dateLivraison,
+                "datePeremption" to enRayon.datePeremption,
+                "quantiteStock" to produit.stock,
+                "prixAchat" to enRayon.prixAchat,
+                "quantiteRestante" to 0,
+                // ajoute d'autres champs si besoin
+              )
+            }
+            else null
+          } else {
+            mapOf(
+              "id" to produit.id,
+              "nom" to produit.nom,
+              "prix" to concerner.prixUnit,
+              "stock" to produit.stock,
+              "fournisseur" to enRayon.fournisseur!!.nom,
+              "dateLivraison" to enRayon.dateLivraison,
+              "datePeremption" to enRayon.datePeremption,
+              "quantiteStock" to produit.stock,
+              "prixAchat" to enRayon.prixAchat,
+              "quantiteRestante" to 0,
+            )
+          }
+        }
+        else
+          null
+
+      }
+    }
+
+    return produits.distinctBy { it["nom"] }
+  }
 
   fun listerVentesPageable(
     pageable: Pageable,
@@ -644,9 +707,7 @@ class VenteService(
   ): Page<Map<String, Any?>> {
     val activeCaisse = caisseService.getCaisseActive()
     val spec = VenteRepository.filterVentes(
-      activeCaisse,
-      0, 1,
-      etat, dateVente, dateEncaissement, userId, employeId, prescripteurId, caisseId
+      activeCaisse, 0, 1, etat, dateVente, dateEncaissement, userId, employeId, prescripteurId, caisseId
     )
     return venteRepository.findAll(spec, pageable).map { vente ->
       val produits = concernerRepository.findByVenteId(vente.id!!.toLong()).map { concerner ->
@@ -674,8 +735,7 @@ class VenteService(
         )
       }
 
-      mapOf(
-        "id" to vente.id as Any?,
+      mapOf("id" to vente.id as Any?,
         "prixPercu" to vente.prixPercu as Any?,
         "netAPayer" to vente.prixTotal as Any?,
         "reduction" to vente.reduction as Any?,
@@ -705,8 +765,7 @@ class VenteService(
         "null", "null", "null", "null", "null", "null", "null",
       )
       return venteRepository.findAll(spec, pageable).map { vente ->
-        mapOf(
-          "id" to vente.id as Any?,
+        mapOf("id" to vente.id as Any?,
           "netAPayer" to vente.prixTotal as Any?,
           "reduction" to vente.reduction as Any?,
           "reference" to vente.reference as Any?,
@@ -757,8 +816,7 @@ class VenteService(
         )
       }
 
-      mapOf(
-        "id" to vente.id as Any?,
+      mapOf("id" to vente.id as Any?,
         "prixPercu" to vente.prixPercu as Any?,
         "netAPayer" to vente.prixTotal as Any?,
         "reduction" to vente.reduction as Any?,
@@ -787,8 +845,7 @@ class VenteService(
       "null", "null", "null", "null", "null", "null", "null",
     )
     return venteRepository.findAll(spec, pageable).map { vente ->
-      mapOf(
-        "id" to vente.id as Any?,
+      mapOf("id" to vente.id as Any?,
         "prixPercu" to vente.prixPercu as Any?,
         "netAPayer" to vente.prixTotal as Any?,
         "reduction" to vente.reduction as Any?,
@@ -811,44 +868,43 @@ class VenteService(
     if (ventes.prixPercu == null && ventes.prixPercu!! <= 0) {
       throw RuntimeException("La vente est déjà encaissée.")
     }
-    val produits = concernerRepository.findByVenteId(ventes.id!!.toLong())
-      .map { concerner ->
-        var produit =
-          produitRepository.findById(enRayonRepository.findById(concerner!!.enRayonId!!).get().produitId!!).get()
-        var nom = produit.nom
-        if (concerner.type == "detail") {
-          var produitDetail = produitDetailRepository.findById(concerner.enRayonId!!.toInt()).get()
-          nom = produitDetail.nom
-        }
-        mapOf(
-          "id" to concerner?.id,
-          "nom" to nom,
-          "prixUnitaire" to concerner?.prixUnit,
-          "quantite" to concerner?.quantite,
-          "prixTotal" to (concerner?.prixUnit!! * concerner.quantite!!),
-          "reduction" to concerner.reduction
-        )
+    val produits = concernerRepository.findByVenteId(ventes.id!!.toLong()).map { concerner ->
+      var produit =
+        produitRepository.findById(enRayonRepository.findById(concerner!!.enRayonId!!).get().produitId!!).get()
+      var nom = produit.nom
+      if (concerner.type == "detail") {
+        var produitDetail = produitDetailRepository.findById(concerner.enRayonId!!.toInt()).get()
+        nom = produitDetail.nom
       }
+      mapOf(
+        "id" to concerner?.id,
+        "nom" to nom,
+        "prixUnitaire" to concerner?.prixUnit,
+        "quantite" to concerner?.quantite,
+        "prixTotal" to (concerner?.prixUnit!! * concerner.quantite!!),
+        "reduction" to concerner.reduction
+      )
+    }
 
     val facturation = facturationRepository.findByVente(ventes)
 
     val montantEspece = when (facturation!!.typePaiement!!.lowercase()) {
-      "espece".lowercase(), "mixte".lowercase() ->
-        factureEspeceRepository.findByFacturationId(facturation!!.id!!.toLong()).montant ?: 0
+      "espece".lowercase(), "mixte".lowercase() -> factureEspeceRepository.findByFacturationId(facturation!!.id!!.toLong()).montant
+        ?: 0
 
       else -> 0
     }
 
     val montantElectronique = when (facturation!!.typePaiement!!.lowercase()) {
-      "electronique".lowercase(), "mixte".lowercase() ->
-        factureElectroniqueRepository.findByFacturationId(facturation!!.id!!.toLong()).montant ?: 0
+      "electronique".lowercase(), "mixte".lowercase() -> factureElectroniqueRepository.findByFacturationId(facturation!!.id!!.toLong()).montant
+        ?: 0
 
       else -> 0
     }
 
     val montantTicket = when (facturation!!.typePaiement!!.lowercase()) {
-      "ticket".lowercase(), "mixte".lowercase() ->
-        factureTicketRepository.findByFacturationId(facturation!!.id!!.toLong()).montant ?: 0
+      "ticket".lowercase(), "mixte".lowercase() -> factureTicketRepository.findByFacturationId(facturation!!.id!!.toLong()).montant
+        ?: 0
 
       else -> 0
     }
@@ -909,14 +965,12 @@ class VenteService(
       )
     }
     return mapOf(
-      "vente" to vente,
-      "produits" to produits
+      "vente" to vente, "produits" to produits
     )
   }
 
   fun convertToSimpleString(input: String): String {
-    return Normalizer.normalize(input, Normalizer.Form.NFD)
-      .replace("[\\p{InCombiningDiacriticalMarks}]".toRegex(), "")
+    return Normalizer.normalize(input, Normalizer.Form.NFD).replace("[\\p{InCombiningDiacriticalMarks}]".toRegex(), "")
       .lowercase()
   }
 

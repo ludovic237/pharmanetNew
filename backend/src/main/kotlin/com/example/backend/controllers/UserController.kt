@@ -1,5 +1,6 @@
 package com.example.backend.controllers
 
+import com.example.backend.dtos.UserNewDto
 import com.example.backend.models.User
 import com.example.backend.services.UserService
 import org.springframework.http.ResponseEntity
@@ -37,7 +38,7 @@ class UserController(
   @CrossOrigin(origins = ["http://localhost:4200"])
   @PreAuthorize("isAuthenticated()")
   @PutMapping("/{id}")
-  fun updateUser(@PathVariable id: Long, @RequestBody updatedUser: User): ResponseEntity<User> {
+  fun updateUser(@PathVariable id: Long, @RequestBody updatedUser: UserNewDto): ResponseEntity<User> {
     return ResponseEntity.ok(userService.updateUser(id, updatedUser))
   }
 

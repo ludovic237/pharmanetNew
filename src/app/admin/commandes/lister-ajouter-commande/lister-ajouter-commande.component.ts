@@ -53,6 +53,9 @@ import {DomHandlerService} from "@services/dom-handler.service";
 import {FournisseursService} from "@services/fournisseurs.service";
 import {MatPaginator, PageEvent} from "@angular/material/paginator";
 import {AuthService} from "@services/auth.service";
+import {
+  SimpleReapprovisionnementCommandeDialogComponent
+} from "./simple-reapprovisionnement-commande-dialog/simple-reapprovisionnement-commande-dialog.component";
 
 interface Commande {
   id: string;
@@ -255,6 +258,19 @@ fetchCommandesPageable(): void {
 
   openCommandeDialog(param: any) {
     const dialogRef = this.dialog.open(AjouterCommandeDialogComponent, {
+      data: null,
+      width: "80%",
+      panelClass: ['theme-dialog'],
+      autoFocus: false,
+    });
+    dialogRef.afterClosed().subscribe((data: any) => {
+      console.log('Dialog closed', data);
+      this.fetchCommandesPageable();
+    });
+  }
+
+  openSimpleReaDialog(param: any) {
+    const dialogRef = this.dialog.open(SimpleReapprovisionnementCommandeDialogComponent, {
       data: null,
       width: "80%",
       panelClass: ['theme-dialog'],

@@ -114,13 +114,9 @@ class VenteController(
     val pageNumber = page.toIntOrNull()?.coerceAtLeast(0) ?: 0
     val pageSize = size.toIntOrNull()?.coerceAtLeast(1) ?: 10
     val pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.DESC, "dateVente"))
-    val commandes = venteService.listerVentesPageable(pageable,etat
-      ,dateVente
-      ,dateEncaissement
-      ,userId
-      ,employeId
-      ,prescripteurId
-      ,caisseId)
+    val commandes = venteService.listerVentesPageable(
+      pageable, etat, dateVente, dateEncaissement, userId, employeId, prescripteurId, caisseId
+    )
     return ResponseEntity.ok(commandes)
   }
 
@@ -200,6 +196,17 @@ class VenteController(
     val pageSize = size.toIntOrNull()?.coerceAtLeast(1) ?: 10
     val pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.DESC, "dateVente"))
     val ventes = venteService.listerVentesCreditNonEncaissees(pageable)
+    return ResponseEntity.ok(ventes)
+  }
+
+  @CrossOrigin(origins = ["http://localhost:4200"])
+  @PreAuthorize("isAuthenticated()")
+  @GetMapping("/nombre-jour-fournisseur")
+  fun listerVenteParNombreDeJourEtFournisseur(
+    @RequestParam(defaultValue = "null") fournisseurId: String?,
+    @RequestParam(defaultValue = "14") jour: String
+  ): ResponseEntity<List<Map<String, Any?>>> {
+    val ventes = venteService.listerVenteParNombreDeJourEtFournisseur(fournisseurId, jour.toInt())
     return ResponseEntity.ok(ventes)
   }
 

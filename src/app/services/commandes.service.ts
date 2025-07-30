@@ -134,6 +134,10 @@ export class CommandesService {
     return this.http.post<any>(`${this.url}/${commandeId}/cloturer`, null, {headers: this.getHeaders()});
   }
 
+  commandeByFournisseur(fournisseurId: string, totalAmount: string, produits: any): Observable<any> {
+    return this.http.post<any>(`${this.url}/commande_par_fournisseur?fournisseurId=${fournisseurId}&totalAmount=${totalAmount}`, produits, {headers: this.getHeaders()});
+  }
+
   ajouterFacture(commandeId: number, facture: string): Observable<any> {
     return this.http.post<any>(`${this.url}/${commandeId}/ajouter-facture?facture=${facture}`, null, {headers: this.getHeaders()});
   }

@@ -75,6 +75,9 @@ export class DepenseDialogComponent implements OnInit {
           this.snackBar.open('Depense created successfully', '×', {panelClass: 'success', duration: 3000});
           this.loadDepenses();
           this.depenseForm.reset();
+          this.depenseForm.markAsPristine();
+          this.depenseForm.markAsUntouched();
+          this.depenseForm.updateValueAndValidity();
         },
         error: () => this.snackBar.open('Failed to create depense', '×', {panelClass: 'error', duration: 3000})
       });

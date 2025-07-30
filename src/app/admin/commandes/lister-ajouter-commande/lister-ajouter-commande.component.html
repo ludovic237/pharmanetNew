@@ -2,7 +2,11 @@
   <mat-card>
     <div fxLayout="row wrap" fxLayoutAlign="space-between center" class="w-100 p-3">
       <h2>Liste des Commandes</h2>
-      <button mat-raised-button color="primary" (click)="openCommandeDialog(null)">Ajouter Commande</button>
+      <div fxLayout="row" fxLayoutGap="8px">
+        <button mat-raised-button color="primary" (click)="openCommandeDialog(null)">Ajouter Commande</button>
+        <button mat-raised-button color="primary" (click)="openSimpleReaDialog(null)">Simple reapprovisionnement
+        </button>
+      </div>
     </div>
     <mat-divider></mat-divider>
   </mat-card>
@@ -19,23 +23,23 @@
         </mat-select>
       </mat-form-field>
 
-<!--      <mat-chip-listbox>-->
-<!--        <mat-chip-option-->
-<!--          *ngFor="let etat of etats"-->
-<!--          [class.mat-chip-selected]="selectedEtats == etat"-->
-<!--          (click)="toggleEtatFilter(etat)"-->
-<!--          [color]="selectedEtats.includes(etat) ? 'primary' : ''"-->
-<!--          [selectable]="true">-->
-<!--          {{ etat === 'all' ? 'Tous' : etat }}-->
-<!--        </mat-chip-option>-->
-<!--      </mat-chip-listbox>-->
+      <!--      <mat-chip-listbox>-->
+      <!--        <mat-chip-option-->
+      <!--          *ngFor="let etat of etats"-->
+      <!--          [class.mat-chip-selected]="selectedEtats == etat"-->
+      <!--          (click)="toggleEtatFilter(etat)"-->
+      <!--          [color]="selectedEtats.includes(etat) ? 'primary' : ''"-->
+      <!--          [selectable]="true">-->
+      <!--          {{ etat === 'all' ? 'Tous' : etat }}-->
+      <!--        </mat-chip-option>-->
+      <!--      </mat-chip-listbox>-->
 
       <!-- Filter by Fournisseur -->
-      <mat-form-field  appearance="outline">
-        <mat-label>Filtrer par  Fournisseur</mat-label>
-        <mat-select  [(ngModel)]="selectedFournisseur" (selectionChange)="fetchCommandesPageable()">
-          <mat-option  [value]="null" >
-           Aucun
+      <mat-form-field appearance="outline">
+        <mat-label>Filtrer par Fournisseur</mat-label>
+        <mat-select [(ngModel)]="selectedFournisseur" (selectionChange)="fetchCommandesPageable()">
+          <mat-option [value]="null">
+            Aucun
           </mat-option>
           <mat-option *ngFor="let fournisseur of fournisseurs" [value]="fournisseur.id">
             {{ fournisseur.nom }}
@@ -44,13 +48,13 @@
       </mat-form-field>
 
       <!-- Filter by Date Range -->
-      <mat-form-field  appearance="outline">
+      <mat-form-field appearance="outline">
         <mat-label>Date de début</mat-label>
         <input matInput [matDatepicker]="startPicker" [(ngModel)]="startDate" (dateChange)="fetchCommandesPageable()">
         <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
         <mat-datepicker #startPicker></mat-datepicker>
       </mat-form-field>
-      <mat-form-field  appearance="outline">
+      <mat-form-field appearance="outline">
         <mat-label>Date de fin</mat-label>
         <input matInput [matDatepicker]="endPicker" [(ngModel)]="endDate" (dateChange)="fetchCommandesPageable()">
         <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
@@ -280,19 +284,19 @@
 
   </div>
 
-<!--  @if (filteredCommandes.length) {-->
-    <div fxLayout="row wrap">
-      <div fxFlex="100">
-        <mat-card class="text-center">
-<!--          <pagination-controls class="product-pagination" [autoHide]="true" [maxSize]="5"-->
-<!--                               (pageChange)="onPageChanged($event)"></pagination-controls>-->
-          <mat-paginator [length]="totalItems" [pageSize]="count" [pageSizeOptions]="[5, 10, 25, 100]"
-                         (page)="onPageChanged($event)">
-          </mat-paginator>
-        </mat-card>
-      </div>
+  <!--  @if (filteredCommandes.length) {-->
+  <div fxLayout="row wrap">
+    <div fxFlex="100">
+      <mat-card class="text-center">
+        <!--          <pagination-controls class="product-pagination" [autoHide]="true" [maxSize]="5"-->
+        <!--                               (pageChange)="onPageChanged($event)"></pagination-controls>-->
+        <mat-paginator [length]="totalItems" [pageSize]="count" [pageSizeOptions]="[5, 10, 25, 100]"
+                       (page)="onPageChanged($event)">
+        </mat-paginator>
+      </mat-card>
     </div>
-<!--  }-->
+  </div>
+  <!--  }-->
   <!-- Action Buttons -->
 
 </mat-card>

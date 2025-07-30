@@ -5,6 +5,7 @@ import com.example.backend.models.Commande
 import com.example.backend.models.EnRayon
 import com.example.backend.models.ProduitCmd
 import com.example.backend.repositories.*
+import com.example.backend.utility.UserUtils
 import com.itextpdf.kernel.pdf.PdfDocument
 import com.itextpdf.kernel.pdf.PdfWriter
 import com.itextpdf.layout.Document
@@ -17,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional
 import java.io.File
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
 
 @Service
@@ -27,8 +29,79 @@ class CommandeService(
   private val commandeRepository: CommandeRepository,
   private val produitRepository: ProduitRepository,
   private val enRayonRepository: EnRayonRepository,
-  private val userRepository: UserRepository
+  private val userRepository: UserRepository,
+  private val userUtils: UserUtils
 ) {
+
+  @Transactional
+  fun commandeByFournisseur(fournisseurId: String?, totalAmount: String?, request: List<CommandeNewDTO>): Commande {
+
+    var user = userUtils.getCurrentUser()
+    val getCurrentEmploye = employeRepository.findById(userUtils.getCurrentEmployeId()!!.toInt()).get()
+    val currentUser = userUtils.getCurrentEmployeId()
+
+    var quantiteTotal = 0
+    var montantTotal = 0
+    request.forEach { r ->
+      quantiteTotal += r?.quantiteRestante!!
+      montantTotal += (r?.quantiteRestante!! * r?.prixAchat!!)
+    }
+
+    val commande = Commande().apply {
+      this.employeId = getCurrentEmploye.id
+      var newFournisseurId: String? = fournisseurId
+      if (fournisseurId == "null") {
+        newFournisseurId = "0"
+      }
+      this.fournisseur = fournisseurRepository.findById(newFournisseurId!!.toInt())
+        .orElseThrow { IllegalArgumentException("Fournisseur non trouvé avec l'ID fourni.") }
+      this.dateCreation = LocalDateTime.now()
+      this.dateLivraison = LocalDateTime.now()
+      this.ref = genererReferenceCommande(commandeRepository.countMois().toInt())
+      this.qtiteCmd = quantiteTotal
+      this.montantCmd = montantTotal!!.toDouble()
+      this.etat = "livree"
+      this.supprimer = 0
+    }
+    commande.montantRecu = montantTotal.toDouble() ?: 0.0
+    commande.uniteGratuite = 0
+    commande.qtiteRecu = quantiteTotal ?: 0
+
+    val dateTimeNow = LocalDateTime.now()
+    val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
+    val formattedDateTimeNow = dateTimeNow.format(formatter)
+    commande.id = formattedDateTimeNow.toLong()
+    var savedCommande = commandeRepository.save(commande)
+
+    // Ajout des produits dans la table ProduitCommande
+    request.forEach { produitRequest ->
+      var produitCommande = ProduitCmd().apply {
+        this.commandeId = savedCommande.id
+        this.produit = produitRepository.findById(produitRequest.id!!.toInt())
+          .orElseThrow { IllegalArgumentException("Produit non trouvé avec l'ID fourni.") }
+        this.puRecept = produitRequest.prixAchat?.toDouble() ?: 0.0
+
+        this.puCmd = 0.0
+        this.qtiteRecu = produitRequest.quantiteRestante ?: 0
+        this.qtiteCmd = produitRequest.quantiteRestante ?: 0
+        this.qtiteRecu = produitRequest.quantiteRestante ?: 0
+        this.puCmd = produitRequest.prixAchat?.toDouble() ?: 0.0
+        this.prixPublic = produitRequest.prixAchat?.toDouble() ?: 0.0
+        this.uniteGratuite = 0
+
+      }
+
+      produitCommande = produitCmdRepository.save(produitCommande)
+
+      updateRayonFromCommandeSimple(
+        produitCommande,
+        savedCommande,
+        produitRequest,
+        produitRequest.quantiteRestante!!
+      )
+    }
+    return savedCommande
+  }
 
   @Transactional
   fun createCommande(request: CommandeRequest): Commande {
@@ -244,8 +317,7 @@ class CommandeService(
       }
       commande.montantRecu = totalMontantRecu
       commande.montantCmd = totalMontantRecu
-    }
-    else if (receptionType.lowercase() == Commande.COMMANDE_RECEPTION_TYPE_PARTIEL.lowercase()) {
+    } else if (receptionType.lowercase() == Commande.COMMANDE_RECEPTION_TYPE_PARTIEL.lowercase()) {
       totalQuantiteRecu = 0
       totalMontantRecu = 0.0
       productCmdList?.forEach { produitCmd ->
@@ -259,7 +331,7 @@ class CommandeService(
           throw IllegalArgumentException("La quantité à recevoir ne peut pas dépasser la quantité commandée.")
         }
 
-        totalQuantiteRecu = produitCmdEntity.qtiteRecu?.toInt() ?: 0+ produitCmd.quantite?.toInt()!! ?: 0
+        totalQuantiteRecu = produitCmdEntity.qtiteRecu?.toInt() ?: 0 + produitCmd.quantite?.toInt()!! ?: 0
         totalMontantRecu += produitCmdEntity.qtiteRecu?.toInt()!! * produitCmdEntity.puCmd!!
 
         produitCmdRepository.save(produitCmdEntity)
@@ -271,7 +343,7 @@ class CommandeService(
         updateProduitStock(produitCmd.productId!!, produitCmd.quantite!! + produitCmd.uniteGratuite?.toInt()!! ?: 0)
       }
     }
-    commande.uniteGratuite =  commande.uniteGratuite!! + totalUniteGratuite
+    commande.uniteGratuite = commande.uniteGratuite!! + totalUniteGratuite
     commande.qtiteRecu = produitCmdRepository.findByCommandeId(commande.id!!).sumOf { it.qtiteRecu ?: 0 }
     totalQuantiteRecu = (commande.qtiteRecu ?: 0) + (totalUniteGratuite ?: 0)
     if (totalQuantiteRecu == commande.qtiteCmd) {
@@ -311,6 +383,7 @@ class CommandeService(
 
     val produit = produitRepository.findById(produitCmd.productId!!.toInt())
       .orElseThrow { IllegalArgumentException("Produit non trouvé avec l'ID: ${produitCmd.productId}") }
+    updateProduitStock(produit?.id!!.toLong(), quantiteARecevoir)
     if (enRayonRepository.findByProduitIdAndCommandeAndSupprimer(produit.id!!, commande, 0).isPresent) {
       // Si le produit est déjà en rayon pour cette commande, on met à jour la quantité
       val enRayon = enRayonRepository.findByProduitIdAndCommandeAndSupprimer(produit.id!!, commande, 0).get()
@@ -325,6 +398,47 @@ class CommandeService(
         this.fournisseur = commande.fournisseur
         this.dateLivraison = commande.dateLivraison ?: LocalDateTime.now()
         this.datePeremption = produitCmd.dateDePeremption ?: LocalDateTime.now().plusDays(30)
+//        this.datePeremption = produitCmd.datePeremption?.plusDays(30) ?: LocalDateTime.now().plusDays(30)
+        this.prixAchat = produitCmdEntity.puCmd?.toInt() ?: 0
+        this.prixVente = produitCmdEntity.prixPublic?.toInt() ?: 0
+        this.quantite = quantiteARecevoir
+        this.quantiteRestante = quantiteARecevoir
+      }
+      enRayonRepository.save(enRayon)
+    }
+
+  }
+
+  private fun updateRayonFromCommandeSimple(
+    produitCmdEntity: ProduitCmd,
+    commande: Commande,
+    produitCmd: CommandeNewDTO,
+    quantiteARecevoir: Int
+  ) {
+    if (quantiteARecevoir <= 0) return
+
+    val produit = produitRepository.findById(produitCmd.id!!.toInt())
+      .orElseThrow { IllegalArgumentException("Produit non trouvé avec l'ID: ${produitCmd.id}") }
+    updateProduitStock(produit?.id!!.toLong(), quantiteARecevoir)
+    if (enRayonRepository.findByProduitIdAndCommandeAndSupprimer(produit.id!!, commande, 0).isPresent) {
+      // Si le produit est déjà en rayon pour cette commande, on met à jour la quantité
+      val enRayon = enRayonRepository.findByProduitIdAndCommandeAndSupprimer(produit.id!!, commande, 0).get()
+      enRayon.quantite = enRayon.quantite!! + quantiteARecevoir
+      enRayon.quantiteRestante = enRayon.quantiteRestante!! + quantiteARecevoir
+      enRayonRepository.save(enRayon)
+    } else {
+      val dateTimeNow = LocalDateTime.now()
+      val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
+      val formattedDateTimeNow = dateTimeNow.format(formatter)
+      val enRayon = EnRayon().apply {
+        this.id = formattedDateTimeNow
+        this.produitId = produitCmdEntity.produit!!.id
+        this.commande = commande
+        this.reduction = 0
+        this.fournisseur = commande.fournisseur
+        this.dateLivraison = commande.dateLivraison ?: LocalDateTime.now()
+        this.datePeremption =
+          LocalDateTime.parse(produitCmd.datePeremption!!.trim()) ?: LocalDateTime.now().plusDays(30)
 //        this.datePeremption = produitCmd.datePeremption?.plusDays(30) ?: LocalDateTime.now().plusDays(30)
         this.prixAchat = produitCmdEntity.puCmd?.toInt() ?: 0
         this.prixVente = produitCmdEntity.prixPublic?.toInt() ?: 0
@@ -375,13 +489,13 @@ class CommandeService(
       }
   }
 
-fun getAllCommandesMappedPageable(
+  fun getAllCommandesMappedPageable(
     pageable: Pageable,
     etat: String?,
     fournisseurId: String?,
     startDate: String?,
     endDate: String?
-): Page<Map<String, Any?>> {
+  ): Page<Map<String, Any?>> {
     val specification = CommandeRepository.filterCommandes(etat, fournisseurId, startDate, endDate)
     return commandeRepository.findAll(specification, pageable)
       .map { commande ->
@@ -398,7 +512,7 @@ fun getAllCommandesMappedPageable(
           "montantCmd" to commande.montantCmd
         )
       }
-}
+  }
 
   fun getCommandeById(commandeId: Long): Map<String, Any?> {
     val commande = commandeRepository.findById(commandeId)

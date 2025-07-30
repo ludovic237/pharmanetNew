@@ -26,7 +26,7 @@ export class EmployesService {
   }
 
   updateEmploye(user:any){
-      return this.http.put(this.url, user, { headers: this.getHeaders() });
+      return this.http.put(this.url+'/'+user.id, user, { headers: this.getHeaders() });
   }
 
   deleteEmploye(id: number) {

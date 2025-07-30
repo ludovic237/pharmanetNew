@@ -1,4 +1,4 @@
-import {Component, inject} from '@angular/core';
+import {Component, inject, OnInit} from '@angular/core';
 import {Settings, SettingsService} from "@services/settings.service";
 import {DomHandlerService} from "@services/dom-handler.service";
 import {AuthService} from "@services/auth.service";
@@ -43,6 +43,7 @@ import {EnrayonsService} from "@services/enrayons.service";
 import {ProductService} from "@services/products.service";
 import {PrescripteursService} from "@services/prescripteurs.service";
 import {EmployesService} from "@services/employes.service";
+import {EmployeDialogComponent} from "./employe-dialog/employe-dialog.component";
 
 @Component({
   selector: 'app-employe',
@@ -98,39 +99,39 @@ import {EmployesService} from "@services/employes.service";
   templateUrl: './employe.component.html',
   styleUrl: './employe.component.scss'
 })
-export class EmployeComponent {
+export class EmployeComponent implements OnInit{
 
   displayedColumns: string[] = ['id', 'name', 'email', 'telephone', 'actions'];
   users: any[] = [];
   public totalItems: number = 0; // Default to 0 if undefined
   public searchText: string;
   public count: number = 6; // Default to 6 if undefined
-  public page:any;
+  public page: any;
   public settings: Settings;
   domHandlerService = inject(DomHandlerService);
 
   constructor(
     public authService: AuthService,
-    public snackBar:MatSnackBar,public settingsService: SettingsService,
+    public snackBar: MatSnackBar, public settingsService: SettingsService,
     public dialog: MatDialog,
     public employeService: EmployesService,
-    private ngxSpinnerService: NgxSpinnerService){
+    private ngxSpinnerService: NgxSpinnerService) {
     this.settings = this.settingsService.settings;
   }
 
   ngOnInit() {
-    this.getUsers();
+    this.getEmployes();
   }
 
-  public getUsers(): void {
+  public getEmployes(): void {
     this.users = null; //for show spinner each time
     this.employeService.getEmployes().subscribe({
       next: (users) => {
         this.users = users
         this.totalItems = users.length;
       },
-      error: (err:any) => {
-        if (err.status === 401 || err.status === 403){
+      error: (err: any) => {
+        if (err.status === 401 || err.status === 403) {
           this.authService.logout();
           this.snackBar.open('Déconnexion réussie.', '×', {
             panelClass: 'success',
@@ -145,30 +146,49 @@ export class EmployeComponent {
       }
     });
   }
-  public addUser(user:User){
-    this.employeService.addEmploye(user).subscribe(user => this.getUsers());
+
+  public addUser(user: User) {
+    this.employeService.addEmploye(user).subscribe(user => this.getEmployes());
   }
-  public updateUser(user:User){
-    this.employeService.updateEmploye(user).subscribe(user => this.getUsers());
+
+  public updateUser(user: User) {
+    this.employeService.updateEmploye(user).subscribe(user => this.getEmployes());
   }
+
   // public deleteUser(user:User){
   //   this.employeService.deleteUser(user.id).subscribe(user => this.getUsers());
   // }
 
 
-  public onPageChanged(event: any){
+  public onPageChanged(event: any) {
     this.page = event;
-    this.getUsers();
+    this.getEmployes();
     this.domHandlerService.winScroll(0, 0);
   }
 
-  public openUserDialog(user: User){
-    let dialogRef = this.dialog.open(ClientDialogComponent, {
-      data: user
+  public openEmployeDialog(user: User, type: string) {
+    let dialogRef = this.dialog.open(EmployeDialogComponent, {
+      data: {
+        type: type,
+        data: user
+      }
     });
-    dialogRef.afterClosed().subscribe((user: User) => {
-      if (user) {
-        (user.id) ? this.updateUser(user) : this.addUser(user);
+    dialogRef.afterClosed().subscribe((user: string) => {
+      if (user=='add') {
+        this.getEmployes();
+        this.snackBar.open('Ajout reussi.', '×', {
+          panelClass: 'success',
+          verticalPosition: 'top',
+          duration: 3000,
+        });
+      }
+      else if (user=='update') {
+        this.getEmployes();
+        this.snackBar.open('Mise a jour reussi.', '×', {
+          panelClass: 'success',
+          verticalPosition: 'top',
+          duration: 3000,
+        });
       }
     });
   }
@@ -179,8 +199,8 @@ export class EmployeComponent {
       next: () => {
         this.users = this.users.filter(user => user.id !== userId);
       },
-      error: (err:any) => {
-        if (err.status === 401 || err.status === 403){
+      error: (err: any) => {
+        if (err.status === 401 || err.status === 403) {
           this.authService.logout();
           this.snackBar.open('Déconnexion réussie.', '×', {
             panelClass: 'success',

@@ -36,17 +36,19 @@ import {MatNativeDateModule} from "@angular/material/core";
 import {MatSelectModule} from "@angular/material/select";
 import {MatStepperModule} from "@angular/material/stepper";
 import {MatRadioModule} from "@angular/material/radio";
-import {MatPaginator} from "@angular/material/paginator";
+import {MatPaginator, MatPaginatorModule} from "@angular/material/paginator";
 import {MatButtonToggleModule} from "@angular/material/button-toggle";
 import {MatProgressSpinnerModule} from "@angular/material/progress-spinner";
 import {VentesService} from "@services/ventes.service";
 import {EnrayonsService} from "@services/enrayons.service";
 import {ProductService} from "@services/products.service";
 import {PrescripteursService} from "@services/prescripteurs.service";
+import {EmployesService} from "@services/employes.service";
+import {EmployeDialogComponent} from "../employe/employe-dialog/employe-dialog.component";
 
 @Component({
   selector: 'app-client',
-  providers: [UsersService, VentesService, EnrayonsService, ProductService, PrescripteursService],
+  providers: [UsersService, EmployesService, VentesService, EnrayonsService, ProductService, PrescripteursService],
   imports: [
     MatMenuModule,
     MatListModule,
@@ -94,6 +96,7 @@ import {PrescripteursService} from "@services/prescripteurs.service";
     MatButtonToggleModule,
     MatProgressSpinnerModule,
     PipesModule,
+    MatPaginatorModule,
     DatePipe
   ],
   templateUrl: './client.component.html',
@@ -114,16 +117,17 @@ export class ClientComponent {
     public authService: AuthService,
     public snackBar: MatSnackBar, public settingsService: SettingsService,
     public dialog: MatDialog,
+    public employeService: EmployesService,
     public usersService: UsersService,
     private ngxSpinnerService: NgxSpinnerService) {
     this.settings = this.settingsService.settings;
   }
 
   ngOnInit() {
-    this.getUsers();
+    this.getClients();
   }
 
-  public getUsers(): void {
+  public getClients(): void {
     this.users = null; //for show spinner each time
     this.usersService.getUsers().subscribe({
       next: (users) => {
@@ -148,11 +152,11 @@ export class ClientComponent {
   }
 
   public addUser(user: User) {
-    this.usersService.addUser(user).subscribe(user => this.getUsers());
+    this.usersService.addUser(user).subscribe(user => this.getClients());
   }
 
   public updateUser(user: User) {
-    this.usersService.updateUser(user).subscribe(user => this.getUsers());
+    this.usersService.updateUser(user).subscribe(user => this.getClients());
   }
 
   // public deleteUser(user:User){
@@ -162,17 +166,32 @@ export class ClientComponent {
 
   public onPageChanged(event: any) {
     this.page = event;
-    this.getUsers();
+    this.getClients();
     this.domHandlerService.winScroll(0, 0);
   }
 
-  public openUserDialog(user: User) {
+  public openUserDialog(user: User, type: string) {
     let dialogRef = this.dialog.open(ClientDialogComponent, {
-      data: user
+      data: {
+        type: type,
+        data: user
+      }
     });
-    dialogRef.afterClosed().subscribe((user: User) => {
-      if (user) {
-        (user.id) ? this.updateUser(user) : this.addUser(user);
+    dialogRef.afterClosed().subscribe((user: string) => {
+      if (user == 'add') {
+        this.getClients();
+        this.snackBar.open('Ajout reussi.', '×', {
+          panelClass: 'success',
+          verticalPosition: 'top',
+          duration: 3000,
+        });
+      } else if (user == 'update') {
+        this.getClients();
+        this.snackBar.open('Mise a jour reussi.', '×', {
+          panelClass: 'success',
+          verticalPosition: 'top',
+          duration: 3000,
+        });
       }
     });
   }

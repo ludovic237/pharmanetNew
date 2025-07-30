@@ -1,5 +1,6 @@
 package com.example.backend.controllers
 
+import com.example.backend.dtos.CommandeNewDTO
 import com.example.backend.dtos.CommandeRequest
 import com.example.backend.dtos.ProduitCmdRequest
 import com.example.backend.models.Commande
@@ -85,6 +86,18 @@ class CommandeController(
   @PostMapping("/{id}/modifier-lignes")
   fun modifierLignes(@PathVariable id: Long, @RequestBody produits: List<ProduitCmdRequest>): ResponseEntity<Commande> {
     val commande = commandeService.modifierLignesCommande(id, produits)
+    return ResponseEntity.ok(commande)
+  }
+
+  @CrossOrigin(origins = ["http://localhost:4200"])
+  @PreAuthorize("isAuthenticated()")
+  @PostMapping("/commande_par_fournisseur")
+  fun commandeByFournisseur(
+    @RequestParam fournisseurId: String?,
+    @RequestParam totalAmount: String,
+    @RequestBody produits: List<CommandeNewDTO>
+  ): ResponseEntity<Commande> {
+    val commande = commandeService.commandeByFournisseur(fournisseurId, totalAmount, produits)
     return ResponseEntity.ok(commande)
   }
 

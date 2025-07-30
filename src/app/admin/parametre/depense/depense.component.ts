@@ -1,6 +1,6 @@
-import {Component, OnInit} from '@angular/core';
-import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
+import { Component } from '@angular/core';
 import {CommonModule} from "@angular/common";
+import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
 import {MatTabsModule} from "@angular/material/tabs";
 import {MatToolbarModule} from "@angular/material/toolbar";
 import {MatCardModule} from "@angular/material/card";
@@ -14,13 +14,17 @@ import {MatIconModule} from "@angular/material/icon";
 import {MatTableModule} from "@angular/material/table";
 import {MatAutocompleteModule} from "@angular/material/autocomplete";
 import {FlexLayoutModule} from "@ngbracket/ngx-layout";
+import {AuthService} from "@services/auth.service";
 import {DepenseService} from "@services/depenses.service";
 import {MatSnackBar} from "@angular/material/snack-bar";
-import {AuthService} from "@services/auth.service";
+import {MatDatepickerModule} from "@angular/material/datepicker";
+import {MatNativeDateModule} from "@angular/material/core";
 
 @Component({
-  selector: 'app-depense-dialog',
+  selector: 'app-depense',
   imports: [
+    MatDatepickerModule,
+    MatNativeDateModule,
     CommonModule,
     FormsModule,
     MatTabsModule,
@@ -37,22 +41,29 @@ import {AuthService} from "@services/auth.service";
     MatAutocompleteModule,
     FlexLayoutModule
   ],
-  templateUrl: './depense-dialog.component.html',
-  styleUrl: './depense-dialog.component.scss'
+  templateUrl: './depense.component.html',
+  styleUrl: './depense.component.scss'
 })
+export class DepenseComponent {
 
-export class DepenseDialogComponent implements OnInit {
   selectedTabIndex: number = 0;
   depenses: any[] = [];
   displayedColumns: string[] = ['id', 'designation', 'quantite', 'prixUnitaire', 'dateEpense', 'actions'];
   depenseForm: FormGroup;
 
-   constructor(
+  constructor(
     public authService: AuthService,
     private fb: FormBuilder, private depenseService: DepenseService, private snackBar: MatSnackBar) {
     this.depenseForm = this.fb.group({
       designation: ['', Validators.required],
-      // quantite: [0, [Validators.required, Validators.min(1)]],
+      quantite: ['', Validators.required],
+      dateDepense: ['', Validators.required],
+      beneficiaire: ['', Validators.required],
+      numeroCni: ['', Validators.required],
+      dateDelivrance: ['', Validators.required],
+      lieuDelivrance: ['', Validators.required],
+      societe: ['', Validators.required],
+      typeDepense: ['', Validators.required],
       prixUnitaire: [0, [Validators.required, Validators.min(1)]],
       // dateEpense: ['', Validators.required]
     });
@@ -70,6 +81,8 @@ export class DepenseDialogComponent implements OnInit {
   }
 
   createDepense(): void {
+    console.log("this.depenseForm.value");
+    console.log(this.depenseForm.value);
     if (this.depenseForm.valid) {
       this.depenseService.createDepense(this.depenseForm.value).subscribe({
         next: () => {
@@ -79,6 +92,7 @@ export class DepenseDialogComponent implements OnInit {
           this.depenseForm.markAsPristine();
           this.depenseForm.markAsUntouched();
           this.depenseForm.updateValueAndValidity();
+          // this.depenseForm.;
         },
         error: () => this.snackBar.open('Failed to create depense', '×', {panelClass: 'error', duration: 3000})
       });
@@ -94,4 +108,5 @@ export class DepenseDialogComponent implements OnInit {
       error: () => this.snackBar.open('Failed to delete depense', '×', {panelClass: 'error', duration: 3000})
     });
   }
+
 }

@@ -20,8 +20,15 @@ fun createDepense(@RequestBody depenseData: Map<String, Any>): ResponseEntity<De
         ?: throw IllegalArgumentException("Missing or invalid 'designation'")
     val prixUnitaire = depenseData["prixUnitaire"] as? Int
         ?: throw IllegalArgumentException("Missing or invalid 'prixUnitaire'")
+  if (depenseData.size>3){
+    val depense = depenseService.createDepenseMap(depenseData)
+    return ResponseEntity.ok(depense)
+  }
+  else {
     val depense = depenseService.createDepense(designation, prixUnitaire)
     return ResponseEntity.ok(depense)
+  }
+
 }
     @PutMapping("/{id}")
     fun updateDepense(@PathVariable id: Int,@RequestBody depenseData: Map<String, Any>): ResponseEntity<Depense> {
