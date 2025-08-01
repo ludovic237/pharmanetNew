@@ -1,0 +1,327 @@
+<mat-card>
+  <mat-card-title>Recherche filtrée</mat-card-title>
+  <mat-card-content>
+    <form [formGroup]="rechercheForm" (ngSubmit)="rechercher()">
+
+      <!-- Champ nom (facultatif) -->
+      <mat-form-field appearance="fill" class="w-100">
+        <mat-label>Nom de l’employé</mat-label>
+        <input matInput placeholder="Ex : Jean Dupont" formControlName="nomEmploye">
+      </mat-form-field>
+
+      <!-- Sélection de catégorie -->
+      <mat-form-field appearance="fill" class="w-100">
+        <mat-label>Catégorie</mat-label>
+        <mat-select formControlName="categorie">
+          <mat-option *ngFor="let cat of categories" [value]="cat.value">
+            {{ cat.label }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <!-- Sélecteur de plage de dates -->
+      <mat-form-field appearance="fill" class="w-100">
+        <mat-label>Période</mat-label>
+        <mat-date-range-input [formGroup]="rechercheForm" [rangePicker]="picker">
+          <input matStartDate formControlName="dateDebut" placeholder="Date de début">
+          <input matEndDate formControlName="dateFin" placeholder="Date de fin">
+        </mat-date-range-input>
+        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-date-range-picker #picker></mat-date-range-picker>
+      </mat-form-field>
+
+      <div class="mt-3">
+        <button mat-raised-button color="primary" type="submit" [disabled]="rechercheForm.invalid">
+          Rechercher
+        </button>
+        <button mat-button type="button" (click)="reinitialiser()">Réinitialiser</button>
+      </div>
+    </form>
+  </mat-card-content>
+</mat-card>
+
+<!-- Table Admin -->
+<mat-card *ngIf="categorieActive === 'vente'">
+  <mat-card-title>vente</mat-card-title>
+  <mat-card-content>
+    <div class="table-container">
+      <table mat-table [dataSource]="resultatsCaisse" class="mat-elevation-z8">
+        <ng-container matColumnDef="ref">
+          <th mat-header-cell *matHeaderCellDef>Réf</th>
+          <td mat-cell *matCellDef="let vente">
+            <mat-accordion>
+              <mat-expansion-panel >
+                <mat-expansion-panel-header>
+                  <mat-panel-title>
+                    {{ vente.reference }}
+                  </mat-panel-title>
+                </mat-expansion-panel-header>
+                <div>
+                  <ul>
+                    <li *ngFor="let produit of vente.produits">
+                      {{ produit.nom }} ({{ produit.quantite }})
+                    </li>
+                  </ul>
+                </div>
+              </mat-expansion-panel>
+            </mat-accordion>
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="montant">
+          <th mat-header-cell *matHeaderCellDef>Montant</th>
+          <td mat-cell *matCellDef="let vente">{{ vente.netAPayer }}</td>
+        </ng-container>
+        <ng-container matColumnDef="montantPerçu">
+          <th mat-header-cell *matHeaderCellDef>Montant perçu</th>
+          <td mat-cell *matCellDef="let vente">{{ vente.prixPercu }}</td>
+        </ng-container>
+        <ng-container matColumnDef="client">
+          <th mat-header-cell *matHeaderCellDef>Client</th>
+          <td mat-cell *matCellDef="let vente">{{ vente.infoClients }}</td>
+        </ng-container>
+        <ng-container matColumnDef="vendeur">
+          <th mat-header-cell *matHeaderCellDef>Vendeur</th>
+          <td mat-cell *matCellDef="let vente">{{ vente.vendeur }}</td>
+        </ng-container>
+        <ng-container matColumnDef="dateEncaissement">
+          <th mat-header-cell *matHeaderCellDef>Date d'encaissement</th>
+          <td mat-cell *matCellDef="let vente">{{ vente.dateEncaissement | date:'yyyy-MM-dd HH:mm:ss' }}</td>
+        </ng-container>
+        <ng-container matColumnDef="dateVente">
+          <th mat-header-cell *matHeaderCellDef>Date de vente</th>
+          <td mat-cell *matCellDef="let vente">{{ vente.dateVente | date:'yyyy-MM-dd HH:mm:ss' }}</td>
+        </ng-container>
+        <ng-container matColumnDef="etat">
+          <th mat-header-cell *matHeaderCellDef>État</th>
+          <td mat-cell *matCellDef="let vente">{{ vente.etat }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef>Actions</th>
+          <td mat-cell *matCellDef="let vente">
+<!--            <button mat-raised-button color="primary" (click)="imprimerTicket(vente.id)">Imprimer ticket</button>-->
+          </td>
+        </ng-container>
+
+        <!-- Header and Row Definitions -->
+        <tr mat-header-row *matHeaderRowDef="colonnesVente"></tr>
+        <tr mat-row *matRowDef="let row; columns: colonnesVente;"></tr>
+      </table>
+    </div>
+  </mat-card-content>
+</mat-card>
+<mat-card *ngIf="categorieActive == 'caisse'">
+  <mat-card-title>caisse</mat-card-title>
+  <mat-card-content>
+    <div class="table-container">
+      <table mat-table [dataSource]="resultatsCaisse" class="mat-elevation-z8">
+      <!--  <ng-container matColumnDef="id">
+          <th mat-header-cell *matHeaderCellDef>id</th>
+          <td mat-cell *matCellDef="let vente">
+            {{ vente.nomEmploye }}
+          </td>
+        </ng-container>-->
+        <ng-container matColumnDef="nomEmploye">
+          <th mat-header-cell *matHeaderCellDef>Employe</th>
+          <td mat-cell *matCellDef="let cais">{{ cais.nomEmploye }}</td>
+        </ng-container>
+        <ng-container matColumnDef="dateOuvert">
+          <th mat-header-cell *matHeaderCellDef>Date ouverture</th>
+          <td mat-cell *matCellDef="let cais">{{ cais.dateOuvert | date:'yyyy-MM-dd HH:mm:ss' }}</td>
+        </ng-container>
+        <ng-container matColumnDef="dateFerme">
+          <th mat-header-cell *matHeaderCellDef>Date fermeture</th>
+          <td mat-cell *matCellDef="let cais">{{ cais.dateFerme | date:'yyyy-MM-dd HH:mm:ss' }}</td>
+        </ng-container>
+        <ng-container matColumnDef="etat">
+          <th mat-header-cell *matHeaderCellDef>etat</th>
+          <td mat-cell *matCellDef="let cais">{{ cais.etat }}</td>
+        </ng-container>
+        <ng-container matColumnDef="session">
+          <th mat-header-cell *matHeaderCellDef>Session</th>
+          <td mat-cell *matCellDef="let cais">{{ cais.session }}</td>
+        </ng-container>
+        <ng-container matColumnDef="fondCaisseOuvert">
+          <th mat-header-cell *matHeaderCellDef>Fond ouverture</th>
+          <td mat-cell *matCellDef="let cais">{{ cais.fondCaisseOuvert }}</td>
+        </ng-container>
+        <ng-container matColumnDef="fondCaisseFerme">
+          <th mat-header-cell *matHeaderCellDef>Fond fermeture</th>
+          <td mat-cell *matCellDef="let cais">{{ cais.fondCaisseFerme }}</td>
+        </ng-container>
+        <ng-container matColumnDef="action">
+          <th mat-header-cell *matHeaderCellDef>Actions</th>
+          <td mat-cell *matCellDef="let cais">
+<!--                        <button mat-raised-button color="primary" (click)="imprimerTicket(vente.id)">Imprimer ticket</button>-->
+          </td>
+        </ng-container>
+
+        <!-- Header and Row Definitions -->
+        <tr mat-header-row *matHeaderRowDef="colonnesCaisse"></tr>
+        <tr mat-row *matRowDef="let row; columns: colonnesCaisse;"></tr>
+      </table>
+    </div>
+  </mat-card-content>
+</mat-card>
+<mat-card *ngIf="categorieActive === 'depense'">
+  <mat-card-title>depense</mat-card-title>
+  <mat-card-content>
+    <table mat-table [dataSource]="resultatsDepense" class="full-width">
+      <ng-container matColumnDef="id">
+        <th mat-header-cell *matHeaderCellDef>ID</th>
+        <td mat-cell *matCellDef="let depense">{{ depense.id }}</td>
+      </ng-container>
+      <ng-container matColumnDef="designation">
+        <th mat-header-cell *matHeaderCellDef>Désignation</th>
+        <td mat-cell *matCellDef="let depense">{{ depense.designation }}</td>
+      </ng-container>
+      <ng-container matColumnDef="quantite">
+        <th mat-header-cell *matHeaderCellDef>Quantité</th>
+        <td mat-cell *matCellDef="let depense">{{ depense.quantite }}</td>
+      </ng-container>
+      <ng-container matColumnDef="prixUnitaire">
+        <th mat-header-cell *matHeaderCellDef>Prix Unitaire</th>
+        <td mat-cell *matCellDef="let depense">{{ depense.prixUnitaire }}</td>
+      </ng-container>
+      <ng-container matColumnDef="dateEpense">
+        <th mat-header-cell *matHeaderCellDef>Date</th>
+        <td mat-cell *matCellDef="let depense">{{ depense.dateEpense | date:'yyyy-MM-dd' }}</td>
+      </ng-container>
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef>Actions</th>
+        <td mat-cell *matCellDef="let depense">
+          <!--          <button mat-raised-button color="warn" (click)="deleteDepense(depense.id)">Supprimer</button>-->
+        </td>
+      </ng-container>
+      <tr mat-header-row *matHeaderRowDef="colonnesDepense"></tr>
+      <tr mat-row *matRowDef="let row; columns: colonnesDepense;"></tr>
+    </table>
+  </mat-card-content>
+</mat-card>
+<mat-card *ngIf="categorieActive === 'commande'">
+  <mat-card-title>commande</mat-card-title>
+  <mat-card-content>
+    <div class="mat-elevation-z8">
+
+      <table mat-table [dataSource]="resultatsCommande | paginate: {
+  totalItems: totalItems,
+        itemsPerPage: count,
+        currentPage: page
+}" class="full-width">
+
+        <!-- Checkbox Column -->
+        <!-- Checkbox Column -->
+        <ng-container matColumnDef="select">
+          <th mat-header-cell *matHeaderCellDef>
+
+          </th>
+          <td mat-cell *matCellDef="let commande">
+
+          </td>
+        </ng-container>
+
+        <!-- ID Column -->
+        <ng-container matColumnDef="id">
+          <th mat-header-cell *matHeaderCellDef> ID</th>
+          <td mat-cell *matCellDef="let commande"> {{ commande.id }}</td>
+        </ng-container>
+
+        <!-- Reference Column -->
+        <ng-container matColumnDef="ref">
+          <th mat-header-cell *matHeaderCellDef> Reference</th>
+          <td mat-cell *matCellDef="let commande"> {{ commande.ref }}</td>
+        </ng-container>
+
+        <!-- Date Creation Column -->
+        <ng-container matColumnDef="dateCreation">
+          <th mat-header-cell *matHeaderCellDef> Date Creation</th>
+          <td mat-cell *matCellDef="let commande"> {{ commande.dateCreation | date:'dd/MM/yyyy' }}</td>
+        </ng-container>
+
+        <!-- Etat Column -->
+        <ng-container matColumnDef="etat">
+          <th mat-header-cell *matHeaderCellDef> État</th>
+          <td mat-cell *matCellDef="let commande">
+     <span class="badge" [ngClass]="getEtatClass(commande.etat)">
+       {{ commande.etat }}
+     </span>
+          </td>
+        </ng-container>
+
+        <!-- Quantite Commandee Column -->
+        <ng-container matColumnDef="qtiteCmd">
+          <th mat-header-cell *matHeaderCellDef> Quantite Commandee</th>
+          <td mat-cell *matCellDef="let commande"> {{ commande.qtiteCmd }}</td>
+        </ng-container>
+
+        <!-- Quantite Commandee Column -->
+        <ng-container matColumnDef="qtiteRecu">
+          <th mat-header-cell *matHeaderCellDef> Quantite Recu</th>
+          <td mat-cell *matCellDef="let commande"> {{ commande.qtiteRecu }}</td>
+        </ng-container>
+
+        <!-- Quantite Commandee Column -->
+        <ng-container matColumnDef="uniteGratuite">
+          <th mat-header-cell *matHeaderCellDef> Unite gratuite</th>
+          <td mat-cell *matCellDef="let commande"> {{ commande.uniteGratuite }}</td>
+        </ng-container>
+
+        <!-- Montant Commande Column -->
+        <ng-container matColumnDef="montantCmd">
+          <th mat-header-cell *matHeaderCellDef> Montant Commande</th>
+          <td mat-cell *matCellDef="let commande"> {{ commande.montantCmd | currency }}</td>
+        </ng-container>
+
+        <!-- Montant Commande Column -->
+        <ng-container matColumnDef="montantRecu">
+          <th mat-header-cell *matHeaderCellDef> Montant Recu</th>
+          <td mat-cell *matCellDef="let commande"> {{ commande.montantRecu | currency }}</td>
+        </ng-container>
+
+        <!-- Montant Commande Column -->
+        <ng-container matColumnDef="fournisseur">
+          <th mat-header-cell *matHeaderCellDef> Fournisseur</th>
+          <td mat-cell *matCellDef="let commande"> {{ commande.fournisseur }}</td>
+        </ng-container>
+
+        <!-- Info Column -->
+        <ng-container matColumnDef="info">
+          <th mat-header-cell *matHeaderCellDef> Info</th>
+          <td mat-cell *matCellDef="let commande">
+            <button mat-icon-button color="primary" (click)="viewDetails(commande)">
+              <mat-icon>info</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <!-- Action Column -->
+        <ng-container matColumnDef="action">
+          <th mat-header-cell *matHeaderCellDef> Action</th>
+          <td mat-cell *matCellDef="let commande">
+
+          </td>
+          <!--    <td mat-cell *matCellDef="let commande">
+                <button mat-icon-button color="primary" matTooltip="Réception complète" (click)="recevoirComplete(commande)" [disabled]="!canPerformAction('receptionnerComplete', commande)">
+                  <mat-icon>check_circle</mat-icon>
+                </button>
+                <button mat-icon-button color="accent" matTooltip="Réception partielle" (click)="recevoirPartielle(commande)" [disabled]="!canPerformAction('receptionnerPartielle', commande)">
+                  <mat-icon>hourglass_empty</mat-icon>
+                </button>
+                <button mat-icon-button color="warn" matTooltip="Annuler la commande" (click)="annuler(commande)" [disabled]="!canPerformAction('annuler', commande)">
+                  <mat-icon>cancel</mat-icon>
+                </button>
+                <button mat-icon-button color="accent" matTooltip="Mettre en attente" (click)="remettreEnAttente(commande)" [disabled]="!canPerformAction('mettreEnAttente', commande)">
+                  <mat-icon>pause_circle</mat-icon>
+                </button>
+              </td>-->
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="colonnesCommande"></tr>
+        <tr mat-row *matRowDef="let row; columns: colonnesCommande;"></tr>
+      </table>
+
+    </div>
+  </mat-card-content>
+</mat-card>
+
+
