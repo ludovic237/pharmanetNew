@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
 import {UsersService} from "@services/users.service";
 import {SettingsService} from "@services/settings.service";
 import {CommandesService} from "@services/commandes.service";
@@ -11,7 +11,7 @@ import {MatMenuModule} from "@angular/material/menu";
 import {MatListModule} from "@angular/material/list";
 import {MatChipsModule} from "@angular/material/chips";
 import {MatSlideToggleModule} from "@angular/material/slide-toggle";
-import {FormBuilder, FormControl, FormsModule, ReactiveFormsModule} from "@angular/forms";
+import {FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
 import {MatCheckboxModule} from "@angular/material/checkbox";
 import {MatFormFieldModule} from "@angular/material/form-field";
 import {MatInputModule} from "@angular/material/input";
@@ -41,6 +41,8 @@ import {DomHandlerService} from "@services/dom-handler.service";
 import {CaisseService} from "@services/caisse.service";
 import {AuthService} from "@services/auth.service";
 import {MatSnackBar} from "@angular/material/snack-bar";
+import html2canvas from "html2canvas";
+import {jsPDF} from "jspdf";
 
 @Component({
   selector: 'app-rapport-caisse',
@@ -103,6 +105,10 @@ import {MatSnackBar} from "@angular/material/snack-bar";
 })
 export class RapportCaisseComponent implements OnInit {
 
+  @ViewChild('pdfContent', {static: false}) pdfContent!: ElementRef;
+
+  dataCaisse: any = null;
+
   startDate: Date | null = null;
   endDate: Date | null = null;
 
@@ -156,6 +162,8 @@ export class RapportCaisseComponent implements OnInit {
   retourProduits: any[] = [];
   depenses: any[] = [];
   totalDepenses = 0;
+  totalRetourProduits = 0;
+  totalEncaissementFactureCredit = 0;
   bonCaisseEncaisseDataSource: any[] = [];
 
 // Colonnes des tableaux
@@ -165,6 +173,8 @@ export class RapportCaisseComponent implements OnInit {
   EtatColumns: string[] = ['numeroBon', 'montant'];
   depensesColumns: string[] = ['designation', 'prixUnitaire'];
   bonCaisseEnColumns: string[] = ['nomClient', 'codebarreId', 'montant'];
+
+  sessionForm!: FormGroup;
 
   constructor(
     public authService: AuthService,
@@ -180,8 +190,11 @@ export class RapportCaisseComponent implements OnInit {
   ngOnInit(): void {
 // Initialisation des données des tableaux (vides selon l'image)
     this.loadCaisses();
-    this.getRapportCaisse();
-    this.applyFilters();
+    // this.getRapportCaisse();
+    // this.applyFilters();
+    this.sessionForm = this.fb.group({
+      nombre: [10, [Validators.required, Validators.min(1)]]
+    });
   }
 
 // Méthode pour obtenir la classe CSS selon le type
@@ -214,21 +227,50 @@ export class RapportCaisseComponent implements OnInit {
       next: (data: any) => {
         console.log("data");
         console.log(data);
+        this.dataCaisse = data
+        this.totalBonCaisseGeneres = 0
+        this.totalBonCaisseEncaisse = 0
+        this.totalDepenses = 0
+        this.totalRetourProduits = 0
+        this.totalEncaissementFactureCredit = 0
+
+        this.caissier = ""
+        this.session = ""
+        this.startDate = null
+        this.endDate = null
+
+        this.caissier = data.caisse.user.identifiant
+        this.session = data.caisse.session
+        this.startDate = data.caisse.dateOuvert
+        this.endDate = data.caisse.dateFerme
+
         this.resultRapport = data;
+
         this.bonCaisseGeneres = this.resultRapport.bonCaisseGeneres
-        this.bonCaisseGeneres.forEach((item:any) => {
+        this.bonCaisseGeneres.forEach((item: any) => {
           this.totalBonCaisseGeneres = this.totalBonCaisseGeneres + item.montant;
         });
+
         this.bonCaisseEncaisse = this.resultRapport.bonCaisseEncaisse
-        this.bonCaisseEncaisse.forEach((item:any) => {
+        this.bonCaisseEncaisse.forEach((item: any) => {
           this.totalBonCaisseEncaisse = this.totalBonCaisseEncaisse + item.montant;
         });
+
         this.depenses = this.resultRapport.depenses
-        this.depenses.forEach((item:any) => {
+        this.depenses.forEach((item: any) => {
           this.totalDepenses = this.totalDepenses + item.prixUnitaire;
         });
+
         this.encaissementFactureData = this.resultRapport.encaissementFactureData
+        this.encaissementFactureData.forEach((data) => {
+          this.totalEncaissementFactureCredit += data.prixTotal
+        })
+
         this.retourProduits = this.resultRapport.retourProduits
+        this.retourProduits.forEach((item: any) => {
+          this.totalRetourProduits = this.totalRetourProduits + item.total;
+        });
+
         console.log("resultRapport");
         console.log(this.resultRapport)
         this.venteParFournisseurData = [
@@ -290,8 +332,8 @@ export class RapportCaisseComponent implements OnInit {
           {
             mode: 'Total',
             soldeReel: data.soldeReelTotal,
-            soldeSysteme: data.soldeSystemelTotal-data.prixTotalFactureRendu,
-            difference: (data.soldeReelTotal - (data.soldeSystemelTotal-data.prixTotalFactureRendu))
+            soldeSysteme: data.soldeSystemelTotal - data.prixTotalFactureRendu,
+            difference: (data.soldeReelTotal - (data.soldeSystemelTotal - data.prixTotalFactureRendu))
           }
         ];
       },
@@ -324,17 +366,48 @@ export class RapportCaisseComponent implements OnInit {
 
   applyFilters(): void {
 
-      const caisseId = this.caisseControl.value
-      const startDate = this.startDate
-      const endDate = this.endDate
+    const caisseId = this.caisseControl.value
+    const startDate = this.startDate
+    const endDate = this.endDate
 
 
-    this.caisseService.getFilteredCaisses(caisseId,startDate,endDate,0,40).subscribe({
+    this.caisseService.getFilteredCaisses(caisseId, startDate, endDate, 0, 40).subscribe({
       next: (data: any) => {
         this.caisses = data.content;
       },
       error: (err) => {
         console.error('Error applying filters:', err);
+      }
+    });
+  }
+
+  async generatePdf(): Promise<void> {
+    const element = this.pdfContent.nativeElement;
+    html2canvas(element).then((canvas) => {
+      const imgData = canvas.toDataURL('image/png');
+
+      // const pdf = new JsPDF('p', 'mm', 'a4')
+      const pdf = new jsPDF();
+      const imgProps = pdf.getImageProperties(imgData);
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+      pdf.save(`rapport_caisse-${this.dataCaisse.caisse.id}-${this.dataCaisse.caisse.etat}-${this.dataCaisse.caisse.session}.pdf`);
+    })
+  }
+
+  rechercherDernieresSessions(): void {
+    const nombre = this.sessionForm.value.nombre;
+    // Appelle ton service ici
+    console.log(`Recherche des ${nombre} dernières sessions de caisse`);
+    // Exemple : this.sessionService.getDernieresSessions(nombre).subscribe(...)
+
+    this.caisseService.getAllCaisses(0, nombre, 'id').subscribe({
+      next: (data: any) => {
+        this.caisses = data.content; // Assuming the API returns a pageable response
+      },
+      error: (err: any) => {
+        console.error('Error loading caisses:', err);
       }
     });
   }

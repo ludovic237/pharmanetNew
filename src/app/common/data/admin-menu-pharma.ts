@@ -69,5 +69,6 @@ export const getFilteredAdminMenuPharmaItems = (key: string) => {
     new AdminMenu(702, 'Employe', '/admin/setting/employe', null, 'people', null, false, 700),
     new AdminMenu(703, 'Client', '/admin/setting/client', null, 'person', null, false, 700),
     new AdminMenu(704, 'Depense', '/admin/setting/depense', null, 'person', null, false, 700),
+    new AdminMenu(705, 'Activite', '/admin/setting/activite', null, 'person', null, false, 700),
   ];
 };

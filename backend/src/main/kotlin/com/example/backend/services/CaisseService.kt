@@ -476,8 +476,14 @@ class CaisseService(
     return caisses.map { caisse ->
       mapOf(
         "id" to caisse.id,
+        "session" to caisse.session,
         "etat" to caisse.etat,
+        "dateOuvert" to caisse.dateOuvert,
+        "dateFerme" to caisse.dateFerme,
+        "fondCaisseFerme" to caisse.fondCaisseFerme,
+        "fondCaisseOuvert" to caisse.fondCaisseOuvert,
         "nomEmploye" to (caisse.user?.user?.nom ?: "Inconnu"),
+        "employe" to (caisse.user?.user?.nom ?: "Inconnu"),
         "dateOuvert" to caisse.dateOuvert,
         "dateFerme" to caisse.dateFerme
       )
