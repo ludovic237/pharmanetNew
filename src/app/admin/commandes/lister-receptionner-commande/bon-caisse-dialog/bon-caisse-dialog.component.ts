@@ -162,7 +162,7 @@ export class BonCaisseDialogComponent {
 
   async generateBonCaisse(bon: any): Promise<void> {
     const doc = new jsPDF();
-
+    const pageWidth = doc.internal.pageSize.width
     // const doc = new jsPDF({
     //   unit: 'mm', // Unité en millimètres
     //   format: [210, 297], // Largeur x Hauteur en millimètres

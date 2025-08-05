@@ -11,14 +11,14 @@ import com.itextpdf.kernel.pdf.PdfWriter
 import com.itextpdf.layout.Document
 import com.itextpdf.layout.element.Paragraph
 import com.itextpdf.layout.element.Table
-import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.io.File
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
 
 @Service
@@ -493,25 +493,53 @@ class CommandeService(
     pageable: Pageable,
     etat: String?,
     fournisseurId: String?,
+    typeFournisseur: String?,
     startDate: String?,
     endDate: String?
-  ): Page<Map<String, Any?>> {
-    val specification = CommandeRepository.filterCommandes(etat, fournisseurId, startDate, endDate)
-    return commandeRepository.findAll(specification, pageable)
+  ): CommandePageableCustomlDto {
+    val specification = CommandeRepository.filterCommandes(etat, typeFournisseur, fournisseurId, startDate, endDate)
+    val commandes = commandeRepository.findAll(specification, pageable)
       .map { commande ->
         mapOf(
-          "id" to commande.id,
-          "ref" to commande.ref,
-          "dateCreation" to commande.dateCreation,
-          "etat" to commande.etat,
-          "qtiteCmd" to commande.qtiteCmd,
-          "qtiteRecu" to commande.qtiteRecu,
-          "montantRecu" to commande.montantRecu,
-          "uniteGratuite" to commande.uniteGratuite,
-          "fournisseur" to commande.fournisseur!!.nom,
-          "montantCmd" to commande.montantCmd
+          "id" to commande.id as Any?,
+          "ref" to commande.ref as Any?,
+          "dateCreation" to commande.dateCreation as Any?,
+          "etat" to commande.etat as Any?,
+          "qtiteCmd" to commande.qtiteCmd as Any?,
+          "qtiteRecu" to commande.qtiteRecu as Any?,
+          "montantRecu" to commande.montantRecu as Any?,
+          "uniteGratuite" to commande.uniteGratuite as Any?,
+          "fournisseur" to commande.fournisseur!!.nom as Any?,
+          "montantCmd" to commande.montantCmd as Any?
         )
       }
+    var totalAmountRecu = 0.0
+    var totalAmountCommande = 0.0
+    var totalQteRecu = 0
+    var totalQteCommande = 0
+    if (commandes.totalElements > 0) {
+      val pageableElement =
+        PageRequest.of(0, commandes.totalElements.toInt(), Sort.by(Sort.Direction.DESC, "dateCreation"))
+      val venteTotal = commandeRepository.findAll(specification, pageableElement)
+      totalAmountRecu = venteTotal.content.sumOf { it.montantRecu as Double }
+      totalAmountCommande = venteTotal.content.sumOf { it.montantCmd as Double }
+      totalQteRecu = venteTotal.content.sumOf { it.qtiteRecu as Int }
+      totalQteCommande = venteTotal.content.sumOf { it.qtiteCmd as Int }
+    }
+
+    val data = CommandePageableCustomlDto(
+      content = commandes,
+      totalElements = commandes.totalElements,
+      totalPages = commandes.totalPages,
+      pageSize = commandes.size,
+      pageNumber = commandes.number,
+      totalAmountRecu = totalAmountRecu,
+      totalAmountCommande = totalAmountCommande,
+      totalQteRecu = totalQteRecu,
+      totalQteCommande = totalQteCommande,
+    )
+
+    return data
   }
 
   fun getCommandeById(commandeId: Long): Map<String, Any?> {

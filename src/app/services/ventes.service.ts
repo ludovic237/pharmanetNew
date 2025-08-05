@@ -70,6 +70,32 @@ export class VentesService {
     return this.http.get<Page>(this.apiUrl + `/pageable/lister?page=${page}&etat=${etat}&dateVente=${dateVente}&dateEncaissement=${dateEncaissement}&userId=${userId}&employeId=${employeId}&prescripteurId=${prescripteurId}&caisseId=${caisseId}&size=${size}`, {headers: this.getHeaders()});
   }
 
+  fetchVentesPageableRange(page: number, size: number,
+                         etat: string,
+                         startDateVente: string,
+                         endDateVente: string,
+                         startDateEncaissement: string,
+                         endDateEncaissement: string,
+                         userId: string,
+                         employeId: string,
+                         prescripteurId: string,
+                         caisseId: string): Observable<Page> {
+    return this.http.get<Page>(this.apiUrl + `/pageable/lister?page=${page}&etat=${etat}&startDateVente=${startDateVente}&endDateVente=${endDateVente}&startDateEncaissement=${startDateEncaissement}&endDateEncaissement=${endDateEncaissement}&userId=${userId}&employeId=${employeId}&prescripteurId=${prescripteurId}&caisseId=${caisseId}&size=${size}`, {headers: this.getHeaders()});
+  }
+
+  fetchVentesPageableRangePrint(page: number, size: number,
+                         etat: string,
+                         startDateVente: string,
+                         endDateVente: string,
+                         startDateEncaissement: string,
+                         endDateEncaissement: string,
+                         userId: string,
+                         employeId: string,
+                         prescripteurId: string,
+                         caisseId: string): Observable<Page> {
+    return this.http.get<Page>(this.apiUrl + `/pageable/lister/print?page=${page}&etat=${etat}&startDateVente=${startDateVente}&endDateVente=${endDateVente}&startDateEncaissement=${startDateEncaissement}&endDateEncaissement=${endDateEncaissement}&userId=${userId}&employeId=${employeId}&prescripteurId=${prescripteurId}&caisseId=${caisseId}&size=${size}`, {headers: this.getHeaders()});
+  }
+
 
   // Load ongoing unpaid sales
   listerVentesPageable(): Observable<any> {

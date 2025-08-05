@@ -1,16 +1,10 @@
 package com.example.backend.controllers
 
-import com.example.backend.dtos.CommandeNewDTO
-import com.example.backend.dtos.CommandeRequest
-import com.example.backend.dtos.ProduitCmdRequest
+import com.example.backend.dtos.*
 import com.example.backend.models.Commande
-import com.example.backend.models.Fabriquant
 import com.example.backend.services.CommandeService
-import com.example.backend.services.FabriquantService
-import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
-import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
@@ -61,14 +55,15 @@ class CommandeController(
     @RequestParam(defaultValue = "id") sortBy: String,
     @RequestParam(required = false) search: String?,
     @RequestParam(required = false) etat: String?,
+    @RequestParam(required = false) typeFournisseur: String?,
     @RequestParam(required = false) fournisseurId: String?,
     @RequestParam(required = false) startDate: String?,
     @RequestParam(required = false) endDate: String?
-  ): ResponseEntity<Page<Map<String, Any?>>> {
+  ): ResponseEntity<CommandePageableCustomlDto> {
     val pageNumber = page.toIntOrNull()?.coerceAtLeast(0) ?: 0
     val pageSize = size.toIntOrNull()?.coerceAtLeast(1) ?: 10
     val pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.DESC, "dateCreation"))
-    val commandes = commandeService.getAllCommandesMappedPageable(pageable, etat, fournisseurId, startDate, endDate)
+    val commandes = commandeService.getAllCommandesMappedPageable(pageable, etat, fournisseurId, typeFournisseur, startDate, endDate)
     return ResponseEntity.ok(commandes)
   }
 

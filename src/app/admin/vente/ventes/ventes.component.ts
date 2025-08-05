@@ -40,10 +40,12 @@ import {jsPDF} from "jspdf";
 import QRCode from "qrcode";
 import {MatPaginatorModule, PageEvent} from "@angular/material/paginator";
 import {AuthService} from "@services/auth.service";
+import {EmployesService} from "@services/employes.service";
+import autoTable from "jspdf-autotable";
 
 @Component({
   selector: 'app-ventes',
-  providers: [UsersService, VentesService, EnrayonsService, ProductService, PrescripteursService],
+  providers: [PrescripteursService, EmployesService, UsersService, VentesService, EnrayonsService, ProductService, PrescripteursService],
   imports: [
     MatPaginatorModule,
     MatMenuModule,
@@ -98,6 +100,8 @@ export class VentesComponent implements OnInit {
   count = 5;
   totalItems = 0;
 
+  totalAmount = 0;
+
   etat: string = null;
   dateVente: string = null;
   dateEncaissement: string = null;
@@ -108,22 +112,22 @@ export class VentesComponent implements OnInit {
 
   displayedColumns: string[] = ['ref', 'client', 'vendeur', 'montant', 'montantPerçu', 'dateEncaissement', 'dateVente', 'etat', 'actions'];
 
-  etats: string[] = ['EN_COURS', 'ENCAISSE', 'ANNULER'];
+  etats: string[] = ['COMPTANT', 'CREDIT', 'ASSURANCE'];
   utilisateurs: any[] = [];
   employes: any[] = [];
   prescripteurs: any[] = [];
-  caisses: any[] = [];
+  caisses: any[] = ["oui", "non"];
 
   selectedEtat: string | null = null;
   selectedUtilisateur: number | null = null;
   selectedEmploye: number | null = null;
   selectedPrescripteur: number | null = null;
-  selectedCaisse: number | null = null;
+  selectedCaisse: string = "oui";
 
-  startDateVente: Date | null = null;
-  endDateVente: Date | null = null;
-  startDateEncaissement: Date | null = null;
-  endDateEncaissement: Date | null = null;
+  startDateVente: Date | null = new Date();
+  endDateVente: Date | null = new Date();
+  startDateEncaissement: Date | null = new Date();
+  endDateEncaissement: Date | null = new Date();
 
   fournisseurs: any[] = [];
 
@@ -134,6 +138,7 @@ export class VentesComponent implements OnInit {
     public appSettings: SettingsService,
     public snackBar: MatSnackBar,
     public enRayonService: EnrayonsService,
+    public employesService: EmployesService,
     public commandesService: CommandesService,
     public fournisseursService: FournisseursService,
     public productService: ProductService,
@@ -146,7 +151,15 @@ export class VentesComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    const today = new Date()
+    this.endDateVente = today
+    this.startDateVente.setDate(today.getDate() - 14)
+    this.endDateEncaissement = today
+    this.startDateEncaissement.setDate(today.getDate() - 14)
     this.fetchVentesPageable()
+    this.getEmployes();
+    this.getPrescripteurs()
+    this.getClients();
   }
 
   public onPageChanged(event: PageEvent) {
@@ -166,25 +179,82 @@ export class VentesComponent implements OnInit {
     // const formattedStartDate = formatDate(this.startDate);
     // const formattedEndDate = formatDate(this.endDate);
 
-    this.ventesService.fetchVentesPageable(
+    console.log(this.selectedEmploye)
+    console.log(this.selectedUtilisateur)
+    console.log(this.selectedEtat)
+    console.log(this.selectedPrescripteur)
+    // this.ventesService.fetchVentesPageable(
+
+    this.ventesService.fetchVentesPageableRange(
       this.page - 1,
       this.count,
-      this.etat,
-      this.dateVente,
-      this.dateEncaissement,
-      this.userId,
-      this.employeId,
-      this.prescripteurId,
-      this.caisseId
+      this.selectedEtat,
+      formatDate(this.startDateVente + ""),
+      formatDate(this.endDateVente + ""),
+      formatDate(this.startDateEncaissement + ""),
+      formatDate(this.endDateEncaissement + ""),
+      this.selectedUtilisateur + "",
+      this.selectedEmploye + "",
+      this.selectedPrescripteur + "",
+      this.selectedCaisse
     ).subscribe({
       next: (data: any) => {
-        this.count = data.pageable.pageSize;
+        this.count = data.pageSize;
         this.totalItems = data.totalElements;
-        this.ventes = data.content;
+        this.ventes = data.content.content;
+        this.totalAmount = data.totalAmount;
       },
       error: (err) => {
         console.error('Error fetching commandes:', err);
-        if (err.status === 401 || err.status === 403){
+        if (err.status === 401 || err.status === 403) {
+          this.authService.logout();
+          this.snackBar.open('Déconnexion réussie.', '×', {
+            panelClass: 'success',
+            verticalPosition: 'top',
+            duration: 3000,
+          });
+          // Redirect to login page or clear session
+          window.location.href = '/sign-in';
+        }
+      }
+    });
+  }
+
+  fetchVentesPageablePrint(): void {
+    const formatDate = (date: string | null): string | null => {
+      if (!date) return null;
+      const parsedDate = new Date(date);
+      return `${parsedDate.getFullYear()}-${String(parsedDate.getMonth() + 1).padStart(2, '0')}-${String(parsedDate.getDate()).padStart(2, '0')}T${String(parsedDate.getHours()).padStart(2, '0')}:${String(parsedDate.getMinutes()).padStart(2, '0')}:${String(parsedDate.getSeconds()).padStart(2, '0')}`;
+    };
+
+    // const formattedStartDate = formatDate(this.startDate);
+    // const formattedEndDate = formatDate(this.endDate);
+
+    console.log(this.selectedEmploye)
+    console.log(this.selectedUtilisateur)
+    console.log(this.selectedEtat)
+    console.log(this.selectedPrescripteur)
+    // this.ventesService.fetchVentesPageable(
+
+    this.ventesService.fetchVentesPageableRangePrint(
+      this.page - 1,
+      this.count,
+      this.selectedEtat,
+      formatDate(this.startDateVente + ""),
+      formatDate(this.endDateVente + ""),
+      formatDate(this.startDateEncaissement + ""),
+      formatDate(this.endDateEncaissement + ""),
+      this.selectedUtilisateur + "",
+      this.selectedEmploye + "",
+      this.selectedPrescripteur + "",
+      this.selectedCaisse
+    ).subscribe({
+      next: (data: any) => {
+
+      },
+      error: (err) => {
+        console.error('Error fetching commandes:', err);
+        if (err.status === 401 || err.status === 403) {
           this.authService.logout();
           this.snackBar.open('Déconnexion réussie.', '×', {
             panelClass: 'success',
@@ -225,9 +295,12 @@ export class VentesComponent implements OnInit {
     });
   }
 
-  async generateTicket(vente: any): Promise<void> {
+  async generateTicket(data: any): Promise<void> {
 
+    console.log("data")
+    console.log(data)
     const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.width
 
     // Header
     doc.setFont('helvetica', 'bold');
@@ -236,58 +309,61 @@ export class VentesComponent implements OnInit {
     doc.text('Dr GAMWO Sandrine', 10, 15);
     doc.text('BP 38 FOUMBOT', 10, 20);
     doc.text('Tel : (+237) 233 267 487', 10, 25);
-    doc.text(`Ticket N°: ${vente.vente.ref}`, 10, 30);
-    doc.text(`Vendu le: ${vente.vente.dateVente}`, 10, 35);
-    doc.text(`Encaisser le: ${vente.vente.dateEncaissement}`, 10, 40);
-    doc.text(`Vendeur: ${vente.vente.vendeur}`, 10, 45);
-    doc.text(`Acheteur: ${vente.vente.acheteur}`, 10, 50);
+    doc.text(`Ticket N°: ${data.vente.reference}`, 10, 30);
+    doc.text(`Vendu le: ${data.vente.dateVente}`, 10, 35);
+    doc.text(`Encaisser le: ${data.vente.dateEncaissement}`, 10, 40);
+    doc.text(`Vendeur: ${data.vente.employe.user ? data.vente.employe.user.nom : "N/A"} ${data.vente.employe.user ? data.vente.employe.user.prenom : ""}`, 10, 45);
+    doc.text(`Acheteur: ${data.vente.user ? data.vente.user.nom : "N/A"} ${data.vente.user ? data.vente.user.prenom : ""}`, 10, 50);
 
-    // Table Header
-    doc.setFontSize(10);
-    doc.text('Libellé', 10, 60);
-    doc.text('Prix U.', 60, 60);
-    doc.text('Qte', 90, 60);
-    doc.text('Total', 110, 60);
-    doc.text('Rd(%)', 140, 60);
+    const columns = [
+      {header: 'Libellé', dataKey: 'nom'},
+      {header: 'Prix U', dataKey: 'prixUnitaire'},
+      {header: 'Qte', dataKey: 'quantite'},
+      {header: 'Total', dataKey: 'prixTotal'},
+      {header: 'Rd(%)', dataKey: 'reduction'},
+    ];
 
-    // Table Content
-    let y = 65;
-    vente.produits.forEach((produit: any) => {
-      doc.text(produit.nom + " " + produit.nom + " " + produit.nom, 10, y);
-      doc.text(`${produit.prixUnitaire ?? 0}`, 60, y);
-      doc.text(`${produit.quantite ?? 0}`, 90, y);
-      doc.text(`${produit.prixTotal ?? 0}`, 110, y);
-      doc.text(`${produit.reduction ?? 0}`, 140, y);
-      y += 5;
-    });
-    const totalPrixProduits = vente.produits.reduce((sum: number, produit: any) => sum + produit.prixTotal, 0);
+    autoTable(doc, {
+      columns,
+      body: data.produits,
+      headStyles: {fillColor: [22, 160, 133]},
+      margin: {top: 20},
+      startY: 60
+    })
+
+    const totalPrixProduits = data.produits.reduce((sum: number, produit: any) => sum + produit.prixTotal, 0);
     console.log(`Prix total des produits: ${totalPrixProduits}`);
 
-    const prixRemise = totalPrixProduits - vente.vente.prixTotal;
+    const prixRemise = totalPrixProduits - data.vente.prixTotal;
     const pourcentageRemise = (prixRemise / totalPrixProduits) * 100;
+
+    console.log("(doc as any).getLastAutoTable()")
+    console.log((doc as any).lastAutoTable)
+
     // Summary
+    let y = (doc as any).lastAutoTable.finalY
     y += 5;
     doc.text(`Montant: ${totalPrixProduits} FCFA`, 10, y);
     y += 5;
-    doc.text(`Total: ${vente.vente.prixTotal} FCFA`, 10, y);
+    doc.text(`Total: ${data.vente.prixTotal} FCFA`, 10, y);
     y += 5;
     doc.text(`Remise: ${pourcentageRemise} %`, 10, y);
     y += 5;
-    doc.text(`Net à payer: ${vente.vente.prixTotal} FCFA`, 10, y);
+    doc.text(`Net à payer: ${data.vente.prixTotal} FCFA`, 10, y);
 
     // Payment Details
     y += 10;
-    doc.text(`Montant Espèce: ${vente.montantEspece} FCFA`, 10, y);
+    doc.text(`Montant Espèce: ${data.montantEspece} FCFA`, 10, y);
     y += 5;
-    doc.text(`Montant Electronique: ${vente.montantElectronique} FCFA`, 10, y);
+    doc.text(`Montant Electronique: ${data.montantElectronique} FCFA`, 10, y);
     y += 5;
-    doc.text(`Montant Ticket: ${vente.montantTicket} FCFA`, 10, y);
+    doc.text(`Montant Ticket: ${data.montantTicket} FCFA`, 10, y);
 
     // Footer
     y += 10;
-    doc.text(`Montant total encaissé: ${vente.vente.prixPercu} FCFA`, 10, y);
+    doc.text(`Montant total encaissé: ${data.vente.prixPercu} FCFA`, 10, y);
     y += 5;
-    doc.text(`Montant rendu: ${(vente.vente.prixPercu - vente.vente.prixTotal)} FCFA`, 10, y);
+    doc.text(`Montant rendu: ${(data.vente.prixPercu - data.vente.prixTotal)} FCFA`, 10, y);
     y += 5;
     doc.text('Ce ticket vaut facture', 10, y);
     y += 5;
@@ -296,9 +372,9 @@ export class VentesComponent implements OnInit {
     doc.text('NoCT / POS85127004888', 10, y);
 
     // QR Code
-    if (vente.vente.ref) {
-      const qrCodeDataUrl = await QRCode.toDataURL(vente.vente.reference);
-      doc.addImage(qrCodeDataUrl, 'PNG', 10, y + 5, 30, 30);
+    if (data.vente.reference) {
+      const qrCodeDataUrl = await QRCode.toDataURL(data.vente.id + "");
+      doc.addImage(qrCodeDataUrl, 'PNG', pageWidth - 40, y - 30, 30, 30);
     } else {
       console.error('Erreur: La référence de la vente est manquante.');
       this.snackBar.open('Erreur: La référence de la vente est manquante.', '×', {
@@ -308,7 +384,74 @@ export class VentesComponent implements OnInit {
     }
 
     // Save PDF
-    doc.save(`Ticket_${vente.vente.reference}.pdf`);
+    doc.save(`Ticket_${data.vente.reference}.pdf`);
   }
 
+  getEmployes(): void {
+    this.employes = null; //for show spinner each time
+    this.employesService.getEmployes().subscribe({
+      next: (users) => {
+        this.employes = users
+        this.totalItems = users.length;
+        console.log("this.employes")
+        console.log(this.employes)
+      },
+      error: (err: any) => {
+        if (err.status === 401 || err.status === 403) {
+          this.authService.logout();
+          this.snackBar.open('Déconnexion réussie.', '×', {
+            panelClass: 'success',
+            verticalPosition: 'top',
+            duration: 3000,
+          });
+          // Redirect to login page or clear session
+          window.location.href = '/sign-in';
+        }
+      }
+    });
+  }
+
+  getPrescripteurs(): void {
+    this.employes = null; //for show spinner each time
+    this.prescripteursService.getPrescripteurs().subscribe({
+      next: (users) => {
+        this.prescripteurs = users
+        this.totalItems = users.length;
+      },
+      error: (err: any) => {
+        if (err.status === 401 || err.status === 403) {
+          this.authService.logout();
+          this.snackBar.open('Déconnexion réussie.', '×', {
+            panelClass: 'success',
+            verticalPosition: 'top',
+            duration: 3000,
+          });
+          // Redirect to login page or clear session
+          window.location.href = '/sign-in';
+        }
+      }
+    });
+  }
+
+  getClients(): void {
+    this.utilisateurs = null; //for show spinner each time
+    this.usersService.getUsers().subscribe({
+      next: (users) => {
+        this.utilisateurs = users
+        this.totalItems = users.length;
+      },
+      error: (err: any) => {
+        if (err.status === 401 || err.status === 403) {
+          this.authService.logout();
+          this.snackBar.open('Déconnexion réussie.', '×', {
+            panelClass: 'success',
+            verticalPosition: 'top',
+            duration: 3000,
+          });
+          // Redirect to login page or clear session
+          window.location.href = '/sign-in';
+        }
+      }
+    });
+  }
 }

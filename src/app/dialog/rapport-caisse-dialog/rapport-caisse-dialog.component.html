@@ -1,0 +1,339 @@
+<mat-toolbar fxLayout="row wrap" fxLayoutAlign="space-between center" class="w-100 p-3">
+  <h2></h2>
+  <div fxLayout="row" fxLayoutGap="8px">
+    <!--      <button class="p-2" mat-raised-button color="primary" (click)="applyFilters()">Filtrer</button>-->
+    <button class="p-2" mat-raised-button color="primary" (click)="generatePdf()">Imprimer rapport</button>
+  </div>
+</mat-toolbar>
+
+<mat-dialog-content>
+  <div #pdfContent>
+    <mat-toolbar color="primary">
+      <div fxLayout="row wrap" fxLayoutAlign="space-between center" class="w-100 p-3">
+        <h2>
+          <mat-icon>schedule</mat-icon>
+          Du {{ startDate | date:'yyyy-MM-dd HH:mm:ss' }} au {{ endDate | date:'yyyy-MM-dd HH:mm:ss' }}
+        </h2>
+        <div>
+          <span>Caissier : <strong>{{ caissier }}</strong></span> -
+          <span>Session : <strong>{{ session }}</strong></span>
+        </div>
+      </div>
+    </mat-toolbar>
+    <div fxLayout="row" fxLayoutGap="16px">
+      <div fxFlex="100" fxLayout="row wrap">
+        <div fxFlex="50" class="p-2">
+          <mat-card>
+            <mat-toolbar color="primary">
+              <mat-card-title>Récap vente par fournisseur</mat-card-title>
+            </mat-toolbar>
+            <mat-divider></mat-divider>
+            <mat-card-content>
+              <mat-list>
+                @for (item of venteParFournisseurData; track item.type) {
+                  <mat-list-item>
+                    <div fxLayout="row wrap" fxLayoutAlign="space-between center" class="w-100 p-3">
+                      <h4>{{ item.type }}</h4>
+                      <div>
+                        <span>{{ formatMontant(item.montant) }}</span>
+                      </div>
+                    </div>
+                  </mat-list-item>
+                  <mat-divider></mat-divider>
+                }
+              </mat-list>
+            </mat-card-content>
+          </mat-card>
+        </div>
+        <div fxFlex="50" class="p-2">
+          <mat-card>
+            <mat-toolbar color="primary">
+              <mat-card-title>Récap vente par type de vente</mat-card-title>
+            </mat-toolbar>
+            <mat-card-content>
+              <mat-list>
+                @for (item of venteParTypeData; track item.type) {
+                  <mat-list-item>
+                    <div fxLayout="row wrap" fxLayoutAlign="space-between center" class="w-100 p-3">
+                      <h4>{{ item.type }}</h4>
+                      <div>
+                        <span>{{ formatMontant(item.montant) }}</span>
+                      </div>
+                    </div>
+                  </mat-list-item>
+                  <mat-divider></mat-divider>
+                }
+              </mat-list>
+            </mat-card-content>
+          </mat-card>
+        </div>
+        <div fxFlex="50" class="p-2">
+          <mat-card>
+            <mat-toolbar color="primary">
+              <mat-card-title>Encaissement des ventes</mat-card-title>
+            </mat-toolbar>
+            <mat-divider></mat-divider>
+            <mat-card-content>
+              <mat-list>
+                @for (item of encaissementVenteData; track item.mode) {
+                  <mat-list-item>
+                    <div fxLayout="row wrap" fxLayoutAlign="space-between center" class="w-100 p-3">
+                      <h4>{{ item.mode }}</h4>
+                      <div>
+                        <span>{{ formatMontant(item.montant) }}</span>
+                      </div>
+                    </div>
+                  </mat-list-item>
+                  <mat-divider></mat-divider>
+                }
+              </mat-list>
+            </mat-card-content>
+          </mat-card>
+        </div>
+        <div fxFlex="50" class="p-2">
+          <mat-card>
+            <mat-toolbar color="primary">
+              <mat-card-title>Encaissement facture à crédit</mat-card-title>
+            </mat-toolbar>
+            <mat-card-content>
+              <table mat-table [dataSource]="encaissementFactureData">
+                <ng-container matColumnDef="typeFacture">
+                  <th mat-header-cell *matHeaderCellDef>N° Facture</th>
+                  <td mat-cell *matCellDef="let element">{{ element.reference }}</td>
+                </ng-container>
+                <ng-container matColumnDef="nom">
+                  <th mat-header-cell *matHeaderCellDef>Nom</th>
+                  <td mat-cell *matCellDef="let element">{{ element.client }}</td>
+                </ng-container>
+                <ng-container matColumnDef="total">
+                  <th mat-header-cell *matHeaderCellDef>Total</th>
+                  <td mat-cell *matCellDef="let element">{{ formatMontant(element.prixTotal) }}</td>
+                </ng-container>
+                <tr mat-header-row *matHeaderRowDef="['typeFacture', 'nom', 'total']"></tr>
+                <tr mat-row *matRowDef="let row; columns: ['typeFacture', 'nom', 'total']"></tr>
+              </table>
+            </mat-card-content>
+            <mat-divider></mat-divider>
+            <mat-card-footer>
+              <div fxLayout="row wrap" fxLayoutAlign="space-between center" class="w-100 p-3">
+                <div class="footer-label">Total:</div>
+                <h4 class="footer-value">{{ totalEncaissementFactureCredit }}</h4>
+              </div>
+            </mat-card-footer>
+          </mat-card>
+        </div>
+        <div fxFlex="50" class="p-2">
+          <mat-card>
+            <mat-toolbar color="primary">
+              <mat-card-title>Bon de caisse généré</mat-card-title>
+            </mat-toolbar>
+            <mat-card-content>
+              <table mat-table [dataSource]="bonCaisseGeneres">
+                <!-- Colonne Numéro de bon -->
+                <ng-container matColumnDef="nomClient">
+                  <th mat-header-cell *matHeaderCellDef>Nom client</th>
+                  <td mat-cell *matCellDef="let element">{{ element.nomClient }}</td>
+                </ng-container>
+                <ng-container matColumnDef="codebarreId">
+                  <th mat-header-cell *matHeaderCellDef>Code barre</th>
+                  <td mat-cell *matCellDef="let element">{{ element.codebarreId }}</td>
+                </ng-container>
+                <ng-container matColumnDef="montant">
+                  <th mat-header-cell *matHeaderCellDef>Montant</th>
+                  <td mat-cell *matCellDef="let element">{{ element.montant }}</td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="bonCaisseEnColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: bonCaisseEnColumns;"></tr>
+
+                <!-- Message si aucune donnée -->
+                <tr class="mat-row" *matNoDataRow>
+                  <td class="mat-cell no-data" [attr.colspan]="bonCaisseEnColumns.length">
+                    <div fxLayout="row wrap" fxLayoutAlign="center center" class="w-100 p-3">
+                      No data available in table
+                    </div>
+                  </td>
+                </tr>
+              </table>
+            </mat-card-content>
+            <mat-divider></mat-divider>
+            <mat-card-footer>
+              <div fxLayout="row wrap" fxLayoutAlign="space-between center" class="w-100 p-3">
+                <div class="footer-label">Total:</div>
+                <h4 class="footer-value">{{ totalBonCaisseGeneres }}</h4>
+              </div>
+            </mat-card-footer>
+          </mat-card>
+        </div>
+        <div fxFlex="50" class="p-2">
+          <mat-card>
+            <mat-toolbar color="primary">
+              <mat-card-title>Bon de caisse encaissé</mat-card-title>
+            </mat-toolbar>
+            <mat-card-content>
+              <table mat-table [dataSource]="bonCaisseEncaisse">
+                <!-- Colonne Numéro de bon -->
+                <ng-container matColumnDef="nomClient">
+                  <th mat-header-cell *matHeaderCellDef>Nom client</th>
+                  <td mat-cell *matCellDef="let element">{{ element.nomClient }}</td>
+                </ng-container>
+                <ng-container matColumnDef="codebarreId">
+                  <th mat-header-cell *matHeaderCellDef>Code barre</th>
+                  <td mat-cell *matCellDef="let element">{{ element.codebarreId }}</td>
+                </ng-container>
+                <ng-container matColumnDef="montant">
+                  <th mat-header-cell *matHeaderCellDef>Montant</th>
+                  <td mat-cell *matCellDef="let element">{{ element.montant }}</td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="bonCaisseEnColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: bonCaisseEnColumns;"></tr>
+
+                <!-- Message si aucune donnée -->
+                <tr class="mat-row" *matNoDataRow>
+                  <td class="mat-cell no-data" [attr.colspan]="bonCaisseEnColumns.length">
+                    <div fxLayout="row wrap" fxLayoutAlign="center center" class="w-100 p-3">
+                      No data available in table
+                    </div>
+
+                  </td>
+                </tr>
+              </table>
+
+            </mat-card-content>
+            <mat-divider></mat-divider>
+            <mat-card-footer>
+              <div fxLayout="row wrap" fxLayoutAlign="space-between center" class="w-100 p-3">
+                <div class="footer-label">Total:</div>
+                <h4 class="footer-value">{{ totalBonCaisseEncaisse }}</h4>
+              </div>
+            </mat-card-footer>
+          </mat-card>
+        </div>
+        <div fxFlex="50" class="p-2">
+          <mat-card>
+            <mat-toolbar color="primary">
+              <mat-card-title>Depense</mat-card-title>
+            </mat-toolbar>
+            <mat-card-content>
+              <table mat-table [dataSource]="depenses">
+                <!-- Colonne Numéro de bon -->
+                <ng-container matColumnDef="designation">
+                  <th mat-header-cell *matHeaderCellDef>Designation</th>
+                  <td mat-cell *matCellDef="let element">{{ element.designation }}</td>
+                </ng-container>
+                <ng-container matColumnDef="prixUnitaire">
+                  <th mat-header-cell *matHeaderCellDef>Montant</th>
+                  <td mat-cell *matCellDef="let element">{{ element.prixUnitaire }}</td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="depensesColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: depensesColumns;"></tr>
+
+                <!-- Message si aucune donnée -->
+                <tr class="mat-row" *matNoDataRow>
+                  <td class="mat-cell no-data" [attr.colspan]="depensesColumns.length">
+                    <div fxLayout="row wrap" fxLayoutAlign="center center" class="w-100 p-3">
+                      No data available in table
+                    </div>
+                  </td>
+                </tr>
+              </table>
+
+            </mat-card-content>
+            <mat-divider></mat-divider>
+            <mat-card-footer>
+              <div fxLayout="row wrap" fxLayoutAlign="space-between center" class="w-100 p-3">
+                <div class="footer-label">Total:</div>
+                <h4 class="footer-value">{{ totalDepenses }}</h4>
+              </div>
+            </mat-card-footer>
+          </mat-card>
+        </div>
+        <div fxFlex="50" class="p-2">
+          <mat-card>
+            <mat-toolbar color="primary">
+              <mat-card-title>Retour caisse</mat-card-title>
+            </mat-toolbar>
+            <mat-card-content>
+              <table mat-table [dataSource]="retourProduits">
+                <!-- Colonne Numéro de bon -->
+                <ng-container matColumnDef="reference">
+                  <th mat-header-cell *matHeaderCellDef>Reference</th>
+                  <td mat-cell *matCellDef="let element">{{ element.reference }}</td>
+                </ng-container>
+                <ng-container matColumnDef="produit">
+                  <th mat-header-cell *matHeaderCellDef>Produit</th>
+                  <td mat-cell *matCellDef="let element">{{ element.produit }}</td>
+                </ng-container>
+                <ng-container matColumnDef="quantite">
+                  <th mat-header-cell *matHeaderCellDef>Quantite</th>
+                  <td mat-cell *matCellDef="let element">{{ element.quantite }}</td>
+                </ng-container>
+                <ng-container matColumnDef="total">
+                  <th mat-header-cell *matHeaderCellDef>Total</th>
+                  <td mat-cell *matCellDef="let element">{{ element.total }}</td>
+                </ng-container>
+
+
+                <tr mat-header-row *matHeaderRowDef="retourCaisseColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: retourCaisseColumns;"></tr>
+
+                <!-- Message si aucune donnée -->
+                <tr class="mat-row" *matNoDataRow>
+                  <td class="mat-cell no-data" [attr.colspan]="retourCaisseColumns.length">
+                    <div fxLayout="row wrap" fxLayoutAlign="center center" class="w-100 p-3">
+                      No data available in table
+                    </div>
+
+                  </td>
+                </tr>
+              </table>
+
+            </mat-card-content>
+            <mat-divider></mat-divider>
+            <mat-card-footer>
+              <div fxLayout="row wrap" fxLayoutAlign="space-between center" class="w-100 p-3">
+                <div class="footer-label">Total:</div>
+                <h4 class="footer-value">{{ totalRetourProduits }}</h4>
+              </div>
+            </mat-card-footer>
+          </mat-card>
+        </div>
+        <div fxFlex="100" class="p-2">
+          <mat-card>
+            <mat-toolbar color="primary">
+              <mat-card-title>Etat caisse</mat-card-title>
+            </mat-toolbar>
+            <mat-card-content>
+              <table mat-table [dataSource]="etatCaisseData">
+                <ng-container matColumnDef="mode">
+                  <th mat-header-cell *matHeaderCellDef>Mode</th>
+                  <td mat-cell *matCellDef="let element">{{ element.mode }}</td>
+                </ng-container>
+                <ng-container matColumnDef="soldeReel">
+                  <th mat-header-cell *matHeaderCellDef>Solde Réel</th>
+                  <td mat-cell *matCellDef="let element">{{ formatMontant(element.soldeReel) }}</td>
+                </ng-container>
+                <ng-container matColumnDef="soldeSysteme">
+                  <th mat-header-cell *matHeaderCellDef>Solde Système</th>
+                  <td mat-cell *matCellDef="let element">{{ formatMontant(element.soldeSysteme) }}</td>
+                </ng-container>
+                <ng-container matColumnDef="difference">
+                  <th mat-header-cell *matHeaderCellDef>Différence</th>
+                  <td mat-cell *matCellDef="let element">{{ formatMontant(element.difference) }}</td>
+                </ng-container>
+                <tr mat-header-row *matHeaderRowDef="['mode', 'soldeReel', 'soldeSysteme', 'difference']"></tr>
+                <tr mat-row *matRowDef="let row; columns: ['mode', 'soldeReel', 'soldeSysteme', 'difference']"></tr>
+              </table>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</mat-dialog-content>
+
+
+

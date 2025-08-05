@@ -46,22 +46,42 @@
           </mat-option>
         </mat-select>
       </mat-form-field>
-
-      <!-- Filter by Date Range -->
       <mat-form-field appearance="outline">
-        <mat-label>Date de début</mat-label>
-        <input matInput [matDatepicker]="startPicker" [(ngModel)]="startDate" (dateChange)="fetchCommandesPageable()">
-        <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
-        <mat-datepicker #startPicker></mat-datepicker>
+        <mat-label>Filtrer par type</mat-label>
+        <mat-select [(ngModel)]="selectedFournisseurType" (selectionChange)="fetchCommandesPageable()">
+          <mat-option [value]="null">
+            Aucun
+          </mat-option>
+          <mat-option *ngFor="let fournisseur of typeFournisseur" [value]="fournisseur">
+            {{ fournisseur }}
+          </mat-option>
+        </mat-select>
       </mat-form-field>
+
       <mat-form-field appearance="outline">
-        <mat-label>Date de fin</mat-label>
-        <input matInput [matDatepicker]="endPicker" [(ngModel)]="endDate" (dateChange)="fetchCommandesPageable()">
-        <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
-        <mat-datepicker #endPicker></mat-datepicker>
+        <mat-label>Date commande</mat-label>
+        <mat-date-range-input [rangePicker]="picker">
+          <input matStartDate  placeholder="Start date" [(ngModel)]="startDate" >
+          <input matEndDate placeholder="End date" [(ngModel)]="endDate" >
+        </mat-date-range-input>
+        <!--            <mat-hint>MM/DD/YYYY - MM/DD/YYYY</mat-hint>-->
+        <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-date-range-picker #picker>
+          <mat-date-range-picker-actions>
+            <button mat-button matDateRangePickerCancel>Annuler</button>
+            <button mat-button matDateRangePickerApply (click)="fetchCommandesPageable()">Apply</button>
+          </mat-date-range-picker-actions>
+        </mat-date-range-picker>
       </mat-form-field>
     </div>
   </mat-card>
+</div>
+<mat-divider></mat-divider>
+<div fxLayout="row wrap" fxLayoutAlign="space-between center" class="w-100 p-3">
+    <div> Total Recu : <h1>{{totalAmountRecu}} FCFA</h1> </div>
+    <div> Total commande : <h1>{{totalAmountCommande}} FCFA</h1> </div>
+    <div> Qte recu : <h1>{{totalQteRecu}}</h1> </div>
+    <div> Qte commande : <h1>{{totalQteCommande}}</h1> </div>
 </div>
 <mat-divider></mat-divider>
 <mat-card>

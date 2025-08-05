@@ -38,7 +38,7 @@ import {
   MatExpansionPanelTitle
 } from "@angular/material/expansion";
 import {CaisseService} from "@services/caisse.service";
-import {MatPaginatorModule} from "@angular/material/paginator";
+import {MatPaginatorModule, PageEvent} from "@angular/material/paginator";
 import {MatListModule} from "@angular/material/list";
 import {MatChipsModule} from "@angular/material/chips";
 import {MatSlideToggleModule} from "@angular/material/slide-toggle";
@@ -49,6 +49,7 @@ import {MatAutocompleteModule} from "@angular/material/autocomplete";
 import {FlexLayoutModule} from "@ngbracket/ngx-layout";
 import {MatStepperModule} from "@angular/material/stepper";
 import {MatRadioModule} from "@angular/material/radio";
+import {RapportCaisseDialogComponent} from "../../../dialog/rapport-caisse-dialog/rapport-caisse-dialog.component";
 
 @Component({
   selector: 'app-activite',
@@ -126,7 +127,7 @@ export class ActiviteComponent implements OnInit {
 
   colonnesAdmin = ['utilisateur', 'role'];
   colonnesVente: string[] = ['ref', 'client', 'vendeur', 'montant', 'montantPerçu', 'dateEncaissement', 'dateVente', 'etat', 'actions'];
-  colonnesCaisse: string[] = ['nomEmploye', 'etat', 'session', ];
+  colonnesCaisse: string[] = ['nomEmploye', 'session', 'etat', 'fondCaisseOuvert', 'fondCaisseFerme', 'dateOuvert', 'dateFerme', 'action',];
   colonnesDepense: string[] = ['id', 'designation', 'quantite', 'prixUnitaire', 'dateEpense', 'actions'];
   colonnesCommande: string[] = ['select', 'id', 'ref', 'dateCreation', 'etat', 'qtiteCmd', 'qtiteRecu', 'uniteGratuite', 'montantCmd', 'montantRecu', 'fournisseur', 'info', 'action'];
 
@@ -159,6 +160,7 @@ export class ActiviteComponent implements OnInit {
     console.log("this.categorieActive")
     console.log(this.categorieActive)
     // Pour l’exemple, on simule un résultat différent selon la catégorie :
+    this.page = 1
     switch (this.categorieActive) {
       case 'vente':
         this.resultats = [];
@@ -227,6 +229,7 @@ export class ActiviteComponent implements OnInit {
       null,
       null,
       null,
+      null,
       null
     ).subscribe({
       next: (data: any) => {
@@ -288,18 +291,63 @@ export class ActiviteComponent implements OnInit {
   }
 
   loadCaisses(): void {
-    this.caisseService.getAllCaisses(0, 10, 'id').subscribe({
+    this.caisseService.getAllCaisses(this.page - 1, this.count, 'id').subscribe({
       next: (data: any) => {
-        console.log("data")
-        console.log(data)
-        this.resultatsCaisse = data.content; // Assuming the API returns a pageable response
-        console.log("this.resultats")
-        console.log(this.resultats)
+        this.count = data.pageable.pageSize;
+        this.totalItems = data.totalElements;
+        this.resultatsCaisse = data.content;
       },
       error: (err: any) => {
         console.error('Error loading caisses:', err);
       }
     });
+  }
+
+  public onPageChangedVente(event: PageEvent) {
+    this.page = event.pageIndex + 1;
+    this.count = event.pageSize;
+    this.fetchVentesPageable();
+  }
+
+  public onPageChangedDepense(event: PageEvent) {
+    this.page = event.pageIndex + 1;
+    this.count = event.pageSize;
+    this.loadDepenses();
+  }
+
+  public onPageChangedCaisse(event: PageEvent) {
+    this.page = event.pageIndex + 1;
+    this.count = event.pageSize;
+    this.loadCaisses();
+  }
+
+  public onPageChangedCommande(event: PageEvent) {
+    this.page = event.pageIndex + 1;
+    this.count = event.pageSize;
+    this.fetchCommandesPageable();
+  }
+
+  showRapportCaisse(caisseId: number) {
+    this.caisseService.getCaisseReport(caisseId).subscribe({
+      next: (data) => {
+        const dialogRef = this.dialog.open(RapportCaisseDialogComponent, {
+          data: data,
+          width: "90%",
+          panelClass: ['theme-dialog'],
+          autoFocus: false,
+        });
+        dialogRef.afterClosed().subscribe((data: any) => {
+          console.log('Dialog closed', data);
+        });
+      },
+      error: (err) => {
+        console.error('Error fetching commandes:', err)
+      }
+    });
+  }
+
+  showVente(caisseId: number) {
+
   }
 
 }

@@ -1,9 +1,6 @@
 package com.example.backend.dtos
 
-import org.bouncycastle.util.test.FixedSecureRandom.BigInteger
-import java.math.BigDecimal
-import java.time.LocalDate
-import java.time.LocalDateTime
+import org.springframework.data.domain.Page
 
 data class ProduitAssocieDto(
   val produitId: Long?,
@@ -78,4 +75,13 @@ data class ElectroniqueDto(
 data class TicketDto(
   val numeroTicket: String,
   val montantTicket: Int
+)
+
+data class VentePageableCustomlDto(
+  var content: Page<Map<String, Any?>>,
+  var totalElements:Long,
+  var totalPages:Int,
+  var pageSize:Int,
+  var pageNumber:Int,
+  var totalAmount:Double
 )

@@ -1,6 +1,7 @@
 package com.example.backend.dtos
 
 import com.fasterxml.jackson.annotation.JsonFormat
+import org.springframework.data.domain.Page
 import java.time.LocalDateTime
 
 data class CommandeDTO(
@@ -62,4 +63,17 @@ data class Produit(
   val nom: String,
   val quantite: Int,
   val prixUnitaire: Double
+)
+
+
+data class CommandePageableCustomlDto(
+  var content: Page<Map<String, Any?>>,
+  var totalElements: Long,
+  var totalPages: Int,
+  var pageSize: Int,
+  var pageNumber: Int,
+  var totalAmountRecu: Double,
+  var totalAmountCommande: Double,
+  var totalQteRecu: Int,
+  var totalQteCommande: Int,
 )

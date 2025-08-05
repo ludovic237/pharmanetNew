@@ -134,7 +134,14 @@ export class ListerAjouterCommandeComponent implements OnInit {
   public totalItems = 0;  // Default to 10 if undefined
   public count = 10;
 
+  totalAmount = 0;
+  totalAmountRecu = 0;
+  totalAmountCommande = 0;
+  totalQteRecu = 0;
+  totalQteCommande = 0;
+
   public selectedFournisseur: string | null = null;
+  public selectedFournisseurType: string | null = null;
   public startDate: string | null = null;
   public endDate: string | null = null;
 
@@ -142,6 +149,7 @@ export class ListerAjouterCommandeComponent implements OnInit {
   filteredCommandes: any[] = [];
   fournisseurs: any[] = [];
   etats: string[] = ['all', 'en_attente', 'livree', 'en_cours', 'annulee'];
+  typeFournisseur: string[] = ['all', 'Detaillant', 'Grossiste'];
   selectedEtats: string = 'all'; // Default to "All"
 
    constructor(
@@ -210,15 +218,48 @@ fetchCommandesPageable(): void {
     this.page - 1,
     this.count,
     this.selectedEtats === 'all' ? null : this.selectedEtats,
+    this.selectedFournisseurType,
     this.selectedFournisseur,
     formattedStartDate,
     formattedEndDate
   ).subscribe({
     next: (data: any) => {
-      this.count = data.pageable.pageSize;
+      this.count = data.pageSize;
       this.totalItems = data.totalElements;
-      this.commandes = data.content;
-      this.filteredCommandes = data.content;
+      this.commandes = data.content.content;
+      this.filteredCommandes = data.content.content;
+      this.totalAmountRecu = data.totalAmountRecu;
+      this.totalAmountCommande = data.totalAmountCommande;
+      this.totalQteRecu = data.totalQteRecu;
+      this.totalQteCommande = data.totalQteCommande;
+    },
+    error: (err) => {
+      console.error('Error fetching commandes:', err);
+    }
+  });
+}
+
+fetchCommandesPageablePrint(): void {
+  const formatDate = (date: string | null): string | null => {
+    if (!date) return null;
+    const parsedDate = new Date(date);
+    return `${parsedDate.getFullYear()}-${String(parsedDate.getMonth() + 1).padStart(2, '0')}-${String(parsedDate.getDate()).padStart(2, '0')}T${String(parsedDate.getHours()).padStart(2, '0')}:${String(parsedDate.getMinutes()).padStart(2, '0')}:${String(parsedDate.getSeconds()).padStart(2, '0')}`;
+  };
+
+  const formattedStartDate = formatDate(this.startDate);
+  const formattedEndDate = formatDate(this.endDate);
+
+  this.commandesService.fetchCommandesPageablePrint(
+    this.page - 1,
+    this.count,
+    this.selectedEtats === 'all' ? null : this.selectedEtats,
+    this.selectedFournisseurType,
+    this.selectedFournisseur,
+    formattedStartDate,
+    formattedEndDate
+  ).subscribe({
+    next: (data: any) => {
+
     },
     error: (err) => {
       console.error('Error fetching commandes:', err);

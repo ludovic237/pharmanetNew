@@ -6,14 +6,21 @@ import org.springframework.data.jpa.domain.Specification
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor
 import org.springframework.data.jpa.repository.Query
+import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 interface VenteRepository : JpaRepository<Vente, Long>, JpaSpecificationExecutor<Vente> {
   fun findByCaisseId(caisseId: Long): List<Vente>?
   fun findByCaisseIdAndPrixPercuGreaterThanEqual(caisseId: Long, prixPercu: Double?): List<Vente>?
   fun findByCaisseIdAndPrixPercuGreaterThan(caisseId: Long, prixPercu: Double?): List<Vente>?
   fun findByIdAndSupprimer(id: Long, supprimer: Int): Vente?
-  fun findByDateVenteBetweenAndSupprimer(startDate: LocalDateTime, endDate: LocalDateTime, supprimer: Int=0): List<Vente?>
+  fun findByDateVenteBetweenAndSupprimer(
+    startDate: LocalDateTime,
+    endDate: LocalDateTime,
+    supprimer: Int = 0
+  ): List<Vente?>
+
   fun findByIdAndEtat(id: Long, etat: String): Vente?
 
   @Query("SELECT v FROM Vente v WHERE v.supprimer = 0  AND (v.prixPercu = 0 OR v.prixPercu IS NULL)")
@@ -80,15 +87,103 @@ interface VenteRepository : JpaRepository<Vente, Long>, JpaSpecificationExecutor
         }
 
         if (!userId.isNullOrEmpty() && userId != "null") {
-          predicates.add(criteriaBuilder.equal(root.get<User>("user").get<Long>("id"), caisseId))
+          predicates.add(criteriaBuilder.equal(root.get<User>("user").get<Long>("id"), userId.toLong()))
         }
 
         if (!employeId.isNullOrEmpty() && employeId != "null") {
-          predicates.add(criteriaBuilder.equal(root.get<Employe>("employe").get<Long>("id"), caisseId))
+          predicates.add(criteriaBuilder.equal(root.get<Employe>("employe").get<Long>("id"), employeId.toLong()))
         }
 
         if (!prescripteurId.isNullOrEmpty() && prescripteurId != "null") {
-          predicates.add(criteriaBuilder.equal(root.get<Prescripteur>("prescripteur").get<Long>("id"), caisseId))
+          predicates.add(
+            criteriaBuilder.equal(
+              root.get<Prescripteur>("prescripteur").get<Long>("id"),
+              prescripteurId.toLong()
+            )
+          )
+        }
+
+
+        criteriaBuilder.and(*predicates.toTypedArray())
+      }
+    }
+
+    fun filterVentesRange(
+      activeCaisse: Caisse?,
+      supprimer: Int?,
+      prixPercu: Int?,
+      etat: String?,
+      startDateVente: String?,
+      endDateVente: String?,
+      startDateEncaissement: String?,
+      endDateEncaissement: String?,
+      userId: String?,
+      employeId: String?,
+      prescripteurId: String?,
+      caisseId: String?,
+    ): Specification<Vente> {
+      return Specification { root, query, criteriaBuilder ->
+        val predicates = mutableListOf<Predicate>()
+
+        val startDateTime = LocalDateTime.parse(startDateVente!!.trim())
+        val endDateTime = LocalDateTime.parse(endDateVente!!.trim())
+        predicates.add(
+          criteriaBuilder.between(
+            root.get<LocalDateTime>("dateVente"),
+            startDateTime,
+            endDateTime
+          )
+        )
+
+        val startDateTimeEncaissement = LocalDateTime.parse(startDateEncaissement!!.trim())
+        val endDateTimeEncaissement = LocalDateTime.parse(endDateEncaissement!!.trim())
+        predicates.add(
+          criteriaBuilder.between(
+            root.get<LocalDateTime>("dateEncaissement"),
+            startDateTimeEncaissement,
+            endDateTimeEncaissement
+          )
+        )
+
+
+        if (!etat.isNullOrEmpty() && etat != "null") {
+          predicates.add(criteriaBuilder.equal(root.get<String>("etat"), etat))
+        }
+
+        if (activeCaisse != null) {
+          predicates.add(criteriaBuilder.equal(root.get<Caisse>("caisse"), activeCaisse))
+        }
+//        else if (activeCaisse == null) {
+//          predicates.add(criteriaBuilder.isNull(root.get<Caisse>("caisse")))
+//        } else {
+//          predicates.add(criteriaBuilder.isNull(root.get<Caisse>("caisse")))
+//        }
+
+        if (supprimer != null) {
+          predicates.add(criteriaBuilder.equal(root.get<Int>("supprimer"), supprimer))
+        }
+
+        if (prixPercu == 0) {
+          predicates.add(criteriaBuilder.equal(root.get<Int>("prixPercu"), prixPercu))
+        } else if (prixPercu!! > 0) {
+          predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get<Int>("prixPercu"), 0))
+        }
+
+        if (!userId.isNullOrEmpty() && userId != "null") {
+          predicates.add(criteriaBuilder.equal(root.get<User>("user").get<Long>("id"), userId.toLong()))
+        }
+
+        if (!employeId.isNullOrEmpty() && employeId != "null") {
+          predicates.add(criteriaBuilder.equal(root.get<Employe>("employe").get<Long>("id"), employeId.toLong()))
+        }
+
+        if (!prescripteurId.isNullOrEmpty() && prescripteurId != "null") {
+          predicates.add(
+            criteriaBuilder.equal(
+              root.get<Prescripteur>("prescripteur").get<Long>("id"),
+              prescripteurId.toLong()
+            )
+          )
         }
 
 

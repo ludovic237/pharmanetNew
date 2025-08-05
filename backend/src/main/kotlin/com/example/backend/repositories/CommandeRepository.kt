@@ -16,6 +16,7 @@ interface CommandeRepository : JpaRepository<Commande, Long>, JpaSpecificationEx
   companion object {
     fun filterCommandes(
       etat: String?,
+      typeFournisseur: String?,
       fournisseurId: String?,
       startDate: String?,
       endDate: String?
@@ -29,6 +30,10 @@ interface CommandeRepository : JpaRepository<Commande, Long>, JpaSpecificationEx
 
         if (fournisseurId != null && fournisseurId != "null") {
           predicates.add(criteriaBuilder.equal(root.get<Long>("fournisseur").get<Long>("id"), fournisseurId))
+        }
+
+        if (typeFournisseur != null && typeFournisseur != "null") {
+          predicates.add(criteriaBuilder.equal(root.get<Long>("fournisseur").get<String>("statut"), typeFournisseur))
         }
 
         if (!startDate.isNullOrEmpty() && !startDate.trim().equals("null", ignoreCase = true)) {

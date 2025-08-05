@@ -293,9 +293,9 @@ export class RetourProduitComponent implements OnInit {
 
     const doc = new jsPDF({
       orientation: 'portrait',
-      unit: 'cm',
-      format: [baseWidth, totalHeight] // Width: 10 cm, Height: dynamic based on content
+      unit: 'cm'
     });
+    const pageWidth = doc.internal.pageSize.width
 
     const margin = 1; // Margin in cm
     const columnWidth = baseWidth / 5; // Divide width into 5 columns
@@ -312,24 +312,6 @@ export class RetourProduitComponent implements OnInit {
     doc.text(`Caissier: ${vente.caissier}`, margin, margin + 3);
     doc.text(`Employee: ${vente.nomEmploye}`, margin, margin + 3.5);
 
-    /*  // Table Header
-      doc.setFontSize(0.6 * baseWidth);
-      doc.text('Libellé', margin, margin + 4);
-      doc.text('Prix U.', margin + columnWidth, margin + 4);
-      doc.text('Qte', margin + 2 * columnWidth, margin + 4);
-      doc.text('Total', margin + 3 * columnWidth, margin + 4);
-      doc.text('Rd(%)', margin + 4 * columnWidth, margin + 4);
-
-      // Table Content
-      let y = margin + 4.5;
-      vente.produitsRetournes.forEach((produit: any) => {
-        doc.text(produit.nomProduit, margin, y);
-        doc.text(`${produit.prixUnit ?? 0}`, margin + columnWidth, y);
-        doc.text(`${produit.quantiteRetournee ?? 0}`, margin + 2 * columnWidth, y);
-        doc.text(`${(produit.prixUnit ?? 0) * (produit.quantiteRetournee ?? 0)}`, margin + 3 * columnWidth, y);
-        doc.text(`${produit.reduction ?? 0}`, margin + 4 * columnWidth, y);
-        y += 0.5; // Adjust row spacing proportionally
-      });*/
 
     // Table Content
     const rows = vente.produitsRetournes.map((produit: any) => [
@@ -340,23 +322,6 @@ export class RetourProduitComponent implements OnInit {
       produit.reduction ?? 0,
     ]);
 
-    // autoTable(doc, {
-    //   head: [['Libellé', 'Prix U.', 'Quantité', 'Total', 'Réduction']],
-    //   body: rows,
-    //   startY: margin + 4.5,
-    //   margin: { top: margin, left: margin, right: margin },
-    //   styles: {
-    //     fontSize: 2, // Reduce font size for table
-    //     cellPadding: 1, // Adjust cell padding
-    //   },
-    //   /*columnStyles: {
-    //     0: { cellWidth: 3 }, // Adjust column width for 'Libellé'
-    //     1: { cellWidth: 2 }, // Adjust column width for 'Prix U.'
-    //     2: { cellWidth: 2 }, // Adjust column width for 'Quantité'
-    //     3: { cellWidth: 3 }, // Adjust column width for 'Total'
-    //     4: { cellWidth: 2 }, // Adjust column width for 'Réduction'
-    //   },*/
-    // });
 
     autoTable(doc, {
       head: [['Libellé', 'Prix U.', 'Quantité', 'Total', 'Réduction']],
@@ -381,7 +346,7 @@ export class RetourProduitComponent implements OnInit {
     // QR Code
     if (vente.venteReference) {
       const qrCodeDataUrl = await QRCode.toDataURL(vente.venteReference);
-      doc.addImage(qrCodeDataUrl, 'PNG', baseWidth - 3, y - 1, 2, 2); // Position QR code proportionally
+      doc.addImage(qrCodeDataUrl, 'PNG', pageWidth - 40, y - 1, 2, 2); // Position QR code proportionally
     } else {
       console.error('Erreur: La référence de la vente est manquante.');
       this.snackBar.open('Erreur: La référence de la vente est manquante.', '×', {

@@ -1,16 +1,12 @@
 package com.example.backend.controllers
 
-import com.example.backend.dtos.EncaissementDirectDto
-import com.example.backend.dtos.EncaissementDto
-import com.example.backend.dtos.EncaissementRequestDto
-import com.example.backend.dtos.VenteRequestDto
+import com.example.backend.dtos.*
 import com.example.backend.models.Facturation
 import com.example.backend.models.RetourProduit
 import com.example.backend.models.Vente
 import com.example.backend.services.ProduitRetourRequestDto
 import com.example.backend.services.ProduitService
 import com.example.backend.services.VenteService
-import org.bouncycastle.util.test.FixedSecureRandom.BigInteger
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
@@ -18,6 +14,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
+import java.io.File
 
 @RestController
 @RequestMapping("/api/ventes")
@@ -104,20 +101,76 @@ class VenteController(
     @RequestParam(defaultValue = "id") sortBy: String,
     @RequestParam(required = false) search: String?,
     @RequestParam(required = false) etat: String?,
-    @RequestParam(required = false) dateVente: String?,
-    @RequestParam(required = false) dateEncaissement: String?,
+    @RequestParam(required = false) startDateVente: String?,
+    @RequestParam(required = false) endDateVente: String?,
+    @RequestParam(required = false) startDateEncaissement: String?,
+    @RequestParam(required = false) endDateEncaissement: String?,
     @RequestParam(required = false) userId: String?,
     @RequestParam(required = false) employeId: String?,
     @RequestParam(required = false) prescripteurId: String?,
     @RequestParam(required = false) caisseId: String?
-  ): ResponseEntity<Page<Map<String, Any?>>> {
+  ): ResponseEntity<VentePageableCustomlDto> {
     val pageNumber = page.toIntOrNull()?.coerceAtLeast(0) ?: 0
     val pageSize = size.toIntOrNull()?.coerceAtLeast(1) ?: 10
     val pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.DESC, "dateVente"))
-    val commandes = venteService.listerVentesPageable(
-      pageable, etat, dateVente, dateEncaissement, userId, employeId, prescripteurId, caisseId
+    val commandes = venteService.listerVentesPageableDetail(
+      pageable,
+      etat,
+      startDateVente,
+      endDateVente,
+      startDateEncaissement,
+      endDateEncaissement,
+      userId,
+      employeId,
+      prescripteurId,
+      caisseId
     )
     return ResponseEntity.ok(commandes)
+  }
+
+  @CrossOrigin(origins = ["http://localhost:4200"])
+  @PreAuthorize("isAuthenticated()")
+  @GetMapping("/pageable/lister/print")
+  fun listerPageableVentesPrint(
+    @RequestParam(defaultValue = "0") page: String,
+    @RequestParam(defaultValue = "10") size: String,
+    @RequestParam(defaultValue = "id") sortBy: String,
+    @RequestParam(required = false) search: String?,
+    @RequestParam(required = false) etat: String?,
+    @RequestParam(required = false) startDateVente: String?,
+    @RequestParam(required = false) endDateVente: String?,
+    @RequestParam(required = false) startDateEncaissement: String?,
+    @RequestParam(required = false) endDateEncaissement: String?,
+    @RequestParam(required = false) userId: String?,
+    @RequestParam(required = false) employeId: String?,
+    @RequestParam(required = false) prescripteurId: String?,
+    @RequestParam(required = false) caisseId: String?
+  ): ResponseEntity<ByteArray> {
+    val pageNumber = page.toIntOrNull()?.coerceAtLeast(0) ?: 0
+    val pageSize = size.toIntOrNull()?.coerceAtLeast(1) ?: 10
+    val pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.DESC, "dateVente"))
+    val outputPath = "vente.pdf" // Temporary file path
+    venteService.listerVentesPageableDetailPrint(
+      pageable,
+      etat,
+      startDateVente,
+      endDateVente,
+      startDateEncaissement,
+      endDateEncaissement,
+      userId,
+      employeId,
+      prescripteurId,
+      caisseId,
+      outputPath
+    )
+    val file = File(outputPath)
+    val fileContent = file.readBytes()
+    file.delete() // Clean up the temporary file
+
+    return ResponseEntity.ok()
+      .header("Content-Disposition", "attachment; filename="+outputPath)
+      .contentType(org.springframework.http.MediaType.APPLICATION_PDF)
+      .body(fileContent)
   }
 
   @CrossOrigin(origins = ["http://localhost:4200"])

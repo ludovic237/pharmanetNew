@@ -1,16 +1,26 @@
 package com.example.backend.services
 
-import com.example.backend.dtos.EncaissementDirectDto
-import com.example.backend.dtos.EncaissementDto
-import com.example.backend.dtos.EncaissementRequestDto
-import com.example.backend.dtos.VenteRequestDto
+import com.example.backend.dtos.*
 import com.example.backend.models.*
 import com.example.backend.repositories.*
 import com.example.backend.utility.UserUtils
+import com.itextpdf.io.source.ByteArrayOutputStream
+import com.itextpdf.kernel.geom.PageSize
+import com.itextpdf.kernel.pdf.PdfDocument
+import com.itextpdf.kernel.pdf.PdfName
+import com.itextpdf.kernel.pdf.PdfName.Document
+import com.itextpdf.kernel.pdf.PdfWriter
+import com.itextpdf.layout.Document
+import com.itextpdf.layout.element.Paragraph
+import com.itextpdf.layout.element.Table
+import com.itextpdf.layout.properties.UnitValue
 import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.io.File
 import java.text.Normalizer
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -653,8 +663,7 @@ class VenteService(
               "prixAchat" to enRayon.prixAchat,
               "quantiteRestante" to 0,
             )
-          }
-          else if (fournisseurId!!.toLong() > 0.0.toLong()) {
+          } else if (fournisseurId!!.toLong() > 0.0.toLong()) {
             if (produit != null && enRayon.fournisseur?.id?.toLong() == fournisseurId.toLong()) {
               mapOf(
                 "id" to produit.id,
@@ -669,8 +678,7 @@ class VenteService(
                 "quantiteRestante" to 0,
                 // ajoute d'autres champs si besoin
               )
-            }
-            else null
+            } else null
           } else {
             mapOf(
               "id" to produit.id,
@@ -685,8 +693,7 @@ class VenteService(
               "quantiteRestante" to 0,
             )
           }
-        }
-        else
+        } else
           null
 
       }
@@ -709,7 +716,7 @@ class VenteService(
     val spec = VenteRepository.filterVentes(
       activeCaisse, 0, 1, etat, dateVente, dateEncaissement, userId, employeId, prescripteurId, caisseId
     )
-    return venteRepository.findAll(spec, pageable).map { vente ->
+    var ventes = venteRepository.findAll(spec, pageable).map { vente ->
       val produits = concernerRepository.findByVenteId(vente.id!!.toLong()).map { concerner ->
         var nom = ""
         var id = ""
@@ -750,6 +757,170 @@ class VenteService(
         "actions" to "edit,delete" as Any? // Placeholder for actions
       )
     }
+
+
+    return ventes
+  }
+
+  fun listerVentesPageableDetail(
+    pageable: Pageable,
+    etat: String?,
+    startDateVente: String?,
+    endDateVente: String?,
+    startDateEncaissement: String?,
+    endDateEncaissement: String?,
+    userId: String?,
+    employeId: String?,
+    prescripteurId: String?,
+    caisseId: String?
+  ): VentePageableCustomlDto {
+    var activeCaisse = caisseService.getCaisseActive()
+    if (caisseId == "non") {
+      activeCaisse = null
+    }
+
+    val spec = VenteRepository.filterVentesRange(
+      activeCaisse, 0, 1, etat, startDateVente,
+      endDateVente,
+      startDateEncaissement,
+      endDateEncaissement, userId, employeId, prescripteurId, caisseId
+    )
+    var ventes = venteRepository.findAll(spec, pageable).map { vente ->
+      val produits = concernerRepository.findByVenteId(vente.id!!.toLong()).map { concerner ->
+        var nom = ""
+        var id = ""
+        if (concerner!!.type == "detail") {
+          var produitDetail = produitDetailRepository.findById(concerner.enRayonId!!.toInt()).get()
+          nom = produitDetail.nom.toString()
+          id = produitDetail.id.toString()
+        } else {
+          var produit =
+            produitRepository.findById(enRayonRepository.findById(concerner!!.enRayonId!!).get().produitId!!).get()
+          nom = produit.nom.toString()
+          id = produit.id.toString()
+        }
+
+        mapOf(
+          "id" to concerner!!.id,
+          "nom" to nom,
+          "produitId" to id,
+          "quantite" to concerner!!.quantite,
+          "prixUnitaire" to concerner!!.prixUnit,
+          "reduction" to concerner!!.reduction,
+          "prixTotal" to (concerner!!.prixUnit!! * concerner!!.quantite!!)
+        )
+      }
+
+      mapOf("id" to vente.id as Any?,
+        "prixPercu" to vente.prixPercu as Any?,
+        "netAPayer" to vente.prixTotal as Any?,
+        "reduction" to vente.reduction as Any?,
+        "reference" to vente.reference as Any?,
+        "infoClients" to (vente.user?.let { "${it.nom} (${it.telephone})" } ?: "Aucun client") as Any?,
+        "vendeur" to (vente.employe?.user?.nom ?: "Inconnu") as Any?,
+        "commentaire" to vente.commentaire as Any?,
+        "etat" to vente.etat as Any?,
+        "dateVente" to vente.dateVente as Any?,
+        "dateEncaissement" to vente.dateEncaissement as Any?,
+        "produits" to produits,
+        "actions" to "edit,delete" as Any? // Placeholder for actions
+      )
+    }
+
+    var totalAmount = 0.0
+    if (ventes.totalElements > 0) {
+      val pageableElement = PageRequest.of(0, ventes.totalElements.toInt(), Sort.by(Sort.Direction.DESC, "dateVente"))
+      val venteTotal = venteRepository.findAll(spec, pageableElement)
+      totalAmount = venteTotal.content.sumOf { it.prixTotal as Double }
+    }
+
+
+    var data = VentePageableCustomlDto(
+      content = ventes,
+      totalElements = ventes.totalElements,
+      totalPages = ventes.totalPages,
+      pageSize = ventes.size,
+      pageNumber = ventes.number,
+      totalAmount = totalAmount
+    )
+
+    return data
+  }
+
+  fun listerVentesPageableDetailPrint(
+    pageable: Pageable,
+    etat: String?,
+    startDateVente: String?,
+    endDateVente: String?,
+    startDateEncaissement: String?,
+    endDateEncaissement: String?,
+    userId: String?,
+    employeId: String?,
+    prescripteurId: String?,
+    caisseId: String?,
+    outputPath: String?,
+  ) {
+    var activeCaisse = caisseService.getCaisseActive()
+//    var activeCaisse = caisseService.getCaisseActive()
+    if (caisseId == "non") {
+      activeCaisse = null
+    }
+
+    val spec = VenteRepository.filterVentesRange(
+      activeCaisse, 0, 1, etat, startDateVente,
+      endDateVente,
+      startDateEncaissement,
+      endDateEncaissement, userId, employeId, prescripteurId, caisseId
+    )
+    var ventes = venteRepository.findAll(spec, pageable)
+
+    var totalAmount = 0.0
+    val pageableElement = PageRequest.of(0, ventes.totalElements.toInt(), Sort.by(Sort.Direction.DESC, "dateVente"))
+    val venteTotal = venteRepository.findAll(spec, pageableElement)
+    totalAmount = venteTotal.content.sumOf { it.prixTotal as Double }
+
+    val smallFontSize = 8f
+
+    val file = File(outputPath)
+    val pdfWriter = PdfWriter(file)
+    val pdfDocument = PdfDocument(pdfWriter)
+    val document = Document(pdfDocument, PageSize.A4.rotate())
+
+    document.add(Paragraph("Liste des ventes"))
+//    document.add(PdfName.NEW)
+    val table = Table(UnitValue.createPercentArray(10)).useAllAvailableWidth()
+//    table.width = 100f
+    listOf<String>(
+      "Id",
+      "reference",
+      "montant",
+      "montant percu",
+      "client",
+      "vendeur",
+      "date encaissement",
+      "date de vente",
+      "etat",
+      "employe",
+    ).forEach {
+      table.addCell(it).setFontSize(smallFontSize).setBold()
+    }
+
+    venteTotal.content.forEach { vente ->
+      table.addCell("${vente.id}").setFontSize(smallFontSize)
+      table.addCell("${vente.reference}").setFontSize(smallFontSize)
+      table.addCell("${vente.prixTotal}").setFontSize(smallFontSize)
+      table.addCell("${vente.prixPercu}").setFontSize(smallFontSize)
+      table.addCell("${vente.user?.nom ?: "N/A"}").setFontSize(smallFontSize)
+      table.addCell("${vente.caisse?.user?.user?.nom ?: "N/A"}").setFontSize(smallFontSize)
+      table.addCell("${vente.dateEncaissement}").setFontSize(smallFontSize)
+      table.addCell("${vente.dateVente}").setFontSize(smallFontSize)
+      table.addCell("${vente.etat}").setFontSize(smallFontSize)
+      table.addCell("${vente.employe?.user?.nom} ${vente.employe?.user?.prenom}").setFontSize(smallFontSize)
+    }
+
+    document.add(table)
+    document.close()
+
   }
 
   @Transactional

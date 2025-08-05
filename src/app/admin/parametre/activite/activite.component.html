@@ -1,5 +1,5 @@
 <mat-card>
-  <mat-card-title>Recherche filtrée</mat-card-title>
+  <mat-toolbar >Recherche filtrée</mat-toolbar >
   <mat-card-content>
     <form [formGroup]="rechercheForm" (ngSubmit)="rechercher()">
 
@@ -41,11 +41,11 @@
 </mat-card>
 
 <!-- Table Admin -->
-<mat-card *ngIf="categorieActive === 'vente'">
-  <mat-card-title>vente</mat-card-title>
+<mat-card class="mt-2" *ngIf="categorieActive === 'vente'">
+  <mat-toolbar color="primary" class="p-5">vente</mat-toolbar >
   <mat-card-content>
     <div class="table-container">
-      <table mat-table [dataSource]="resultatsCaisse" class="mat-elevation-z8">
+      <table mat-table [dataSource]="resultatsVente" class="mat-elevation-z8">
         <ng-container matColumnDef="ref">
           <th mat-header-cell *matHeaderCellDef>Réf</th>
           <td mat-cell *matCellDef="let vente">
@@ -107,11 +107,14 @@
         <tr mat-header-row *matHeaderRowDef="colonnesVente"></tr>
         <tr mat-row *matRowDef="let row; columns: colonnesVente;"></tr>
       </table>
+      <mat-paginator [length]="totalItems" [pageSize]="count" [pageSizeOptions]="[5, 10, 25, 100]"
+                     (page)="onPageChangedVente($event)">
+      </mat-paginator>
     </div>
   </mat-card-content>
 </mat-card>
-<mat-card *ngIf="categorieActive == 'caisse'">
-  <mat-card-title>caisse</mat-card-title>
+<mat-card class="mt-2" *ngIf="categorieActive == 'caisse'">
+  <mat-toolbar color="primary" class="p-5">caisse</mat-toolbar >
   <mat-card-content>
     <div class="table-container">
       <table mat-table [dataSource]="resultatsCaisse" class="mat-elevation-z8">
@@ -152,7 +155,8 @@
         <ng-container matColumnDef="action">
           <th mat-header-cell *matHeaderCellDef>Actions</th>
           <td mat-cell *matCellDef="let cais">
-<!--                        <button mat-raised-button color="primary" (click)="imprimerTicket(vente.id)">Imprimer ticket</button>-->
+                        <button mat-raised-button color="primary" (click)="showRapportCaisse(cais.id)">Voir rapport</button>
+                        <button mat-raised-button color="primary" (click)="showVente(cais.id)">Voir vente</button>
           </td>
         </ng-container>
 
@@ -160,11 +164,14 @@
         <tr mat-header-row *matHeaderRowDef="colonnesCaisse"></tr>
         <tr mat-row *matRowDef="let row; columns: colonnesCaisse;"></tr>
       </table>
+      <mat-paginator [length]="totalItems" [pageSize]="count" [pageSizeOptions]="[5, 10, 25, 100]"
+                     (page)="onPageChangedCaisse($event)">
+      </mat-paginator>
     </div>
   </mat-card-content>
 </mat-card>
-<mat-card *ngIf="categorieActive === 'depense'">
-  <mat-card-title>depense</mat-card-title>
+<mat-card class="mt-2" *ngIf="categorieActive === 'depense'">
+  <mat-toolbar color="primary" class="p-5">depense</mat-toolbar>
   <mat-card-content>
     <table mat-table [dataSource]="resultatsDepense" class="full-width">
       <ng-container matColumnDef="id">
@@ -196,10 +203,13 @@
       <tr mat-header-row *matHeaderRowDef="colonnesDepense"></tr>
       <tr mat-row *matRowDef="let row; columns: colonnesDepense;"></tr>
     </table>
+    <mat-paginator [length]="totalItems" [pageSize]="count" [pageSizeOptions]="[5, 10, 25, 100]"
+                   (page)="onPageChangedDepense($event)">
+    </mat-paginator>
   </mat-card-content>
 </mat-card>
-<mat-card *ngIf="categorieActive === 'commande'">
-  <mat-card-title>commande</mat-card-title>
+<mat-card *ngIf="categorieActive === 'commande'" class="mt-2">
+  <mat-toolbar color="primary" class="p-5">commande</mat-toolbar>
   <mat-card-content>
     <div class="mat-elevation-z8">
 
@@ -319,7 +329,9 @@
         <tr mat-header-row *matHeaderRowDef="colonnesCommande"></tr>
         <tr mat-row *matRowDef="let row; columns: colonnesCommande;"></tr>
       </table>
-
+      <mat-paginator [length]="totalItems" [pageSize]="count" [pageSizeOptions]="[5, 10, 25, 100]"
+                     (page)="onPageChangedCommande($event)">
+      </mat-paginator>
     </div>
   </mat-card-content>
 </mat-card>
