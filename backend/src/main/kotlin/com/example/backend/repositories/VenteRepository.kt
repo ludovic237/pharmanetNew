@@ -6,6 +6,7 @@ import org.springframework.data.jpa.domain.Specification
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor
 import org.springframework.data.jpa.repository.Query
+import org.springframework.data.repository.query.Param
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -193,6 +194,50 @@ interface VenteRepository : JpaRepository<Vente, Long>, JpaSpecificationExecutor
   }
 
   fun findByReferenceAndSupprimer(reference: String, supprimer: Int): Vente?
+
+  // === KPIs ===
+  @Query(
+    value = """
+        SELECT COALESCE(SUM(prix_total),0)
+        FROM vente
+        WHERE supprimer=0 AND date_vente BETWEEN :from AND :to
+        """,
+    nativeQuery = true
+  )
+  fun kpiCa(@Param("from") from: LocalDateTime, @Param("to") to: LocalDateTime): Double
+
+  @Query(
+    value = """
+        SELECT COALESCE(SUM(prix_percu),0)
+        FROM vente
+        WHERE supprimer=0 AND date_encaissement BETWEEN :from AND :to
+        """,
+    nativeQuery = true
+  )
+  fun kpiEncaisse(@Param("from") from: LocalDateTime, @Param("to") to: LocalDateTime): Double
+
+  @Query(
+    value = """
+        SELECT COUNT(*)
+        FROM vente
+        WHERE supprimer=0 AND date_vente BETWEEN :from AND :to
+        """,
+    nativeQuery = true
+  )
+  fun kpiTickets(@Param("from") from: LocalDateTime, @Param("to") to: LocalDateTime): Long
+
+  // === Graphs ===
+  interface SalesMonthlyRow { fun getMois(): String; fun getTotal(): Double }
+  @Query(
+    value = """
+        SELECT DATE_FORMAT(date_vente, '%Y-%m') AS mois, COALESCE(SUM(prix_total),0) AS total
+        FROM vente
+        WHERE supprimer=0 AND date_vente BETWEEN :from AND :to
+        GROUP BY mois ORDER BY mois
+        """,
+    nativeQuery = true
+  )
+  fun salesMonthly(@Param("from") from: LocalDateTime, @Param("to") to: LocalDateTime): List<SalesMonthlyRow>
 
 
 }

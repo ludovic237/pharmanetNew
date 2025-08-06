@@ -1,11 +1,14 @@
 package com.example.backend.repositories;
 
+import com.example.backend.dtos.StockAlertRowView
 import com.example.backend.models.Commande
 import com.example.backend.models.EnRayon
 import jakarta.persistence.criteria.Predicate
 import org.springframework.data.jpa.domain.Specification
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor
+import org.springframework.data.jpa.repository.Query
+import org.springframework.data.repository.query.Param
 import java.time.LocalDateTime
 import java.util.*
 
@@ -113,4 +116,41 @@ interface EnRayonRepository : JpaRepository<EnRayon, String>, JpaSpecificationEx
       }
     }
   }
+
+  @Query(
+    value = """
+        SELECT p.nom AS produit, er.quantite_restante AS quantiteRestante, er.date_peremption AS datePeremption
+        FROM en_rayon er
+        JOIN produit p ON p.id = er.produit_id
+        WHERE (er.quantite_restante IS NOT NULL AND er.quantite_restante <= :low)
+           OR (er.date_peremption IS NOT NULL AND er.date_peremption <= DATE_ADD(CURDATE(), INTERVAL :days DAY))
+        ORDER BY er.quantite_restante ASC, er.date_peremption ASC
+        LIMIT :limit
+        """,
+    nativeQuery = true
+  )
+  fun stockAlerts(@Param("low") low: Int, @Param("days") days: Int, @Param("limit") limit: Int): List<StockAlertRowView>
+
+  @Query(
+    value = """
+        SELECT COUNT(*)
+        FROM en_rayon
+        WHERE (quantite_restante IS NOT NULL AND quantite_restante <= :low)
+        """,
+    nativeQuery = true
+  )
+  fun alertsRuptures(@Param("low") low: Int): Long
+
+  @Query(
+    value = """
+        SELECT COUNT(*)
+        FROM en_rayon
+        WHERE date_peremption IS NOT NULL
+          AND date_peremption <= DATE_ADD(CURDATE(), INTERVAL :days DAY)
+        """,
+    nativeQuery = true
+  )
+  fun alertsPerimes(@Param("days") days: Int): Long
+
+
 }

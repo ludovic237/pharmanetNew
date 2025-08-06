@@ -1,0 +1,192 @@
+<!-- Filtre période -->
+<mat-card class="mb-3">
+  <mat-form-field appearance="outline">
+    <mat-label>Entrer date vente</mat-label>
+    <mat-date-range-input [rangePicker]="picker">
+      <input matStartDate placeholder="Start date" [(ngModel)]="startDateVente">
+      <input matEndDate placeholder="End date" [(ngModel)]="endDateVente">
+    </mat-date-range-input>
+    <!--            <mat-hint>MM/DD/YYYY - MM/DD/YYYY</mat-hint>-->
+    <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+    <mat-date-range-picker #picker>
+      <mat-date-range-picker-actions>
+        <button mat-button matDateRangePickerCancel>Annuler</button>
+        <button mat-button matDateRangePickerApply (click)="fetchVentesPageable()">Apply</button>
+      </mat-date-range-picker-actions>
+    </mat-date-range-picker>
+  </mat-form-field>
+</mat-card>
+
+<div fxLayout="row wrap">
+  <div fxFlex="50" fxFlex.xl="16.6" fxFlex.lg="16.6" fxFlex.md="33.3" fxFlex.sm="33.3" class="p-2">
+    <mat-card class="gradient-green tile p-2">
+      <mat-icon>monetization_on</mat-icon>
+      <h2>{{ formatMoney(kpi?.ca) }}</h2>
+      <p>CA (période)</p>
+    </mat-card>
+  </div>
+  <div fxFlex="50" fxFlex.xl="16.6" fxFlex.lg="16.6" fxFlex.md="33.3" fxFlex.sm="33.3" class="p-2">
+    <mat-card class="gradient-red tile p-2">
+      <mat-icon>thumb_up_alt</mat-icon>
+      <h2>{{ formatMoney(kpi?.encaisse) }}</h2>
+      <p>Encaissements</p>
+    </mat-card>
+  </div>
+  <div fxFlex="50" fxFlex.xl="16.6" fxFlex.lg="16.6" fxFlex.md="33.3" fxFlex.sm="33.3" class="p-2">
+    <mat-card class="gradient-orange tile p-2">
+      <mat-icon>group</mat-icon>
+      <h2>{{ kpi?.tickets || 0 }}</h2>
+      <p>Ventes</p>
+    </mat-card>
+  </div>
+  <div fxFlex="50" fxFlex.xl="16.6" fxFlex.lg="16.6" fxFlex.md="33.3" fxFlex.sm="33.3" class="p-2">
+    <mat-card class="gradient-pink tile p-2">
+      <mat-icon>shopping_cart</mat-icon>
+      <h2>{{ (kpi?.tauxRetour || 0) | percent:'1.0-2' }}</h2>
+      <p>Retours</p>
+    </mat-card>
+  </div>
+  <div fxFlex="50" fxFlex.xl="16.6" fxFlex.lg="16.6" fxFlex.md="33.3" fxFlex.sm="33.3" class="p-2">
+    <mat-card class="gradient-gray tile p-2">
+      <mat-icon>pie_chart</mat-icon>
+      <h2>{{ formatMoney(kpi?.depenses) }}</h2>
+      <p>Dépenses</p>
+    </mat-card>
+  </div>
+</div>
+
+<div fxLayout="row wrap">
+  <div fxFlex="100" fxFlex.gt-sm="45" class="p-2">
+    <mat-card>
+      <mat-card-header fxLayoutAlign="center">
+        <mat-card-title>Montly Sales</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="w-100 h-300p" #resizedDiv>
+          <canvas baseChart
+                  [data]="lineChartData"
+                  [legend]="true"
+                  [type]="'line'">
+          </canvas>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+  <div fxFlex="100" fxFlex.gt-sm="55" class="p-2">
+    <mat-card>
+      <mat-card-header fxLayoutAlign="center">
+        <mat-card-title>Répartition par catégorie</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="w-100 h-300p" #resizedDiv>
+          <canvas baseChart
+                  [data]="pieChartData"
+                  [legend]="true"
+                  [type]="'pie'">
+          </canvas>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+  <div fxFlex="100" fxFlex.gt-sm="55" class="p-2">
+    <mat-card>
+      <mat-card-header fxLayoutAlign="center">
+        <mat-card-title>Top produits vendus</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="w-100 h-300p" #resizedDiv>
+          <canvas baseChart
+                  [data]="barChartData"
+                  [legend]="true"
+                  [type]="'bar'">
+          </canvas>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>
+
+<!-- Tables -->
+<div fxLayout="row wrap">
+  <div fxFlex="100" fxFlex.gt-sm="50" class="p-2">
+    <mat-card>
+      <mat-card-title>Commandes récentes</mat-card-title>
+      <div class="table-container">
+        <table mat-table [dataSource]="ordersRecent" class="mat-elevation-z8">
+
+          <ng-container matColumnDef="id">
+            <th mat-header-cell *matHeaderCellDef>ID</th>
+            <td mat-cell *matCellDef="let r">{{ r.id }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="ref">
+            <th mat-header-cell *matHeaderCellDef>Réf</th>
+            <td mat-cell *matCellDef="let r">{{ r.ref || '—' }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="fournisseur">
+            <th mat-header-cell *matHeaderCellDef>Fournisseur</th>
+            <td mat-cell *matCellDef="let r">{{ r.fournisseur || '—' }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="montantCmd">
+            <th mat-header-cell *matHeaderCellDef>Montant</th>
+            <td mat-cell *matCellDef="let r">{{ formatMoney(r.montantCmd) }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="etat">
+            <th mat-header-cell *matHeaderCellDef>État</th>
+            <td mat-cell *matCellDef="let r">{{ r.etat || '—' }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="dateCreation">
+            <th mat-header-cell *matHeaderCellDef>Créée le</th>
+            <td mat-cell *matCellDef="let r">{{ r.dateCreation | date:'yyyy-MM-dd' }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef></th>
+            <td mat-cell *matCellDef="let r">
+              <!--              <button mat-icon-button matTooltip="Détails"><mat-icon>visibility</mat-icon></button>-->
+              <ng-container *ngIf="isPlatformBrowser">
+                <button mat-icon-button
+                >
+                  <mat-icon>fullscreen</mat-icon>
+                </button>
+              </ng-container>
+              <ng-container *ngIf="!isPlatformBrowser"><!--container--></ng-container>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumnsOrders"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumnsOrders;"></tr>
+        </table>
+      </div>
+    </mat-card>
+  </div>
+  <div fxFlex="100" fxFlex.gt-sm="50" class="p-2">
+    <mat-card>
+      <mat-card-title>Alertes stock</mat-card-title>
+      <div class="table-container">
+        <table mat-table [dataSource]="stockAlerts" class="mat-elevation-z8">
+          <ng-container matColumnDef="produit">
+            <th mat-header-cell *matHeaderCellDef>Produit</th>
+            <td mat-cell *matCellDef="let r">{{ r.produit }}</td>
+          </ng-container>
+          <ng-container matColumnDef="quantiteRestante">
+            <th mat-header-cell *matHeaderCellDef>Qté</th>
+            <td mat-cell *matCellDef="let r">{{ r.quantiteRestante ?? '—' }}</td>
+          </ng-container>
+          <ng-container matColumnDef="datePeremption">
+            <th mat-header-cell *matHeaderCellDef>Péremption</th>
+            <td mat-cell *matCellDef="let r">{{ r.datePeremption | date:'yyyy-MM-dd' }}</td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumnsStock"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumnsStock;"></tr>
+        </table>
+      </div>
+    </mat-card>
+  </div>
+</div>
+

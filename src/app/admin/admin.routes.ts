@@ -8,6 +8,10 @@ export const routes: Routes = [
     children: [
       {
         path: '',
+        loadComponent: () => import('./dashboard-new/dashboard-new.component').then(c => c.DashboardNewComponent)
+      },
+      {
+        path: 'old',
         loadComponent: () => import('./dashboard/dashboard.component').then(c => c.DashboardComponent)
       },
       {

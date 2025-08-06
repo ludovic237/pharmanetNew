@@ -90,3 +90,39 @@ export class Subscription {
   dateFin?: Date;
   status: string;
 }
+
+export interface SessionsDto { ouvertes: number; cloturees: number; }
+export interface AlertsDto { ruptures: number; perimes30j: number; }
+
+export interface KpiDto {
+  ca: number;
+  encaisse: number;
+  tickets: number;
+  tauxRetour: number;
+  depenses: number;
+  sessions: SessionsDto;
+  alerts: AlertsDto;
+  caSeries: number[];
+}
+
+export interface SalesMonthlyPoint { mois: string; total: number; }
+export interface CategorySales { categorie: string; total: number; }
+export interface TopProduct { nom: string; qty: number; }
+
+export interface OrderRow {
+  id: number;
+  ref: string | null;
+  fournisseur: string | null;
+  montantCmd: number | null;
+  montantRecu: number | null;
+  etat: string | null;
+  dateCreation: string | null;   // ISO string
+  dateLivraison: string | null;  // ISO string
+}
+
+export interface StockAlertRow {
+  produit: string;
+  quantiteRestante: number | null;
+  datePeremption: string | null; // ISO string
+}
+

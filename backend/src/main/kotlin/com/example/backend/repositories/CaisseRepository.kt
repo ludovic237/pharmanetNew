@@ -6,6 +6,7 @@ import jakarta.persistence.criteria.Predicate
 import org.springframework.data.jpa.domain.Specification
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor
+import org.springframework.data.jpa.repository.Query
 import org.springframework.stereotype.Repository
 import java.time.LocalDate
 
@@ -37,4 +38,18 @@ interface CaisseRepository : JpaRepository<Caisse, Int>, JpaSpecificationExecuto
       }
     }
   }
+
+  @Query(
+    value = """SELECT COUNT(*) FROM caisse WHERE supprimer=0 AND etat='OUVERT'""",
+    nativeQuery = true
+  )
+  fun sessionsOuvertes(): Long
+
+  @Query(
+    value = """SELECT COUNT(*) FROM caisse WHERE supprimer=0 AND etat='FERME'""",
+    nativeQuery = true
+  )
+  fun sessionsCloturees(): Long
+
+
 }

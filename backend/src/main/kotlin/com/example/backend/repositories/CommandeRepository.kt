@@ -1,11 +1,13 @@
 package com.example.backend.repositories;
 
+import com.example.backend.dtos.OrderRowView
 import com.example.backend.models.Commande
 import jakarta.persistence.criteria.Predicate
 import org.springframework.data.jpa.domain.Specification
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor
 import org.springframework.data.jpa.repository.Query
+import org.springframework.data.repository.query.Param
 import java.time.LocalDateTime
 
 interface CommandeRepository : JpaRepository<Commande, Long>, JpaSpecificationExecutor<Commande> {
@@ -50,4 +52,26 @@ interface CommandeRepository : JpaRepository<Commande, Long>, JpaSpecificationEx
       }
     }
   }
+
+  @Query(
+    value = """
+        SELECT cmd.id                AS id,
+               cmd.ref               AS ref,
+               four.nom              AS fournisseur,
+               cmd.montant_cmd       AS montantCmd,
+               cmd.montant_recu      AS montantRecu,
+               cmd.etat              AS etat,
+               cmd.date_creation     AS dateCreation,
+               cmd.date_livraison    AS dateLivraison
+        FROM commande cmd
+        LEFT JOIN fournisseur four ON four.id = cmd.fournisseur_id
+        WHERE cmd.supprimer=0
+        ORDER BY cmd.date_creation DESC
+        LIMIT :limit OFFSET :offset
+        """,
+    nativeQuery = true
+  )
+  fun ordersRecent(@Param("limit") limit: Int, @Param("offset") offset: Int): List<OrderRowView>
+
+
 }
