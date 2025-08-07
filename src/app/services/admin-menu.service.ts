@@ -2,13 +2,13 @@ import {Injectable} from '@angular/core';
 import {Location} from '@angular/common';
 import {Router} from '@angular/router';
 import {DomHandlerService} from './dom-handler.service';
-import {AdminMenu} from '@models/admin-menu.model';
 import {AppService} from "@services/app.service";
 import {getFilteredAdminMenuPharmaItems} from "../common/data/admin-menu-pharma";
 import {AppSettingsService} from "@services/app-settings.service";
 // import { adminMenuItems } from '../common/data/admin-menu';
 
 import {environment} from "../../environments/environment";
+import {AdminMenuPharma} from "@models/admin-menu-pharma.model";
 
 @Injectable({
   providedIn: 'root'
@@ -21,18 +21,18 @@ export class AdminMenuService {
               public domHandlerService: DomHandlerService) {
   }
 
-  public getMenuItems(): Array<AdminMenu> {
+  public getMenuItems(): Array<AdminMenuPharma> {
     this.appSettingsService.settingsUpdated$.subscribe((param: any) => {
       return getFilteredAdminMenuPharmaItems(param);
     });
     return getFilteredAdminMenuPharmaItems(localStorage.getItem("vente_mode"));
   }
 
-  public getMenuItemsWithParam(param: string): Array<AdminMenu> {
+  public getMenuItemsWithParam(param: string): Array<AdminMenuPharma> {
     return getFilteredAdminMenuPharmaItems(param);
   }
 
-  public expandActiveSubMenu(menu: Array<AdminMenu>) {
+  public expandActiveSubMenu(menu: Array<AdminMenuPharma>) {
     let url = this.location.path();
     let routerLink = decodeURIComponent(url);
     let activeMenuItem = menu.find(item => item.routerLink === routerLink);
@@ -60,7 +60,7 @@ export class AdminMenuService {
     }
   }
 
-  public closeOtherSubMenus(menu: Array<AdminMenu>, menuId: number) {
+  public closeOtherSubMenus(menu: Array<AdminMenuPharma>, menuId: number) {
     let currentMenuItem = menu.find(item => item.id == menuId);
     menu.forEach(item => {
       if ((item.id != menuId && item.parentId == currentMenuItem.parentId) || (currentMenuItem.parentId == 0 && item.id != menuId)) {
@@ -77,7 +77,7 @@ export class AdminMenuService {
   }
 
   public closeAllSubMenus() {
-    getFilteredAdminMenuPharmaItems(localStorage.getItem("vente_mode")).forEach((item: AdminMenu) => {
+    getFilteredAdminMenuPharmaItems(localStorage.getItem("vente_mode")).forEach((item: AdminMenuPharma) => {
       let subMenu = this.domHandlerService.winDocument.getElementById('sub-menu-' + item.id);
       let menuItem = this.domHandlerService.winDocument.getElementById('menu-item-' + item.id);
       if (subMenu) {

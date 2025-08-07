@@ -77,7 +77,19 @@ export class DepenseDialogComponent implements OnInit {
           this.loadDepenses();
           this.depenseForm.reset();
         },
-        error: () => this.snackBar.open('Failed to create depense', '×', {panelClass: 'error', duration: 3000})
+        error: (err) => {
+          if (err.status === 401 || err.status === 403) {
+            this.authService.logout();
+            this.snackBar.open('Déconnexion réussie.', '×', {
+              panelClass: 'success',
+              verticalPosition: 'top',
+              duration: 3000,
+            });
+            // Redirect to login page or clear session
+            window.location.href = '/sign-in';
+          }
+
+        }
       });
     }
   }
@@ -88,7 +100,20 @@ export class DepenseDialogComponent implements OnInit {
         this.snackBar.open('Depense deleted successfully', '×', {panelClass: 'success', duration: 3000});
         this.loadDepenses();
       },
-      error: () => this.snackBar.open('Failed to delete depense', '×', {panelClass: 'error', duration: 3000})
+      error: (err) => {
+        if (err.status === 401 || err.status === 403) {
+          this.authService.logout();
+          localStorage.removeItem('token');
+          this.snackBar.open('Déconnexion réussie.', '×', {
+            panelClass: 'success',
+            verticalPosition: 'top',
+            duration: 3000,
+          });
+          // Redirect to login page or clear session
+          window.location.href = '/sign-in';
+        }
+        // this.snackBar.open('Failed to delete depense', '×', {panelClass: 'error', duration: 3000})
+      }
     });
   }
 }

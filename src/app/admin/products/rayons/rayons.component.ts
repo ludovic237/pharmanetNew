@@ -66,8 +66,16 @@ export class RayonsComponent implements OnInit {
       },
       error: (err) => {
         console.error('Error  subscription:', err);
-        if (err.status == "403") {
-          // this.router.navigate(['/sign-in']); // Redirect to login if not authenticated
+        if (err.status === 401 || err.status === 403) {
+          this.authService.logout();
+          localStorage.removeItem('token');
+          this.snackBar.open('Déconnexion réussie.', '×', {
+            panelClass: 'success',
+            verticalPosition: 'top',
+            duration: 3000,
+          });
+          // Redirect to login page or clear session
+          window.location.href = '/sign-in';
         }
       }
     });

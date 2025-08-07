@@ -36,8 +36,7 @@ class CommandeService(
   @Transactional
   fun commandeByFournisseur(fournisseurId: String?, totalAmount: String?, request: List<CommandeNewDTO>): Commande {
 
-    var user = userUtils.getCurrentUser()
-    val getCurrentEmploye = employeRepository.findById(userUtils.getCurrentEmployeId()!!.toInt()).get()
+    var getCurrentEmploye = userUtils.getCurrentEmploye()
     val currentUser = userUtils.getCurrentEmployeId()
 
     var quantiteTotal = 0
@@ -48,7 +47,7 @@ class CommandeService(
     }
 
     val commande = Commande().apply {
-      this.employeId = getCurrentEmploye.id
+      this.employeId = getCurrentEmploye!!.id
       var newFournisseurId: String? = fournisseurId
       if (fournisseurId == "null") {
         newFournisseurId = "0"

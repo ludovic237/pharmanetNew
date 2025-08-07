@@ -43,6 +43,59 @@ class AuthController(
   }
 
   @CrossOrigin(origins = ["http://localhost:4200"])
+  @PostMapping("/login/codebarre")
+  fun loginCodeBarre(@RequestBody codebarreRequest: CodebarreRequest): ResponseEntity<*> {
+    if (codebarreRequest.codebarre.isEmpty()) {
+      return ResponseEntity.badRequest().body(
+        mapOf("message" to "Email and password must not be empty")
+      )
+    }
+    println("Login request: $codebarreRequest")
+    return try {
+      // Rechercher l'employé par identifiant
+      val employe = employeRepository.findByCodebarreId(codebarreRequest.codebarre)
+
+      // Générer le token JWT
+      val authentication = UsernamePasswordAuthenticationToken(employe.identifiant, null, emptyList())
+      SecurityContextHolder.getContext().authentication = authentication
+      val token = jwtUtil.generateToken(authentication)
+
+      println("Generated token: $token")
+      val activeCaisse = caisseService.getCaisseActive()
+      val caisseEnCoursCurrentUser =
+        caisseRepository.findByUserAndEtatAndSupprimer(employe, "En cours", 0).firstOrNull()
+      val caisseFermer = caisseService.getCaisseFermer()
+
+      if (activeCaisse == null && caisseEnCoursCurrentUser != null && caisseEnCoursCurrentUser?.user?.id != employe.id!!.toInt()) {
+        val nouvelleCaisse = Caisse().apply {
+          this.user = employe
+          this.fondCaisseOuvert = 0.0
+          this.ouvertureCaisse = "0"
+          this.dateOuvert = LocalDateTime.now()
+          this.session = genererSessionId()
+          this.etat = "Ouvert"
+          this.supprimer = 0
+        }
+        caisseRepository.save(nouvelleCaisse)
+      }
+
+
+      ResponseEntity.ok(
+        mapOf(
+          "message" to "Login successful",
+          "role" to "${employe.type}",
+          "token" to token,
+          "nom" to "${employe.user?.nom ?: "Unknown"} ${employe.user?.prenom ?: ""}"
+        )
+      )
+    } catch (ex: Exception) {
+      ResponseEntity.badRequest().body(
+        mapOf("message" to "Login failed: An error occurred")
+      )
+    }
+  }
+
+  @CrossOrigin(origins = ["http://localhost:4200"])
   @PostMapping("/login")
   fun login(@RequestBody loginRequest: LoginRequest): ResponseEntity<*> {
     if (loginRequest.username.isEmpty() || loginRequest.password.isEmpty()) {
@@ -116,7 +169,7 @@ class AuthController(
   @CrossOrigin(origins = ["http://localhost:4200"])
   @PostMapping("/logout")
   fun logout(): ResponseEntity<*> {
-    var user = userUtils.getCurrentUser()
+    var user = userUtils.getCurrentEmploye()
     val getCurrentEmploye = employeRepository.findById(userUtils.getCurrentEmployeId()!!.toInt()).get()
     val currentUser = userUtils.getCurrentEmployeId()
     val activeCaisse = caisseService.getCaisseActive()
@@ -185,6 +238,10 @@ class AuthController(
 data class LoginRequest(
   val username: String,
   val password: String
+)
+
+data class CodebarreRequest(
+  val codebarre: String
 )
 
 data class RegisterRequest(

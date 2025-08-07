@@ -13,7 +13,6 @@ import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
-import kotlin.math.log
 
 @Service
 class CaisseService(
@@ -61,10 +60,10 @@ class CaisseService(
 
   @Transactional
   fun ouvrirCaisse(requestDto: CaisseOuvertureRequestDto): CaisseDto {
-    val currentUser = userUtils.getCurrentUser()
+    val employeData = userUtils.getCurrentEmploye()
       ?: throw CaisseException("Unable to retrieve the logged-in user.")
 
-    val employeData = employeRepository.findByUser(currentUser)
+//    val employeData = employeRepository.findByUser(currentUser)
 
     // Check if there is already an active caisse
     val activeCaisse = caisseRepository.findByEtatAndSupprimer("En cours", 0).firstOrNull()
@@ -188,12 +187,11 @@ class CaisseService(
 
   @Transactional
   fun ouvrirNouvelleCaisse(caisse: CaisseOuvertureRequestDto): CaisseDto {
-    val currentUser = userUtils.getCurrentUser()
+    val employeData = userUtils.getCurrentEmploye()
     val currentEmployeId = userUtils.getCurrentEmployeId()
-    val employeData = employeRepository.findByUser(currentUser!!)
     val caisseActive = getCaisseActive()
     val caisseEnCoursCurrentUser =
-      caisseRepository.findByUserAndEtatAndSupprimer(employeData, "En cours", 0).firstOrNull()
+      caisseRepository.findByUserAndEtatAndSupprimer(employeData!!, "En cours", 0).firstOrNull()
 
     if (caisseActive == null && caisseEnCoursCurrentUser == null) {
       var caisse = Caisse().apply {
@@ -260,12 +258,12 @@ class CaisseService(
       var produitRetour = produitRetourRepository.findByRetourProduitId(retourProduit.id!!.toLong())
       mapOf(
         "reference" to retourProduit.vente?.reference,
-        "produit" to produitRetour.map {
-          produitRepository.findById(
-            enRayonRepository.findById(it.concerner!!.enRayonId!!)!!.get().produitId!!
-          ).get().nom
-        }
-          .joinToString { "," },
+        "produit" to produitRetour.map { produitr ->
+          var concerner = concernerRepository.findById(produitr?.concerner?.id!!).get()
+          var enRayon = enRayonRepository.findById(concerner?.enRayonId!!).get()
+          var produit = produitRepository.findById(enRayon?.produitId!!.toInt()).get()
+         produit?.nom
+        },
         "quantite" to produitRetour.sumOf { it.quantite!! },
         "total" to produitRetour.sumOf { it.quantite!! * it.concerner?.prixUnit!! }
       )
@@ -340,9 +338,11 @@ class CaisseService(
             "GROSSISTE" -> {
               prixTotalGrossiste += (concerne?.prixUnit!! * concerne?.quantite!!)
             }
+
             "DETAILLANT" -> {
               prixTotalDetaillant += (concerne?.prixUnit!! * concerne?.quantite!!)
             }
+
             else -> {
               prixTotalDetail += (concerne?.prixUnit!! * concerne?.quantite!!)
             }

@@ -8,7 +8,7 @@ import {environment} from "../../environments/environment";
   providedIn: 'root',
 })
 export class AuthService {
-  private baseUrl = environment.url+'/api/auth';
+  private baseUrl = environment.url + '/api/auth';
 
   constructor(
     private http: HttpClient) {
@@ -25,6 +25,10 @@ export class AuthService {
 
   login(username: string, password: string): Observable<any> {
     return this.http.post(`${this.baseUrl}/login`, {username, password});
+  }
+
+  loginCodebarre(codebarre: string): Observable<any> {
+    return this.http.post(`${this.baseUrl}/login/codebarre`, {codebarre});
   }
 
   registerUser(firstName: string, lastName: string, role: string, phone: string, email: string, password: string): Observable<any> {

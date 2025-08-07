@@ -3,6 +3,7 @@ package com.example.backend.repositories;
 import com.example.backend.dtos.CategorySalesRow
 import com.example.backend.dtos.TopProductRow
 import com.example.backend.models.Concerner
+import com.example.backend.models.EnRayon
 import com.example.backend.models.Produit
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
@@ -11,6 +12,7 @@ import java.time.LocalDateTime
 
 interface ConcernerRepository : JpaRepository<Concerner, Int> {
   fun findByVenteIdAndProduitId(vente: Long, produit: Int): Concerner?
+  fun findByVenteIdAndEnRayonId(vente: Long, enRayonId: String): Concerner?
   fun findByVenteId(vente: Long): List<Concerner?>
   fun findByProduitId(produit: Int): List<Concerner?>
 

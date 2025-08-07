@@ -2,7 +2,6 @@ package com.example.backend.utility
 
 import com.example.backend.models.Caisse
 import com.example.backend.models.Employe
-import com.example.backend.models.User // Your entity
 import com.example.backend.repositories.CaisseRepository
 import com.example.backend.repositories.UserRepository // Import UserRepository
 import org.springframework.security.core.context.SecurityContextHolder
@@ -53,7 +52,7 @@ class UserUtils(
     }
   }
 
-  fun getCurrentUser(): User? {
+  fun getCurrentEmploye(): Employe? {
     val authentication = SecurityContextHolder.getContext().authentication
     println("getCurrentUserId authentication: $authentication") // Keep for debugging if needed
 
@@ -67,11 +66,11 @@ class UserUtils(
         println("Username from principal: $username")
 
         // Fetch your custom User entity using the email (username)
-        val user:User = principal?.user!!
+//        val user:User = principal?.user!!
 
-        if (user.id != null) {
-          println("User found in DB: ID = ${user.id}")
-          return user
+        if (principal.id != null) {
+          println("User found in DB: ID = ${principal.id}")
+          return principal
         } else {
           println("User not found in DB for email: $username")
           // This case should ideally not happen if the user is authenticated,

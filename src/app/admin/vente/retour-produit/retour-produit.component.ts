@@ -120,6 +120,10 @@ export class RetourProduitComponent implements OnInit {
   totalReduction = 0;
   netTotal = 0;
 
+  totalGrosAmount = 0;
+  totalReturnAmount = 0;
+  totalReductionAmount = 0;
+
   constructor(
     public authService: AuthService,
     private retourProduitService: RetourProduitService,
@@ -145,6 +149,12 @@ export class RetourProduitComponent implements OnInit {
             }))
             this.vente = data.vente
 
+            this.totalReductionAmount = parseFloat(data.vente.reduction)
+            this.totalGrosAmount =  this.produitsAchetes.reduce((sum, item) => sum + (item.prixUnitaire*item.quantite), 0)
+            console.log("this.totalReduction");
+            console.log(this.totalReduction);
+            console.log("this.totalGrosAmount");
+            console.log(this.totalGrosAmount);
             this.snackBar.open('Retour validé avec succès.', '×', {panelClass: 'success', duration: 3000});
           },
           error: (err: any) => {
@@ -200,9 +210,17 @@ export class RetourProduitComponent implements OnInit {
   }
 
   calculateTotals(data: any[]): void {
-    this.totalPrix = data.reduce((sum, item) => sum + item.prixTotal, 0);
-    this.totalReduction = data.reduce((sum, item) => sum + item.reduction, 0);
-    this.netTotal = this.totalPrix - this.totalReduction;
+    // this.totalPrix = data.reduce((sum, item) => sum + item.prixTotal, 0);
+    // // this.totalReduction = data.reduce((sum, item) => sum + item.reduction, 0);
+    //
+    console.log("produitsRetournes");
+    console.log(this.produitsRetournes);
+    this.totalReturnAmount =  this.produitsRetournes.reduce((sum, item) => sum + (item.quantite*item.prixUnitaire), 0);
+    console.log(" this.totalReturnAmount : "+ this.totalReturnAmount)
+    console.log(" this.totalReductionAmount : "+ this.totalReductionAmount)
+    this.totalReduction = Math.floor(this.totalReductionAmount*this.totalReturnAmount/this.totalGrosAmount)
+    this.totalPrix = this.totalReturnAmount
+    this.netTotal = this.totalReturnAmount - this.totalReduction;
   }
 
   validerRetour(): void {

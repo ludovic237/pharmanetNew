@@ -191,6 +191,7 @@ export class AjouterVenteComponent implements OnInit {
       error: (err: any) => {
         if (err.status === 401 || err.status === 403) {
           this.authService.logout();
+          localStorage.removeItem('token');
           this.snackBar.open('Déconnexion réussie.', '×', {
             panelClass: 'success',
             verticalPosition: 'top',
@@ -230,6 +231,7 @@ export class AjouterVenteComponent implements OnInit {
       error: (err: any) => {
         if (err.status === 401 || err.status === 403) {
           this.authService.logout();
+          localStorage.removeItem('token');
           this.snackBar.open('Déconnexion réussie.', '×', {
             panelClass: 'success',
             verticalPosition: 'top',
@@ -248,6 +250,7 @@ export class AjouterVenteComponent implements OnInit {
       error: (err) => {
         if (err.status === 401 || err.status === 403) {
           this.authService.logout();
+          localStorage.removeItem('token');
           this.snackBar.open('Déconnexion réussie.', '×', {
             panelClass: 'success',
             verticalPosition: 'top',
@@ -521,6 +524,7 @@ export class AjouterVenteComponent implements OnInit {
         console.error('Failed to fetch products in stock:', err);
         if (err.status === 401 || err.status === 403) {
           this.authService.logout();
+          localStorage.removeItem('token');
           this.snackBar.open('Déconnexion réussie.', '×', {
             panelClass: 'success',
             verticalPosition: 'top',
@@ -551,6 +555,7 @@ export class AjouterVenteComponent implements OnInit {
       error: (err) => {
         if (err.status === 401 || err.status === 403) {
           this.authService.logout();
+          localStorage.removeItem('token');
           this.snackBar.open('Déconnexion réussie.', '×', {
             panelClass: 'success',
             verticalPosition: 'top',
@@ -626,6 +631,7 @@ export class AjouterVenteComponent implements OnInit {
       error: (err) => {
         if (err.status === 401 || err.status === 403) {
           this.authService.logout();
+          localStorage.removeItem('token');
           this.snackBar.open('Déconnexion réussie.', '×', {
             panelClass: 'success',
             verticalPosition: 'top',
@@ -650,6 +656,7 @@ export class AjouterVenteComponent implements OnInit {
       error: (err) => {
         if (err.status === 401 || err.status === 403) {
           this.authService.logout();
+          localStorage.removeItem('token');
           this.snackBar.open('Déconnexion réussie.', '×', {
             panelClass: 'success',
             verticalPosition: 'top',
@@ -901,6 +908,7 @@ export class AjouterVenteComponent implements OnInit {
         console.error('Error fetching commandes:', err);
         if (err.status === 401 || err.status === 403){
           this.authService.logout();
+          localStorage.removeItem('token');
           this.snackBar.open('Déconnexion réussie.', '×', {
             panelClass: 'success',
             verticalPosition: 'top',
@@ -935,6 +943,7 @@ export class AjouterVenteComponent implements OnInit {
         console.error('Error fetching commandes:', err);
         if (err.status === 401 || err.status === 403){
           this.authService.logout();
+          localStorage.removeItem('token');
           this.snackBar.open('Déconnexion réussie.', '×', {
             panelClass: 'success',
             verticalPosition: 'top',

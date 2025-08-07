@@ -321,3 +321,6 @@ alter table user
   add username varchar(255) not null,
   modify password varchar(255) null,
   modify username varchar(255) null;
+
+alter table facturation
+  modify id bigint auto_increment;

@@ -567,8 +567,7 @@ class ProduitService(
     val vente = venteRepository.findById(venteId)
       .orElseThrow { NotFoundException("Vente non trouvée avec l'ID: $venteId") }
 
-    val currentUser = userUtils.getCurrentUser()
-    val employe = employeRepository.findByUser(currentUser!!)
+    val employe = userUtils.getCurrentEmploye()
 
     val caisse =  caisseService.getCaisseActive()
 
@@ -581,9 +580,14 @@ class ProduitService(
     retourProduit = retourProduitRepository.save(retourProduit)
 
     produitsRetour.forEach { produitRetourRequest ->
-      var produitConcerner = concernerRepository.findByVenteIdAndProduitId(
+//      var produitConcerner = concernerRepository.findByVenteIdAndEnRayonId(
+//        vente.id!!.toLong(),
+//        produitRepository.findById(produitRetourRequest.produitId.toInt()).get().id!!.toInt()
+//      ) ?: throw NotFoundException("Produit non trouvé dans la vente avec l'ID: ${produitRetourRequest.produitId}")
+
+      var produitConcerner = concernerRepository.findByVenteIdAndEnRayonId(
         vente.id!!.toLong(),
-        produitRepository.findById(produitRetourRequest.produitId.toInt()).get().id!!.toInt()
+        produitRetourRequest.rayonId.toString()
       ) ?: throw NotFoundException("Produit non trouvé dans la vente avec l'ID: ${produitRetourRequest.produitId}")
 
       if (produitRetourRequest.quantiteRetour <= 0) {

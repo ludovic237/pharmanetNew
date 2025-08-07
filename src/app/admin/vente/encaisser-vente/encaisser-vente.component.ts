@@ -215,6 +215,7 @@ export class EncaisserVenteComponent implements OnInit {
         console.error('Failed to check caisse status:', err);
         if (err.status === 401 || err.status === 403) {
           this.authService.logout();
+          localStorage.removeItem('token');
           this.snackBar.open('Déconnexion réussie.', '×', {
             panelClass: 'success',
             verticalPosition: 'top',
@@ -420,6 +421,7 @@ export class EncaisserVenteComponent implements OnInit {
       error: (err: any) => {
         if (err.status === 401 || err.status === 403) {
           this.authService.logout();
+          localStorage.removeItem('token');
           this.snackBar.open('Déconnexion réussie.', '×', {
             panelClass: 'success',
             verticalPosition: 'top',
@@ -638,6 +640,7 @@ export class EncaisserVenteComponent implements OnInit {
         console.error('Failed to fetch BonCaisse list:', err);
         if (err.status === 401 || err.status === 403) {
           this.authService.logout();
+          localStorage.removeItem('token');
           this.snackBar.open('Déconnexion réussie.', '×', {
             panelClass: 'success',
             verticalPosition: 'top',
@@ -688,6 +691,7 @@ export class EncaisserVenteComponent implements OnInit {
         console.error('Failed to fetch BonCaisse list:', err);
         if (err.status === 401 || err.status === 403) {
           this.authService.logout();
+          localStorage.removeItem('token');
           this.snackBar.open('Déconnexion réussie.', '×', {
             panelClass: 'success',
             verticalPosition: 'top',
@@ -722,6 +726,7 @@ export class EncaisserVenteComponent implements OnInit {
         console.error('Failed to fetch BonCaisse list:', err);
         if (err.status === 401 || err.status === 403) {
           this.authService.logout();
+          localStorage.removeItem('token');
           this.snackBar.open('Déconnexion réussie.', '×', {
             panelClass: 'success',
             verticalPosition: 'top',
@@ -785,6 +790,7 @@ export class EncaisserVenteComponent implements OnInit {
         console.error('Failed to fetch unencashed sales:', err);
         if (err.status === 401 || err.status === 403) {
           this.authService.logout();
+          localStorage.removeItem('token');
           this.snackBar.open('Déconnexion réussie.', '×', {
             panelClass: 'success',
             verticalPosition: 'top',
@@ -839,6 +845,7 @@ export class EncaisserVenteComponent implements OnInit {
         console.error('Erreur lors de la mise en attente de clôture de la caisse:', err);
         if (err.status === 401 || err.status === 403) {
           this.authService.logout();
+          localStorage.removeItem('token');
           this.snackBar.open('Déconnexion réussie.', '×', {
             panelClass: 'success',
             verticalPosition: 'top',
@@ -909,6 +916,7 @@ export class EncaisserVenteComponent implements OnInit {
         console.error('Erreur lors de la déconnexion:', err);
         if (err.status === 401 || err.status === 403) {
           this.authService.logout();
+          localStorage.removeItem('token');
           this.snackBar.open('Déconnexion réussie.', '×', {
             panelClass: 'success',
             verticalPosition: 'top',
@@ -954,6 +962,7 @@ export class EncaisserVenteComponent implements OnInit {
       error: (err: any) => {
         if (err.status === 401 || err.status === 403) {
           this.authService.logout();
+          localStorage.removeItem('token');
           this.snackBar.open('Déconnexion réussie.', '×', {
             panelClass: 'success',
             verticalPosition: 'top',
@@ -992,6 +1001,7 @@ export class EncaisserVenteComponent implements OnInit {
         console.error('Error fetching commandes:', err);
         if (err.status === 401 || err.status === 403){
           this.authService.logout();
+          localStorage.removeItem('token');
           this.snackBar.open('Déconnexion réussie.', '×', {
             panelClass: 'success',
             verticalPosition: 'top',
@@ -1021,6 +1031,7 @@ export class EncaisserVenteComponent implements OnInit {
         console.error('Error fetching commandes:', err);
         if (err.status === 401 || err.status === 403){
           this.authService.logout();
+          localStorage.removeItem('token');
           this.snackBar.open('Déconnexion réussie.', '×', {
             panelClass: 'success',
             verticalPosition: 'top',

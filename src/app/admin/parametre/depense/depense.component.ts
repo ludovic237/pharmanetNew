@@ -19,6 +19,7 @@ import {DepenseService} from "@services/depenses.service";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {MatDatepickerModule} from "@angular/material/datepicker";
 import {MatNativeDateModule} from "@angular/material/core";
+import {MatPaginatorModule, PageEvent} from "@angular/material/paginator";
 
 @Component({
   selector: 'app-depense',
@@ -39,7 +40,8 @@ import {MatNativeDateModule} from "@angular/material/core";
     MatButtonModule, MatDividerModule, MatIconModule,
     MatTableModule,
     MatAutocompleteModule,
-    FlexLayoutModule
+    FlexLayoutModule,
+    MatPaginatorModule
   ],
   templateUrl: './depense.component.html',
   styleUrl: './depense.component.scss'
@@ -50,6 +52,11 @@ export class DepenseComponent {
   depenses: any[] = [];
   displayedColumns: string[] = ['id', 'designation', 'quantite', 'prixUnitaire', 'dateEpense', 'actions'];
   depenseForm: FormGroup;
+
+  public pageDepense: number = 1; // Default to 0 if undefined
+  public sizeDepense = 5;  // Default to 10 if undefined
+  public totalItemsDepense = 0;  // Default to 10 if undefined
+  public countDepense = 10;
 
   constructor(
     public authService: AuthService,
@@ -74,9 +81,32 @@ export class DepenseComponent {
   }
 
   loadDepenses(): void {
-    this.depenseService.getAllDepenses().subscribe({
-      next: (data) => this.depenses = data,
-      error: () => this.snackBar.open('Failed to load depenses', '×', {panelClass: 'error', duration: 3000})
+    this.depenseService.getAllDepensesPageable(this.pageDepense - 1, this.countDepense).subscribe({
+      next: (data:any) => {
+        this.depenses = data.content
+        this.countDepense = data.pageable.pageSize;
+        this.totalItemsDepense = data.totalElements;
+
+        this.snackBar.open("Sale refresh success", '×', {
+          panelClass: 'success',
+          verticalPosition: 'top',
+          duration: 3000
+        });
+      },
+      error: (err:any) => {
+        this.snackBar.open('Failed to load depenses', '×', {panelClass: 'error', duration: 3000})
+        if (err.status === 401 || err.status === 403) {
+          this.authService.logout();
+          localStorage.removeItem('token');
+          this.snackBar.open('Déconnexion réussie.', '×', {
+            panelClass: 'success',
+            verticalPosition: 'top',
+            duration: 3000,
+          });
+          // Redirect to login page or clear session
+          window.location.href = '/sign-in';
+        }
+      }
     });
   }
 
@@ -94,7 +124,19 @@ export class DepenseComponent {
           this.depenseForm.updateValueAndValidity();
           // this.depenseForm.;
         },
-        error: () => this.snackBar.open('Failed to create depense', '×', {panelClass: 'error', duration: 3000})
+        error: (err) => {
+          this.snackBar.open('Failed to create depense', '×', {panelClass: 'error', duration: 3000})
+          if (err.status === 401 || err.status === 403) {
+            this.authService.logout();
+            this.snackBar.open('Déconnexion réussie.', '×', {
+              panelClass: 'success',
+              verticalPosition: 'top',
+              duration: 3000,
+            });
+            // Redirect to login page or clear session
+            window.location.href = '/sign-in';
+          }
+        }
       });
     }
   }
@@ -105,8 +147,27 @@ export class DepenseComponent {
         this.snackBar.open('Depense deleted successfully', '×', {panelClass: 'success', duration: 3000});
         this.loadDepenses();
       },
-      error: () => this.snackBar.open('Failed to delete depense', '×', {panelClass: 'error', duration: 3000})
+      error: (err) => {
+        this.snackBar.open('Failed to delete depense', '×', {panelClass: 'error', duration: 3000})
+        if (err.status === 401 || err.status === 403) {
+          this.authService.logout();
+          localStorage.removeItem('token');
+          this.snackBar.open('Déconnexion réussie.', '×', {
+            panelClass: 'success',
+            verticalPosition: 'top',
+            duration: 3000,
+          });
+          // Redirect to login page or clear session
+          window.location.href = '/sign-in';
+        }
+      }
     });
+  }
+
+  public onPageChangedDepenses(event: PageEvent) {
+    this.pageDepense = event.pageIndex + 1;
+    this.countDepense = event.pageSize
+    this.loadDepenses();
   }
 
 }

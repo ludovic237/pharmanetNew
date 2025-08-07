@@ -82,7 +82,10 @@ export class AdminComponent implements OnInit {
       const venteMode = localStorage.getItem('vente_mode') || 'default';
       console.log("ngoninit venteMode")
       console.log(venteMode)
-      this.menuItems = this.adminMenuService.getMenuItemsWithParam(venteMode)
+      // this.menuItems = this.adminMenuService.getMenuItemsWithParam(venteMode)
+      this.menuItems = this.adminMenuService.getMenuItemsWithParam(venteMode).filter(item=>
+        item.roles.includes(this.role)
+      );
       this.cdr.detectChanges();
     });
 
@@ -140,7 +143,11 @@ export class AdminComponent implements OnInit {
 
   private loadMenuItems() {
     const venteMode = localStorage.getItem('vente_mode') || 'default';
-    this.menuItems = this.adminMenuService.getMenuItemsWithParam(venteMode);
+    this.menuItems = this.adminMenuService.getMenuItemsWithParam(venteMode).filter(item=>
+      item.roles.includes(this.role)
+    );
+    console.log("this.menuItems");
+    console.log(this.menuItems);
   }
 
   logoutUser(): void {
@@ -157,11 +164,17 @@ export class AdminComponent implements OnInit {
       },
       error: (err: any) => {
         console.error('Erreur lors de la déconnexion:', err);
-        this.snackBar.open('Erreur lors de la déconnexion.', '×', {
-          panelClass: 'error',
-          verticalPosition: 'top',
-          duration: 3000,
-        });
+        if (err.status === 401 || err.status === 403) {
+          this.authService.logout();
+          localStorage.removeItem('token');
+          this.snackBar.open('Déconnexion réussie.', '×', {
+            panelClass: 'success',
+            verticalPosition: 'top',
+            duration: 3000,
+          });
+          // Redirect to login page or clear session
+          window.location.href = '/sign-in';
+        }
       }
     });
   }

@@ -37,8 +37,9 @@ import {MatSelectModule} from "@angular/material/select";
 import {FlexLayoutModule} from "@ngbracket/ngx-layout";
 import {MatStepperModule} from "@angular/material/stepper";
 import {MatRadioModule} from "@angular/material/radio";
-import {MatSnackBarModule} from "@angular/material/snack-bar";
+import {MatSnackBar, MatSnackBarModule} from "@angular/material/snack-bar";
 import {NgxPaginationModule} from "ngx-pagination";
+import {AuthService} from "@services/auth.service";
 
 function toIso(dt: Date, endOfDay = false): string {
   if (!dt) return '';
@@ -148,17 +149,56 @@ export class DashboardNewComponent implements OnInit, OnDestroy {
 
   isPlatformBrowser: boolean;
 
-  constructor(private fb: FormBuilder, private api: DashboardService,@Inject(PLATFORM_ID) platformId: Object) {
+  constructor(
+    public authService: AuthService,
+    private fb: FormBuilder,
+    private api: DashboardService,
+    public snackBar: MatSnackBar,
+    @Inject(PLATFORM_ID) platformId: Object) {
     // this.isPlatformBrowser = isPlatformBrowser(platformId);
   }
 
   ngOnInit(): void {
     // charger les tables statiques
-    this.api.ordersRecent(0, 8)
-      .subscribe(r => this.ordersRecent = r);
+    this.api.ordersRecent(0, 8).subscribe({
+      next: (r: any[]) => {
+        this.ordersRecent = r
+      },
+      error: (err) => {
+        console.error('Error fetching commandes:', err);
+        if (err.status === 401 || err.status === 403) {
+          this.authService.logout();
+          localStorage.removeItem('token');
+          this.snackBar.open('Déconnexion réussie.', '×', {
+            panelClass: 'success',
+            verticalPosition: 'top',
+            duration: 3000,
+          });
+          // Redirect to login page or clear session
+          window.location.href = '/sign-in';
+        }
+      }
+    });
 
-    this.api.stockAlerts(10, 30, 10)
-      .subscribe(r => this.stockAlerts = r);
+    this.api.stockAlerts(10, 30, 10).subscribe({
+      next: (r: any[]) => {
+        this.stockAlerts = r;
+      },
+      error: (err) => {
+        console.error('Error fetching commandes:', err);
+        if (err.status === 401 || err.status === 403) {
+          this.authService.logout();
+          localStorage.removeItem('token');
+          this.snackBar.open('Déconnexion réussie.', '×', {
+            panelClass: 'success',
+            verticalPosition: 'top',
+            duration: 3000,
+          });
+          // Redirect to login page or clear session
+          window.location.href = '/sign-in';
+        }
+      }
+    });
 
     // Rafraîchir tout à chaque changement de période
 
@@ -192,44 +232,60 @@ export class DashboardNewComponent implements OnInit, OnDestroy {
       this.api.salesMonthly(formatDate(this.startDateVente+""), formatDate(this.endDateVente+"")),
       this.api.salesByCategory(formatDate(this.startDateVente+""), formatDate(this.endDateVente+"")),
       this.api.topProducts(10, formatDate(this.startDateVente+""), formatDate(this.endDateVente+"")),
-    ]).subscribe(([kpi, monthly, byCat, top]) => {
-      this.kpi = kpi;
+    ]).subscribe({
+      next: ([kpi, monthly, byCat, top]) => {
+        this.kpi = kpi;
 
-      this.salesMonthly = monthly;
-      this.salesMonthlyLabels = monthly.map(m => m.mois);
-      // this.salesMonthlyData = [{ data: monthly.map(m => m.total), label: 'Ventes' }];
+        this.salesMonthly = monthly;
+        this.salesMonthlyLabels = monthly.map(m => m.mois);
+        // this.salesMonthlyData = [{ data: monthly.map(m => m.total), label: 'Ventes' }];
 
-      this.salesByCategory = byCat;
-      // this.catLabels = byCat.map(x => x.categorie);
-      // this.catData = [{ data: byCat.map(x => x.total), label: 'Répartition' }];
+        this.salesByCategory = byCat;
+        // this.catLabels = byCat.map(x => x.categorie);
+        // this.catData = [{ data: byCat.map(x => x.total), label: 'Répartition' }];
 
-      this.catLabels = byCat.map(c => c.categorie);
-      this.catRaw    = [{ data: byCat.map(c => c.total), label: 'Répartition' }];
+        this.catLabels = byCat.map(c => c.categorie);
+        this.catRaw    = [{ data: byCat.map(c => c.total), label: 'Répartition' }];
 
-      this.pieChartData = {
-        labels: this.catLabels,
-        datasets: this.catRaw
-      };
+        this.pieChartData = {
+          labels: this.catLabels,
+          datasets: this.catRaw
+        };
 
-      this.salesMonthlyLabels = monthly.map(m => m.mois);
-      this.salesMonthlyRaw    = [{ data: monthly.map(m => m.total), label: 'Ventes' }];
+        this.salesMonthlyLabels = monthly.map(m => m.mois);
+        this.salesMonthlyRaw    = [{ data: monthly.map(m => m.total), label: 'Ventes' }];
 
-      // compose le ChartData complet
-      this.lineChartData = {
-        labels: this.salesMonthlyLabels,
-        datasets: this.salesMonthlyRaw
-      };
+        // compose le ChartData complet
+        this.lineChartData = {
+          labels: this.salesMonthlyLabels,
+          datasets: this.salesMonthlyRaw
+        };
 
-      this.topProducts = top;
+        this.topProducts = top;
 
-      // Transforme en ChartData
-      this.barChartData = {
-        labels: top.map(p => p.nom),
-        datasets: [
-          { data: top.map(p => p.qty), label: 'Quantité vendue' }
-        ]
-      };
+        // Transforme en ChartData
+        this.barChartData = {
+          labels: top.map(p => p.nom),
+          datasets: [
+            { data: top.map(p => p.qty), label: 'Quantité vendue' }
+          ]
+        };
 
+      },
+      error: (err) => {
+        console.error('Error fetching commandes:', err);
+        if (err.status === 401 || err.status === 403) {
+          this.authService.logout();
+          localStorage.removeItem('token');
+          this.snackBar.open('Déconnexion réussie.', '×', {
+            panelClass: 'success',
+            verticalPosition: 'top',
+            duration: 3000,
+          });
+          // Redirect to login page or clear session
+          window.location.href = '/sign-in';
+        }
+      }
     });
   }
 }

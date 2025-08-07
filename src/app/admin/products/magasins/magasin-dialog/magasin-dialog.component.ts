@@ -73,11 +73,16 @@ export class MagasinDialogComponent implements OnInit {
           },
           error: (err) => {
             console.error('Error applying filters:', err);
-            this.snackBar.open('Déconnexion réussie.', '×', {
-              panelClass: 'success',
-              verticalPosition: 'top',
-              duration: 3000,
-            });
+            if (err.status === 401 || err.status === 403) {
+              this.authService.logout();
+              this.snackBar.open('Déconnexion réussie.', '×', {
+                panelClass: 'success',
+                verticalPosition: 'top',
+                duration: 3000,
+              });
+              // Redirect to login page or clear session
+              window.location.href = '/sign-in';
+            }
           }
         });
       } else if (this.data.type == "update") {
@@ -92,11 +97,16 @@ export class MagasinDialogComponent implements OnInit {
           },
           error: (err) => {
             console.error('Error applying filters:', err);
-            this.snackBar.open('Déconnexion réussie.', '×', {
-              panelClass: 'success',
-              verticalPosition: 'top',
-              duration: 3000,
-            });
+            if (err.status === 401 || err.status === 403) {
+              this.authService.logout();
+              this.snackBar.open('Déconnexion réussie.', '×', {
+                panelClass: 'success',
+                verticalPosition: 'top',
+                duration: 3000,
+              });
+              // Redirect to login page or clear session
+              window.location.href = '/sign-in';
+            }
           }
         });
       }

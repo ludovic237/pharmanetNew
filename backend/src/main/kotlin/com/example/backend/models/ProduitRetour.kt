@@ -15,7 +15,7 @@ class ProduitRetour {
   @JoinColumn(name = "retour_produit_id")
   var retourProduit: com.example.backend.models.RetourProduit? = null
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne(fetch = FetchType.EAGER)
   @JoinColumn(name = "concerner_id")
   var concerner: Concerner? = null
 

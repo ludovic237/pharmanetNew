@@ -12,6 +12,7 @@ import {AuthService} from "@services/auth.service";
 import {MatOptionModule} from "@angular/material/core";
 import {MatSelectModule} from "@angular/material/select";
 import {AppSettingsService} from "@services/app-settings.service";
+import {MatDividerModule} from "@angular/material/divider";
 
 @Component({
   selector: 'app-sign-in',
@@ -24,6 +25,7 @@ import {AppSettingsService} from "@services/app-settings.service";
     MatIconModule,
     MatOptionModule,
     MatSelectModule,
+    MatDividerModule,
     FlexLayoutModule
   ],
   templateUrl: './sign-in.component.html',
@@ -33,9 +35,11 @@ export class SignInComponent implements OnInit {
 
   username: string = '';
   password: string = '';
+  codebarre: string = '';
 
   loginForm: FormGroup;
   registerForm: FormGroup;
+  codebarreForm: FormGroup;
 
   constructor(
     public authService: AuthService,
@@ -45,6 +49,10 @@ export class SignInComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.codebarreForm = this.formBuilder.group({
+      // 'email': ['', Validators.compose([Validators.required, emailValidator])],
+      'codebarre': ['', Validators.compose([Validators.required, , Validators.minLength(2)])],
+    });
     this.loginForm = this.formBuilder.group({
       // 'email': ['', Validators.compose([Validators.required, emailValidator])],
       'email': ['', Validators.compose([Validators.required, , Validators.minLength(2)])],
@@ -68,6 +76,58 @@ export class SignInComponent implements OnInit {
     if (this.loginForm.valid) {
       // this.router.navigate(['/']);
       this.authService.login(this.username, this.password).subscribe({
+        next: (response) => {
+          localStorage.setItem('token', response.token);
+          localStorage.setItem('nom', response.nom);
+          localStorage.setItem('role', response.role);
+          this.appSettingsService.loadSetting().subscribe({
+            next: (data: any[]) => {
+              data.forEach(item => {
+                localStorage.setItem(item.keyName, item.value);
+              });
+              this.snackBar.open(response.message, '×', {
+                panelClass: 'success',
+                verticalPosition: 'top',
+                duration: 3000
+              });
+              // Redirect after 3000 ms
+              setTimeout(() => {
+                this.router.navigate(['/admin']);
+              }, 3000);
+            },
+            error: (err: any) => {
+              if (err.status === 401 || err.status === 403) {
+                this.authService.logout();
+                this.snackBar.open('Déconnexion réussie.', '×', {
+                  panelClass: 'success',
+                  verticalPosition: 'top',
+                  duration: 3000,
+                });
+                // Redirect to login page or clear session
+                window.location.href = '/sign-in';
+              }
+            },
+          })
+        },
+        error: (err) => {
+          this.snackBar.open(err.error.message, '×', {
+            panelClass: 'error',
+            verticalPosition: 'top',
+            duration: 3000
+          });
+          console.error('Login failed:', err);
+        },
+      });
+    }
+  }
+
+  public codebarreFormSubmit(values: Object): void {
+    this.codebarre = this.codebarreForm.get('codebarre')?.value;
+    console.log("this.codebarre");
+    console.log(this.codebarre);
+    if (this.codebarreForm.valid) {
+      // this.router.navigate(['/']);
+      this.authService.loginCodebarre(this.codebarre).subscribe({
         next: (response) => {
           localStorage.setItem('token', response.token);
           localStorage.setItem('nom', response.nom);

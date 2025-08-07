@@ -81,6 +81,7 @@ export class UsersNewComponent implements OnInit {
       error: (err:any) => {
         if (err.status === 401 || err.status === 403){
           this.authService.logout();
+          localStorage.removeItem('token');
           this.snackBar.open('Déconnexion réussie.', '×', {
             panelClass: 'success',
             verticalPosition: 'top',
@@ -131,6 +132,7 @@ export class UsersNewComponent implements OnInit {
       error: (err:any) => {
         if (err.status === 401 || err.status === 403){
           this.authService.logout();
+          localStorage.removeItem('token');
           this.snackBar.open('Déconnexion réussie.', '×', {
             panelClass: 'success',
             verticalPosition: 'top',

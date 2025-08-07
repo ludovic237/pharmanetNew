@@ -402,11 +402,17 @@ export class EncaisserVenteComponent {
       },
       error: (err: any) => {
         console.error('Failed to fetch BonCaisse list:', err);
-        this.snackBar.open('Erreur lors de la récupération des bons de caisse.', '×', {
-          panelClass: 'error',
-          verticalPosition: 'top',
-          duration: 3000,
-        });
+        if (err.status === 401 || err.status === 403) {
+          this.authService.logout();
+          localStorage.removeItem('token');
+          this.snackBar.open('Déconnexion réussie.', '×', {
+            panelClass: 'success',
+            verticalPosition: 'top',
+            duration: 3000,
+          });
+          // Redirect to login page or clear session
+          window.location.href = '/sign-in';
+        }
       }
     });
   }
@@ -426,11 +432,22 @@ export class EncaisserVenteComponent {
       },
       error: (err: any) => {
         console.error('Failed to fetch BonCaisse list:', err);
-        this.snackBar.open('Erreur lors de la récupération des bons de caisse.', '×', {
-          panelClass: 'error',
-          verticalPosition: 'top',
-          duration: 3000,
-        });
+        // this.snackBar.open('Erreur lors de la récupération des bons de caisse.', '×', {
+        //   panelClass: 'error',
+        //   verticalPosition: 'top',
+        //   duration: 3000,
+        // });
+        if (err.status === 401 || err.status === 403) {
+          this.authService.logout();
+          localStorage.removeItem('token');
+          this.snackBar.open('Déconnexion réussie.', '×', {
+            panelClass: 'success',
+            verticalPosition: 'top',
+            duration: 3000,
+          });
+          // Redirect to login page or clear session
+          window.location.href = '/sign-in';
+        }
       }
     });
   }

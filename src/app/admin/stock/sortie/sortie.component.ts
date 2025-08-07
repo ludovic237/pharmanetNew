@@ -161,6 +161,7 @@ export class SortieComponent implements OnInit {
       error: (err: any) => {
         if (err.status === 401 || err.status === 403) {
           this.authService.logout();
+          localStorage.removeItem('token');
           this.snackBar.open('Déconnexion réussie.', '×', {
             panelClass: 'success',
             verticalPosition: 'top',
@@ -199,6 +200,7 @@ export class SortieComponent implements OnInit {
         console.error('Error fetching products:', err);
         if (err.status === 401 || err.status === 403) {
           this.authService.logout();
+          localStorage.removeItem('token');
           this.snackBar.open('Déconnexion réussie.', '×', {
             panelClass: 'success',
             verticalPosition: 'top',
@@ -270,8 +272,17 @@ export class SortieComponent implements OnInit {
         });
       },
       error: (err: any) => {
-        console.error('Failed to fetch products in stock:', err);
-        alert('Une erreur est survenue lors de la récupération des produits en rayon.');
+        if (err.status === 401 || err.status === 403) {
+          this.authService.logout();
+          localStorage.removeItem('token');
+          this.snackBar.open('Déconnexion réussie.', '×', {
+            panelClass: 'success',
+            verticalPosition: 'top',
+            duration: 3000,
+          });
+          // Redirect to login page or clear session
+          window.location.href = '/sign-in';
+        }
       },
     });
   }

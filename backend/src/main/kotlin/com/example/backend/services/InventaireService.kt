@@ -31,8 +31,7 @@ class InventaireService(
 
   @Transactional
   fun creerInventaire(data: InventaireRequestDto): Inventaire {
-    var currentUser = userUtils.getCurrentUser()
-    var employe = employeRepository.findByUser(currentUser!!)
+    var employe = userUtils.getCurrentEmploye()
     val inventaire = Inventaire().apply {
       this.dateDebut = LocalDateTime.now()
       etat = Inventaire.INVENTAIRE_EN_COURS
@@ -56,8 +55,7 @@ class InventaireService(
 
   @Transactional
   fun creerInventaireNew(data: InventaireNewCreatetDto): Inventaire {
-    val currentUser = userUtils.getCurrentUser()
-    val employe = employeRepository.findByUser(currentUser!!)
+    val employe = userUtils.getCurrentEmploye()
     val rayon = if (data.rayonId != null) {
       rayonRepository.findById(data.rayonId.toInt()).orElse(null)
     } else {
@@ -115,8 +113,7 @@ class InventaireService(
   @Transactional
   fun mettreAJourInventaire(data: InventaireUpdateRequestDto): Inventaire {
     val inventaire = inventaireRepository.findById(data.id.toInt()).get()
-    var currentUser = userUtils.getCurrentUser()
-    var employe = employeRepository.findByUser(currentUser!!)
+    var employe = userUtils.getCurrentEmploye()
     data.produitList.forEach { produit ->
       var enRayon = enRayonRepository.findById(produit.rayonId.toString()).get()
       if (produitInventorieRepository.findByInventaireAndEnRayon(inventaire, enRayon) != null) {
@@ -145,8 +142,7 @@ class InventaireService(
   @Transactional
   fun valideProductToInventory(data: InventaireOneProductUpdateRequestDto): ProduitInventaire {
     val inventaire = inventaireRepository.findById(data.id!!.toInt()).get()
-    var currentUser = userUtils.getCurrentUser()
-    var employe = employeRepository.findByUser(currentUser!!)
+    var employe = userUtils.getCurrentEmploye()
     var enRayon = enRayonRepository.findById(data.rayonId.toString()).get()
 
 
@@ -202,7 +198,7 @@ class InventaireService(
   @Transactional
   fun invalideProductToInventory(id: String): Map<String, Any?> {
     val inventaire = produitInventorieRepository.findById(id!!.toInt()).get()
-    var currentUser = userUtils.getCurrentUser()
+    var currentUser = userUtils.getCurrentEmploye()
     produitInventorieRepository.delete(inventaire)
     return mapOf(
       "message" to "Inventaire supprimé avec succès"

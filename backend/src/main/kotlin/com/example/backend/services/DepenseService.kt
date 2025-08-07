@@ -2,6 +2,8 @@ package com.example.backend.services
 
 import com.example.backend.models.Depense
 import com.example.backend.repositories.DepenseRepository
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
 import java.time.OffsetDateTime
@@ -14,6 +16,28 @@ class DepenseService(
 
   fun getAllDepenses(): List<Depense> {
     return depenseRepository.findAll()
+  }
+
+  fun getAllDepensesPageabel(
+    pageable: Pageable,
+  ): Page<Map<String, Any?>> {
+    return depenseRepository.findAll(pageable).map { depense ->
+      mapOf(
+           "id" to depense.id,
+          "caisseId" to depense.caisseId,
+          "designation" to depense.designation,
+          "quantite" to depense.quantite,
+          "prixUnitaire" to depense.prixUnitaire,
+          "dateDepense" to depense.dateDepense,
+          "beneficiaire" to depense.beneficiaire,
+          "numeroCni" to depense.numeroCni,
+          "dateDelivrance" to depense.dateDelivrance,
+          "lieuDelivrance" to depense.lieuDelivrance,
+          "societe" to depense.societe,
+          "typeDepense" to depense.typeDepense,
+          "supprimer" to depense.supprimer,
+      )
+    }
   }
 
   fun createDepense(designation: String, prixUnitaire: Int): Depense {

@@ -10,7 +10,9 @@ import {environment} from "../../environments/environment";
 export class SidenavMenuService {
 
   constructor(
-    private location: Location, private router: Router, private domHandlerService: DomHandlerService) {
+    private location: Location,
+    private router: Router,
+    private domHandlerService: DomHandlerService) {
   }
 
   public getSidenavMenuItems(): Array<SidenavMenu> {

@@ -2,6 +2,25 @@
 <div fxLayout="row wrap" fxLayoutAlign="center center">
   <div fxFlex="50" fxFlex.gt-sm="50" class="p-3">
     <h2 class="text-muted text-center mb-3">Sign In</h2>
+    <form [formGroup]="codebarreForm" (ngSubmit)="codebarreFormSubmit(codebarreForm.value)">
+      <mat-form-field appearance="outline" class="w-100 mt-2">
+        <mat-label>Code barre</mat-label>
+        <input matInput placeholder="Code barre" formControlName="codebarre" required>
+        <mat-error>
+          @if (codebarreForm.controls.codebarre.errors?.required) {
+            Codebarre is required
+          }
+          @if (codebarreForm.controls.codebarre.hasError('invalidEmail')) {
+            Invalid codebarre
+          }
+        </mat-error>
+      </mat-form-field>
+    </form>
+    <div fxLayout="row" fxLayoutAlign="space-between center" class="mt-3">
+      <div class="divider w-100"></div>
+      <h3 class="text-muted auth">ou</h3>
+      <div class="divider w-100"></div>
+    </div>
     <form [formGroup]="loginForm" (ngSubmit)="onLoginFormSubmit(loginForm.value)">
       <mat-form-field appearance="outline" class="w-100 mt-2">
         <mat-label>Email</mat-label>

@@ -4,11 +4,8 @@ import com.example.backend.dtos.*
 import com.example.backend.models.*
 import com.example.backend.repositories.*
 import com.example.backend.utility.UserUtils
-import com.itextpdf.io.source.ByteArrayOutputStream
 import com.itextpdf.kernel.geom.PageSize
 import com.itextpdf.kernel.pdf.PdfDocument
-import com.itextpdf.kernel.pdf.PdfName
-import com.itextpdf.kernel.pdf.PdfName.Document
 import com.itextpdf.kernel.pdf.PdfWriter
 import com.itextpdf.layout.Document
 import com.itextpdf.layout.element.Paragraph
@@ -49,11 +46,9 @@ class VenteService(
 
   @Transactional
   fun creerVenteSansEncaissement(venteRequestDto: VenteRequestDto): Vente {
-    val currentUser =
-      userUtils.getCurrentUser() ?: throw RuntimeException("Impossible de récupérer l'utilisateur connecté.")
+    val employe =
+      userUtils.getCurrentEmploye() ?: throw RuntimeException("Impossible de récupérer l'utilisateur connecté.")
 
-    val employe = employeRepository.findByUser(currentUser)
-      ?: throw RuntimeException("Employé introuvable pour l'utilisateur connecté.")
 
     if (venteRequestDto.etat !in listOf("COMPTANT", "ASSURANCE", "CREDIT")) {
       throw RuntimeException("État de la vente invalide: ${venteRequestDto.etat}")
@@ -168,11 +163,8 @@ class VenteService(
 
   @Transactional
   fun encaisserVenteDirect(encaissementDirectDto: EncaissementDirectDto): Vente {
-    val currentUser =
-      userUtils.getCurrentUser() ?: throw RuntimeException("Impossible de récupérer l'utilisateur connecté.")
-
-    val employe = employeRepository.findByUser(currentUser)
-      ?: throw RuntimeException("Employé introuvable pour l'utilisateur connecté.")
+    val employe =
+      userUtils.getCurrentEmploye() ?: throw RuntimeException("Impossible de récupérer l'utilisateur connecté.")
 
     if (encaissementDirectDto.venteRequestDto.etat !in listOf("COMPTANT", "ASSURANCE", "CREDIT")) {
       throw RuntimeException("État de la vente invalide: ${encaissementDirectDto.venteRequestDto.etat}")
@@ -382,8 +374,7 @@ class VenteService(
       throw RuntimeException("La vente doit être en cours pour être encaissée.")
     }
 
-    val currentUser = userUtils.getCurrentUser()
-    val employe = employeRepository.findByUser(currentUser!!)
+    val employe = userUtils.getCurrentEmploye()
 
     val caisse = caisseService.getCaisseActive()
     val facturation = Facturation().apply {
@@ -471,8 +462,7 @@ class VenteService(
 
     val vente = venteRepository.findById(encaissementDto.venteId).get()
 
-    val currentUser = userUtils.getCurrentUser()
-    val employe = employeRepository.findByUser(currentUser!!)
+    val employe = userUtils.getCurrentEmploye()
     val caisse = caisseService.getCaisseActive()
     var facturation = Facturation().apply {
       this.id = generateId()!!.toLong()
@@ -1114,7 +1104,37 @@ class VenteService(
     val vente: Vente = venteRepository.findByReferenceAndSupprimer(reference, 0)
       ?: throw IllegalArgumentException("Vente not found with reference: $reference")
 
-    val produits: List<Map<String, Any?>> = concernerRepository.findByVenteId(vente.id!!.toLong()).map { concerner ->
+    val produits: List<Map<String, Any?>> = concernerRepository.findByVenteId(vente.id!!.toLong()).filter { it!!.quantite!! >0 }.map { concerner ->
+      var produit =
+        produitRepository.findById(enRayonRepository.findById(concerner!!.enRayonId!!).get().produitId!!).get()
+      var nom = produit.nom
+      var id = produit.id
+      if (concerner.type == "detail") {
+        var produitDetail = produitDetailRepository.findById(concerner.enRayonId!!.toInt()).get()
+        nom = produitDetail.nom
+        id = produitDetail.id
+      }
+      mapOf(
+        "id" to concerner!!.id,
+        "nom" to nom,
+        "produitId" to id,
+        "rayonId" to concerner!!.enRayonId,
+        "quantite" to concerner!!.quantite,
+        "prixUnitaire" to concerner!!.prixUnit,
+        "reduction" to concerner!!.reduction,
+        "prixTotal" to (concerner!!.prixUnit!! * concerner.quantite!!)
+      )
+    }
+    return mapOf(
+      "vente" to vente, "produits" to produits
+    )
+  }
+
+  fun getVenteDetailsByVenteId(venteId: String): Map<String, Any?> {
+    val vente: Vente = venteRepository.findByIdAndSupprimer(venteId.toLong(), 0)
+      ?: throw IllegalArgumentException("Vente not found with reference: $venteId")
+
+    val produits: List<Map<String, Any?>> = concernerRepository.findByVenteId(vente.id!!.toLong()).filter { it!!.quantite!! >0 }.map { concerner ->
       var produit =
         produitRepository.findById(enRayonRepository.findById(concerner!!.enRayonId!!).get().produitId!!).get()
       var nom = produit.nom

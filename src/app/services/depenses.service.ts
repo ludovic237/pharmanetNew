@@ -22,6 +22,10 @@ export class DepenseService {
     return this.http.get<any[]>(this.apiUrl, { headers: this.getHeaders() });
   }
 
+  getAllDepensesPageable(page: number, size: number): Observable<any[]> {
+    return this.http.get<any[]>(this.apiUrl+`/pageable?page=${page}&size=${size}`, { headers: this.getHeaders() });
+  }
+
   createDepense(depense: any): Observable<any> {
     return this.http.post<any>(this.apiUrl, depense, { headers: this.getHeaders() });
   }

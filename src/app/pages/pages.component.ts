@@ -70,6 +70,8 @@ export class PagesComponent implements OnInit {
   ngOnInit() {
     this.getCategories();
     this.sidenavMenuItems = this.sidenavMenuService.getSidenavMenuItems();
+    console.log("this.sidenavMenuItems");
+    console.log(this.sidenavMenuItems);
     setTimeout(() => {
       this.settings.theme = 'green';
     });

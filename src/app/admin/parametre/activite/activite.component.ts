@@ -210,6 +210,7 @@ export class ActiviteComponent implements OnInit {
         console.error('Error fetching commandes:', err);
         if (err.status === 401 || err.status === 403) {
           this.authService.logout();
+          localStorage.removeItem('token');
           this.snackBar.open('Déconnexion réussie.', '×', {
             panelClass: 'success',
             verticalPosition: 'top',
