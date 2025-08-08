@@ -163,7 +163,6 @@ export class InventaireComponent implements OnInit {
       autoFocus: false,
     });
     dialogRef.afterClosed().subscribe((data: any) => {
-      console.log('Dialog closed', data);
       if (data.type === "cloture"){
         const dialogRef = this.dialog.open(InventaireComparaisonDialogComponent, {
           data: {
@@ -175,7 +174,7 @@ export class InventaireComponent implements OnInit {
           autoFocus: false,
         });
         dialogRef.afterClosed().subscribe((data: any) => {
-          console.log('Dialog closed', data);
+
           this.fetchInventaire();
         });
       }
@@ -193,7 +192,6 @@ export class InventaireComponent implements OnInit {
       autoFocus: false,
     });
     dialogRef.afterClosed().subscribe((data: any) => {
-      console.log('Dialog closed', data);
       const dialogRef = this.dialog.open(InventaireSaisieDialogComponent, {
         data: {
           type: "edit",
@@ -229,7 +227,6 @@ export class InventaireComponent implements OnInit {
       autoFocus: false,
     });
     dialogRef.afterClosed().subscribe((data: any) => {
-      console.log('Dialog closed', data);
       this.fetchInventaire();
       if (data.type === "valider") {
         this.validateItem(item);
@@ -249,7 +246,6 @@ export class InventaireComponent implements OnInit {
       autoFocus: false,
     });
     dialogRef.afterClosed().subscribe((data: any) => {
-      console.log('Dialog closed', data);
       this.fetchInventaire();
     });
   }

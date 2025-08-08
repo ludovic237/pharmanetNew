@@ -80,8 +80,7 @@ export class AdminComponent implements OnInit {
     this.loadMenuItems()
     this.appSettingsService.settingsUpdated$.subscribe((param: string) => {
       const venteMode = localStorage.getItem('vente_mode') || 'default';
-      console.log("ngoninit venteMode")
-      console.log(venteMode)
+
       // this.menuItems = this.adminMenuService.getMenuItemsWithParam(venteMode)
       this.menuItems = this.adminMenuService.getMenuItemsWithParam(venteMode).filter(item=>
         item.roles.includes(this.role)
@@ -104,8 +103,7 @@ export class AdminComponent implements OnInit {
       }
     });
     const venteMode = localStorage.getItem('vente_mode') || 'default';
-    console.log("ngAfterViewInit venteMode")
-    console.log(venteMode)
+
     this.adminMenuService.expandActiveSubMenu(this.adminMenuService.getMenuItemsWithParam(venteMode));
   }
 
@@ -146,8 +144,7 @@ export class AdminComponent implements OnInit {
     this.menuItems = this.adminMenuService.getMenuItemsWithParam(venteMode).filter(item=>
       item.roles.includes(this.role)
     );
-    console.log("this.menuItems");
-    console.log(this.menuItems);
+
   }
 
   logoutUser(): void {
@@ -194,7 +191,7 @@ export class AdminComponent implements OnInit {
        this.logoutUser()
       } else {
         // Handle the "No" or dismissal case
-        console.log('User canceled the action.');
+
       }
     });
   }

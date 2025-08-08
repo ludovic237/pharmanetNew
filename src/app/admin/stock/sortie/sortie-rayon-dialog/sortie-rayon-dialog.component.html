@@ -1,0 +1,104 @@
+<mat-toolbar>
+  <h1 mat-dialog-title>Nouvelle Sortie de Stock</h1>
+</mat-toolbar>
+<form [formGroup]="sortieForm" (ngSubmit)="enregistrer()" class="sortie-form">
+  <div mat-dialog-content>
+    <!-- Formulaire pour ajouter une sortie -->
+
+    <mat-card>
+      <mat-card-content>
+        <div fxLayout="row wrap" class="mt-3">
+          <!-- Champ Nom Produit (lecture seule) -->
+          <div fxFlex="100" fxFlex.gt-sm="50" class="px-2">
+            <mat-form-field appearance="outline" class="w-100 ">
+              <mat-label>Nom Parent</mat-label>
+              <mat-select formControlName="produitTypeSortieList">
+                <mat-option *ngFor="let item of typeSorties" [value]="item.id">
+                  {{ item.nom }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+          <div fxFlex="100" fxFlex.gt-sm="50" class="px-2">
+            <mat-form-field appearance="outline" class="w-100 ">
+              <mat-label>Nom Produit</mat-label>
+              <input type="text"
+                     matInput
+                     formControlName="produitName"
+                     [matAutocomplete]="auto">
+              <mat-autocomplete #auto="matAutocomplete">
+                <mat-option *ngFor="let option of medOptions" [value]="option.name" (click)="ajouterAuTableau(option)">
+                  {{ option.nom }} - {{ option.type }} - <span *ngIf="option.stock>0"
+                                                               class="badge badge-green">{{ option.stock }}</span><span
+                  *ngIf="option.stock<=0" class="badge badge-red">{{ option.stock }}</span>
+                </mat-option>
+              </mat-autocomplete>
+            </mat-form-field>
+          </div>
+
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+
+    <!-- Séparateur visuel -->
+    <hr class="divider">
+
+    <!-- Tableau des sorties à effectuer -->
+    <div class="table-container" *ngIf="dataSource.length > 0">
+      <table mat-table [dataSource]="dataSource">
+
+        <!-- Colonne Nom Produit -->
+        <ng-container matColumnDef="nomProduit">
+          <th mat-header-cell *matHeaderCellDef> Produit</th>
+          <td mat-cell *matCellDef="let element"> {{ element.nom }}</td>
+        </ng-container>
+
+        <!-- Colonne Quantité -->
+        <ng-container matColumnDef="quantite">
+          <th mat-header-cell *matHeaderCellDef> Quantité</th>
+          <td mat-cell *matCellDef="let element"> {{ element.quantite }}</td>
+        </ng-container>
+        <ng-container matColumnDef="contenu">
+          <th mat-header-cell *matHeaderCellDef> Contenu detail</th>
+          <td mat-cell *matCellDef="let element"> {{ element.contenuDetail }}</td>
+        </ng-container>
+        <ng-container matColumnDef="dateLivraison">
+          <th mat-header-cell *matHeaderCellDef> date</th>
+          <td mat-cell *matCellDef="let element"> {{ element.dateLivraison }}</td>
+        </ng-container>
+
+        <!-- Colonne Action (Supprimer) -->
+        <ng-container matColumnDef="action">
+          <th mat-header-cell *matHeaderCellDef> Action</th>
+          <td mat-cell *matCellDef="let element">
+            <button mat-icon-button color="warn" (click)="supprimerLigne(element)" matTooltip="Supprimer la ligne">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      </table>
+    </div>
+
+    <div class="no-data" *ngIf="dataSource.length === 0">
+      <p>Aucun produit ajouté à la sortie.</p>
+    </div>
+
+  </div>
+
+  <!-- Actions en bas de la modale -->
+  <div mat-dialog-actions align="end">
+    <div>
+      Quantite a ajouter : {{ quantiteAjouter }} - Quantite total : {{ mouvelQuantite }}
+    </div>
+    <div>
+      <button mat-stroked-button mat-dialog-close>Annuler</button>
+      <button mat-flat-button color="primary" [disabled]="dataSource.length === 0">
+        Enregistrer les Sorties
+      </button>
+    </div>
+  </div>
+</form>

@@ -1,6 +1,8 @@
 package com.example.backend.controllers
 
+import com.example.backend.dtos.SortieDetailDto
 import com.example.backend.models.Forme
+import com.example.backend.models.ProduitDetail
 import com.example.backend.services.FormeService
 import com.example.backend.services.SortieStockService
 import org.springframework.data.domain.Page
@@ -28,12 +30,22 @@ class SortieController(private val sortieStockService: SortieStockService) {
       @RequestParam(defaultValue = "0") page: Int,
       @RequestParam(defaultValue = "10") size: Int,
       @RequestParam(defaultValue = "id") sort: String,
-      @RequestParam(defaultValue = "asc") direction: String
+      @RequestParam(defaultValue = "desc") direction: String
     ): ResponseEntity<Page<Map<String, Any?>>> {
-      val pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.fromString(direction), sort))
+      val pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "dateSortie"))
       val enRayonIdLong = enRayonId?.toLongOrNull() ?: 0
       val produitDetailIdLong = produitDetailId?.toLongOrNull() ?: 0
       val result = sortieStockService.getSortieStockPageable(nomProduit, typeSortie, enRayonIdLong, produitDetailIdLong, pageable)
+      return ResponseEntity.ok(result)
+    }
+
+    @CrossOrigin(origins = ["http://localhost:4200"])
+    @PreAuthorize("isAuthenticated()")
+    @PostMapping("/save")
+    fun getSortieStockPageable(
+      @RequestBody sortie: SortieDetailDto
+    ): ResponseEntity<ProduitDetail> {
+      val result = sortieStockService.addProduitDetail(sortie)
       return ResponseEntity.ok(result)
     }
 

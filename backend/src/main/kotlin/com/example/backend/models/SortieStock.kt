@@ -13,7 +13,7 @@ class SortieStock {
   @Column(name = "id", nullable = false)
   var id: Int? = null
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne(fetch = FetchType.EAGER)
   @JoinColumn(name = "en_rayon_id")
   var enRayon: EnRayon? = null
 

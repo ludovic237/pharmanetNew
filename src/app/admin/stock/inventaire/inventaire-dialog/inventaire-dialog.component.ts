@@ -208,8 +208,7 @@ export class InventaireDialogComponent implements OnInit {
           id: product.id,
           name: product.nom
         }));
-        console.log("this.medOptions");
-        console.log(this.medOptions);
+
       },
       error: (err:any) => {
         if (err.status === 401 || err.status === 403){
@@ -366,17 +365,14 @@ export class InventaireDialogComponent implements OnInit {
   }
 
   updateComparison(product: any): void {
-    console.log("1")
-    console.log(product)
+
     product.comparison = product.quantityReal - product.quantitySystem;
-    console.log("2")
-    console.log(product)
+
     // Update the array reference to ensure change detection
     this.filteredProducts = this.filteredProducts.map(p =>
       p.id === product.id ? {...p, comparison: product.comparison} : p
     );
-    console.log("this.filteredProducts");
-    console.log(this.filteredProducts);
+
   }
 
   onSave(): void {
@@ -468,8 +464,7 @@ export class InventaireDialogComponent implements OnInit {
       } else {
         this.productService.getEnRayonDetailById(input).subscribe({
           next: (data: any) => {
-            console.log("openMedicamentDialog")
-            console.log(data)
+
             this.filteredProducts = [...this.filteredProducts, {
               ...data,
               quantityReal: 0,
@@ -506,8 +501,7 @@ export class InventaireDialogComponent implements OnInit {
     this.inventaireService.listerProduitsParInventaireAsMap(this.data.id, this.page - 1,
       this.count,).subscribe({
       next: (data: any) => {
-        console.log("openMedicamentDialog")
-        console.log(data)
+
         this.filteredProducts = [...this.filteredProducts,
           ...data.content.map((product: any) => ({
             ...product,

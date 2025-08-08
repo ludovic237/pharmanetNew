@@ -68,8 +68,6 @@ export class AjouterVenteDialogComponent {
       parentId: 0
     });
 
-    console.log("this.data");
-    console.log(this.data);
     this.enRayonList = this.data.enRayonList.map((item: any) => ({
       ...item,
       quantiteRestante: 0,
@@ -78,7 +76,7 @@ export class AjouterVenteDialogComponent {
   }
 
   public onSubmit() {
-    console.log(this.form.value);
+
     if (this.form.valid) {
       this.dialogRef.close(this.form.value);
     }

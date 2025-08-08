@@ -247,9 +247,9 @@ export class AjouterVenteComponent implements OnInit {
         this.selectedPrescripteur = this.selectedOLdPrescripteur
       }
       this.calculeTotaux()
-      console.log('Client Type Changed:', value);
+
     } else {
-      console.error('Invalid prescripteur type:', value);
+
     }
   }
 
@@ -419,10 +419,10 @@ export class AjouterVenteComponent implements OnInit {
           id: client.id,
           reduction: client.reduction
         }));
-        console.log('Clients loaded:', this.clientOptions);
+
       },
       error: (err) => {
-        console.error('Error loading clients:', err);
+
       }
     });
   }
@@ -475,8 +475,6 @@ export class AjouterVenteComponent implements OnInit {
       comments,
       ...otherFields,
     };
-
-    console.log('Payment Data:', paymentData);
 
     // Proceed with payment logic (e.g., send to backend)
 

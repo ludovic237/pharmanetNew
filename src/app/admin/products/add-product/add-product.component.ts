@@ -241,7 +241,7 @@ export class AddProductComponent implements OnInit {
   }
 
   public onSubmit() {
-    console.log(this.form.value);
+
   }
 
   ngOnDestroy() {

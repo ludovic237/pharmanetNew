@@ -1,0 +1,185 @@
+import {Component, Inject} from '@angular/core';
+import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
+import {Settings, SettingsService} from "@services/settings.service";
+import {AuthService} from "@services/auth.service";
+import {MatSnackBar} from "@angular/material/snack-bar";
+import {MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef} from "@angular/material/dialog";
+import {EnrayonsService} from "@services/enrayons.service";
+import {
+  UpdateProduitDetailDialogComponent
+} from "../../../vente/ajouter-vente/ajouter-vente-dialog/update-produit-detail-dialog/update-produit-detail-dialog.component";
+import {CommonModule} from "@angular/common";
+import {MatCardModule} from "@angular/material/card";
+import {MatInputModule} from "@angular/material/input";
+import {MatSelectModule} from "@angular/material/select";
+import {MatCheckboxModule} from "@angular/material/checkbox";
+import {MatButtonModule} from "@angular/material/button";
+import {MatDividerModule} from "@angular/material/divider";
+import {MatIconModule} from "@angular/material/icon";
+import {MatTableModule} from "@angular/material/table";
+import {MatToolbarModule} from "@angular/material/toolbar";
+import {MatAutocompleteModule} from "@angular/material/autocomplete";
+import {FlexLayoutModule} from "@ngbracket/ngx-layout";
+
+@Component({
+  selector: 'app-sortie-detail-rayon',
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatCardModule,
+    ReactiveFormsModule,
+    MatDialogModule,
+    MatInputModule,
+    MatSelectModule,
+    MatCheckboxModule,
+    MatButtonModule,
+    MatButtonModule, MatDividerModule, MatIconModule,
+    MatTableModule,
+    MatToolbarModule,
+    MatAutocompleteModule,
+    FlexLayoutModule
+  ],
+  templateUrl: './sortie-detail-rayon.component.html',
+  styleUrl: './sortie-detail-rayon.component.scss'
+})
+export class SortieDetailRayonComponent {
+  type = "detail"
+  public enRayonList: any[] = [];
+  public modifiedProducts: any[] = [];
+  public displayedColumns: string[] = [
+    'produit',
+    'quantite',
+    'quantiteAdjust',
+    'prixVente',
+    'datePeremption',
+    'dateLivraison',
+    'reduction',
+    'actions'
+  ];
+  public form: FormGroup;
+  public settings: Settings;
+
+  constructor(
+    public authService: AuthService,
+    public snackBar: MatSnackBar, public dialogRef: MatDialogRef<SortieDetailRayonComponent>,
+    public enRayonService: EnrayonsService, // Replace with actual service
+    @Inject(MAT_DIALOG_DATA) public data: any,
+    public fb: FormBuilder,
+    public dialog: MatDialog,
+    public settingsService: SettingsService) {
+    this.settings = this.settingsService.settings;
+  }
+
+  ngOnInit(): void {
+    this.type = this.data.type;
+    this.form = this.fb.group({
+      id: 0,
+      name: [null, Validators.required],
+      hasSubCategory: false,
+      parentId: 0
+    });
+
+    this.enRayonList = this.data.enRayonList.map((item: any) => ({
+      ...item,
+      quantiteRestante: 0,
+      quantiteStock: item.quantiteRestante,
+      prixVente: item.prixVente
+    }));
+  }
+
+  public onSubmit() {
+    console.log(this.form.value);
+    if (this.form.valid) {
+      this.dialogRef.close(this.form.value);
+    }
+  }
+
+  saveChanges(item: any): void {
+    const updatedItem = {
+      id: item.id,
+      quantiteRestante: item.quantiteRestante,
+      prixVente: item.prixVente
+    };
+    // this.enRayonService.updateEnRayon(updatedItem).subscribe(() => {
+    //   alert('Modifications sauvegardées avec succès.');
+    // });
+  }
+
+  resetValues(item: any): void {
+    item.quantiteRestante = 0; // Reset quantity to modify
+    item.prixVente = item.prixVente; // Reset to default price if needed
+  }
+
+  validateModifiedQuantities(): void {
+    this.modifiedProducts = this.enRayonList.filter(item => item.quantiteRestante > 0);
+    this.snackBar.open(`${this.modifiedProducts.length} produits modifiés.`, '×', {
+      panelClass: 'success',
+      verticalPosition: 'top',
+      duration: 3000
+    });
+    console.log("this.modifiedProducts")
+    console.log(this.modifiedProducts)
+    this.dialogRef.close(this.modifiedProducts);
+  }
+
+  increment(item: any, field: 'quantiteRestante' | 'prixVente') {
+    item[field]++;
+    this.modifiedProducts = this.enRayonList.filter(item => item.quantiteRestante > 0);
+  }
+
+  decrement(item: any, field: 'quantiteRestante' | 'prixVente') {
+    if (item[field] > 0) {
+      item[field]--;
+    }
+    this.modifiedProducts = this.enRayonList.filter(item => item.quantiteRestante > 0);
+  }
+
+  currentDate = new Date();
+
+  isExpired(datePeremption: Date): boolean {
+    return new Date(datePeremption) < this.currentDate;
+  }
+
+  isExpiringSoon(datePeremption: Date): boolean {
+    const diffInDays = (new Date(datePeremption).getTime() - this.currentDate.getTime()) / (1000 * 60 * 60 * 24);
+    return diffInDays > 0 && diffInDays <= 90;
+  }
+
+  isValid(datePeremption: Date): boolean {
+    const diffInDays = (new Date(datePeremption).getTime() - this.currentDate.getTime()) / (1000 * 60 * 60 * 24);
+    return diffInDays > 90;
+  }
+
+  augmenterDetail() {
+    const dialogRef = this.dialog.open(UpdateProduitDetailDialogComponent, {
+      data: {
+        id: this.data.id
+      },
+      maxWidth: "400px",
+      // width: "80%",
+      panelClass: ['theme-dialog'],
+      autoFocus: false,
+      direction: (this.settings.rtl) ? 'rtl' : 'ltr'
+    });
+    dialogRef.afterClosed().subscribe((modifiedProducts: any[]) => {
+
+    });
+  }
+
+  getDaysToExpiration(datePeremtion: any) {
+    const today = new Date();
+    const expirationDate = new Date(datePeremtion)
+    const diff = expirationDate.getTime() - today.getTime()
+    return Math.ceil(diff / (1000 * 60 * 60 * 24))
+  }
+
+  getDaysAfterExpiration(datePeremtion: any) {
+    const today = new Date();
+    const expirationDate = new Date(datePeremtion)
+    if (today <= expirationDate) {
+      return 0
+    }
+    const diff = today.getTime() - expirationDate.getTime()
+    return Math.ceil(diff / (1000 * 60 * 60 * 24))
+  }
+}

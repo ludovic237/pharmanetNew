@@ -36,13 +36,14 @@ import {FlexLayoutModule} from "@ngbracket/ngx-layout";
 import {MatStepperModule} from "@angular/material/stepper";
 import {MatRadioModule} from "@angular/material/radio";
 import {NgxPaginationModule} from "ngx-pagination";
-import {MatPaginator} from "@angular/material/paginator";
+import {MatPaginator, MatPaginatorModule, PageEvent} from "@angular/material/paginator";
 import {ProduitdetailsService} from "@services/produitdetails.service";
 import {
   AjouterVenteDialogComponent
 } from "../../sales/ajouter-vente/ajouter-vente-dialog/ajouter-vente-dialog.component";
 import {SortieDetailDialogComponent} from "./sortie-detail-dialog/sortie-detail-dialog.component";
 import {AuthService} from "@services/auth.service";
+import {SortieRayonDialogComponent} from "./sortie-rayon-dialog/sortie-rayon-dialog.component";
 
 @Component({
   selector: 'app-sortie',
@@ -56,6 +57,7 @@ import {AuthService} from "@services/auth.service";
     VentesService,
     PrescripteursService],
   imports: [
+    MatPaginatorModule,
     MatMenuModule,
     MatListModule,
     MatChipsModule,
@@ -113,7 +115,7 @@ export class SortieComponent implements OnInit {
   enRayonId: string | null = null;
   produitDetailId: string | null = null;
 
-  displayedColumns: string[] = ['nom', 'quantite', 'forme', 'dateOperation', 'operation', 'actions'];
+  displayedColumns: string[] = ['nom', 'quantite', 'forme', 'produitDetailNom', 'dateOperation', 'operation', 'actions'];
 
 
   sorties: any[] = []
@@ -218,11 +220,6 @@ export class SortieComponent implements OnInit {
     });
   }
 
-  public onPageChanged(event: number) {
-    this.page = event;
-    this.fetchSortieProduitsEnRayon();
-  }
-
   resetFilters(): void {
     this.nomProduit = null;
     this.fetchSortieProduitsEnRayon();
@@ -232,24 +229,20 @@ export class SortieComponent implements OnInit {
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;
     // this.sorties = filterValue.trim().toLowerCase();
-    console.log("event")
-    console.log(event)
+
   }
 
   onEdit(element: any) {
-    console.log('Edit:', element);
+
 // Implémentez la logique d'édition ici
   }
 
   onDelete(element: any) {
-    console.log('Delete:', element);
-// Implémentez la logique de suppression ici
     this.sorties = this.sorties.filter(item => item.id !== element.id);
   }
 
   onView(element: any) {
-    console.log('View:', element);
-// Implémentez la logique de visualisation ici
+
   }
 
   onProduitDetailSelected(event: any) {
@@ -260,15 +253,15 @@ export class SortieComponent implements OnInit {
     this.enRayonService.getProduitsEnRayon(med.id).subscribe({
       next: (data: any) => {
         const dialogRef = this.dialog.open(SortieDetailDialogComponent, {
-          data: {name: med.name, enRayonList: data},
+          data: data[0],
           // maxWidth: "400px",
           width: "80%",
           panelClass: ['theme-dialog'],
           autoFocus: false,
-          direction: (this.settings.rtl) ? 'rtl' : 'ltr'
+          // direction: (this.settings.rtl) ? 'rtl' : 'ltr'
         });
         dialogRef.afterClosed().subscribe((modifiedProducts: any[]) => {
-
+          this.fetchSortieProduitsEnRayon();
         });
       },
       error: (err: any) => {
@@ -287,5 +280,25 @@ export class SortieComponent implements OnInit {
     });
   }
 
+  public onPageChanged(event: PageEvent) {
+    this.page = event.pageIndex + 1;
+    this.count = event.pageSize;
+    this.domHandlerService.winScroll(0, 0);
+    this.fetchSortieProduitsEnRayon();
+  }
+
+  showSortieProduit(){
+    const dialogRef = this.dialog.open(SortieRayonDialogComponent, {
+      data: null,
+      // maxWidth: "400px",
+      width: "80%",
+      panelClass: ['theme-dialog'],
+      autoFocus: false,
+      // direction: (this.settings.rtl) ? 'rtl' : 'ltr'
+    });
+    dialogRef.afterClosed().subscribe((modifiedProducts: any[]) => {
+      this.fetchSortieProduitsEnRayon();
+    });
+  }
 
 }

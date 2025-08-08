@@ -122,7 +122,7 @@ export class EmployeDialogComponent implements OnInit {
   }
 
   onSubmit(){
-    console.log(this.form.value);
+
     if (this.user.type=="add"){
       this.employesService.updateEmploye(this.form.value).subscribe({
         next: (users) => {

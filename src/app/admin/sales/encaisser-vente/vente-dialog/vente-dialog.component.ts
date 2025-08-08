@@ -90,8 +90,6 @@ export class VenteDialogComponent {
   }
 
   async generateTicket(vente: any): Promise<void> {
-    console.log("vente")
-    console.log(vente)
 
     const doc = new jsPDF();
 
@@ -127,7 +125,6 @@ export class VenteDialogComponent {
       y += 5;
     });
     const totalPrixProduits = vente.produits.reduce((sum: number, produit: any) => sum + produit.prixTotal, 0);
-    console.log(`Prix total des produits: ${totalPrixProduits}`);
 
     const prixRemise = totalPrixProduits - vente.vente.prixTotal;
     const pourcentageRemise = (prixRemise / totalPrixProduits) * 100;

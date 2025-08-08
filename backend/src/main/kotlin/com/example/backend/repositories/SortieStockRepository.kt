@@ -32,7 +32,7 @@ interface SortieStockRepository : JpaRepository<SortieStock, Int>, JpaSpecificat
           predicates.add(criteriaBuilder.equal(root.get<String>("typeSortie"), typeSortie))
         }
 
-        if (enRayonId != null) {
+        if (enRayonId != null && enRayonId != 0L) {
           predicates.add(criteriaBuilder.equal(root.get<Long>("enRayon").get<Int>("id"), enRayonId))
         }
 

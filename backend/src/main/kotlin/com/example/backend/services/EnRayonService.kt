@@ -131,6 +131,9 @@ class EnRayonService(
       produitDetailRepository.findById(produitId).get()
       val p = produitDetailRepository.findByIdAndStockGreaterThanAndSupprimer(produitId)
       var data = mutableListOf<Map<String, Any?>>()
+      var listeGrosssiste = p.grossisteList!!.split("-").map { grossiste ->
+        produitRepository.findById(grossiste.toInt())
+      }
       data.add(
         mapOf(
           "id" to p.id,
@@ -141,6 +144,7 @@ class EnRayonService(
           "prixVente" to p.prix,
           "dateLivraison" to "",
           "datePeremption" to "",
+          "grossistes" to listeGrosssiste,
           "reductionMax" to p.reductionMax,
           "reduction" to p.reductionMax,
           "type" to "detail"

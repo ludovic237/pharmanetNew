@@ -171,8 +171,7 @@ export class InventaireSaisieDialogComponent implements OnInit {
           id: product.id,
           name: product.nom
         }));
-        console.log("this.medOptions");
-        console.log(this.medOptions);
+
       },
       error: (err:any) => {
         if (err.status === 401 || err.status === 403){
@@ -243,17 +242,14 @@ export class InventaireSaisieDialogComponent implements OnInit {
   }
 
   updateComparison(product: any): void {
-    console.log("1")
-    console.log(product)
+
     product.comparison = product.quantityReal - product.quantitySystem;
-    console.log("2")
-    console.log(product)
+
     // Update the array reference to ensure change detection
     this.filteredProducts = this.filteredProducts.map(p =>
       p.id === product.id ? {...p, comparison: product.comparison} : p
     );
-    console.log("this.filteredProducts");
-    console.log(this.filteredProducts);
+
   }
 
   onSave(): void {
@@ -300,8 +296,7 @@ export class InventaireSaisieDialogComponent implements OnInit {
   }
 
   onCloturer(): void {
-    console.log("this.data")
-    console.log(this.data)
+
     this.inventaireService.cloturerInventaire(this.data.id).subscribe({
       next: (response) => {
         this.snackBar.open('Inventory closed successfully!', '×', {
@@ -405,8 +400,7 @@ export class InventaireSaisieDialogComponent implements OnInit {
       } else {
         this.productService.getEnRayonDetailById(input).subscribe({
           next: (data: any) => {
-            console.log("openMedicamentDialog")
-            console.log(data)
+
             this.filteredProducts = [{
               ...data,
               quantityReal: 0,
@@ -493,8 +487,7 @@ export class InventaireSaisieDialogComponent implements OnInit {
       quantiteSysteme: product.quantitySystem,
       isValid: product.isActive
     }
-    console.log("addProductToInventory")
-    console.log(data)
+
     this.inventaireService.addProductToInventory(data).subscribe({
       next: (data: any) => {
         if (data.statut == "CLOTURER") {
@@ -533,9 +526,7 @@ export class InventaireSaisieDialogComponent implements OnInit {
       quantiteSysteme: product.quantitySystem,
       isValid: false
     }
-    console.log("deleteRow");
-    console.log(product);
-    console.log(data);
+
     this.inventaireService.invalideProductToInventory(product.produitInventaireId).subscribe({
       next: (data: any) => {
         this.snackBar.open(data.message, '×', {

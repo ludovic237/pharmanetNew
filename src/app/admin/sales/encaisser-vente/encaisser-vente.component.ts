@@ -327,8 +327,6 @@ export class EncaisserVenteComponent {
       montantRendu: this.rendu
     };
     // Proceed with validation logic
-    console.log('Validation successful for tab:', this.selectedTabIndex);
-    console.log(encaissementDetails)
 
     this.ventesService.encaisserVente(this.venteId, encaissementDetails).subscribe({
       next: () => {
@@ -397,7 +395,7 @@ export class EncaisserVenteComponent {
           autoFocus: false,
         });
         dialogRef.afterClosed().subscribe((data: any) => {
-          console.log('Dialog closed', data);
+
         });
       },
       error: (err: any) => {
@@ -427,7 +425,7 @@ export class EncaisserVenteComponent {
           autoFocus: false,
         });
         dialogRef.afterClosed().subscribe((data: any) => {
-          console.log('Dialog closed', data);
+
         });
       },
       error: (err: any) => {

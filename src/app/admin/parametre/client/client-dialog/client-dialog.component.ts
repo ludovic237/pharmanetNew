@@ -89,7 +89,7 @@ export class ClientDialogComponent implements OnInit {
   }
 
   onSubmit(){
-    console.log(this.form.value);
+
     if (this.user.type=="add"){
       this.usersService.updateUser(this.form.value).subscribe({
         next: (users) => {

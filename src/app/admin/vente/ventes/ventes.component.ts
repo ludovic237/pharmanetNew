@@ -176,15 +176,6 @@ export class VentesComponent implements OnInit {
       return `${parsedDate.getFullYear()}-${String(parsedDate.getMonth() + 1).padStart(2, '0')}-${String(parsedDate.getDate()).padStart(2, '0')}T${String(parsedDate.getHours()).padStart(2, '0')}:${String(parsedDate.getMinutes()).padStart(2, '0')}:${String(parsedDate.getSeconds()).padStart(2, '0')}`;
     };
 
-    // const formattedStartDate = formatDate(this.startDate);
-    // const formattedEndDate = formatDate(this.endDate);
-
-    console.log(this.selectedEmploye)
-    console.log(this.selectedUtilisateur)
-    console.log(this.selectedEtat)
-    console.log(this.selectedPrescripteur)
-    // this.ventesService.fetchVentesPageable(
-
     this.ventesService.fetchVentesPageableRange(
       this.page - 1,
       this.count,
@@ -227,15 +218,6 @@ export class VentesComponent implements OnInit {
       const parsedDate = new Date(date);
       return `${parsedDate.getFullYear()}-${String(parsedDate.getMonth() + 1).padStart(2, '0')}-${String(parsedDate.getDate()).padStart(2, '0')}T${String(parsedDate.getHours()).padStart(2, '0')}:${String(parsedDate.getMinutes()).padStart(2, '0')}:${String(parsedDate.getSeconds()).padStart(2, '0')}`;
     };
-
-    // const formattedStartDate = formatDate(this.startDate);
-    // const formattedEndDate = formatDate(this.endDate);
-
-    console.log(this.selectedEmploye)
-    console.log(this.selectedUtilisateur)
-    console.log(this.selectedEtat)
-    console.log(this.selectedPrescripteur)
-    // this.ventesService.fetchVentesPageable(
 
     this.ventesService.fetchVentesPageableRangePrint(
       this.page - 1,
@@ -306,8 +288,6 @@ export class VentesComponent implements OnInit {
 
   async generateTicket(data: any): Promise<void> {
 
-    console.log("data")
-    console.log(data)
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.width
 
@@ -341,13 +321,9 @@ export class VentesComponent implements OnInit {
     })
 
     const totalPrixProduits = data.produits.reduce((sum: number, produit: any) => sum + produit.prixTotal, 0);
-    console.log(`Prix total des produits: ${totalPrixProduits}`);
 
     const prixRemise = totalPrixProduits - data.vente.prixTotal;
     const pourcentageRemise = (prixRemise / totalPrixProduits) * 100;
-
-    console.log("(doc as any).getLastAutoTable()")
-    console.log((doc as any).lastAutoTable)
 
     // Summary
     let y = (doc as any).lastAutoTable.finalY
@@ -402,8 +378,6 @@ export class VentesComponent implements OnInit {
       next: (users) => {
         this.employes = users
         this.totalItems = users.length;
-        console.log("this.employes")
-        console.log(this.employes)
       },
       error: (err: any) => {
         if (err.status === 401 || err.status === 403) {

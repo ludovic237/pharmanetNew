@@ -111,8 +111,7 @@ export class DepenseComponent {
   }
 
   createDepense(): void {
-    console.log("this.depenseForm.value");
-    console.log(this.depenseForm.value);
+
     if (this.depenseForm.valid) {
       this.depenseService.createDepense(this.depenseForm.value).subscribe({
         next: () => {

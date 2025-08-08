@@ -55,12 +55,11 @@ export class CategoryDialogComponent implements OnInit {
     if (this.data.category) {
       this.form.patchValue(this.data.category);
     };
-    console.log(this.form)
-    console.log(this.data)
+
   }
 
   public onSubmit() {
-    console.log(this.form.value);
+
     if (this.form.valid) {
       if (this.data.type == "add") {
 

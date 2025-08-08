@@ -142,7 +142,7 @@ class EnRayonController(private val enRayonService: EnRayonService) {
     @RequestParam(defaultValue = "0") page: Int,
     @RequestParam(defaultValue = "10") size: Int,
     @RequestParam(defaultValue = "id") sort: String,
-    @RequestParam(defaultValue = "asc") direction: String
+    @RequestParam(defaultValue = "desc") direction: String
   ): ResponseEntity<Page<Map<String, Any?>>> {
     val bientotPerimeeBoolean: Boolean? = when (bientotPerimee?.lowercase()) {
       "true" -> true

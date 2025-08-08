@@ -1,9 +1,14 @@
 import {Component, Inject, OnInit} from '@angular/core';
+import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
+import {AuthService} from "@services/auth.service";
+import {TypeSortiesService} from "@services/type-sorties.service";
+import {MatSnackBar} from "@angular/material/snack-bar";
 import {MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef} from "@angular/material/dialog";
 import {EnrayonsService} from "@services/enrayons.service";
-import {MatSnackBar} from "@angular/material/snack-bar";
-import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
+import {SortiesService} from "@services/sorties.service";
+import {SortieDetailRayonComponent} from "../sortie-detail-rayon/sortie-detail-rayon.component";
 import {CommonModule} from "@angular/common";
+import {MatTabsModule} from "@angular/material/tabs";
 import {MatCardModule} from "@angular/material/card";
 import {MatInputModule} from "@angular/material/input";
 import {MatSelectModule} from "@angular/material/select";
@@ -14,19 +19,12 @@ import {MatIconModule} from "@angular/material/icon";
 import {MatTableModule} from "@angular/material/table";
 import {MatAutocompleteModule} from "@angular/material/autocomplete";
 import {FlexLayoutModule} from "@ngbracket/ngx-layout";
-import {MatTabsModule} from "@angular/material/tabs";
 import {MatFormFieldModule} from "@angular/material/form-field";
-import {AuthService} from "@services/auth.service";
 import {MatToolbarModule} from "@angular/material/toolbar";
-import {
-  AjouterVenteDialogComponent
-} from "../../../vente/ajouter-vente/ajouter-vente-dialog/ajouter-vente-dialog.component";
-import {SortieDetailRayonComponent} from "../sortie-detail-rayon/sortie-detail-rayon.component";
-import {SortiesService} from "@services/sorties.service";
-import {TypeSortiesService} from "@services/type-sorties.service";
+import {ProductService} from "@services/products.service";
 
 @Component({
-  selector: 'app-sortie-detail-dialog',
+  selector: 'app-sortie-rayon-dialog',
   imports: [
     CommonModule,
     FormsModule,
@@ -50,18 +48,23 @@ import {TypeSortiesService} from "@services/type-sorties.service";
     MatButtonModule,
     MatTableModule,
     MatIconModule,
-    MatToolbarModule
+    MatToolbarModule,
+    MatAutocompleteModule
   ],
-  templateUrl: './sortie-detail-dialog.component.html',
-  styleUrl: './sortie-detail-dialog.component.scss'
+  templateUrl: './sortie-rayon-dialog.component.html',
+  styleUrl: './sortie-rayon-dialog.component.scss'
 })
-export class SortieDetailDialogComponent implements OnInit {
+export class SortieRayonDialogComponent implements  OnInit{
+
+  medOptions: any[] = [];
 
   quantiteAjouter: number = 0
   mouvelQuantite: number = 0
   produitId: number = null
   produitName: string = ""
   sortieForm: FormGroup;
+  typeSorties:any[] = [];
+  produits:any[] = [];
   // DataSource pour le tableau Material
   dataSource: any[] = [];
   // Colonnes à afficher dans le tableau
@@ -70,38 +73,34 @@ export class SortieDetailDialogComponent implements OnInit {
   constructor(
     public authService: AuthService,
     public typeSortiesService: TypeSortiesService,
-    public snackBar: MatSnackBar, public dialogRef: MatDialogRef<SortieDetailDialogComponent>,
+    public productService: ProductService,
+    public snackBar: MatSnackBar, public dialogRef: MatDialogRef<SortieRayonDialogComponent>,
     public enRayonService: EnrayonsService,
     public sortiesService: SortiesService,
     public dialog: MatDialog,
     @Inject(MAT_DIALOG_DATA) public data: any,
     public fb: FormBuilder) {
     this.sortieForm = this.fb.group({
-      produitDetailName: [null],
-      produitDetailStock: [null],
-      produitDetailGrossisteList: [],
-      produitDetailContenu: [null],
-      produitDetailQuantie: [null]
+      produitName: [null],
+      produitTypeSortieList: [null, Validators.required],
     });
   }
 
   ngOnInit(): void {
     // Initialisation du formulaire
     // this.sortieForm.produitDetailGrossisteList.valueChanges.
-    console.log("ngOnInit")
-    console.log("this.data")
-    console.log(this.data)
-    this.sortieForm.patchValue({
-      produitDetailName: this.data.nom,
-      produitDetailStock: this.data.quantite
-    })
-    this.sortieForm.get('produitDetailGrossisteList').valueChanges.subscribe(selectGrossiste => {
-      console.log("selectGrossiste")
-      console.log(selectGrossiste)
-      this.produitId = selectGrossiste.id
-      this.sortieForm.patchValue({
-        produitDetailContenu: selectGrossiste.contenuDetail
-      })
+
+    this.getTypeSortiePageable("null");
+
+    this.sortieForm.get('produitName').valueChanges.subscribe(produitName => {
+     if (produitName){
+       this.searchProducts(produitName);
+     }
+    });
+
+    this.sortieForm.get('produitTypeSortieList').valueChanges.subscribe(produitTypeSortieList => {
+      console.log("produitTypeSortieList")
+      console.log(produitTypeSortieList)
     });
 
   }
@@ -109,12 +108,9 @@ export class SortieDetailDialogComponent implements OnInit {
   /**
    * Ajoute la ligne actuelle au tableau des sorties.
    */
-  ajouterAuTableau(): void {
-    if (this.sortieForm.invalid) {
-      return; // Ne rien faire si le formulaire est invalide
-    }
+  ajouterAuTableau(option:any): void {
 
-    this.enRayonService.getProduitsEnRayon(this.produitId).subscribe({
+    this.enRayonService.getProduitsEnRayon(option.id).subscribe({
       next: (data: any) => {
         const dialogRef = this.dialog.open(SortieDetailRayonComponent, {
           data: {
@@ -140,7 +136,6 @@ export class SortieDetailDialogComponent implements OnInit {
                 this.dataSource[existingProductIndex] = {
                   ...this.dataSource[existingProductIndex],
                   quantite: product.quantiteRestante,
-                  contenuDetail: this.sortieForm.get('produitDetailContenu').value,
                   // quantite: this.dataSource[existingProductIndex].quantite + product.quantiteRestante,
                   prixTotal: (product.prixVente * product.quantiteRestante),
                   // prixTotal: this.dataSource[existingProductIndex].prixTotal + (product.prixVente * product.quantiteRestante),
@@ -156,7 +151,6 @@ export class SortieDetailDialogComponent implements OnInit {
                 rayonId: product.rayonId,
                 prixUnitaire: product.prixVente,
                 quantite: product.quantiteRestante,
-                contenuDetail: this.sortieForm.get('produitDetailContenu').value,
                 prixTotal: product.prixVente * product.quantiteRestante,
                 reduction: product.reduction, // Adjust if needed
                 dateLivraison: product.dateLivraison, // Adjust if needed
@@ -214,9 +208,9 @@ export class SortieDetailDialogComponent implements OnInit {
    */
   enregistrer(): void {
     // On retourne les données du tableau au composant parent
-    this.dialogRef.close(this.dataSource);
+
     let dataSave = this.dataSource.map((product: any) => ({
-      contenuDetail: product.contenuDetail ?? 0,
+      contenuDetail: null,
       id: product.id ?? 0,
       quantite: product.quantite ?? 0,
       rayonId: product.rayonId ?? 0,
@@ -224,14 +218,38 @@ export class SortieDetailDialogComponent implements OnInit {
     }))
     let sortie = {
       enrayon:dataSave,
-      produitDetailId:this.data.id,
-      typeSortieId:"null"
+      produitDetailId:"null",
+      typeSortieId:this.sortieForm.get("produitTypeSortieList").value
     }
     console.log("sortie")
     console.log(sortie)
-    this.sortiesService.addProduitDetail(sortie).subscribe({
+    if (this.sortieForm.valid){
+      this.sortiesService.addProduitDetail(sortie).subscribe({
+        next: (response: any) => {
+          this.dialogRef.close(response);
+        },
+        error: (err: any) => {
+          if (err.status === 401 || err.status === 403) {
+            this.authService.logout();
+            localStorage.removeItem('token');
+            this.snackBar.open('Déconnexion réussie.', '×', {
+              panelClass: 'success',
+              verticalPosition: 'top',
+              duration: 3000,
+            });
+            // Redirect to login page or clear session
+            window.location.href = '/sign-in';
+          }
+          console.error('Failed to load products:', err);
+        }
+      });
+    }
+  }
+
+  getTypeSortiePageable(name:string){
+    this.typeSortiesService.getTypeSortiePageable(0,10,"id","desc",name).subscribe({
       next: (response: any) => {
-        this.dialogRef.close(response);
+        this.typeSorties = response.content
       },
       error: (err: any) => {
         if (err.status === 401 || err.status === 403) {
@@ -250,10 +268,12 @@ export class SortieDetailDialogComponent implements OnInit {
     });
   }
 
-  getTypeSortiePageable(name:string){
-    this.typeSortiesService.getTypeSortiePageable(0,10,"null","desc",name).subscribe({
-      next: (response: any) => {
+  public searchProducts(searchTerm: string): void {
 
+    this.productService.searchProducts(searchTerm, 0, 40).subscribe({
+      // this.productService.searchProducts(this.searchTerm, this.page, this.count).subscribe({
+      next: (data: any) => {
+        this.medOptions = data.content;
       },
       error: (err: any) => {
         if (err.status === 401 || err.status === 403) {
@@ -267,7 +287,7 @@ export class SortieDetailDialogComponent implements OnInit {
           // Redirect to login page or clear session
           window.location.href = '/sign-in';
         }
-        console.error('Failed to load products:', err);
+        console.error('Error searching products:', err);
       }
     });
   }

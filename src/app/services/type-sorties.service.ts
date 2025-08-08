@@ -8,8 +8,8 @@ import {TicketCaisse} from "@services/tickets.service";
 @Injectable({
   providedIn: 'root'
 })
-export class SortiesService {
-  private url = environment.url+'/api/sortie-stock';
+export class TypeSortiesService {
+  private url = environment.url+'/api/type-sortie';
 
    constructor(
     private http: HttpClient) {
@@ -22,15 +22,12 @@ export class SortiesService {
     });
   }
 
-  getSortieStockPageable(
+  getTypeSortiePageable(
     page: number = 0,
     size: number = 10,
     sort: string = 'id',
-    direction: string = 'asc',
-    nomProduit?: string,
-    typeSortie?: string,
-    enRayonId?: string,
-    produitDetailId?: string
+    direction: string = 'desc',
+    nom?: string,
   ): Observable<any> {
     let params = new HttpParams()
       .set('page', page.toString())
@@ -38,15 +35,12 @@ export class SortiesService {
       .set('sort', sort)
       .set('direction', direction);
 
-    if (nomProduit) params = params.set('nomProduit', nomProduit);
-    if (typeSortie) params = params.set('typeSortie', typeSortie);
-    if (enRayonId) params = params.set('enRayonId', enRayonId.toString());
-    if (produitDetailId) params = params.set('produitDetailId', produitDetailId.toString());
+    if (nom) params = params.set('nom', nom);
 
     return this.http.get<any>(this.url, { headers: this.getHeaders(), params });
   }
 
-  addProduitDetail(sortie: any): Observable<any> {
+  addTypeSortiel(sortie: any): Observable<any> {
     return this.http.post<any>(this.url+"/save", sortie, { headers: this.getHeaders() });
   }
 
