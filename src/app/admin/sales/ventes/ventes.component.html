@@ -15,7 +15,7 @@
             @for (vente of ventes | paginate: { itemsPerPage: count, currentPage: page }; track vente.number) {
                 <div class="mat-mdc-row">
                     <div class="mat-mdc-cell"><span class="vente">{{vente.number}}</span></div>
-                    <div class="mat-mdc-cell">{{vente.date}}</div>
+                    <div class="mat-mdc-cell">{{vente.date | date:'dd/MM/yyyy HH:mm'}}</div>
                     <div class="mat-mdc-cell">{{vente.status}}</div>
                     <div class="mat-mdc-cell">{{vente.total}}</div>
                     <div class="mat-mdc-cell">

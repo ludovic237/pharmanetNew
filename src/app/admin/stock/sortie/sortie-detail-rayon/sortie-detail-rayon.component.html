@@ -48,7 +48,7 @@
                  [(ngModel)]="item.quantiteRestante"
                  [min]="0"
                  [max]="item.quantiteStock"
-                 [value]="0"
+                 [value]="(item.quantiteOld>0? item.quantiteOld :0)"
                  placeholder="0">
         </mat-form-field>
         <button mat-mini-fab color="primary" (click)="increment(item, 'quantiteRestante')"
@@ -121,7 +121,7 @@
   </table>
 </mat-dialog-content>
 <mat-dialog-actions>
-  <mat-toolbar >
+  <mat-toolbar>
     <div mat-dialog-actions fxLayout="row" fxLayoutAlign="space-between center" class="w-100 p-3">
       <button mat-raised-button color="accent"
               [disabled]="modifiedProducts.length === 0"

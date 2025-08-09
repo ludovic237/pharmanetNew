@@ -117,7 +117,8 @@ export class SortieRayonDialogComponent implements  OnInit{
             type: "produit",
             id: this.produitId,
             name: this.produitName,
-            enRayonList: data
+            enRayonList: data,
+            sourceList: this.dataSource,
           },
           // maxWidth: "400px",
           width: "80%",
@@ -130,7 +131,7 @@ export class SortieRayonDialogComponent implements  OnInit{
           console.log(modifiedProducts)
           if (modifiedProducts && modifiedProducts.length > 0) {
             const newData = modifiedProducts.map(product => {
-              const existingProductIndex = this.dataSource.findIndex(item => item.nom === product.nom);
+              const existingProductIndex = this.dataSource.findIndex(item => item.rayonId === product.rayonId);
               if (existingProductIndex !== -1) {
                 // Update the existing product
                 this.dataSource[existingProductIndex] = {

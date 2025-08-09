@@ -1,4 +1,4 @@
-import {Component, Inject} from '@angular/core';
+import {Component, Inject, OnInit} from '@angular/core';
 import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
 import {Settings, SettingsService} from "@services/settings.service";
 import {AuthService} from "@services/auth.service";
@@ -42,9 +42,10 @@ import {FlexLayoutModule} from "@ngbracket/ngx-layout";
   templateUrl: './sortie-detail-rayon.component.html',
   styleUrl: './sortie-detail-rayon.component.scss'
 })
-export class SortieDetailRayonComponent {
+export class SortieDetailRayonComponent implements OnInit{
   type = "detail"
   public enRayonList: any[] = [];
+  public sourceList: any[] = [];
   public modifiedProducts: any[] = [];
   public displayedColumns: string[] = [
     'produit',
@@ -79,12 +80,26 @@ export class SortieDetailRayonComponent {
       parentId: 0
     });
 
+    this.sourceList = this.data.sourceList
+    const existingRayonIds = this.sourceList.map((product: any) => product.rayonId);
+
+    console.log("this.sourceList")
+    console.log(this.sourceList)
     this.enRayonList = this.data.enRayonList.map((item: any) => ({
       ...item,
       quantiteRestante: 0,
+      quantiteOld: Number(existingRayonIds.includes(item.rayonId) ? this.sourceList.find((data: any) => item.rayonId == data.rayonId).quantite : 0),
       quantiteStock: item.quantiteRestante,
-      prixVente: item.prixVente
+      prixVente: item.prixVente,
+      disabled: existingRayonIds.includes(item.rayonId) // Mark as disabled if rayonId exists
     }));
+
+    this.enRayonList.forEach((item:any)=>{
+      item.quantiteRestante = (Number(item.quantiteOld)>0) ?Number(item.quantiteOld) : 0
+    })
+
+    console.log("this.enRayonList")
+    console.log(this.enRayonList)
   }
 
   public onSubmit() {

@@ -276,7 +276,7 @@ class InventaireService(
     val inventaire = inventaireRepository.findById(inventaireId.toInt())
       .orElseThrow { IllegalArgumentException("Inventaire introuvable avec l'ID: $inventaireId") }
 
-    val produitsPage = if (search!!.isNotEmpty()) {
+    val produitsPage = if (search!=null) {
       val produitList = produitRepository.findByNomContaining(search).map { it.id }
       val enRayonList = enRayonRepository.findAllByProduitIdInAndSupprimer(produitList)
       produitInventorieRepository.findByInventaireAndEnRayonIn(inventaire, enRayonList, pageable)

@@ -1,5 +1,5 @@
 <mat-toolbar>
-  <h1 mat-dialog-title>Nouvelle Sortie de Stock</h1>
+  <h1 mat-dialog-title>Nouvelle Sortie de Stock de produit</h1>
 </mat-toolbar>
 <form [formGroup]="sortieForm" (ngSubmit)="enregistrer()" class="sortie-form">
   <div mat-dialog-content>
@@ -11,7 +11,7 @@
           <!-- Champ Nom Produit (lecture seule) -->
           <div fxFlex="100" fxFlex.gt-sm="50" class="px-2">
             <mat-form-field appearance="outline" class="w-100 ">
-              <mat-label>Nom Parent</mat-label>
+              <mat-label>Type de sortie</mat-label>
               <mat-select formControlName="produitTypeSortieList">
                 <mat-option *ngFor="let item of typeSorties" [value]="item.id">
                   {{ item.nom }}
@@ -60,8 +60,8 @@
           <td mat-cell *matCellDef="let element"> {{ element.quantite }}</td>
         </ng-container>
         <ng-container matColumnDef="contenu">
-          <th mat-header-cell *matHeaderCellDef> Contenu detail</th>
-          <td mat-cell *matCellDef="let element"> {{ element.contenuDetail }}</td>
+          <th mat-header-cell *matHeaderCellDef> Identifiant rayon</th>
+          <td mat-cell *matCellDef="let element"> {{ element.rayonId }}</td>
         </ng-container>
         <ng-container matColumnDef="dateLivraison">
           <th mat-header-cell *matHeaderCellDef> date</th>

@@ -75,13 +75,13 @@
     <!-- Date Péremption Column -->
     <ng-container matColumnDef="dateLivraison">
       <th mat-header-cell *matHeaderCellDef> Date Livraison </th>
-      <td mat-cell *matCellDef="let element"> {{ element.dateLivraison | date }} </td>
+      <td mat-cell *matCellDef="let element"> {{ element.dateLivraison | date:'dd/MM/yyyy HH:mm' }} </td>
     </ng-container>
 
     <!-- Date Péremption Column -->
     <ng-container matColumnDef="datePeremption">
       <th mat-header-cell *matHeaderCellDef> Date Péremption </th>
-      <td mat-cell *matCellDef="let element"> {{ element.datePeremption | date }} </td>
+      <td mat-cell *matCellDef="let element"> {{ element.datePeremption | date:'dd/MM/yyyy HH:mm' }} </td>
     </ng-container>
 
     <!-- En Stock Column -->
