@@ -103,7 +103,8 @@ export class DepenseDialogComponent implements OnInit {
       error: (err) => {
         if (err.status === 401 || err.status === 403) {
           this.authService.logout();
-          localStorage.removeItem('token');
+           localStorage.removeItem('token');
+          localStorage.setItem("lastLink",window.location.href);;
           this.snackBar.open('Déconnexion réussie.', '×', {
             panelClass: 'success',
             verticalPosition: 'top',

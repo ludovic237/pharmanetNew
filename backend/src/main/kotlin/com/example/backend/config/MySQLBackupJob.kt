@@ -1,11 +1,35 @@
+import com.example.backend.repositories.*
+import com.example.backend.services.CaisseService
+import com.example.backend.utility.UserUtils
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
+import org.springframework.transaction.annotation.Transactional
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
 
 @Component
-class MySQLBackupJob {
+class MySQLBackupJob(
+  private val userUtils: UserUtils,
+  private val retourProduitRepository: RetourProduitRepository,
+  private val produitRetourRepository: ProduitRetourRepository,
+  private val produitCmdRepository: ProduitCmdRepository,
+  private val produitDetailRepository: ProduitDetailRepository,
+  private val employeRepository: EmployeRepository,
+  private val concernerRepository: ConcernerRepository,
+  private val venteRepository: VenteRepository,
+  private val produitRepository: ProduitRepository,
+  private val categorieRepository: CategorieRepository,
+  private val fournisseurRepository: FournisseurRepository,
+  private val rayonRepository: RayonRepository,
+  private val enRayonRepository: EnRayonRepository,
+  private val formeRepository: FormeRepository,
+  private val magasinRepository: MagasinRepository,
+  private val fabriquantRepository: FabriquantRepository,
+  private val caisseRepository: CaisseRepository,
+  private val commandeRepository: CommandeRepository,
+  private  val caisseService: CaisseService
+) {
 
   private val user = "root"
   private val password = "root"
@@ -38,4 +62,16 @@ class MySQLBackupJob {
       println("❌ Échec du backup. Code de sortie: $exitCode")
     }
   }
+
+  @Scheduled(cron = "0 0 2 * * *")
+  fun refreshStockProduct(){
+    var produits = produitRepository.findAll()
+    produits.forEach { produit ->
+      var enRayon = enRayonRepository.findAllByProduitIdAndSupprimer(produit.id!!)
+      var totalStock = enRayon.sumOf { it.quantiteRestante!! }
+      produit.stock = totalStock
+      produitRepository.save(produit)
+    }
+  }
+
 }

@@ -57,7 +57,8 @@ export class AuthService {
   }
 
   // logout() {
-  //   localStorage.removeItem('token');
+  //    localStorage.removeItem('token');
+          localStorage.setItem("lastLink",window.location.href);;
   //   this.loggedIn.next(false);
   // }
 }

@@ -12,8 +12,8 @@
     <mat-form-field class="search-field" appearance="outline">
       <mat-label>Rechercher produit detail</mat-label>
       <input matInput [formControl]="produitDetailSearchControl" [matAutocomplete]="produitDetailAuto">
-      <mat-autocomplete #produitDetailAuto="matAutocomplete" (optionSelected)="onProduitDetailSelected($event)">
-        <mat-option *ngFor="let produitDetail of produitDetailOptions" [value]="produitDetail.id" (click)="openProduitDetailInfoDialog(produitDetail)">
+      <mat-autocomplete #produitDetailAuto="matAutocomplete" >
+        <mat-option *ngFor="let produitDetail of produitDetailOptions" [value]="produitDetail.nom" (click)="openProduitDetailInfoDialog(produitDetail)">
           {{ produitDetail.nom }}
         </mat-option>
       </mat-autocomplete>

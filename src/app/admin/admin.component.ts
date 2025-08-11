@@ -82,7 +82,7 @@ export class AdminComponent implements OnInit {
       const venteMode = localStorage.getItem('vente_mode') || 'default';
 
       // this.menuItems = this.adminMenuService.getMenuItemsWithParam(venteMode)
-      this.menuItems = this.adminMenuService.getMenuItemsWithParam(venteMode).filter(item=>
+      this.menuItems = this.adminMenuService.getMenuItemsWithParam(venteMode).filter(item =>
         item.roles.includes(this.role)
       );
       this.cdr.detectChanges();
@@ -141,7 +141,7 @@ export class AdminComponent implements OnInit {
 
   private loadMenuItems() {
     const venteMode = localStorage.getItem('vente_mode') || 'default';
-    this.menuItems = this.adminMenuService.getMenuItemsWithParam(venteMode).filter(item=>
+    this.menuItems = this.adminMenuService.getMenuItemsWithParam(venteMode).filter(item =>
       item.roles.includes(this.role)
     );
 
@@ -151,6 +151,8 @@ export class AdminComponent implements OnInit {
     this.authService.logout().subscribe({
       next: () => {
         localStorage.removeItem('token');
+        localStorage.setItem("lastLink", window.location.href);
+        ;
         this.snackBar.open('Déconnexion réussie.', '×', {
           panelClass: 'success',
           verticalPosition: 'top',
@@ -164,6 +166,8 @@ export class AdminComponent implements OnInit {
         if (err.status === 401 || err.status === 403) {
           this.authService.logout();
           localStorage.removeItem('token');
+          localStorage.setItem("lastLink", window.location.href);
+          ;
           this.snackBar.open('Déconnexion réussie.', '×', {
             panelClass: 'success',
             verticalPosition: 'top',
@@ -188,7 +192,7 @@ export class AdminComponent implements OnInit {
     });
     dialogRef.afterClosed().subscribe((data: boolean) => {
       if (data === true) {
-       this.logoutUser()
+        this.logoutUser()
       } else {
         // Handle the "No" or dismissal case
 

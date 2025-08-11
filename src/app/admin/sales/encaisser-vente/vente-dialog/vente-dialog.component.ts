@@ -76,7 +76,8 @@ export class VenteDialogComponent {
         console.error('Erreur lors de la récupération des informations de la vente:', err);
         if (err.status === 401 || err.status === 403) {
           this.authService.logout();
-          localStorage.removeItem('token');
+           localStorage.removeItem('token');
+          localStorage.setItem("lastLink",window.location.href);;
           this.snackBar.open('Déconnexion réussie.', '×', {
             panelClass: 'success',
             verticalPosition: 'top',

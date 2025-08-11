@@ -86,12 +86,12 @@
 
     <ng-container matColumnDef="dateLivraison">
       <th mat-header-cell *matHeaderCellDef>Date livraison</th>
-      <td mat-cell *matCellDef="let product" [class.disabled-row]="product.disabled"> {{ product.dateLivraison }}</td>
+      <td mat-cell *matCellDef="let product" [class.disabled-row]="product.disabled"> {{ product.dateLivraison  | date:'yyyy-MM-dd HH:mm:ss'  }}</td>
     </ng-container>
 
     <ng-container matColumnDef="datePeremption">
       <th mat-header-cell *matHeaderCellDef>Date peremption</th>
-      <td mat-cell *matCellDef="let product" [class.disabled-row]="product.disabled"> {{ product.datePeremption }}
+      <td mat-cell *matCellDef="let product" [class.disabled-row]="product.disabled"> {{ product.datePeremption  | date:'yyyy-MM-dd HH:mm:ss'  }}
       </td>
     </ng-container>
 

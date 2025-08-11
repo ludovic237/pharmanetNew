@@ -81,7 +81,9 @@ export class SortieDetailRayonComponent implements OnInit{
     });
 
     this.sourceList = this.data.sourceList
-    const existingRayonIds = this.sourceList.map((product: any) => product.rayonId);
+    let existingRayonIds = []
+
+    existingRayonIds = this.sourceList.map((product: any) => product.rayonId);
 
     console.log("this.sourceList")
     console.log(this.sourceList)

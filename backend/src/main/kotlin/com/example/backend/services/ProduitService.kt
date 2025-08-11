@@ -817,6 +817,17 @@ class ProduitService(
     )
   }
 
+  @Transactional
+  fun refreshStockProduct(){
+    var produits = produitRepository.findAll()
+    produits.forEach { produit ->
+      var enRayon = enRayonRepository.findAllByProduitIdAndSupprimer(produit.id!!)
+      var totalStock = enRayon.sumOf { it.quantiteRestante!! }
+      produit.stock = totalStock
+      produitRepository.save(produit)
+    }
+  }
+
 }
 
 data class ProduitRetourRequestDto(

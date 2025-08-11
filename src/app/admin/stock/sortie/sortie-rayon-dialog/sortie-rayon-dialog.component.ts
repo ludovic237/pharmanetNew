@@ -54,7 +54,7 @@ import {ProductService} from "@services/products.service";
   templateUrl: './sortie-rayon-dialog.component.html',
   styleUrl: './sortie-rayon-dialog.component.scss'
 })
-export class SortieRayonDialogComponent implements  OnInit{
+export class SortieRayonDialogComponent implements OnInit {
 
   medOptions: any[] = [];
 
@@ -63,8 +63,8 @@ export class SortieRayonDialogComponent implements  OnInit{
   produitId: number = null
   produitName: string = ""
   sortieForm: FormGroup;
-  typeSorties:any[] = [];
-  produits:any[] = [];
+  typeSorties: any[] = [];
+  produits: any[] = [];
   // DataSource pour le tableau Material
   dataSource: any[] = [];
   // Colonnes à afficher dans le tableau
@@ -93,9 +93,9 @@ export class SortieRayonDialogComponent implements  OnInit{
     this.getTypeSortiePageable("null");
 
     this.sortieForm.get('produitName').valueChanges.subscribe(produitName => {
-     if (produitName){
-       this.searchProducts(produitName);
-     }
+      if (produitName) {
+        this.searchProducts(produitName);
+      }
     });
 
     this.sortieForm.get('produitTypeSortieList').valueChanges.subscribe(produitTypeSortieList => {
@@ -108,7 +108,7 @@ export class SortieRayonDialogComponent implements  OnInit{
   /**
    * Ajoute la ligne actuelle au tableau des sorties.
    */
-  ajouterAuTableau(option:any): void {
+  ajouterAuTableau(option: any): void {
 
     this.enRayonService.getProduitsEnRayon(option.id).subscribe({
       next: (data: any) => {
@@ -165,8 +165,8 @@ export class SortieRayonDialogComponent implements  OnInit{
             console.log("this.dataSource")
             console.log(this.dataSource)
             // this.totalGrosAmount =  this.produitsAchetes.reduce((sum, item) => sum + (item.prixUnitaire*item.quantite), 0)
-            this.quantiteAjouter = this.dataSource.reduce((sum, item) => sum + (item.contenuDetail * item.quantite), 0)
-            this.mouvelQuantite = this.sortieForm.get("produitDetailStock").value + this.quantiteAjouter;
+            this.quantiteAjouter = this.dataSource.reduce((sum, item) => sum + (item.quantite), 0)
+            // this.mouvelQuantite = this.sortieForm.get("produitDetailStock").value + this.quantiteAjouter;
           }
         });
       },
@@ -174,7 +174,8 @@ export class SortieRayonDialogComponent implements  OnInit{
         console.error('Failed to fetch products in stock:', err);
         if (err.status === 401 || err.status === 403) {
           this.authService.logout();
-          localStorage.removeItem('token');
+           localStorage.removeItem('token');
+          localStorage.setItem("lastLink",window.location.href);;
           this.snackBar.open('Déconnexion réussie.', '×', {
             panelClass: 'success',
             verticalPosition: 'top',
@@ -196,12 +197,7 @@ export class SortieRayonDialogComponent implements  OnInit{
    * @param element La ligne à supprimer.
    */
   supprimerLigne(element: any): void {
-    const index = this.dataSource.indexOf(element);
-    if (index > -1) {
-      const data = this.dataSource;
-      data.splice(index, 1);
-      this.dataSource = data; // Rafraîchir le tableau
-    }
+    this.dataSource = this.dataSource.filter(item => item.rayonId !== element.rayonId)
   }
 
   /**
@@ -218,13 +214,13 @@ export class SortieRayonDialogComponent implements  OnInit{
       stockTotal: product.stockTotal ?? 0
     }))
     let sortie = {
-      enrayon:dataSave,
-      produitDetailId:"null",
-      typeSortieId:this.sortieForm.get("produitTypeSortieList").value
+      enrayon: dataSave,
+      produitDetailId: "null",
+      typeSortieId: this.sortieForm.get("produitTypeSortieList").value
     }
     console.log("sortie")
     console.log(sortie)
-    if (this.sortieForm.valid){
+    if (this.sortieForm.valid) {
       this.sortiesService.addProduitDetail(sortie).subscribe({
         next: (response: any) => {
           this.dialogRef.close(response);
@@ -232,7 +228,8 @@ export class SortieRayonDialogComponent implements  OnInit{
         error: (err: any) => {
           if (err.status === 401 || err.status === 403) {
             this.authService.logout();
-            localStorage.removeItem('token');
+             localStorage.removeItem('token');
+          localStorage.setItem("lastLink",window.location.href);;
             this.snackBar.open('Déconnexion réussie.', '×', {
               panelClass: 'success',
               verticalPosition: 'top',
@@ -247,15 +244,16 @@ export class SortieRayonDialogComponent implements  OnInit{
     }
   }
 
-  getTypeSortiePageable(name:string){
-    this.typeSortiesService.getTypeSortiePageable(0,10,"id","desc",name).subscribe({
+  getTypeSortiePageable(name: string) {
+    this.typeSortiesService.getTypeSortiePageable(0, 10, "id", "desc", name).subscribe({
       next: (response: any) => {
-        this.typeSorties = response.content
+        this.typeSorties = response.content.filter((item:any) => item.id==3)
       },
       error: (err: any) => {
         if (err.status === 401 || err.status === 403) {
           this.authService.logout();
-          localStorage.removeItem('token');
+           localStorage.removeItem('token');
+          localStorage.setItem("lastLink",window.location.href);
           this.snackBar.open('Déconnexion réussie.', '×', {
             panelClass: 'success',
             verticalPosition: 'top',
@@ -279,7 +277,8 @@ export class SortieRayonDialogComponent implements  OnInit{
       error: (err: any) => {
         if (err.status === 401 || err.status === 403) {
           this.authService.logout();
-          localStorage.removeItem('token');
+           localStorage.removeItem('token');
+          localStorage.setItem("lastLink",window.location.href);;
           this.snackBar.open('Déconnexion réussie.', '×', {
             panelClass: 'success',
             verticalPosition: 'top',

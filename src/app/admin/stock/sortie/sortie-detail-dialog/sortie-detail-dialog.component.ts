@@ -118,10 +118,11 @@ export class SortieDetailDialogComponent implements OnInit {
       next: (data: any) => {
         const dialogRef = this.dialog.open(SortieDetailRayonComponent, {
           data: {
-            type: "produit",
+            type: "detail",
             id: this.produitId,
             name: this.produitName,
-            enRayonList: data
+            enRayonList: data,
+            sourceList: this.dataSource,
           },
           // maxWidth: "400px",
           width: "80%",
@@ -134,7 +135,7 @@ export class SortieDetailDialogComponent implements OnInit {
           console.log(modifiedProducts)
           if (modifiedProducts && modifiedProducts.length > 0) {
             const newData = modifiedProducts.map(product => {
-              const existingProductIndex = this.dataSource.findIndex(item => item.nom === product.nom);
+              const existingProductIndex = this.dataSource.findIndex(item => item.rayonId === product.rayonId);
               if (existingProductIndex !== -1) {
                 // Update the existing product
                 this.dataSource[existingProductIndex] = {
@@ -179,7 +180,8 @@ export class SortieDetailDialogComponent implements OnInit {
         console.error('Failed to fetch products in stock:', err);
         if (err.status === 401 || err.status === 403) {
           this.authService.logout();
-          localStorage.removeItem('token');
+           localStorage.removeItem('token');
+          localStorage.setItem("lastLink",window.location.href);;
           this.snackBar.open('Déconnexion réussie.', '×', {
             panelClass: 'success',
             verticalPosition: 'top',
@@ -201,12 +203,7 @@ export class SortieDetailDialogComponent implements OnInit {
    * @param element La ligne à supprimer.
    */
   supprimerLigne(element: any): void {
-    const index = this.dataSource.indexOf(element);
-    if (index > -1) {
-      const data = this.dataSource;
-      data.splice(index, 1);
-      this.dataSource = data; // Rafraîchir le tableau
-    }
+    this.dataSource = this.dataSource.filter(item => item.rayonId !== element.rayonId)
   }
 
   /**
@@ -236,7 +233,8 @@ export class SortieDetailDialogComponent implements OnInit {
       error: (err: any) => {
         if (err.status === 401 || err.status === 403) {
           this.authService.logout();
-          localStorage.removeItem('token');
+           localStorage.removeItem('token');
+          localStorage.setItem("lastLink",window.location.href);;
           this.snackBar.open('Déconnexion réussie.', '×', {
             panelClass: 'success',
             verticalPosition: 'top',
@@ -258,7 +256,8 @@ export class SortieDetailDialogComponent implements OnInit {
       error: (err: any) => {
         if (err.status === 401 || err.status === 403) {
           this.authService.logout();
-          localStorage.removeItem('token');
+           localStorage.removeItem('token');
+          localStorage.setItem("lastLink",window.location.href);;
           this.snackBar.open('Déconnexion réussie.', '×', {
             panelClass: 'success',
             verticalPosition: 'top',

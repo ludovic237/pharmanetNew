@@ -72,7 +72,8 @@ export class TopMenuComponent implements OnInit {
   logoutUser(): void {
     this.authService.logout().subscribe({
       next: () => {
-        localStorage.removeItem('token');
+         localStorage.removeItem('token');
+          localStorage.setItem("lastLink",window.location.href);;
         this.snackBar.open('Déconnexion réussie.', '×', {
           panelClass: 'success',
           verticalPosition: 'top',
