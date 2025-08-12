@@ -40,13 +40,13 @@ export const getFilteredAdminMenuPharmaItems = (key: string) => {
     new AdminMenuPharma(20, 'Catalogue', null, null, 'inventory_2', null, true, 0,['Administrateur','Caissier','Vendeur']),
     new AdminMenuPharma(21, 'Categories', '/admin/products/categories', null, 'category', null, false, 20,['Administrateur','Caissier','Vendeur']),
     new AdminMenuPharma(22, 'ADMIN_NAV.PRODUCT_LIST', '/admin/products/product_list', null, 'view_list', null, false, 20,['Administrateur','Caissier','Vendeur']),
-    new AdminMenuPharma(23, 'ADMIN_NAV.PRODUCT_DETAIL', '/admin/products/product_detail', null, 'visibility', null, false, 20,['Administrateur','Caissier','Vendeur']),
-    new AdminMenuPharma(24, 'ADMIN_NAV.ADD_PRODUCT', '/admin/products/add_product', null, 'add', null, false, 20,['Administrateur','Caissier','Vendeur']),
+    new AdminMenuPharma(23, 'Produit detail list', '/admin/products/product_detail_list', null, 'list_alt', null, false, 20,['Administrateur','Caissier','Vendeur']),
+// new AdminMenuPharma(23, 'ADMIN_NAV.PRODUCT_DETAIL', '/admin/products/product_detail', null, 'visibility', null, false, 20,['Administrateur','Caissier','Vendeur']),
+    // new AdminMenuPharma(24, 'ADMIN_NAV.ADD_PRODUCT', '/admin/products/add_product', null, 'add', null, false, 20,['Administrateur','Caissier','Vendeur']),
     new AdminMenuPharma(25, 'Formes', '/admin/products/formes', null, 'shape_line', null, false, 20,['Administrateur','Caissier','Vendeur']),
     new AdminMenuPharma(26, 'Fabriquants', '/admin/products/fabriquants', null, 'factory', null, false, 20,['Administrateur','Caissier','Vendeur']),
     new AdminMenuPharma(27, 'Rayons', '/admin/products/rayons', null, 'storefront', null, false, 20,['Administrateur','Caissier','Vendeur']),
     new AdminMenuPharma(28, 'magasins', '/admin/products/magasins', null, 'store', null, false, 20,['Administrateur','Caissier','Vendeur']),
-    new AdminMenuPharma(30, 'Produit detail list', '/admin/products/product_detail_list', null, 'list_alt', null, false, 20,['Administrateur','Caissier','Vendeur']),
 
     // Vente menu and submenus
     new AdminMenuPharma(300, 'ventes', null, null, 'shopping_cart', null, true, 0,['Administrateur','Caissier','Vendeur']),
