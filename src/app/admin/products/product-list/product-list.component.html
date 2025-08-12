@@ -1,4 +1,4 @@
-<div [formGroup]="form" fxLayout="row" fxLayoutAlign="space-between center" class="px-2 py-1">
+<form [formGroup]="form" fxLayout="row" fxLayoutAlign="space-between center" class="px-2 py-1">
   <div fxLayout="row">
     <mat-button-toggle-group #controls="matButtonToggleGroup" appearance="legacy" hideSingleSelectionIndicator="true">
       <mat-button-toggle value="add" (click)="openUserDialog(null)">
@@ -9,13 +9,12 @@
       </mat-button-toggle>
     </mat-button-toggle-group>
   </div>
-  <form class="user-search" [class.show]="controls.value == 'search'">
+  <div class="user-search" [class.show]="controls.value == 'search'">
     <mat-form-field class="user-search-input">
       <input matInput placeholder="Search user by name..."
-            formControlName="searchForm"
-             [formControl]="searchControl" name="search">
+             formControlName="searchForm" name="search">
     </mat-form-field>
-  </form>
+  </div>
   <div fxLayout="row" fxLayoutAlign="space-between center">
     <mat-button-toggle-group #viewType="matButtonToggleGroup" appearance="legacy" value="grid"
                              hideSingleSelectionIndicator="true">
@@ -27,7 +26,7 @@
       </mat-button-toggle>
     </mat-button-toggle-group>
   </div>
-</div>
+</form>
 
 <!--<div fxLayout="row wrap" class="search-bar">
   <mat-form-field appearance="outline" class="w-40">
@@ -53,10 +52,10 @@
             <div fxLayout="column" fxLayoutAlign="center start">
               <p class="old-price text-muted">
                 @if (product.prixAchatInitial) {
-                  <span>${{ product.prixAchatInitial | number : '1.2-2' }}</span>
+                  <span>FCFA {{ product.prixAchatInitial | number : '1.2-2' }}</span>
                 }
               </p>
-              <p class="new-price">${{ product.prixVenteActuel | number : '1.2-2' }}</p>
+              <p class="new-price">FCFA {{ product.prixVenteActuel | number : '1.2-2' }}</p>
             </div>
             <!--            <app-rating [ratingsCount]="product.ratingsCount" [ratingsValue]="product.ratingsValue" [direction]="'column'"></app-rating>-->
           </div>
@@ -65,10 +64,10 @@
             {{ product.nom }}
           </div>
           <div class="icons">
-            <a [routerLink]="['/admin/products/add-product', product.id]" mat-mini-fab color="primary" matTooltip="Edit">
+            <a (click)="updateProduit(product)"  mat-mini-fab color="primary" matTooltip="Edit">
               <mat-icon>edit</mat-icon>
             </a>
-            <a [routerLink]="['/admin/products/product-detail', product.id]" mat-mini-fab color="primary"
+            <a (click)="getInfoProduit(product)" mat-mini-fab color="primary"
                matTooltip="View" class="mx-2">
               <mat-icon>remove_red_eye</mat-icon>
             </a>
@@ -83,81 +82,88 @@
 }
 
 @if (viewType.value == 'list') {
-  <mat-card class="p-2">
-    <mat-table [dataSource]="products" class="mat-elevation-z2">
-      <!-- Image Column -->
-      <ng-container matColumnDef="image">
-        <mat-header-cell *matHeaderCellDef> Image </mat-header-cell>
-        <mat-cell *matCellDef="let product">
-          <img [src]="product.image" alt="" class="product-image">
-        </mat-cell>
-      </ng-container>
+  <mat-table [dataSource]="products" class="mat-elevation-z2">
+    <!-- Image Column -->
 
-      <!-- Category Column -->
-      <ng-container matColumnDef="category">
-        <mat-header-cell *matHeaderCellDef> Category </mat-header-cell>
-        <mat-cell *matCellDef="let product">
-          {{ product.categorieNom }}
-<!--          {{ (categories | filterById : product.categorieNom)?.name }}-->
-        </mat-cell>
-      </ng-container>
+    <!--      <ng-container matColumnDef="image">-->
+    <!--        <mat-header-cell *matHeaderCellDef> Image </mat-header-cell>-->
+    <!--        <mat-cell *matCellDef="let product">-->
+    <!--          <img [src]="product.image" alt="" class="product-image">-->
+    <!--        </mat-cell>-->
+    <!--      </ng-container>-->
 
-      <!-- Name Column -->
-      <ng-container matColumnDef="name">
-        <mat-header-cell *matHeaderCellDef> Name </mat-header-cell>
-        <mat-cell *matCellDef="let product"> {{ product.nom }} </mat-cell>
-      </ng-container>
+    <ng-container matColumnDef="image">
+      <mat-header-cell *matHeaderCellDef> Id</mat-header-cell>
+      <mat-cell *matCellDef="let product"> {{ product.id }}</mat-cell>
+    </ng-container>
 
-      <!-- Old Price Column -->
-      <ng-container matColumnDef="oldPrice">
-        <mat-header-cell *matHeaderCellDef> Old Price </mat-header-cell>
-        <mat-cell *matCellDef="let product">
-          <span *ngIf="product.prixAchatInitial">
-            ${{ product.prixAchatInitial | number : '1.2-2' }}
+    <ng-container matColumnDef="name">
+      <mat-header-cell *matHeaderCellDef> Nom</mat-header-cell>
+      <mat-cell *matCellDef="let product"> {{ product.nom }}</mat-cell>
+    </ng-container>
+
+    <!-- Category Column -->
+    <ng-container matColumnDef="category">
+      <mat-header-cell *matHeaderCellDef> Categorie</mat-header-cell>
+      <mat-cell *matCellDef="let product">
+        {{ product.categorieNom }}
+        <!--          {{ (categories | filterById : product.categorieNom)?.name }}-->
+      </mat-cell>
+    </ng-container>
+
+    <!-- Name Column -->
+
+
+    <!-- Old Price Column -->
+    <ng-container matColumnDef="oldPrice">
+      <mat-header-cell *matHeaderCellDef>Unite</mat-header-cell>
+      <mat-cell *matCellDef="let product">
+          <span *ngIf="product.uniteMesure">
+<!--            FCFA {{ product.uniteMesure | number : '1.2-2' }}-->
+            {{ product.uniteMesure }}
           </span>
-        </mat-cell>
-      </ng-container>
+      </mat-cell>
+    </ng-container>
 
-      <!-- New Price Column -->
-      <ng-container matColumnDef="newPrice">
-        <mat-header-cell *matHeaderCellDef> New Price </mat-header-cell>
-        <mat-cell *matCellDef="let product">
-          ${{ product.prixVenteActuel | number : '1.2-2' }}
-        </mat-cell>
-      </ng-container>
+    <!-- New Price Column -->
+    <ng-container matColumnDef="newPrice">
+      <mat-header-cell *matHeaderCellDef> Quantite en stock</mat-header-cell>
+      <mat-cell *matCellDef="let product">
+        {{ product.quantiteTotaleEnStock | number : '1.2-2' }}
+      </mat-cell>
+    </ng-container>
 
-      <!-- Actions Column -->
-      <ng-container matColumnDef="actions">
-        <mat-header-cell *matHeaderCellDef> Actions </mat-header-cell>
-        <mat-cell *matCellDef="let product">
-         <a (click)="getDetailProduit(product)" mat-icon-button color="basic" matTooltip="Detail">
-           <mat-icon>info</mat-icon>
-         </a>
-          <a [routerLink]="['/admin/products/add-product', product.id]" mat-icon-button color="accent" matTooltip="Edit">
-            <mat-icon>edit</mat-icon>
-          </a>
-          <a [routerLink]="['/admin/products/product-detail', product.id]" mat-icon-button color="primary" matTooltip="View">
-            <mat-icon>remove_red_eye</mat-icon>
-          </a>
-          <button mat-icon-button color="warn" matTooltip="Remove" (click)="remove(product)">
-            <mat-icon>delete</mat-icon>
-          </button>
-        </mat-cell>
-      </ng-container>
+    <!-- Actions Column -->
+    <ng-container matColumnDef="actions">
+      <mat-header-cell *matHeaderCellDef> Actions</mat-header-cell>
+      <mat-cell *matCellDef="let product">
+        <a (click)="getDetailProduit(product)" mat-mini-fab color="basic" matTooltip="Detail">
+          <mat-icon>info</mat-icon>
+        </a>
+        <a (click)="updateProduit(product)" mat-mini-fab color="accent" matTooltip="Edit">
+          <mat-icon>edit</mat-icon>
+        </a>
+        <a (click)="getInfoProduit(product)" mat-mini-fab color="primary" matTooltip="View">
+          <mat-icon>remove_red_eye</mat-icon>
+        </a>
+        <button mat-mini-fab color="warn" matTooltip="Remove" (click)="remove(product)">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </mat-cell>
+    </ng-container>
 
-      <!-- Header and Row Definitions -->
-      <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
-      <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
-    </mat-table>
-  </mat-card>
+    <!-- Header and Row Definitions -->
+    <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+    <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+  </mat-table>
 }
 
 <!--@if (products.length) {-->
 <div fxLayout="row wrap">
   <div fxFlex="100" class="p-2">
     <mat-card class="text-center">
-<!--      <pagination-controls class="product-pagination" [autoHide]="true" [maxSize]="5"-->
-<!--                           (pageChange)="onPageChanged($event)"></pagination-controls>-->
+      <!--      <pagination-controls class="product-pagination" [autoHide]="true" [maxSize]="5"-->
+      <!--                           (pageChange)="onPageChanged($event)"></pagination-controls>-->
       <mat-paginator [length]="totalItems" [pageSize]="count" [pageSizeOptions]="[10,20,40,80, 100]"
                      (page)="onPageChanged($event)">
       </mat-paginator>

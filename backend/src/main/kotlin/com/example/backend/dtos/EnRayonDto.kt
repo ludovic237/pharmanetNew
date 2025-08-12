@@ -21,7 +21,7 @@ data class ProduitDetailIncrementEnRayonDto(
 )
 
 data class EnRayonDto (
-   val enRayonId:Int? = null,
+   val enRayonId:String? = null,
    val prixAchat:Int? = 0,
    val prixVente :Int? = 0,
    val reductionMax :Int? = 0,

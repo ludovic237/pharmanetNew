@@ -3,6 +3,7 @@ package com.example.backend.services
 import com.example.backend.models.Forme
 import com.example.backend.repositories.FormeRepository
 import org.springframework.stereotype.Service
+import kotlin.jvm.optionals.getOrNull
 
 @Service
 class FormeService(private val formeRepository: FormeRepository) {
@@ -19,6 +20,9 @@ class FormeService(private val formeRepository: FormeRepository) {
 
     fun deleteForme(id: Int) {
         if (!formeRepository.existsById(id)) throw Exception("Forme not found")
-        formeRepository.deleteById(id)
+//        formeRepository.deleteById(id)
+      var forme =  formeRepository.findById(id).getOrNull()
+      forme?.supprimer=1
+      formeRepository.save(forme!!)
     }
 }

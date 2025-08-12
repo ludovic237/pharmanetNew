@@ -64,7 +64,7 @@ class DepenseService(
     val societe = data["societe"] as? String
     val typeDepense = data["typeDepense"] as? String
     val prixUnitaire = data["prixUnitaire"] as? Int
-    var caisseId = caisseService.getCaisseActive()!!.id
+    var caisseId = caisseService.getCaisseActive()?.id
 
 
     val depense = Depense().apply {

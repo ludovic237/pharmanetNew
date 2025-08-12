@@ -26,7 +26,7 @@
             <div class="mat-mdc-cell">price</div>
             @for (product of appService.Data.compareList; track product.id) {
             <div class="mat-mdc-cell">
-                <b class="new-price">${{product.newPrice | number : '1.2-2'}}</b>
+                <b class="new-price">FCFA {{product.newPrice | number : '1.2-2'}}</b>
             </div>
             }
         </div>

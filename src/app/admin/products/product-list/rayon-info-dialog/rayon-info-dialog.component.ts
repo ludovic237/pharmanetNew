@@ -27,10 +27,18 @@ import {MatSlideToggleModule} from "@angular/material/slide-toggle";
 import {MatDividerModule} from "@angular/material/divider";
 import {MatExpansionModule} from "@angular/material/expansion";
 import {MatAutocompleteModule} from "@angular/material/autocomplete";
-import {MatNativeDateModule} from "@angular/material/core";
+import {
+  MAT_DATE_FORMATS,
+  MAT_DATE_LOCALE,
+  MAT_NATIVE_DATE_FORMATS,
+  MatNativeDateModule,
+  provideNativeDateAdapter
+} from "@angular/material/core";
 import {MatStepperModule} from "@angular/material/stepper";
 import {MatRadioModule} from "@angular/material/radio";
 import {AuthService} from "@services/auth.service";
+import {MatPaginatorModule} from "@angular/material/paginator";
+import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 
 @Component({
   selector: 'app-rayon-info-dialog',
@@ -100,13 +108,39 @@ import {AuthService} from "@services/auth.service";
     MatIconModule,
     CommonModule,
     ReactiveFormsModule,
-    MatInputModule,
     MatSelectModule,
     MatCheckboxModule,
     MatButtonModule,
     FormsModule,
     NgxPaginationModule,
-    PipesModule
+    PipesModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    CommonModule,
+    FormsModule,
+    MatTabsModule,
+    MatToolbarModule,
+    MatCardModule,
+    ReactiveFormsModule,
+    MatDialogModule,
+    MatSelectModule,
+    MatCheckboxModule,
+    MatButtonModule,
+    MatButtonModule, MatDividerModule, MatIconModule,
+    MatTableModule,
+    MatAutocompleteModule,
+    FlexLayoutModule,
+    MatPaginatorModule,
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatDialogModule,
+    MatDatepickerModule,
+    MatNativeDateModule, // <-- IMPORTANT: au niveau racine
+  ],
+  providers: [
+    provideNativeDateAdapter(),
+    {provide: MAT_DATE_FORMATS, useValue: MAT_NATIVE_DATE_FORMATS},
   ],
   templateUrl: './rayon-info-dialog.component.html',
   styleUrl: './rayon-info-dialog.component.scss'

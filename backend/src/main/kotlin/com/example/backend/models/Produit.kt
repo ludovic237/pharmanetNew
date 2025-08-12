@@ -62,8 +62,8 @@ class Produit {
   @JoinColumn(name = "forme_id")
   var forme: Forme? = null
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "fabriquant_id")
+  @ManyToOne(fetch = FetchType.EAGER)
+  @JoinColumn(name = "fabriquant_id", nullable = true)
   var fabriquant: Fabriquant? = null
 
   @ManyToOne(fetch = FetchType.LAZY)

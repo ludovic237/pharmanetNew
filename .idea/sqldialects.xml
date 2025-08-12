@@ -5,6 +5,7 @@
     <file url="file://$PROJECT_DIR$/backend/dataUnit.sql" dialect="MySQL" />
     <file url="file://$PROJECT_DIR$/backend/fabriquant.sql" dialect="MySQL" />
     <file url="file://$PROJECT_DIR$/backend/phamanet2.sql" dialect="MySQL" />
+    <file url="file://$PROJECT_DIR$/backend/pharmanet3.sql" dialect="MySQL" />
     <file url="file://$PROJECT_DIR$/backend/produit.sql" dialect="MySQL" />
     <file url="file://$PROJECT_DIR$/backend/src/main/resources/db/migration/V1__rename_table_and_columns.sql" dialect="MySQL" />
   </component>

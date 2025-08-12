@@ -159,6 +159,19 @@ class ProduitController(
 
   @CrossOrigin(origins = ["http://localhost:4200"])
   @PreAuthorize("isAuthenticated()")
+  @PutMapping("/{id}/save")
+  fun addOrUpdateProduitNew(@PathVariable id: Int, @RequestBody request: ProduitRequestNewDto): ResponseEntity<Any> {
+    return try {
+      ResponseEntity.ok(produitService.addOrUpdateProduitNew(id, request))
+    } catch (e: ValidationException) {
+      ResponseEntity.badRequest().body(mapOf("error" to e.message))
+    } catch (e: NotFoundException) {
+      ResponseEntity.status(HttpStatus.NOT_FOUND).body(mapOf("error" to e.message))
+    }
+  }
+
+  @CrossOrigin(origins = ["http://localhost:4200"])
+  @PreAuthorize("isAuthenticated()")
   @DeleteMapping("/{id}")
   fun deleteProduit(@PathVariable id: Int): ResponseEntity<Any> {
     return try {

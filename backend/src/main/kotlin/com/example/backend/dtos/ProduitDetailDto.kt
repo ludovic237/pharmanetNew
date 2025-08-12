@@ -33,6 +33,31 @@ data class ProduitRequestDto(
   val magasin: Int?,
 )
 
+data class ProduitRequestNewDto(
+  val id: Int?,
+  val ean13: String?,
+  val codebarre: String?,
+  val codeLaborex: String?,
+  val codeUbipharm: String?,
+  val reference: String?,
+  val nom: String?,
+  val stock: Int?,
+  val stockMax: Int?,
+  val stockMin: Int?,
+  val contenuDetail: String?,
+  val prixDetail: String?,
+  val produitDetail: String?,
+  val etat: String?,
+  val reductionMax: Int?,
+  val detailId: Int?,
+  val categorieId: Int?,
+  val formeId: Int?,
+  val fabriquantId: Int?,
+  val rayonId: Int?,
+  val etagere: String?,
+  val magasinId: Int?,
+)
+
 data class ProduitResponseDto(
   var id: Int?,
   var nom: String,
@@ -54,7 +79,7 @@ data class ProduitResponseDto(
 )
 
 data class StockDetailDto(
-  val enRayonId: Int?,
+  val enRayonId: Long?,
   val productNom: String?,
   val depotNom: String?,
   val rayonNom: String?,

@@ -63,6 +63,11 @@ export class ProductService {
     return this.http.put<Product>(`${this.baseUrl}/${id}`, product, {headers: this.getHeaders()});
   }
 
+  // Update an existing product
+  updateProductNew(id: number, product: any): Observable<Product> {
+    return this.http.put<Product>(`${this.baseUrl}/${id}/save`, product, {headers: this.getHeaders()});
+  }
+
   // Delete a product
   deleteProduct(id: number): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/${id}`, {headers: this.getHeaders()});

@@ -3,6 +3,7 @@ package com.example.backend.services
 import com.example.backend.models.Prescripteur
 import com.example.backend.repositories.PrescripteurRepository
 import org.springframework.stereotype.Service
+import kotlin.jvm.optionals.getOrNull
 
 @Service
 class PrescripteurService(private val prescripteurRepository: PrescripteurRepository) {
@@ -19,6 +20,9 @@ class PrescripteurService(private val prescripteurRepository: PrescripteurReposi
 
   fun deletePrescripteur(id: Int) {
     if (!prescripteurRepository.existsById(id)) throw Exception("Prescripteur not found")
-    prescripteurRepository.deleteById(id)
+//    prescripteurRepository.deleteById(id)
+    var prescripteur =  prescripteurRepository.findById(id).getOrNull()
+    prescripteur?.supprimer=1
+    prescripteurRepository.save(prescripteur!!)
   }
 }

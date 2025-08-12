@@ -28,6 +28,7 @@ import {DetailProduitDialogComponent} from "./detail-produit-dialog/detail-produ
 import {MatPaginator, MatPaginatorModule, PageEvent} from "@angular/material/paginator";
 import {AuthService} from "@services/auth.service";
 import {MatSnackBar} from "@angular/material/snack-bar";
+import {AddProductDialogComponent} from "./add-product-dialog/add-product-dialog.component";
 
 @Component({
   selector: 'app-product-list',
@@ -90,7 +91,7 @@ export class ProductListComponent implements OnInit {
 
   ngOnInit(): void {
 
-    this.searchControl.valueChanges.subscribe((searchTerm) => {
+    this.form.get("searchForm").valueChanges.subscribe((searchTerm) => {
       if (this.page == -1) {
         this.page = 1
       }
@@ -265,6 +266,7 @@ export class ProductListComponent implements OnInit {
   getDetailProduit(product: any) {
     this.productService.getProduitDetails(product.id).subscribe({
       next: (data) => {
+        // const dialogRef = this.dialog.open(DetailProduitDialogComponent, {
         const dialogRef = this.dialog.open(DetailProduitDialogComponent, {
           data: data,
           width: "80%",
@@ -293,6 +295,42 @@ export class ProductListComponent implements OnInit {
            }
            console.error('Error fetching products:', err);
          }
+    });
+  }
+
+  getInfoProduit(product: any) {
+    const dialogRefInfo = this.dialog.open(AddProductDialogComponent, {
+      data: {
+        id:product.id,
+        type:"info",
+        title:"Info produit : "+product.nom,
+      },
+      width: "80%",
+      panelClass: ['theme-dialog'],
+      autoFocus: false,
+    });
+    dialogRefInfo.afterClosed().subscribe(dialogResult => {
+      if (dialogResult) {
+        this.getAllProducts()
+      }
+    });
+  }
+
+  updateProduit(product: any) {
+    const dialogRefUpdate = this.dialog.open(AddProductDialogComponent, {
+      data: {
+        id:product.id,
+        type:"update",
+        title:"Mettre a jour produit : "+product.nom,
+      },
+      width: "80%",
+      panelClass: ['theme-dialog'],
+      autoFocus: false,
+    });
+    dialogRefUpdate.afterClosed().subscribe(dialogResult => {
+      if (dialogResult) {
+        this.getAllProducts()
+      }
     });
   }
 

@@ -52,10 +52,10 @@
             <div fxLayout="column" fxLayoutAlign="center start">
               <p class="old-price text-muted">
                 @if (product.prixAchatInitial) {
-                  <span>${{ product.prixAchatInitial | number : '1.2-2' }}</span>
+                  <span>FCFA {{ product.prixAchatInitial | number : '1.2-2' }}</span>
                 }
               </p>
-              <p class="new-price">${{ product.prixVenteActuel | number : '1.2-2' }}</p>
+              <p class="new-price">FCFA {{ product.prixVenteActuel | number : '1.2-2' }}</p>
             </div>
             <!--            <app-rating [ratingsCount]="product.ratingsCount" [ratingsValue]="product.ratingsValue" [direction]="'column'"></app-rating>-->
           </div>
@@ -125,7 +125,7 @@
       <ng-container matColumnDef="reduction">
         <mat-header-cell *matHeaderCellDef> New Price</mat-header-cell>
         <mat-cell *matCellDef="let product">
-          ${{ product.reductionMax }}
+          FCFA {{ product.reductionMax }}
         </mat-cell>
       </ng-container>
 

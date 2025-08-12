@@ -3,6 +3,7 @@ package com.example.backend.services
 import com.example.backend.models.Rayon
 import com.example.backend.repositories.RayonRepository
 import org.springframework.stereotype.Service
+import kotlin.jvm.optionals.getOrNull
 
 @Service
 class RayonService(private val rayonRepository: RayonRepository) {
@@ -20,6 +21,9 @@ class RayonService(private val rayonRepository: RayonRepository) {
 
     fun deleteRayon(id: Int) {
         if (!rayonRepository.existsById(id)) throw Exception("Rayon not found")
-        rayonRepository.deleteById(id)
+//        rayonRepository.deleteById(id)
+      var rayon =  rayonRepository.findById(id).getOrNull()
+      rayon?.supprimer=1
+      rayonRepository.save(rayon!!)
     }
 }

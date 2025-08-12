@@ -3,6 +3,7 @@ package com.example.backend.services
 import com.example.backend.models.Magasin
 import com.example.backend.repositories.MagasinRepository
 import org.springframework.stereotype.Service
+import kotlin.jvm.optionals.getOrNull
 
 @Service
 class MagasinService(private val magasinRepository: MagasinRepository) {
@@ -20,6 +21,9 @@ class MagasinService(private val magasinRepository: MagasinRepository) {
 
     fun deleteMagasin(id: Int) {
         if (!magasinRepository.existsById(id)) throw Exception("Magasin not found")
-        magasinRepository.deleteById(id)
+//        magasinRepository.deleteById(id)
+      var magasin =  magasinRepository.findById(id).getOrNull()
+      magasin?.supprimer=1
+      magasinRepository.save(magasin!!)
     }
 }

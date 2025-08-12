@@ -22,8 +22,8 @@
                         </mat-panel-title>
                     </mat-expansion-panel-header>
                     <div fxLayout="row" fxLayoutAlign="space-between center" class="text-muted">
-                        <span>From: <b>${{priceFrom}}</b></span>
-                        <span>To: <b>${{priceTo}}</b></span>
+                        <span>From: <b>FCFA {{priceFrom}}</b></span>
+                        <span>To: <b>FCFA {{priceTo}}</b></span>
                     </div>
                     <div fxLayout="row" fxLayoutAlign="space-between center" class="filter-price">
                         <mat-slider color="primary" max="2000" min="1" thumb-label="true"><input matSliderThumb [(ngModel)]="priceFrom"></mat-slider>
@@ -46,7 +46,7 @@
                                     <span>&nbsp;</span>
                                 }
                             </button>
-                        }  
+                        }
                     </div>
                 </mat-expansion-panel>
 
@@ -59,9 +59,9 @@
                     <div fxLayout="row wrap" fxLayoutAlign="space-between center" class="filter-buttons">
                         @for (size of sizes; track $index) {
                             <button mat-raised-button (click)="size.selected = !size.selected" [class.selected]="size.selected">
-                                {{size.name}}                      
+                                {{size.name}}
                             </button>
-                        }  
+                        }
                     </div>
                 </mat-expansion-panel>
 
@@ -93,7 +93,7 @@
         </ng-scrollbar>
     </mat-sidenav>
     <mat-sidenav-content class="all-products" ngClass.gt-sm="p-left">
-        <div fxLayout="row" fxLayout.xs="column" fxLayoutAlign="space-between center" class="filter-row mat-elevation-z1 text-muted"> 
+        <div fxLayout="row" fxLayout.xs="column" fxLayoutAlign="space-between center" class="filter-row mat-elevation-z1 text-muted">
             @if (!sidenavOpen) {
                 <button mat-icon-button (click)="sidenav.toggle()">
                     <mat-icon>more_vert</mat-icon>
@@ -109,7 +109,7 @@
                             <button mat-menu-item (click)="changeSorting(sort)">
                                 <span>{{sort}}</span>
                             </button>
-                        }    
+                        }
                     </span>
                 </mat-menu>
             </div>
@@ -123,7 +123,7 @@
                             <button mat-menu-item (click)="changeCount(count)">
                                 <span>{{count}}</span>
                             </button>
-                        }    
+                        }
                     </span>
                 </mat-menu>
                 <button mat-icon-button (click)="changeViewType('list', 100)">
@@ -138,20 +138,20 @@
             </div>
         </div>
 
-        @if (viewType == 'grid') { 
+        @if (viewType == 'grid') {
             <div fxLayout="row wrap" class="products-wrapper">
-                @for (product of products | paginate: { itemsPerPage: count, currentPage: page }; track $index) { 
+                @for (product of products | paginate: { itemsPerPage: count, currentPage: page }; track $index) {
                     <div fxFlex="100" [fxFlex.gt-sm]="viewCol" fxFlex.sm="50" class="col">
                         <mat-card class="product-item text-center">
                             @if (product.discount) {
                                 <mat-chip-listbox>
                                     <mat-chip-option color="warn" highlighted selectable="false">{{product.discount}}% OFF</mat-chip-option>
                                 </mat-chip-listbox>
-                            }                           
+                            }
                             <a [routerLink]="['/products', product.id, product.name]" class="image-link">
                                 <img [src]="product.images[0].medium" alt="">
                             </a>
-                            <h4 class="category text-muted">{{ ( appService.Data.categories | filterById : product.categoryId )?.name }}</h4>                                                                     
+                            <h4 class="category text-muted">{{ ( appService.Data.categories | filterById : product.categoryId )?.name }}</h4>
                             <a [routerLink]="['/products', product.id, product.name]" class="title text-truncate">
                                 {{product.name}}
                             </a>
@@ -159,13 +159,13 @@
                                 <div fxLayout="column" fxLayoutAlign="center start">
                                     <p class="old-price text-muted">
                                         @if (product.oldPrice) {
-                                            <span>${{product.oldPrice | number : '1.2-2'}}</span>
+                                            <span>FCFA {{product.oldPrice | number : '1.2-2'}}</span>
                                         }
                                     </p>
-                                    <p class="new-price">${{product.newPrice | number : '1.2-2'}}</p>
+                                    <p class="new-price">FCFA {{product.newPrice | number : '1.2-2'}}</p>
                                 </div>
                                 <app-rating [ratingsCount]="product.ratingsCount" [ratingsValue]="product.ratingsValue" [direction]="'column'"></app-rating>
-                            </div>                            
+                            </div>
                             <div class="divider mt-2"></div>
                             <div class="icons">
                                 <app-controls [product]="product" (onOpenProductDialog)="openProductDialog(product)"></app-controls>
@@ -176,9 +176,9 @@
             </div>
         }
 
-        @if (viewType == 'list') { 
+        @if (viewType == 'list') {
             <div fxLayout="row wrap" class="products-wrapper">
-                @for (product of products | paginate: { itemsPerPage: count, currentPage: page }; track $index) { 
+                @for (product of products | paginate: { itemsPerPage: count, currentPage: page }; track $index) {
                     <div fxFlex="100" class="col">
                         <mat-card class="product-item">
                             <div fxLayout="row wrap">
@@ -187,13 +187,13 @@
                                         <mat-chip-listbox class="list-view">
                                             <mat-chip-option color="warn" highlighted selectable="false">{{product.discount}}% OFF</mat-chip-option>
                                         </mat-chip-listbox>
-                                    }                                   
+                                    }
                                     <a [routerLink]="['/products', product.id, product.name]" class="image-link">
                                         <img [src]="product.images[0].medium" alt="">
                                     </a>
                                 </div>
                                 <div fxFlex="100" fxFlex.gt-xs="60" class="p-2">
-                                    <h4 class="category text-muted">{{ ( appService.Data.categories | filterById : product.categoryId )?.name }}</h4>                                                                     
+                                    <h4 class="category text-muted">{{ ( appService.Data.categories | filterById : product.categoryId )?.name }}</h4>
                                     <a [routerLink]="['/products', product.id, product.name]" class="title">
                                         {{product.name}}
                                     </a>
@@ -202,13 +202,13 @@
                                         <div fxLayout="column" fxLayoutAlign="center start">
                                             <p class="old-price text-muted">
                                                 @if (product.oldPrice) {
-                                                    <span>${{product.oldPrice | number : '1.2-2'}}</span>
-                                                }                                                
+                                                    <span>FCFA {{product.oldPrice | number : '1.2-2'}}</span>
+                                                }
                                             </p>
-                                            <p class="new-price">${{product.newPrice | number : '1.2-2'}}</p>
+                                            <p class="new-price">FCFA {{product.newPrice | number : '1.2-2'}}</p>
                                         </div>
                                         <app-rating [ratingsCount]="product.ratingsCount" [ratingsValue]="product.ratingsValue" [direction]="'column'"></app-rating>
-                                    </div>                            
+                                    </div>
                                     <div class="divider"></div>
                                     <div class="icons">
                                         <app-controls [product]="product" (onOpenProductDialog)="openProductDialog(product)"></app-controls>
@@ -223,13 +223,13 @@
 
         @if (products.length) {
             <div fxLayout="row wrap">
-                <div fxFlex="100"> 
-                    <mat-card class="p-0 text-center">           
+                <div fxFlex="100">
+                    <mat-card class="p-0 text-center">
                         <pagination-controls class="product-pagination" [autoHide]="true" [maxSize]="5" (pageChange)="onPageChanged($event)"></pagination-controls>
                     </mat-card>
                 </div>
             </div>
-        } 
-        
+        }
+
     </mat-sidenav-content>
 </mat-sidenav-container>

@@ -1,6 +1,6 @@
 import {Component, Inject, OnInit} from '@angular/core';
 import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule} from "@angular/forms";
-import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from "@angular/material/dialog";
+import {MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef} from "@angular/material/dialog";
 import {MatTableModule} from "@angular/material/table";
 import {RouterModule} from "@angular/router";
 import {FlexLayoutModule} from "@ngbracket/ngx-layout";
@@ -45,7 +45,8 @@ import {AuthService} from "@services/auth.service";
     MatButtonModule,
     FormsModule,
     NgxPaginationModule,
-    PipesModule
+    PipesModule,
+    MatDialogModule
   ],
   templateUrl: './detail-produit-dialog.component.html',
   styleUrl: './detail-produit-dialog.component.scss'

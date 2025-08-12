@@ -5,6 +5,7 @@ import com.example.backend.models.Fournisseur
 import com.example.backend.repositories.FormeRepository
 import com.example.backend.repositories.FournisseurRepository
 import org.springframework.stereotype.Service
+import kotlin.jvm.optionals.getOrNull
 
 @Service
 class FournisseurService(private val fournisseurRepository: FournisseurRepository) {
@@ -21,6 +22,9 @@ class FournisseurService(private val fournisseurRepository: FournisseurRepositor
 
     fun deleteFournisseur(id: Int) {
         if (!fournisseurRepository.existsById(id)) throw Exception("Fournisseur not found")
-        fournisseurRepository.deleteById(id)
+//        fournisseurRepository.deleteById(id)
+      var fournisseur =  fournisseurRepository.findById(id).getOrNull()
+      fournisseur?.supprimer=1
+      fournisseurRepository.save(fournisseur!!)
     }
 }

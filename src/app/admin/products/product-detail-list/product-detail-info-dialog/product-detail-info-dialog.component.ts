@@ -16,9 +16,9 @@ import {MatSelectModule} from "@angular/material/select";
 import {MatCheckboxModule} from "@angular/material/checkbox";
 import {NgxPaginationModule} from "ngx-pagination";
 import {PipesModule} from "../../../../theme/pipes/pipes.module";
-import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from "@angular/material/dialog";
+import {MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef} from "@angular/material/dialog";
 import {ProductService} from "@services/products.service";
-import {MatSnackBar} from "@angular/material/snack-bar";
+import {MatSnackBar, MatSnackBarModule} from "@angular/material/snack-bar";
 import {
   AjouterVenteDialogComponent
 } from "../../../sales/ajouter-vente/ajouter-vente-dialog/ajouter-vente-dialog.component";
@@ -28,30 +28,22 @@ import {InputFileModule} from "../../../../theme/components/input-file/input-fil
 import {MatAutocompleteModule} from "@angular/material/autocomplete";
 import {ProduitdetailsService} from "@services/produitdetails.service";
 import {AuthService} from "@services/auth.service";
+import {MatMenuModule} from "@angular/material/menu";
+import {MatListModule} from "@angular/material/list";
+import {MatSlideToggleModule} from "@angular/material/slide-toggle";
+import {MatFormFieldModule} from "@angular/material/form-field";
+import {MatDividerModule} from "@angular/material/divider";
+import {MatExpansionModule} from "@angular/material/expansion";
+import {MatDatepickerModule} from "@angular/material/datepicker";
+import {MatNativeDateModule} from "@angular/material/core";
+import {MatStepperModule} from "@angular/material/stepper";
+import {MatRadioModule} from "@angular/material/radio";
 
 @Component({
   selector: 'app-product-detail-info-dialog',
   imports: [
-    MatCardModule,
+    MatDialogModule,
     MatToolbarModule,
-    MatTableModule,
-    MatTabsModule,
-    RouterModule,
-    FlexLayoutModule,
-    MatCardModule,
-    MatChipsModule,
-    MatButtonModule,
-    MatButtonToggleModule,
-    MatIconModule,
-    CommonModule,
-    ReactiveFormsModule,
-    MatInputModule,
-    MatSelectModule,
-    MatCheckboxModule,
-    MatButtonModule,
-    FormsModule,
-    NgxPaginationModule,
-    PipesModule,
     CommonModule,
     FormsModule,
     MatToolbarModule,
@@ -62,7 +54,51 @@ import {AuthService} from "@services/auth.service";
     MatSelectModule,
     MatButtonModule,
     MatIconModule,
-    MatAutocompleteModule
+    FlexLayoutModule,
+    MatDialogModule,
+    MatMenuModule,
+    MatListModule,
+    MatChipsModule,
+    MatSlideToggleModule,
+    FormsModule,
+    MatCheckboxModule,
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatDividerModule,
+    MatExpansionModule,
+    FormsModule,
+    ReactiveFormsModule,
+    CommonModule,
+    // Material
+    MatToolbarModule,
+    MatTabsModule,
+    MatIconModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatAutocompleteModule,
+    MatTableModule,
+    MatCardModule,
+    MatButtonModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatSelectModule,
+    FlexLayoutModule,
+    FormsModule,
+    ReactiveFormsModule,
+    FlexLayoutModule,
+    // Material
+    MatStepperModule,
+    MatTableModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatRadioModule,
+    MatIconModule,
+    MatCardModule,
+    MatSnackBarModule,
+    MatChipsModule,
+    NgxPaginationModule
   ],
   templateUrl: './product-detail-info-dialog.component.html',
   styleUrl: './product-detail-info-dialog.component.scss'

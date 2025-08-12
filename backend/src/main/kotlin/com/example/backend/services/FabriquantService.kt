@@ -3,6 +3,7 @@ package com.example.backend.services
 import com.example.backend.models.Fabriquant
 import com.example.backend.repositories.FabriquantRepository
 import org.springframework.stereotype.Service
+import kotlin.jvm.optionals.getOrNull
 
 @Service
 class FabriquantService(private val fabriquantRepository: FabriquantRepository) {
@@ -22,6 +23,9 @@ class FabriquantService(private val fabriquantRepository: FabriquantRepository) 
 
     fun deleteFabriquant(id: Int) {
         if (!fabriquantRepository.existsById(id)) throw Exception("Fabriquant not found")
-        fabriquantRepository.deleteById(id)
+//        fabriquantRepository.deleteById(id)
+       var fabriquant =  fabriquantRepository.findById(id).getOrNull()
+      fabriquant?.supprimer=1
+      fabriquantRepository.save(fabriquant!!)
     }
 }
