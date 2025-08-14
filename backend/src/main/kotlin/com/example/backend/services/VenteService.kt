@@ -1104,27 +1104,28 @@ class VenteService(
     val vente: Vente = venteRepository.findByReferenceAndSupprimer(reference, 0)
       ?: throw IllegalArgumentException("Vente not found with reference: $reference")
 
-    val produits: List<Map<String, Any?>> = concernerRepository.findByVenteId(vente.id!!.toLong()).filter { it!!.quantite!! >0 }.map { concerner ->
-      var produit =
-        produitRepository.findById(enRayonRepository.findById(concerner!!.enRayonId!!).get().produitId!!).get()
-      var nom = produit.nom
-      var id = produit.id
-      if (concerner.type == "detail") {
-        var produitDetail = produitDetailRepository.findById(concerner.enRayonId!!.toInt()).get()
-        nom = produitDetail.nom
-        id = produitDetail.id
+    val produits: List<Map<String, Any?>> =
+      concernerRepository.findByVenteId(vente.id!!.toLong()).filter { it!!.quantite!! > 0 }.map { concerner ->
+        var produit =
+          produitRepository.findById(enRayonRepository.findById(concerner!!.enRayonId!!).get().produitId!!).get()
+        var nom = produit.nom
+        var id = produit.id
+        if (concerner.type == "detail") {
+          var produitDetail = produitDetailRepository.findById(concerner.enRayonId!!.toInt()).get()
+          nom = produitDetail.nom
+          id = produitDetail.id
+        }
+        mapOf(
+          "id" to concerner!!.id,
+          "nom" to nom,
+          "produitId" to id,
+          "rayonId" to concerner!!.enRayonId,
+          "quantite" to concerner!!.quantite,
+          "prixUnitaire" to concerner!!.prixUnit,
+          "reduction" to concerner!!.reduction,
+          "prixTotal" to (concerner!!.prixUnit!! * concerner.quantite!!)
+        )
       }
-      mapOf(
-        "id" to concerner!!.id,
-        "nom" to nom,
-        "produitId" to id,
-        "rayonId" to concerner!!.enRayonId,
-        "quantite" to concerner!!.quantite,
-        "prixUnitaire" to concerner!!.prixUnit,
-        "reduction" to concerner!!.reduction,
-        "prixTotal" to (concerner!!.prixUnit!! * concerner.quantite!!)
-      )
-    }
     return mapOf(
       "vente" to vente, "produits" to produits
     )
@@ -1134,27 +1135,28 @@ class VenteService(
     val vente: Vente = venteRepository.findByIdAndSupprimer(venteId.toLong(), 0)
       ?: throw IllegalArgumentException("Vente not found with reference: $venteId")
 
-    val produits: List<Map<String, Any?>> = concernerRepository.findByVenteId(vente.id!!.toLong()).filter { it!!.quantite!! >0 }.map { concerner ->
-      var produit =
-        produitRepository.findById(enRayonRepository.findById(concerner!!.enRayonId!!).get().produitId!!).get()
-      var nom = produit.nom
-      var id = produit.id
-      if (concerner.type == "detail") {
-        var produitDetail = produitDetailRepository.findById(concerner.enRayonId!!.toInt()).get()
-        nom = produitDetail.nom
-        id = produitDetail.id
+    val produits: List<Map<String, Any?>> =
+      concernerRepository.findByVenteId(vente.id!!.toLong()).filter { it!!.quantite!! > 0 }.map { concerner ->
+        var produit =
+          produitRepository.findById(enRayonRepository.findById(concerner!!.enRayonId!!).get().produitId!!).get()
+        var nom = produit.nom
+        var id = produit.id
+        if (concerner.type == "detail") {
+          var produitDetail = produitDetailRepository.findById(concerner.enRayonId!!.toInt()).get()
+          nom = produitDetail.nom
+          id = produitDetail.id
+        }
+        mapOf(
+          "id" to concerner!!.id,
+          "nom" to nom,
+          "produitId" to id,
+          "rayonId" to concerner!!.enRayonId,
+          "quantite" to concerner!!.quantite,
+          "prixUnitaire" to concerner!!.prixUnit,
+          "reduction" to concerner!!.reduction,
+          "prixTotal" to (concerner!!.prixUnit!! * concerner.quantite!!)
+        )
       }
-      mapOf(
-        "id" to concerner!!.id,
-        "nom" to nom,
-        "produitId" to id,
-        "rayonId" to concerner!!.enRayonId,
-        "quantite" to concerner!!.quantite,
-        "prixUnitaire" to concerner!!.prixUnit,
-        "reduction" to concerner!!.reduction,
-        "prixTotal" to (concerner!!.prixUnit!! * concerner.quantite!!)
-      )
-    }
     return mapOf(
       "vente" to vente, "produits" to produits
     )
@@ -1198,25 +1200,26 @@ class VenteService(
       endDateEncaissement, userId, employeId, prescripteurId, caisseId
     )
     var ventes = venteRepository.findAll(spec, pageable).map { vente ->
-      val concerner = concernerRepository.findByVenteIdAndProduitId(vente.id!!.toLong(),produitId!!.toInt())
-
-      mapOf("id" to (vente.id ?:0) as Any?,
-        "prixPercu" to ((vente.prixPercu ?:0)) as Any?,
-        "netAPayer" to (vente.prixTotal ?:0) as Any?,
-        "reduction" to (vente.reduction ?:0) as Any?,
-        "quantite" to (concerner?.quantite ?:0) as Any?,
-        "prixVente" to (concerner?.prixUnit ?:0) as Any?,
-        "reduction" to (concerner?.reduction ?:0) as Any?,
-        "reference" to( vente.reference ?:0) as Any?,
-        "infoClients" to ((vente.user?.let { "${it.nom} (${it.telephone})" } ?: "Aucun client") ?:0) as Any?,
-        "vendeur" to( (vente.employe?.user?.nom ?: "Inconnu") ?:0 )as Any?,
-        "commentaire" to (vente.commentaire ?:0) as Any?,
-        "etat" to (vente.etat ?:0) as Any?,
-        "dateVente" to (vente.dateVente ?:0) as Any?,
-        "dateEncaissement" to (vente.dateEncaissement ?:0) as Any?,
+      val concerner = concernerRepository.findByVenteIdAndProduitId(vente.id!!.toLong(), produitId!!.toInt())
+      if (concerner != null) {
+        mapOf("id" to (vente.id ?: 0) as Any?,
+          "prixPercu" to ((vente.prixPercu ?: 0)) as Any?,
+          "netAPayer" to (vente.prixTotal ?: 0) as Any?,
+          "reduction" to (vente.reduction ?: 0) as Any?,
+          "quantite" to (concerner?.quantite ?: 0) as Any?,
+          "prixVente" to (concerner?.prixUnit ?: 0) as Any?,
+          "reduction" to (concerner?.reduction ?: 0) as Any?,
+          "reference" to (vente.reference ?: 0) as Any?,
+          "infoClients" to ((vente.user?.let { "${it.nom} (${it.telephone})" } ?: "Aucun client") ?: 0) as Any?,
+          "vendeur" to ((vente.employe?.user?.nom ?: "Inconnu") ?: 0) as Any?,
+          "commentaire" to (vente.commentaire ?: 0) as Any?,
+          "etat" to (vente.etat ?: 0) as Any?,
+          "dateVente" to (vente.dateVente ?: 0) as Any?,
+          "dateEncaissement" to (vente.dateEncaissement ?: 0) as Any?,
 //        "produits" to concerner,
-        "actions" to "edit,delete"  as Any? // Placeholder for actions
-      )
+          "actions" to "edit,delete" as Any? // Placeholder for actions
+        )
+      } else null
     }
 
     var totalAmount = 0.0

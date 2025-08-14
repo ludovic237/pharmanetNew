@@ -78,10 +78,10 @@ data class TicketDto(
 )
 
 data class VentePageableCustomlDto(
-  var content: Page<Map<String, Any?>>,
-  var totalElements:Long,
-  var totalPages:Int,
-  var pageSize:Int,
-  var pageNumber:Int,
-  var totalAmount:Double
+    var content: Page<Map<String, Any?>?>,
+    var totalElements:Long,
+    var totalPages:Int,
+    var pageSize:Int,
+    var pageNumber:Int,
+    var totalAmount:Double
 )

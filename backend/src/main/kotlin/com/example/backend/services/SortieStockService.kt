@@ -108,18 +108,20 @@ class SortieStockService(
           nom = produitDetail.nom
           id = produitDetail.id
         }
-        mapOf(
-          "id" to sortieStock.id as Any?,
-          "nomProduit" to nom as Any?,
+        if (produit != null) {
+          mapOf(
+            "id" to sortieStock.id as Any?,
+            "nomProduit" to nom as Any?,
 //          "formeProduit" to forme as Any?,
-          "typeSortie" to sortieStock.typeSortie as Any?,
-          "enRayonId" to sortieStock.enRayon?.id as Any?,
-          "produitDetailId" to sortieStock.detailId as Any?,
-          "produitDetailNom" to produitDetail?.nom as Any?,      // Safely access the name
-          "produitDetailPrix" to produitDetail?.prix as Any?,   // Corrected key and safe access
-          "quantite" to sortieStock.quantite as Any?,
-          "dateSortie" to sortieStock.dateSortie as Any?
-        )
+            "typeSortie" to sortieStock.typeSortie as Any?,
+            "enRayonId" to sortieStock.enRayon?.id as Any?,
+            "produitDetailId" to sortieStock.detailId as Any?,
+            "produitDetailNom" to produitDetail?.nom as Any?,      // Safely access the name
+            "produitDetailPrix" to produitDetail?.prix as Any?,   // Corrected key and safe access
+            "quantite" to sortieStock.quantite as Any?,
+            "dateSortie" to sortieStock.dateSortie as Any?
+          )
+        } else null
       }
     var totalAmountRecu = 0.0
     var totalAmountCommande = 0.0

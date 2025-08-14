@@ -377,26 +377,29 @@ class EnRayonService(
     val enRayons = enRayonRepository.findAll(specification, pageable)
       .map { enRayon:EnRayon? ->
         val produit = produitRepository.findById(enRayon?.produitId!!.toInt()).get()
-        mapOf(
-          "id" to enRayon?.id as Any?,
-          "produitId" to produit!!.id as Any?,
-          "produitNom" to produit!!.nom as Any?,
-          "rayonId" to produit.rayon?.id as Any?,
-          "rayonNom" to produit.rayon?.nom as Any?,
-          "fournisseurId" to enRayon?.fournisseur?.id as Any?,
-          "fournisseurNom" to enRayon?.fournisseur?.nom as Any?,
+        if(produit!=null){
+          mapOf(
+            "id" to enRayon?.id as Any?,
+            "produitId" to produit!!.id as Any?,
+            "produitNom" to produit!!.nom as Any?,
+            "rayonId" to produit.rayon?.id as Any?,
+            "rayonNom" to produit.rayon?.nom as Any?,
+            "fournisseurId" to enRayon?.fournisseur?.id as Any?,
+            "fournisseurNom" to enRayon?.fournisseur?.nom as Any?,
 //          "unite" to enRayon?.unite as Any?,
-          "commandeId" to enRayon?.commande?.id as Any?,
-          "commandeRef" to enRayon?.commande?.ref as Any?,
-          "dateLivraison" to enRayon?.dateLivraison as Any?,
-          "datePeremption" to enRayon?.datePeremption as Any?,
-          "prixAchat" to enRayon?.prixAchat as Any?,
-          "prixVente" to enRayon?.prixVente as Any?,
-          "reduction" to enRayon?.reduction as Any?,
-          "quantite" to enRayon?.quantite as Any?,
-          "quantiteRestante" to enRayon?.quantiteRestante as Any?,
-          "supprimer" to enRayon?.supprimer as Any?,
-        )
+            "commandeId" to enRayon?.commande?.id as Any?,
+            "commandeRef" to enRayon?.commande?.ref as Any?,
+            "dateLivraison" to enRayon?.dateLivraison as Any?,
+            "datePeremption" to enRayon?.datePeremption as Any?,
+            "prixAchat" to enRayon?.prixAchat as Any?,
+            "prixVente" to enRayon?.prixVente as Any?,
+            "reduction" to enRayon?.reduction as Any?,
+            "quantite" to enRayon?.quantite as Any?,
+            "quantiteRestante" to enRayon?.quantiteRestante as Any?,
+            "supprimer" to enRayon?.supprimer as Any?,
+          )
+        }
+       else null
       }
     var totalAmountEnRayon = 0.0
     var totalQte = 0
@@ -435,26 +438,29 @@ class EnRayonService(
     val enRayons = enRayonRepository.findAll(specification, pageable)
       .map { enRayon:EnRayon? ->
         val produit = produitRepository.findById(produitId!!.toInt()).get()
-        mapOf(
-          "id" to enRayon?.id as Any?,
-          "produitId" to produit!!.id as Any?,
-          "produitNom" to produit!!.nom as Any?,
-          "rayonId" to produit.rayon?.id as Any?,
-          "rayonNom" to produit.rayon?.nom as Any?,
-          "fournisseurId" to enRayon?.fournisseur?.id as Any?,
-          "fournisseurNom" to enRayon?.fournisseur?.nom as Any?,
+        if (produit!=null){
+          mapOf(
+            "id" to enRayon?.id as Any?,
+            "produitId" to produit!!.id as Any?,
+            "produitNom" to produit!!.nom as Any?,
+            "rayonId" to produit.rayon?.id as Any?,
+            "rayonNom" to produit.rayon?.nom as Any?,
+            "fournisseurId" to enRayon?.fournisseur?.id as Any?,
+            "fournisseurNom" to enRayon?.fournisseur?.nom as Any?,
 //          "unite" to enRayon?.unite as Any?,
-          "commandeId" to enRayon?.commande?.id as Any?,
-          "commandeRef" to enRayon?.commande?.ref as Any?,
-          "dateLivraison" to enRayon?.dateLivraison as Any?,
-          "datePeremption" to enRayon?.datePeremption as Any?,
-          "prixAchat" to enRayon?.prixAchat as Any?,
-          "prixVente" to enRayon?.prixVente as Any?,
-          "reduction" to enRayon?.reduction as Any?,
-          "quantite" to enRayon?.quantite as Any?,
-          "quantiteRestante" to enRayon?.quantiteRestante as Any?,
-          "supprimer" to enRayon?.supprimer as Any?,
-        )
+            "commandeId" to enRayon?.commande?.id as Any?,
+            "commandeRef" to enRayon?.commande?.ref as Any?,
+            "dateLivraison" to enRayon?.dateLivraison as Any?,
+            "datePeremption" to enRayon?.datePeremption as Any?,
+            "prixAchat" to enRayon?.prixAchat as Any?,
+            "prixVente" to enRayon?.prixVente as Any?,
+            "reduction" to enRayon?.reduction as Any?,
+            "quantite" to enRayon?.quantite as Any?,
+            "quantiteRestante" to enRayon?.quantiteRestante as Any?,
+            "supprimer" to enRayon?.supprimer as Any?,
+          )
+        }
+       else null
       }
     var totalAmountEnRayon = 0.0
     var totalQte = 0

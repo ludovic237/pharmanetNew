@@ -67,7 +67,7 @@ data class Produit(
 
 
 data class CommandePageableCustomlDto(
-  var content: Page<Map<String, Any?>>?,
+  var content: Page<Map<String, Any?>?>?,
   var totalElements: Long?,
   var totalPages: Int?,
   var pageSize: Int?,

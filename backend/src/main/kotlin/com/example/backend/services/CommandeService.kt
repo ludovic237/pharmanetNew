@@ -863,19 +863,22 @@ class CommandeService(
     val commandes = commandeRepository.findAll(specificationCommande, pageable)
       .map { commande ->
         val commandeProduit = produitCmdRepository.findByCommandeIdAndProduit(commande?.id!!, produit)
-        mapOf(
-          "commandeId" to commande.id as Any?,
-          "commandeReference" to commande.ref as Any?,
-          "dateCreation" to commande.dateCreation as Any?,
-          "prixAchat" to commandeProduit.puRecept as Any?,
-          "prixVente" to commandeProduit.prixPublic as Any?,
-          "qteCommande" to commandeProduit.qtiteCmd as Any?,
-          "qteRecu" to commandeProduit.qtiteRecu as Any?,
-          "qteTotalRecu" to commande.qtiteRecu as Any?,
-          "qteTotalCommande" to commande.qtiteCmd as Any?,
-          "fournisseur" to commande.fournisseur!!.nom as Any?,
-          "etat" to commande.etat as Any?
-        )
+        if (commandeProduit != null) {
+          mapOf(
+            "commandeId" to commande.id as Any?,
+            "commandeReference" to commande.ref as Any?,
+            "dateCreation" to commande.dateCreation as Any?,
+            "prixAchat" to commandeProduit.puRecept as Any?,
+            "prixVente" to commandeProduit.prixPublic as Any?,
+            "qteCommande" to commandeProduit.qtiteCmd as Any?,
+            "qteRecu" to commandeProduit.qtiteRecu as Any?,
+            "qteTotalRecu" to commande.qtiteRecu as Any?,
+            "qteTotalCommande" to commande.qtiteCmd as Any?,
+            "fournisseur" to commande.fournisseur!!.nom as Any?,
+            "etat" to commande.etat as Any?
+          )
+        } else null
+
       }
     var totalAmountRecu = 0.0
     var totalAmountCommande = 0.0
