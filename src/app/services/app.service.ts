@@ -110,6 +110,12 @@ export class AppService {
     ;
   }
 
+  formatDate = (date: string | null): string | null => {
+    if (!date) return null;
+    const parsedDate = new Date(date);
+    return `${parsedDate.getFullYear()}-${String(parsedDate.getMonth() + 1).padStart(2, '0')}-${String(parsedDate.getDate()).padStart(2, '0')}T${String(parsedDate.getHours()).padStart(2, '0')}:${String(parsedDate.getMinutes()).padStart(2, '0')}:${String(parsedDate.getSeconds()).padStart(2, '0')}`;
+  };
+
   public getBrands() {
     return [
       {name: 'aloha', image: 'images/brands/aloha.png'},

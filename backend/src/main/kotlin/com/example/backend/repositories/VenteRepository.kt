@@ -136,16 +136,6 @@ interface VenteRepository : JpaRepository<Vente, Long>, JpaSpecificationExecutor
           )
         )
 
-        val startDateTimeEncaissement = LocalDateTime.parse(startDateEncaissement!!.trim())
-        val endDateTimeEncaissement = LocalDateTime.parse(endDateEncaissement!!.trim())
-        predicates.add(
-          criteriaBuilder.between(
-            root.get<LocalDateTime>("dateEncaissement"),
-            startDateTimeEncaissement,
-            endDateTimeEncaissement
-          )
-        )
-
 
         if (!etat.isNullOrEmpty() && etat != "null") {
           predicates.add(criteriaBuilder.equal(root.get<String>("etat"), etat))

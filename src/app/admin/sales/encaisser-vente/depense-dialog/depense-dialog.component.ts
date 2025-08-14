@@ -102,16 +102,33 @@ export class DepenseDialogComponent implements OnInit {
       },
       error: (err) => {
         if (err.status === 401 || err.status === 403) {
-          this.authService.logout();
-           localStorage.removeItem('token');
-          localStorage.setItem("lastLink",window.location.href);;
-          this.snackBar.open('Déconnexion réussie.', '×', {
-            panelClass: 'success',
-            verticalPosition: 'top',
-            duration: 3000,
-          });
-            localStorage.removeItem('token');
-          window.location.href = '/sign-in';
+          this.authService.logout().subscribe({
+                  next: (data) => {
+                    localStorage.removeItem('token');
+                    localStorage.setItem("lastLink", window.location.href);
+                    window.location.href = '/sign-in';
+                    this.snackBar.open('Déconnexion réussie.', '×', {
+                      panelClass: 'success',
+                      verticalPosition: 'top',
+                      duration: 3000,
+                    });
+                  },
+                  error: (err) => {
+                    console.error('Error  subscription:', err);
+                    if (err.status === 401 || err.status === 403) {
+                      this.authService.logout();
+                      localStorage.removeItem('token');
+                      localStorage.setItem("lastLink", window.location.href);
+                      ;
+                      this.snackBar.open('Déconnexion, une erreur.', '×', {
+                        panelClass: 'success',
+                        verticalPosition: 'top',
+                        duration: 3000,
+                      });
+                      window.location.href = '/sign-in';
+                    }
+                  }
+                })
         }
         // this.snackBar.open('Failed to delete depense', '×', {panelClass: 'error', duration: 3000})
       }

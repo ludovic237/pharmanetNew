@@ -27,6 +27,7 @@ import {VentesService} from "@services/ventes.service";
 import {CommandesService} from "@services/commandes.service";
 import {SortiesService} from "@services/sorties.service";
 import {EnrayonsService} from "@services/enrayons.service";
+import {AppService} from "@services/app.service";
 
 @Component({
   selector: 'app-detail-produit-dialog',
@@ -91,6 +92,7 @@ export class DetailProduitDialogComponent implements OnInit {
 
   constructor(
     public authService: AuthService,
+    public appService: AppService,
     public enrayonsService: EnrayonsService,
     public sortiesService: SortiesService,
     public ventesService: VentesService,
@@ -147,8 +149,8 @@ export class DetailProduitDialogComponent implements OnInit {
         this.countSorties,
         null,
         this.produitId+"",
-        this.startDateVentes+"",
-        this.endDateVentes+"",
+        this.appService.formatDate(this.startDateVentes+""),
+        this.appService.formatDate(this.endDateVentes+""),
         null,
         null,
         null,
@@ -160,16 +162,16 @@ export class DetailProduitDialogComponent implements OnInit {
         this.pageSorties - 1,
         this.countSorties,
         this.produitId+"",
-        this.startDateCommandes+"",
-        this.endDateCommandes+"",
+        this.appService.formatDate(this.startDateCommandes+""),
+        this.appService.formatDate(this.endDateCommandes+""),
       ),
       this.enrayonsService.getProduitsEnRayonPageableProduitRange(
         this.pageEnRayons - 1,
         this.countEnRayons,
         null,
         this.produitId+"",
-        this.startDateSorties+"",
-        this.endDateSorties+"",
+        this.appService.formatDate(this.startDateSorties+""),
+        this.appService.formatDate(this.endDateSorties+""),
         null,
         null,
         null,
@@ -181,8 +183,8 @@ export class DetailProduitDialogComponent implements OnInit {
         null,
         null,
         this.produitId+"",
-        this.startDateSorties+"",
-        this.endDateSorties+"",
+        this.appService.formatDate(this.startDateSorties+""),
+        this.appService.formatDate(this.endDateSorties+""),
         null,
         null,
         null,

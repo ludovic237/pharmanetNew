@@ -49,9 +49,9 @@ export class EnrayonsService {
                                          nomProduit: string,
                                          produitId: string,
                                          startDate: string,
-                                         endDAte: string,
+                                         endDate: string,
                                          bientotPerimee: boolean, joursAvantPeremption: number, enStock: boolean): Observable<any> {
-    return this.http.get<any>(this.apiUrl + `/en-rayon/product/pageable/new?page=${page}&nomProduit=${nomProduit}&produitId=${produitId}&startDate=${startDate}&endDAte=${endDAte}&bientotPerimee=${bientotPerimee}&joursAvantPeremption=${joursAvantPeremption}&enStock=${enStock}&size=${size}`, {headers: this.getHeaders()});
+    return this.http.get<any>(this.apiUrl + `/en-rayon/product/pageable/new?page=${page}&nomProduit=${nomProduit}&produitId=${produitId}&startDate=${startDate}&endDate=${endDate}&bientotPerimee=${bientotPerimee}&joursAvantPeremption=${joursAvantPeremption}&enStock=${enStock}&size=${size}`, {headers: this.getHeaders()});
   }
 
 }

@@ -148,16 +148,33 @@ export class InventaireValdationDialogComponent implements OnInit {
       },
       error: (err: any) => {
         if (err.status === 401 || err.status === 403){
-          this.authService.logout();
-           localStorage.removeItem('token');
-          localStorage.setItem("lastLink",window.location.href);;
-          this.snackBar.open('Déconnexion réussie.', '×', {
-            panelClass: 'success',
-            verticalPosition: 'top',
-            duration: 3000,
-          });
-            localStorage.removeItem('token');
-          window.location.href = '/sign-in';
+          this.authService.logout().subscribe({
+                  next: (data) => {
+                    localStorage.removeItem('token');
+                    localStorage.setItem("lastLink", window.location.href);
+                    window.location.href = '/sign-in';
+                    this.snackBar.open('Déconnexion réussie.', '×', {
+                      panelClass: 'success',
+                      verticalPosition: 'top',
+                      duration: 3000,
+                    });
+                  },
+                  error: (err) => {
+                    console.error('Error  subscription:', err);
+                    if (err.status === 401 || err.status === 403) {
+                      this.authService.logout();
+                      localStorage.removeItem('token');
+                      localStorage.setItem("lastLink", window.location.href);
+                      ;
+                      this.snackBar.open('Déconnexion, une erreur.', '×', {
+                        panelClass: 'success',
+                        verticalPosition: 'top',
+                        duration: 3000,
+                      });
+                      window.location.href = '/sign-in';
+                    }
+                  }
+                })
         }
         console.error('Failed to fetch products in stock:', err);
         alert('Une erreur est survenue lors de la récupération des produits en rayon.');
@@ -184,16 +201,33 @@ export class InventaireValdationDialogComponent implements OnInit {
       },
       error: (err: any) => {
         if (err.status === 401 || err.status === 403){
-          this.authService.logout();
-           localStorage.removeItem('token');
-          localStorage.setItem("lastLink",window.location.href);;
-          this.snackBar.open('Déconnexion réussie.', '×', {
-            panelClass: 'success',
-            verticalPosition: 'top',
-            duration: 3000,
-          });
-            localStorage.removeItem('token');
-          window.location.href = '/sign-in';
+          this.authService.logout().subscribe({
+                  next: (data) => {
+                    localStorage.removeItem('token');
+                    localStorage.setItem("lastLink", window.location.href);
+                    window.location.href = '/sign-in';
+                    this.snackBar.open('Déconnexion réussie.', '×', {
+                      panelClass: 'success',
+                      verticalPosition: 'top',
+                      duration: 3000,
+                    });
+                  },
+                  error: (err) => {
+                    console.error('Error  subscription:', err);
+                    if (err.status === 401 || err.status === 403) {
+                      this.authService.logout();
+                      localStorage.removeItem('token');
+                      localStorage.setItem("lastLink", window.location.href);
+                      ;
+                      this.snackBar.open('Déconnexion, une erreur.', '×', {
+                        panelClass: 'success',
+                        verticalPosition: 'top',
+                        duration: 3000,
+                      });
+                      window.location.href = '/sign-in';
+                    }
+                  }
+                })
         }
         else
         this.snackBar.open('Failed to terminate inventory.', '×', {
