@@ -1200,22 +1200,22 @@ class VenteService(
     var ventes = venteRepository.findAll(spec, pageable).map { vente ->
       val concerner = concernerRepository.findByVenteIdAndProduitId(vente.id!!.toLong(),produitId!!.toInt())
 
-      mapOf("id" to vente.id as Any?,
-        "prixPercu" to vente.prixPercu as Any?,
-        "netAPayer" to vente.prixTotal as Any?,
-        "reduction" to vente.reduction as Any?,
-        "quantite" to concerner!!.quantite as Any?,
-        "prixVente" to concerner!!.prixUnit as Any?,
-        "reduction" to concerner!!.reduction as Any?,
-        "reference" to vente.reference as Any?,
-        "infoClients" to (vente.user?.let { "${it.nom} (${it.telephone})" } ?: "Aucun client") as Any?,
-        "vendeur" to (vente.employe?.user?.nom ?: "Inconnu") as Any?,
-        "commentaire" to vente.commentaire as Any?,
-        "etat" to vente.etat as Any?,
-        "dateVente" to vente.dateVente as Any?,
-        "dateEncaissement" to vente.dateEncaissement as Any?,
+      mapOf("id" to (vente.id ?:0) as Any?,
+        "prixPercu" to ((vente.prixPercu ?:0)) as Any?,
+        "netAPayer" to (vente.prixTotal ?:0) as Any?,
+        "reduction" to (vente.reduction ?:0) as Any?,
+        "quantite" to (concerner?.quantite ?:0) as Any?,
+        "prixVente" to (concerner?.prixUnit ?:0) as Any?,
+        "reduction" to (concerner?.reduction ?:0) as Any?,
+        "reference" to( vente.reference ?:0) as Any?,
+        "infoClients" to ((vente.user?.let { "${it.nom} (${it.telephone})" } ?: "Aucun client") ?:0) as Any?,
+        "vendeur" to( (vente.employe?.user?.nom ?: "Inconnu") ?:0 )as Any?,
+        "commentaire" to (vente.commentaire ?:0) as Any?,
+        "etat" to (vente.etat ?:0) as Any?,
+        "dateVente" to (vente.dateVente ?:0) as Any?,
+        "dateEncaissement" to (vente.dateEncaissement ?:0) as Any?,
 //        "produits" to concerner,
-        "actions" to "edit,delete" as Any? // Placeholder for actions
+        "actions" to "edit,delete"  as Any? // Placeholder for actions
       )
     }
 

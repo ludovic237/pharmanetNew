@@ -81,14 +81,42 @@
         <!-- Récapitulatif + liste des ventes -->
         <mat-card>
           <mat-card-header>
-            <mat-card-title>Liste des ventes</mat-card-title>
+            <mat-toolbar color="primary">
+              <div fxLayout="row wrap" fxLayoutAlign="space-between center" class="w-100 p-3">
+                <h2>
+                  Liste des ventes
+                </h2>
+
+              </div>
+            </mat-toolbar>
           </mat-card-header>
           <mat-card-content fxLayout="column" fxLayoutGap="16px">
-            <div fxLayout="row" fxLayoutGap="32px">
-              <div>Quantité : <strong>{{ ventesListDS.length }}</strong></div>
-              <div>Réduction : <strong><!-- bind reduction --></strong></div>
-              <div>Prix : <strong><!-- bind total prix --></strong></div>
+            <div fxLayout="row wrap" fxLayoutAlign="space-between center" class="w-100 p-3">
+              <div fxLayout="row" fxLayoutGap="32px">
+                <div>Quantité : <strong>{{ ventesListDS.length }}</strong></div>
+                <div>Réduction : <strong><!-- bind reduction --></strong></div>
+                <div>Prix : <strong><!-- bind total prix --></strong></div>
+              </div>
+              <div fxLayout="row" fxLayoutGap="8px">
+                <mat-form-field appearance="outline">
+                  <mat-label>Entrer date vente</mat-label>
+                  <mat-date-range-input [rangePicker]="pickerVentes">
+                    <input matStartDate placeholder="Start date" [(ngModel)]="startDateVentes">
+                    <input matEndDate placeholder="End date" [(ngModel)]="endDateVentes">
+                  </mat-date-range-input>
+                  <!--            <mat-hint>MM/DD/YYYY - MM/DD/YYYY</mat-hint>-->
+                  <mat-datepicker-toggle matIconSuffix [for]="pickerVentes"></mat-datepicker-toggle>
+                  <mat-date-range-picker #pickerVentes>
+                    <mat-date-range-picker-actions>
+                      <button mat-button matDateRangePickerCancel>Annuler</button>
+                      <button mat-button matDateRangePickerApply (click)="fetchVentesPageableRangeProduct()" >Apply</button>
+                    </mat-date-range-picker-actions>
+                  </mat-date-range-picker>
+                </mat-form-field>
+              </div>
             </div>
+
+
             <table mat-table [dataSource]="ventesListDS" class="full-width mat-elevation-z1">
 
               <ng-container matColumnDef="date">
@@ -202,6 +230,31 @@
             </div>
             <div class="table-responsive">
               <div class="table-responsive">
+                <div fxLayout="row wrap" fxLayoutAlign="space-between center" class="w-100 p-3">
+                  <div fxLayout="row" fxLayoutGap="32px">
+                    <div>Quantité : <strong>{{ commandesListCols.length }}</strong></div>
+                    <div>Réduction : <strong><!-- bind reduction --></strong></div>
+                    <div>Prix : <strong><!-- bind total prix --></strong></div>
+                  </div>
+                  <div fxLayout="row" fxLayoutGap="8px">
+                    <mat-form-field appearance="outline">
+                      <mat-label>Entrer date commande</mat-label>
+                      <mat-date-range-input [rangePicker]="pickerCommandes">
+                        <input matStartDate placeholder="Start date" [(ngModel)]="startDateCommandes">
+                        <input matEndDate placeholder="End date" [(ngModel)]="endDateCommandes">
+                      </mat-date-range-input>
+                      <!--            <mat-hint>MM/DD/YYYY - MM/DD/YYYY</mat-hint>-->
+                      <mat-datepicker-toggle matIconSuffix [for]="pickerCommandes"></mat-datepicker-toggle>
+                      <mat-date-range-picker #pickerCommandes>
+                        <mat-date-range-picker-actions>
+                          <button mat-button matDateRangePickerCancel>Annuler</button>
+                          <button mat-button matDateRangePickerApply (click)="getCommandeInfoByProduct()" >Apply</button>
+                        </mat-date-range-picker-actions>
+                      </mat-date-range-picker>
+                    </mat-form-field>
+                  </div>
+                </div>
+
                 <table mat-table [dataSource]="commandesListDS" class="full-width mat-elevation-z1">
 
                   <!-- Date Column -->
@@ -306,6 +359,31 @@
             <mat-card-title>Entrée en rayon</mat-card-title>
           </mat-card-header>
           <mat-card-content class="table-responsive">
+            <div fxLayout="row wrap" fxLayoutAlign="space-between center" class="w-100 p-3">
+              <div fxLayout="row" fxLayoutGap="32px">
+                <div>Quantité : <strong>{{ stockEntryDS.length }}</strong></div>
+                <div>Réduction : <strong><!-- bind reduction --></strong></div>
+                <div>Prix : <strong><!-- bind total prix --></strong></div>
+              </div>
+              <div fxLayout="row" fxLayoutGap="8px">
+                <mat-form-field appearance="outline">
+                  <mat-label>Entrer date livraison</mat-label>
+                  <mat-date-range-input [rangePicker]="pickerEnRayons">
+                    <input matStartDate placeholder="Start date" [(ngModel)]="startDateEnRayons">
+                    <input matEndDate placeholder="End date" [(ngModel)]="endDateEnRayons">
+                  </mat-date-range-input>
+                  <!--            <mat-hint>MM/DD/YYYY - MM/DD/YYYY</mat-hint>-->
+                  <mat-datepicker-toggle matIconSuffix [for]="pickerEnRayons"></mat-datepicker-toggle>
+                  <mat-date-range-picker #pickerEnRayons>
+                    <mat-date-range-picker-actions>
+                      <button mat-button matDateRangePickerCancel>Annuler</button>
+                      <button mat-button matDateRangePickerApply (click)="getProduitsEnRayonPageableProduitRange()">Apply</button>
+                    </mat-date-range-picker-actions>
+                  </mat-date-range-picker>
+                </mat-form-field>
+              </div>
+            </div>
+
             <table mat-table [dataSource]="stockEntryDS" class="full-width mat-elevation-z1">
 
               <ng-container matColumnDef="nom">
@@ -382,6 +460,31 @@
             <mat-card-title>Sortie</mat-card-title>
           </mat-card-header>
           <mat-card-content>
+            <div fxLayout="row wrap" fxLayoutAlign="space-between center" class="w-100 p-3">
+              <div fxLayout="row" fxLayoutGap="32px">
+                <div>Quantité : <strong>{{ sortieDS.length }}</strong></div>
+                <div>Réduction : <strong><!-- bind reduction --></strong></div>
+                <div>Prix : <strong><!-- bind total prix --></strong></div>
+              </div>
+              <div fxLayout="row" fxLayoutGap="8px">
+                <mat-form-field appearance="outline">
+                  <mat-label>Entrer date sortie</mat-label>
+                  <mat-date-range-input [rangePicker]="pickerSorties">
+                    <input matStartDate placeholder="Start date" [(ngModel)]="startDateSorties">
+                    <input matEndDate placeholder="End date" [(ngModel)]="endDateSorties">
+                  </mat-date-range-input>
+                  <!--            <mat-hint>MM/DD/YYYY - MM/DD/YYYY</mat-hint>-->
+                  <mat-datepicker-toggle matIconSuffix [for]="pickerSorties"></mat-datepicker-toggle>
+                  <mat-date-range-picker #pickerSorties>
+                    <mat-date-range-picker-actions>
+                      <button mat-button matDateRangePickerCancel>Annuler</button>
+                      <button mat-button matDateRangePickerApply (click)="getSortieStockPageableProductRange()">Apply</button>
+                    </mat-date-range-picker-actions>
+                  </mat-date-range-picker>
+                </mat-form-field>
+              </div>
+            </div>
+
             <table mat-table [dataSource]="sortieDS" class="full-width mat-elevation-z1">
 
               <ng-container matColumnDef="nom">

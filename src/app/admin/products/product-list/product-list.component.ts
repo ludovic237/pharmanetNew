@@ -248,7 +248,10 @@ export class ProductListComponent implements OnInit {
       next: (data) => {
         // const dialogRef = this.dialog.open(DetailProduitDialogComponent, {
         const dialogRef = this.dialog.open(DetailProduitDialogComponent, {
-          data: data,
+          data: {
+            data:data,
+            produitId:product.id,
+          },
           width: "80%",
           panelClass: ['theme-dialog'],
           autoFocus: false,

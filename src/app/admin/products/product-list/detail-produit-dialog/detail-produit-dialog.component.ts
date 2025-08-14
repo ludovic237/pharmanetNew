@@ -28,6 +28,13 @@ import {CommandesService} from "@services/commandes.service";
 import {SortiesService} from "@services/sorties.service";
 import {EnrayonsService} from "@services/enrayons.service";
 import {AppService} from "@services/app.service";
+import {MatDatepickerModule} from "@angular/material/datepicker";
+import {
+  MAT_DATE_FORMATS,
+  MAT_NATIVE_DATE_FORMATS,
+  MatNativeDateModule,
+  provideNativeDateAdapter
+} from "@angular/material/core";
 
 @Component({
   selector: 'app-detail-produit-dialog',
@@ -52,7 +59,13 @@ import {AppService} from "@services/app.service";
     FormsModule,
     NgxPaginationModule,
     PipesModule,
-    MatDialogModule
+    MatDialogModule,
+    MatDatepickerModule,
+    MatNativeDateModule
+  ],
+  providers: [
+    provideNativeDateAdapter(),
+    {provide: MAT_DATE_FORMATS, useValue: MAT_NATIVE_DATE_FORMATS},
   ],
   templateUrl: './detail-produit-dialog.component.html',
   styleUrl: './detail-produit-dialog.component.scss'
@@ -143,6 +156,7 @@ export class DetailProduitDialogComponent implements OnInit {
 
   ngOnInit(): void {
 
+    this.produitId = this.data.produitId
     combineLatest([
       this.ventesService.fetchVentesPageableRangeProduct(
         this.pageSorties - 1,
@@ -228,19 +242,19 @@ export class DetailProduitDialogComponent implements OnInit {
 
 
     // TODO: remplacer par vos services
-    this.ventesMoisDS = this.data.ventesMois;
-    this.ventesTotalDS = this.data.ventesTotal;
-    this.ventesListDS = this.data.ventesList;
+    this.ventesMoisDS = this.data.data.ventesMois;
+    this.ventesTotalDS = this.data.data.ventesTotal;
+    this.ventesListDS = this.data.data.ventesList;
 
-    this.commandesMoisDS = this.data.commandesMois;
-    this.commandesTotalDS = this.data.commandesTotal;
-    this.commandesListDS = this.data.commandesList;
+    this.commandesMoisDS = this.data.data.commandesMois;
+    this.commandesTotalDS = this.data.data.commandesTotal;
+    this.commandesListDS = this.data.data.commandesList;
 
-    this.totalCommande = this.data.stockSummary.totalCommandeValue;
-    this.stockTotal = this.data.stockSummary.stockTotalQuantity;
+    this.totalCommande = this.data.data.stockSummary.totalCommandeValue;
+    this.stockTotal = this.data.data.stockSummary.stockTotalQuantity;
 
-    this.stockEntryDS = this.data.stockEntries;
-    this.sortieDS = this.data.stockSorties;
+    this.stockEntryDS = this.data.data.stockEntries;
+    this.sortieDS = this.data.data.stockSorties;
   }
 
   deleteProduct(productId: number): void {
@@ -250,7 +264,7 @@ export class DetailProduitDialogComponent implements OnInit {
         // Refresh the product list
         this.productService.getProduitDetails(productId).subscribe({
           next: (data) => {
-            this.data = data
+            this.data.data = data
             this.snackBar.open('Product deleted.', '×', {
               panelClass: 'success',
               verticalPosition: 'top',
@@ -305,7 +319,7 @@ export class DetailProduitDialogComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       this.productService.getProduitDetails(product.id).subscribe({
         next: (data) => {
-          this.data = data
+          this.data.data = data
           this.snackBar.open('Product deleted.', '×', {
             panelClass: 'success',
             verticalPosition: 'top',
@@ -323,6 +337,215 @@ export class DetailProduitDialogComponent implements OnInit {
       if (result) {
         // Update the product list or call the backend to save changes
         console.log('Product modified:', result);
+      }
+    });
+  }
+
+  fetchVentesPageableRangeProduct(): void {
+    this.ventesService.fetchVentesPageableRangeProduct(
+      this.pageSorties - 1,
+      this.countSorties,
+      null,
+      this.produitId+"",
+      this.appService.formatDate(this.startDateVentes+""),
+      this.appService.formatDate(this.endDateVentes+""),
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+    ).subscribe({
+      next: (dataVente: any) => {
+        this.ventesListDS = dataVente.content.content
+        this.countVentes = dataVente.pageable.pageSize;
+        this.totalItemsVentes = dataVente.totalElements;
+      },
+      error: (err) => {
+        console.error('Error fetching commandes:', err);
+        if (err.status === 401 || err.status === 403) {
+          this.authService.logout().subscribe({
+            next: (data) => {
+              localStorage.removeItem('token');
+              localStorage.setItem("lastLink", window.location.href);
+              window.location.href = '/sign-in';
+              this.snackBar.open('Déconnexion réussie.', '×', {
+                panelClass: 'success',
+                verticalPosition: 'top',
+                duration: 3000,
+              });
+            },
+            error: (err) => {
+              console.error('Error  subscription:', err);
+              if (err.status === 401 || err.status === 403) {
+                this.authService.logout();
+                localStorage.removeItem('token');
+                localStorage.setItem("lastLink", window.location.href);
+                ;
+                this.snackBar.open('Déconnexion, une erreur.', '×', {
+                  panelClass: 'success',
+                  verticalPosition: 'top',
+                  duration: 3000,
+                });
+                window.location.href = '/sign-in';
+              }
+            }
+          })
+        }
+      }
+    });
+  }
+
+  getCommandeInfoByProduct(): void {
+    this.commandesService.getCommandeInfoByProduct(
+      this.pageSorties - 1,
+      this.countSorties,
+      this.produitId+"",
+      this.appService.formatDate(this.startDateCommandes+""),
+      this.appService.formatDate(this.endDateCommandes+""),
+    ).subscribe({
+      next: (dataCommande: any) => {
+        this.commandesListCols = dataCommande.content.content
+        this.countCommandes = dataCommande.pageable.pageSize;
+        this.totalItemsCommandes = dataCommande.totalElements;
+      },
+      error: (err) => {
+        console.error('Error fetching commandes:', err);
+        if (err.status === 401 || err.status === 403) {
+          this.authService.logout().subscribe({
+            next: (data) => {
+              localStorage.removeItem('token');
+              localStorage.setItem("lastLink", window.location.href);
+              window.location.href = '/sign-in';
+              this.snackBar.open('Déconnexion réussie.', '×', {
+                panelClass: 'success',
+                verticalPosition: 'top',
+                duration: 3000,
+              });
+            },
+            error: (err) => {
+              console.error('Error  subscription:', err);
+              if (err.status === 401 || err.status === 403) {
+                this.authService.logout();
+                localStorage.removeItem('token');
+                localStorage.setItem("lastLink", window.location.href);
+                ;
+                this.snackBar.open('Déconnexion, une erreur.', '×', {
+                  panelClass: 'success',
+                  verticalPosition: 'top',
+                  duration: 3000,
+                });
+                window.location.href = '/sign-in';
+              }
+            }
+          })
+        }
+      }
+    });
+  }
+
+  getProduitsEnRayonPageableProduitRange(): void {
+    this.enrayonsService.getProduitsEnRayonPageableProduitRange(
+      this.pageEnRayons - 1,
+      this.countEnRayons,
+      null,
+      this.produitId+"",
+      this.appService.formatDate(this.startDateSorties+""),
+      this.appService.formatDate(this.endDateSorties+""),
+      null,
+      null,
+      null,
+    ).subscribe({
+      next: (dataEnRayon: any) => {
+        this.stockEntryDS = dataEnRayon.content.content
+        this.countEnRayons = dataEnRayon.pageable.pageSize;
+        this.totalItemsEnRayons = dataEnRayon.totalElements;
+      },
+      error: (err) => {
+        console.error('Error fetching commandes:', err);
+        if (err.status === 401 || err.status === 403) {
+          this.authService.logout().subscribe({
+            next: (data) => {
+              localStorage.removeItem('token');
+              localStorage.setItem("lastLink", window.location.href);
+              window.location.href = '/sign-in';
+              this.snackBar.open('Déconnexion réussie.', '×', {
+                panelClass: 'success',
+                verticalPosition: 'top',
+                duration: 3000,
+              });
+            },
+            error: (err) => {
+              console.error('Error  subscription:', err);
+              if (err.status === 401 || err.status === 403) {
+                this.authService.logout();
+                localStorage.removeItem('token');
+                localStorage.setItem("lastLink", window.location.href);
+                ;
+                this.snackBar.open('Déconnexion, une erreur.', '×', {
+                  panelClass: 'success',
+                  verticalPosition: 'top',
+                  duration: 3000,
+                });
+                window.location.href = '/sign-in';
+              }
+            }
+          })
+        }
+      }
+    });
+  }
+
+  getSortieStockPageableProductRange(): void {
+    this.sortiesService.getSortieStockPageableProductRange(
+      this.pageSorties - 1,
+      this.countSorties,
+      null,
+      null,
+      null,
+      this.produitId+"",
+      this.appService.formatDate(this.startDateSorties+""),
+      this.appService.formatDate(this.endDateSorties+""),
+      null,
+      null,
+      null,
+    ).subscribe({
+      next: (dataSortie: any) => {
+        this.sortieDS = dataSortie.content.content
+        this.countSorties = dataSortie.pageable.pageSize;
+        this.totalItemsSorties = dataSortie.totalElements;
+      },
+      error: (err) => {
+        console.error('Error fetching commandes:', err);
+        if (err.status === 401 || err.status === 403) {
+          this.authService.logout().subscribe({
+            next: (data) => {
+              localStorage.removeItem('token');
+              localStorage.setItem("lastLink", window.location.href);
+              window.location.href = '/sign-in';
+              this.snackBar.open('Déconnexion réussie.', '×', {
+                panelClass: 'success',
+                verticalPosition: 'top',
+                duration: 3000,
+              });
+            },
+            error: (err) => {
+              console.error('Error  subscription:', err);
+              if (err.status === 401 || err.status === 403) {
+                this.authService.logout();
+                localStorage.removeItem('token');
+                localStorage.setItem("lastLink", window.location.href);
+                ;
+                this.snackBar.open('Déconnexion, une erreur.', '×', {
+                  panelClass: 'success',
+                  verticalPosition: 'top',
+                  duration: 3000,
+                });
+                window.location.href = '/sign-in';
+              }
+            }
+          })
+        }
       }
     });
   }

@@ -34,7 +34,7 @@ interface SortieStockRepository : JpaRepository<SortieStock, Int>, JpaSpecificat
         }
 
         if (!produitId.isNullOrEmpty() && produitId != "null") {
-          predicates.add(criteriaBuilder.equal(root.get<String>("produitId"), produitId))
+          predicates.add(criteriaBuilder.equal(root.get<Long>("enRayon").get<Long>("produitId"), produitId))
         }
 
         if (!startDate.isNullOrEmpty() && !startDate.trim().equals("null", ignoreCase = true)) {
