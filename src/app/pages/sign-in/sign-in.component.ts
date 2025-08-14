@@ -49,6 +49,28 @@ export class SignInComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.authService.checkSession().subscribe({
+      next: (response) => {
+        this.snackBar.open('You registered successfully!', '×', {
+          panelClass: 'success',
+          verticalPosition: 'top',
+          duration: 3000
+        });
+      },
+      error: (err) => {
+        // if (err.status === 401 || err.status === 403) {
+        //   this.authService.logout();
+        //   this.snackBar.open('Déconnexion réussie.', '×', {
+        //     panelClass: 'success',
+        //     verticalPosition: 'top',
+        //     duration: 3000,
+        //   });
+        //   // Redirect to login page or clear session
+        //   window.location.href = '/sign-in';
+        // }
+      },
+    });
+
     this.codebarreForm = this.formBuilder.group({
       // 'email': ['', Validators.compose([Validators.required, emailValidator])],
       'codebarre': ['', Validators.compose([Validators.required, , Validators.minLength(2)])],

@@ -852,4 +852,55 @@ class CommandeService(
     return exportData.toString() // Replace with actual export logic
   }
 
+  fun getCommandeInfoByProduct(
+    pageable: Pageable,
+    produitId: String?,
+    startDate: String?,
+    endDate: String?
+  ): CommandePageableCustomlDto {
+    val produit = produitRepository.findById(produitId!!.toInt()).get()
+    val specificationCommande = CommandeRepository.filterCommandes(null, null, null, startDate, endDate)
+    val commandes = commandeRepository.findAll(specificationCommande, pageable)
+      .map { commande ->
+        val commandeProduit = produitCmdRepository.findByCommandeIdAndProduit(commande?.id!!, produit)
+        mapOf(
+          "commandeId" to commande.id as Any?,
+          "commandeReference" to commande.ref as Any?,
+          "dateCreation" to commande.dateCreation as Any?,
+          "prixAchat" to commandeProduit.puRecept as Any?,
+          "prixVente" to commandeProduit.prixPublic as Any?,
+          "qteCommande" to commandeProduit.qtiteCmd as Any?,
+          "qteRecu" to commandeProduit.qtiteRecu as Any?,
+          "qteTotalRecu" to commande.qtiteRecu as Any?,
+          "qteTotalCommande" to commande.qtiteCmd as Any?,
+          "fournisseur" to commande.fournisseur!!.nom as Any?,
+          "etat" to commande.etat as Any?
+        )
+      }
+    var totalAmountRecu = 0.0
+    var totalAmountCommande = 0.0
+    var totalQteRecu = 0
+    var totalQteCommande = 0
+    if (commandes.totalElements > 0) {
+      val pageableElement =
+        PageRequest.of(0, commandes.totalElements.toInt(), Sort.by(Sort.Direction.DESC, "dateCreation"))
+      val commandeTotal = commandeRepository.findAll(specificationCommande, pageableElement)
+      totalAmountRecu = commandeTotal.content.sumOf { it.montantRecu as Double }
+      totalAmountCommande = commandeTotal.content.sumOf { it.montantCmd as Double }
+      totalQteRecu = commandeTotal.content.sumOf { it.qtiteRecu as Int }
+      totalQteCommande = commandeTotal.content.sumOf { it.qtiteCmd as Int }
+    }
+    val data = CommandePageableCustomlDto(
+      content = commandes,
+      totalElements = commandes.totalElements,
+      totalPages = commandes.totalPages,
+      pageSize = commandes.size,
+      pageNumber = commandes.number,
+      totalAmountRecu = totalAmountRecu,
+      totalAmountCommande = totalAmountCommande,
+      totalQteRecu = totalQteRecu,
+      totalQteCommande = totalQteCommande,
+    )
+    return data
+  }
 }

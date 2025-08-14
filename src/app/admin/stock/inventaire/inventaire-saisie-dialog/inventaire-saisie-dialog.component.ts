@@ -183,7 +183,7 @@ export class InventaireSaisieDialogComponent implements OnInit {
             verticalPosition: 'top',
             duration: 3000,
           });
-          // Redirect to login page or clear session
+            localStorage.removeItem('token');
           window.location.href = '/sign-in';
         }
         console.error('Error searching products:', err);
@@ -321,7 +321,7 @@ export class InventaireSaisieDialogComponent implements OnInit {
             verticalPosition: 'top',
             duration: 3000,
           });
-          // Redirect to login page or clear session
+            localStorage.removeItem('token');
           window.location.href = '/sign-in';
         }
         else
@@ -376,7 +376,7 @@ export class InventaireSaisieDialogComponent implements OnInit {
             verticalPosition: 'top',
             duration: 3000,
           });
-          // Redirect to login page or clear session
+            localStorage.removeItem('token');
           window.location.href = '/sign-in';
         }
         else
@@ -465,7 +465,7 @@ export class InventaireSaisieDialogComponent implements OnInit {
             verticalPosition: 'top',
             duration: 3000,
           });
-          // Redirect to login page or clear session
+            localStorage.removeItem('token');
           window.location.href = '/sign-in';
         }
         alert('Une erreur est survenue lors de la récupération des produits en rayon.');
@@ -513,7 +513,7 @@ export class InventaireSaisieDialogComponent implements OnInit {
             verticalPosition: 'top',
             duration: 3000,
           });
-          // Redirect to login page or clear session
+            localStorage.removeItem('token');
           window.location.href = '/sign-in';
         }
         else
@@ -552,7 +552,7 @@ export class InventaireSaisieDialogComponent implements OnInit {
             verticalPosition: 'top',
             duration: 3000,
           });
-          // Redirect to login page or clear session
+            localStorage.removeItem('token');
           window.location.href = '/sign-in';
         }
         else

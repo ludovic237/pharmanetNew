@@ -1,9 +1,6 @@
 package com.example.backend.controllers
 
-import com.example.backend.dtos.EnRayonDto
-import com.example.backend.dtos.ProduitDetailIncrementEnRayonDto
-import com.example.backend.dtos.ProduitEnRayonDto
-import com.example.backend.dtos.RayonDto
+import com.example.backend.dtos.*
 import com.example.backend.models.EnRayon
 import com.example.backend.models.Rayon
 import com.example.backend.services.EnRayonService
@@ -20,29 +17,29 @@ import java.time.LocalDateTime
 @RequestMapping("/api/en-rayon")
 class EnRayonController(private val enRayonService: EnRayonService) {
 
-    @CrossOrigin(origins = ["http://localhost:4200"])
-    @PreAuthorize("isAuthenticated()")
-    @PostMapping("/ajouter")
-    fun ajouterProduitsEnRayon(@RequestBody produits: List<ProduitEnRayonDto>): ResponseEntity<List<EnRayon>> {
-        val enRayonList = enRayonService.ajouterProduitsEnRayon(produits)
-        return ResponseEntity.ok(enRayonList)
-    }
+  @CrossOrigin(origins = ["http://localhost:4200"])
+  @PreAuthorize("isAuthenticated()")
+  @PostMapping("/ajouter")
+  fun ajouterProduitsEnRayon(@RequestBody produits: List<ProduitEnRayonDto>): ResponseEntity<List<EnRayon>> {
+    val enRayonList = enRayonService.ajouterProduitsEnRayon(produits)
+    return ResponseEntity.ok(enRayonList)
+  }
 
-    @CrossOrigin(origins = ["http://localhost:4200"])
-    @PreAuthorize("isAuthenticated()")
-    @PutMapping("/mettre-a-jour")
-    fun mettreAJourProduitsEnRayon(@RequestBody produits: List<ProduitEnRayonDto>): ResponseEntity<List<EnRayon>> {
-        val enRayonList = enRayonService.mettreAJourProduitsEnRayon(produits)
-        return ResponseEntity.ok(enRayonList)
-    }
+  @CrossOrigin(origins = ["http://localhost:4200"])
+  @PreAuthorize("isAuthenticated()")
+  @PutMapping("/mettre-a-jour")
+  fun mettreAJourProduitsEnRayon(@RequestBody produits: List<ProduitEnRayonDto>): ResponseEntity<List<EnRayon>> {
+    val enRayonList = enRayonService.mettreAJourProduitsEnRayon(produits)
+    return ResponseEntity.ok(enRayonList)
+  }
 
-    @CrossOrigin(origins = ["http://localhost:4200"])
-    @PreAuthorize("isAuthenticated()")
-    @PostMapping("/increment-produit-detail")
-    fun decrementerStock(@RequestBody data: ProduitDetailIncrementEnRayonDto): ResponseEntity<Map<String,Any?>> {
-        val enRayonList = enRayonService.decrementerStock(data.enRayonId!!.toInt(),data.produitDetailId!!.toInt())
-        return ResponseEntity.ok(enRayonList)
-    }
+  @CrossOrigin(origins = ["http://localhost:4200"])
+  @PreAuthorize("isAuthenticated()")
+  @PostMapping("/increment-produit-detail")
+  fun decrementerStock(@RequestBody data: ProduitDetailIncrementEnRayonDto): ResponseEntity<Map<String, Any?>> {
+    val enRayonList = enRayonService.decrementerStock(data.enRayonId!!.toInt(), data.produitDetailId!!.toInt())
+    return ResponseEntity.ok(enRayonList)
+  }
 
   @CrossOrigin(origins = ["http://localhost:4200"])
   @PreAuthorize("isAuthenticated()")
@@ -60,7 +57,10 @@ class EnRayonController(private val enRayonService: EnRayonService) {
   @CrossOrigin(origins = ["http://localhost:4200"])
   @PreAuthorize("isAuthenticated()")
   @GetMapping("/par-produit-all")
-  fun getProduitsEnRayonParProduitIdt(@RequestParam produitId: Int,@RequestParam produitType: String): ResponseEntity<List<Map<String, Any?>>> =
+  fun getProduitsEnRayonParProduitIdt(
+    @RequestParam produitId: Int,
+    @RequestParam produitType: String
+  ): ResponseEntity<List<Map<String, Any?>>> =
     ResponseEntity.ok(enRayonService.getProduitsEnRayonParProduitIdt(produitId))
 
   @CrossOrigin(origins = ["http://localhost:4200"])
@@ -75,11 +75,11 @@ class EnRayonController(private val enRayonService: EnRayonService) {
   fun getProduitsEnRayonParFournisseur(@RequestParam nomFournisseur: String): ResponseEntity<List<EnRayon>> =
     ResponseEntity.ok(enRayonService.getProduitsEnRayonParFournisseur(nomFournisseur))
 
-/*  @CrossOrigin(origins = ["http://localhost:4200"])
-  @PreAuthorize("isAuthenticated()")
-  @GetMapping("/par-uniter")
-  fun getProduitsEnRayonParUniter(@RequestParam uniter: String): ResponseEntity<List<EnRayon>> =
-    ResponseEntity.ok(enRayonService.getProduitsEnRayonParUniter(uniter))*/
+  /*  @CrossOrigin(origins = ["http://localhost:4200"])
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/par-uniter")
+    fun getProduitsEnRayonParUniter(@RequestParam uniter: String): ResponseEntity<List<EnRayon>> =
+      ResponseEntity.ok(enRayonService.getProduitsEnRayonParUniter(uniter))*/
 
   @CrossOrigin(origins = ["http://localhost:4200"])
   @PreAuthorize("isAuthenticated()")
@@ -156,7 +156,94 @@ class EnRayonController(private val enRayonService: EnRayonService) {
     }
     val joursAvantPeremptionInt: Int = joursAvantPeremption?.toIntOrNull() ?: 0
     val pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.fromString(direction), sort))
-    val result = enRayonService.getProduitsEnRayonPageable(nomProduit, bientotPerimeeBoolean, joursAvantPeremptionInt, enStockBoolean, pageable)
+    val result = enRayonService.getProduitsEnRayonPageable(
+      nomProduit,
+      bientotPerimeeBoolean,
+      joursAvantPeremptionInt,
+      enStockBoolean,
+      pageable
+    )
+    return ResponseEntity.ok(result)
+  }
+
+  @CrossOrigin(origins = ["http://localhost:4200"])
+  @PreAuthorize("isAuthenticated()")
+  @GetMapping("/pageable/new")
+  fun getProduitsEnRayonPageableNew(
+    @RequestParam(required = false) nomProduit: String?,
+    @RequestParam(required = false) bientotPerimee: String?,
+    @RequestParam(required = false) joursAvantPeremption: String?,
+    @RequestParam(required = false) enStock: String?,
+    @RequestParam(defaultValue = "0") page: String,
+    @RequestParam(defaultValue = "10") size: String,
+    @RequestParam(defaultValue = "id") sort: String,
+    @RequestParam(defaultValue = "desc") direction: String
+  ): ResponseEntity<EnRayonPageableCustomDto> {
+    val pageNumber = page.toIntOrNull()?.coerceAtLeast(0) ?: 0
+    val pageSize = size.toIntOrNull()?.coerceAtLeast(1) ?: 10
+    val bientotPerimeeBoolean: Boolean? = when (bientotPerimee?.lowercase()) {
+      "true" -> true
+      "false" -> false
+      else -> null
+    }
+    val enStockBoolean: Boolean? = when (enStock?.lowercase()) {
+      "true" -> true
+      "false" -> false
+      else -> null
+    }
+    val joursAvantPeremptionInt: Int = joursAvantPeremption?.toIntOrNull() ?: 0
+    val pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.fromString(direction), sort))
+    val result = enRayonService.getProduitsEnRayonPageableNew(
+      nomProduit,
+      bientotPerimeeBoolean,
+      joursAvantPeremptionInt,
+      enStockBoolean,
+      pageable
+    )
+    return ResponseEntity.ok(result)
+  }
+
+
+  @CrossOrigin(origins = ["http://localhost:4200"])
+  @PreAuthorize("isAuthenticated()")
+  @GetMapping("/product/pageable/new")
+  fun getProduitsEnRayonPageableProduitRange(
+    @RequestParam(required = false) nomProduit: String?,
+    @RequestParam(required = false) bientotPerimee: String?,
+    @RequestParam(required = false) joursAvantPeremption: String?,
+    @RequestParam(required = false) enStock: String?,
+    @RequestParam(required = false) produitId: String?,
+    @RequestParam(required = false) startDate: String?,
+    @RequestParam(required = false) endDate: String?,
+    @RequestParam(defaultValue = "0") page: String,
+    @RequestParam(defaultValue = "10") size: String,
+    @RequestParam(defaultValue = "id") sort: String,
+    @RequestParam(defaultValue = "desc") direction: String
+  ): ResponseEntity<EnRayonPageableCustomDto> {
+    val pageNumber = page.toIntOrNull()?.coerceAtLeast(0) ?: 0
+    val pageSize = size.toIntOrNull()?.coerceAtLeast(1) ?: 10
+    val bientotPerimeeBoolean: Boolean? = when (bientotPerimee?.lowercase()) {
+      "true" -> true
+      "false" -> false
+      else -> null
+    }
+    val enStockBoolean: Boolean? = when (enStock?.lowercase()) {
+      "true" -> true
+      "false" -> false
+      else -> null
+    }
+    val joursAvantPeremptionInt: Int = joursAvantPeremption?.toIntOrNull() ?: 0
+    val pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.fromString(direction), sort))
+    val result = enRayonService.getProduitsEnRayonPageableProduitRange(
+      nomProduit,
+      produitId,
+      startDate,
+      endDate,
+      bientotPerimeeBoolean,
+      joursAvantPeremptionInt,
+      enStockBoolean,
+      pageable
+    )
     return ResponseEntity.ok(result)
   }
 

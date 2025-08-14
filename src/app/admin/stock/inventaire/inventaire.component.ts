@@ -130,7 +130,7 @@ export class InventaireComponent implements OnInit {
             verticalPosition: 'top',
             duration: 3000,
           });
-          // Redirect to login page or clear session
+            localStorage.removeItem('token');
           window.location.href = '/sign-in';
         }
         console.error('Error fetching commandes:', err);

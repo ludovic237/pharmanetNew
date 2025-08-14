@@ -22,6 +22,11 @@ import {ProduitRayonInfoDialogComponent} from "../produit-rayon-info-dialog/prod
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {RayonInfoDialogComponent} from "../rayon-info-dialog/rayon-info-dialog.component";
 import {AuthService} from "@services/auth.service";
+import {combineLatest} from "rxjs";
+import {VentesService} from "@services/ventes.service";
+import {CommandesService} from "@services/commandes.service";
+import {SortiesService} from "@services/sorties.service";
+import {EnrayonsService} from "@services/enrayons.service";
 
 @Component({
   selector: 'app-detail-produit-dialog',
@@ -55,10 +60,41 @@ export class DetailProduitDialogComponent implements OnInit {
 
   selectedTabIndex: number = 0;
 
+  pageVentes: number = 1;
+  countVentes = 5;
+  totalItemsVentes = 0;
+  startDateVentes: Date | null = new Date();
+  endDateVentes: Date | null = new Date();
+
+  pageCommandes: number = 1;
+  countCommandes = 5;
+  totalItemsCommandes = 0;
+  startDateCommandes: Date | null = new Date();
+  endDateCommandes: Date | null = new Date();
+
+  pageEnRayons: number = 1;
+  countEnRayons = 5;
+  totalItemsEnRayons = 0;
+  startDateEnRayons: Date | null = new Date();
+  endDateEnRayons: Date | null = new Date();
+
+  pageSorties: number = 1;
+  countSorties = 5;
+  totalItemsSorties = 0;
+  startDateSorties: Date | null = new Date();
+  endDateSorties: Date | null = new Date();
+
+  produitId:String="0"
+
+
   public form: FormGroup;
 
   constructor(
     public authService: AuthService,
+    public enrayonsService: EnrayonsService,
+    public sortiesService: SortiesService,
+    public ventesService: VentesService,
+    public commandesService: CommandesService,
     public dialogRef: MatDialogRef<DetailProduitDialogComponent>,
     public productService: ProductService,
     public dialog: MatDialog,
@@ -104,6 +140,91 @@ export class DetailProduitDialogComponent implements OnInit {
   sortieCols = ['nom', 'quantite', 'detail', 'forme', 'dateOperation', 'operation'];
 
   ngOnInit(): void {
+
+    combineLatest([
+      this.ventesService.fetchVentesPageableRangeProduct(
+        this.pageSorties - 1,
+        this.countSorties,
+        null,
+        this.produitId+"",
+        this.startDateVentes+"",
+        this.endDateVentes+"",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+      ),
+      this.commandesService.getCommandeInfoByProduct(
+        this.pageSorties - 1,
+        this.countSorties,
+        this.produitId+"",
+        this.startDateCommandes+"",
+        this.endDateCommandes+"",
+      ),
+      this.enrayonsService.getProduitsEnRayonPageableProduitRange(
+        this.pageEnRayons - 1,
+        this.countEnRayons,
+        null,
+        this.produitId+"",
+        this.startDateSorties+"",
+        this.endDateSorties+"",
+        null,
+        null,
+        null,
+      ),
+      this.sortiesService.getSortieStockPageableProductRange(
+        this.pageSorties - 1,
+        this.countSorties,
+        null,
+        null,
+        null,
+        this.produitId+"",
+        this.startDateSorties+"",
+        this.endDateSorties+"",
+        null,
+        null,
+        null,
+      ),
+
+    ]).subscribe({
+      next: ([dataVente, dataCommande, dataEnRayon, dataSortie]) => {
+
+        this.ventesListDS = dataVente.content.content
+        this.countVentes = dataVente.pageable.pageSize;
+        this.totalItemsVentes = dataVente.totalElements;
+
+        this.commandesListCols = dataCommande.content.content
+        this.countCommandes = dataCommande.pageable.pageSize;
+        this.totalItemsCommandes = dataCommande.totalElements;
+
+        this.stockEntryDS = dataEnRayon.content.content
+        this.countEnRayons = dataEnRayon.pageable.pageSize;
+        this.totalItemsEnRayons = dataEnRayon.totalElements;
+
+        this.sortieDS = dataSortie.content.content
+        this.countSorties = dataSortie.pageable.pageSize;
+        this.totalItemsSorties = dataSortie.totalElements;
+
+      },
+      error:(err)=>{
+        console.log("error");
+        console.log(err);
+        if (err.status === 401 || err.status === 403) {
+          this.authService.logout();
+          this.snackBar.open('Déconnexion réussie.', '×', {
+            panelClass: 'success',
+            verticalPosition: 'top',
+            duration: 3000,
+          });
+            localStorage.removeItem('token');
+          window.location.href = '/sign-in';
+        }
+      }
+    })
+
+
     // TODO: remplacer par vos services
     this.ventesMoisDS = this.data.ventesMois;
     this.ventesTotalDS = this.data.ventesTotal;
@@ -170,10 +291,7 @@ export class DetailProduitDialogComponent implements OnInit {
   }
 
   markAsExpired(productId: number): void {
-    this.productService.markStockAsExpired(productId).subscribe(() => {
-      console.log('Stock marked as expired');
-      // Refresh the stock list
-    });
+    window.location.href = '/admin/stock/sorties/'+productId;
   }
 
   modifyProduct(product: any): void {

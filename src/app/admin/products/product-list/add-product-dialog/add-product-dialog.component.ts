@@ -198,7 +198,7 @@ export class AddProductDialogComponent implements OnInit {
             verticalPosition: 'top',
             duration: 3000,
           });
-          // Redirect to login page or clear session
+            localStorage.removeItem('token');
           window.location.href = '/sign-in';
         }
       }

@@ -120,8 +120,8 @@ export class ProductListComponent implements OnInit {
 
     if (this.domHandlerService.window?.innerWidth < 1280) {
       this.viewCol = 33.3;
-    }
-    ;
+    };
+
     this.getCategories();
     if (!this.form.get('searchForm')?.value) {
     }
@@ -148,26 +148,6 @@ export class ProductListComponent implements OnInit {
            console.error('Error fetching products:', err);
          }
     });
-  }
-
-  searchUsers(event: Event): void {
-    this.page = 0
-    const input = (event.target as HTMLInputElement).value;
-    if (input) {
-      this.searchText = input
-      this.productService.searchProducts(input, this.page, this.count).subscribe({
-        // this.productService.searchProducts(this.searchTerm, this.page, this.count).subscribe({
-        next: (data: any) => {
-          this.count = data.pageable.pageSize;
-          this.totalItems = data.totalElements;
-          this.products = data.content; // Les produits pour la page actuelle
-        },
-        error: (err) => {
-          console.error('Error searching products:', err);
-        }
-      });
-    }
-
   }
 
   public searchProducts(): void {

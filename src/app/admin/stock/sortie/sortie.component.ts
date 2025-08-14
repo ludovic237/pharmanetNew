@@ -44,6 +44,11 @@ import {
 import {SortieDetailDialogComponent} from "./sortie-detail-dialog/sortie-detail-dialog.component";
 import {AuthService} from "@services/auth.service";
 import {SortieRayonDialogComponent} from "./sortie-rayon-dialog/sortie-rayon-dialog.component";
+import {ActivatedRoute} from "@angular/router";
+import {SortieDetailRayonComponent} from "./sortie-detail-rayon/sortie-detail-rayon.component";
+import {
+  SortieSimpleProductDetailRayonDialogComponent
+} from "./sortie-simplet-product-detail-rayon-dialog/sortie-simple-product-detail-rayon-dialog.component";
 
 @Component({
   selector: 'app-sortie',
@@ -119,12 +124,14 @@ export class SortieComponent implements OnInit {
 
 
   sorties: any[] = []
+  private sub: any;
 
   public viewCol: number = 25;
   public page: number = 1; // Default to 0 if undefined
   public size = 100;  // Default to 10 if undefined
   public totalItems = 0;  // Default to 10 if undefined
   public count = 10;
+  public id: any;
 
   constructor(
     public authService: AuthService,
@@ -139,6 +146,7 @@ export class SortieComponent implements OnInit {
     public usersService: UsersService,
     public prescripteursService: PrescripteursService,
     public domHandlerService: DomHandlerService,
+    private activatedRoute: ActivatedRoute,
     public dialog: MatDialog) {
 
   }
@@ -146,16 +154,62 @@ export class SortieComponent implements OnInit {
   ngOnInit(): void {
 
     this.fetchSortieProduitsEnRayon();
+
     this.produitDetailSearchControl.valueChanges.subscribe((searchTerm) => {
       if (searchTerm) {
         this.searchProducts(searchTerm);
       }
     })
+
+    this.sub = this.activatedRoute.params.subscribe(params => {
+      if (params['id']) {
+        this.id = params['id'];
+        this.enRayonService.getProduitsEnRayon(this.id).subscribe({
+          next: (data: any) => {
+            const dialogRef = this.dialog.open(SortieSimpleProductDetailRayonDialogComponent, {
+              data: {
+                type: "detail produit",
+                id: this.id,
+                name: "",
+                enRayonList: data,
+                sourceList: [],
+              },
+              // maxWidth: "400px",
+              width: "80%",
+              panelClass: ['theme-dialog'],
+              autoFocus: false,
+              // direction: (this.settings.rtl) ? 'rtl' : 'ltr'
+            });
+            dialogRef.afterClosed().subscribe((modifiedProducts: any[]) => {
+              this.fetchSortieProduitsEnRayon();
+
+            });
+          },
+          error: (err: any) => {
+            console.error('Failed to fetch products in stock:', err);
+            if (err.status === 401 || err.status === 403) {
+              this.authService.logout();
+              localStorage.removeItem('token');
+              localStorage.setItem("lastLink", window.location.href);
+              ;
+              this.snackBar.open('Déconnexion réussie.', '×', {
+                panelClass: 'success',
+                verticalPosition: 'top',
+                duration: 3000,
+              });
+              // Redirect to login page or clear session
+              window.location.href = '/sign-in';
+            } else
+              alert('Une erreur est survenue lors de la récupération des produits en rayon.');
+          },
+        });
+      }
+    });
   }
 
   public searchProducts(searchTerm: string): void {
 
-    this.produitdetailsService.searchProduitDetailsByName(searchTerm).subscribe({
+    this.produitdetailsService.searchProduitDetailsByName(searchTerm,0,40).subscribe({
       // this.productService.searchProducts(this.searchTerm, this.page, this.count).subscribe({
       next: (data: any) => {
         this.produitDetailOptions = data.content;
@@ -170,12 +224,13 @@ export class SortieComponent implements OnInit {
             verticalPosition: 'top',
             duration: 3000,
           });
-          // Redirect to login page or clear session
+            localStorage.removeItem('token');
           window.location.href = '/sign-in';
         }
         console.error('Error searching products:', err);
       }
     });
+
   }
 
   fetchSortieProduitsEnRayon(): void {
@@ -210,7 +265,7 @@ export class SortieComponent implements OnInit {
             verticalPosition: 'top',
             duration: 3000,
           });
-          // Redirect to login page or clear session
+            localStorage.removeItem('token');
           window.location.href = '/sign-in';
         } else
           this.snackBar.open('Failed to fetch products. Please try again later.', '×', {
@@ -276,7 +331,7 @@ export class SortieComponent implements OnInit {
             verticalPosition: 'top',
             duration: 3000,
           });
-          // Redirect to login page or clear session
+            localStorage.removeItem('token');
           window.location.href = '/sign-in';
         }
       },

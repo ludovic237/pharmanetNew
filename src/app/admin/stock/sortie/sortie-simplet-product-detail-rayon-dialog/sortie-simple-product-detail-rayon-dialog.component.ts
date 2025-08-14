@@ -20,9 +20,13 @@ import {MatTableModule} from "@angular/material/table";
 import {MatToolbarModule} from "@angular/material/toolbar";
 import {MatAutocompleteModule} from "@angular/material/autocomplete";
 import {FlexLayoutModule} from "@ngbracket/ngx-layout";
+import {TypeSortiesService} from "@services/type-sorties.service";
+import {ProductService} from "@services/products.service";
+import {BehaviorSubject, Subject, combineLatest, switchMap, takeUntil} from 'rxjs';
+import {SortiesService} from "@services/sorties.service";
 
 @Component({
-  selector: 'app-sortie-detail-rayon',
+  selector: 'app-sortie-simple-product-detail-rayon-dialog',
   imports: [
     CommonModule,
     FormsModule,
@@ -39,13 +43,18 @@ import {FlexLayoutModule} from "@ngbracket/ngx-layout";
     MatAutocompleteModule,
     FlexLayoutModule
   ],
-  templateUrl: './sortie-detail-rayon.component.html',
-  styleUrl: './sortie-detail-rayon.component.scss'
+  templateUrl: './sortie-simple-product-detail-rayon-dialog.component.html',
+  styleUrl: './sortie-simple-product-detail-rayon-dialog.component.scss'
 })
-export class SortieDetailRayonComponent implements OnInit{
+export class SortieSimpleProductDetailRayonDialogComponent implements OnInit {
   type = "detail"
   public enRayonList: any[] = [];
   public sourceList: any[] = [];
+
+  sortieForm: FormGroup;
+  typeSorties: any[] = [];
+  produits: any[] = [];
+
   public modifiedProducts: any[] = [];
   public displayedColumns: string[] = [
     'produit',
@@ -60,22 +69,62 @@ export class SortieDetailRayonComponent implements OnInit{
   public form: FormGroup;
   public settings: Settings;
 
-  title="Gestion des Produits en Rayon"
+  title = "Gestion des Produits en Rayon"
+  produitName = "N/A"
+  produit: any
 
   constructor(
     public authService: AuthService,
-    public snackBar: MatSnackBar, public dialogRef: MatDialogRef<SortieDetailRayonComponent>,
+    public snackBar: MatSnackBar, public dialogRef: MatDialogRef<SortieSimpleProductDetailRayonDialogComponent>,
     public enRayonService: EnrayonsService, // Replace with actual service
     @Inject(MAT_DIALOG_DATA) public data: any,
     public fb: FormBuilder,
+    public typeSortiesService: TypeSortiesService,
+    public productService: ProductService,
+    public sortiesService: SortiesService,
     public dialog: MatDialog,
     public settingsService: SettingsService) {
     this.settings = this.settingsService.settings;
+    this.sortieForm = this.fb.group({
+      produitName: [null, Validators.required],
+      produitTypeSortieList: [null, Validators.required],
+    });
   }
 
   ngOnInit(): void {
+    this.getTypeSortiePageable("null");
+
+    combineLatest([
+      this.productService.getProductById(this.data.id),
+      this.typeSortiesService.getTypeSortiePageable(0, 10, "id", "desc", "")
+    ]).subscribe({
+      next: ([produit, sorties]) => {
+        this.typeSorties = sorties.content.filter((item: any) => item.id == 3)
+        this.produit = produit
+        this.produitName = this.produit.nom
+
+        this.sortieForm.patchValue({
+          produitName: this.produitName,
+          // produitTypeSortieList: 0,
+        })
+      },
+      error: (err) => {
+        if (err.status === 401 || err.status === 403) {
+          this.authService.logout();
+          this.snackBar.open('Déconnexion réussie.', '×', {
+            panelClass: 'success',
+            verticalPosition: 'top',
+            duration: 3000,
+          });
+            localStorage.removeItem('token');
+          window.location.href = '/sign-in';
+        }
+      }
+    })
+
 
     this.type = this.data.type;
+
     this.form = this.fb.group({
       id: 0,
       name: [null, Validators.required],
@@ -99,8 +148,8 @@ export class SortieDetailRayonComponent implements OnInit{
       disabled: existingRayonIds.includes(item.rayonId) // Mark as disabled if rayonId exists
     }));
 
-    this.enRayonList.forEach((item:any)=>{
-      item.quantiteRestante = (Number(item.quantiteOld)>0) ?Number(item.quantiteOld) : 0
+    this.enRayonList.forEach((item: any) => {
+      item.quantiteRestante = (Number(item.quantiteOld) > 0) ? Number(item.quantiteOld) : 0
     })
 
     console.log("this.enRayonList")
@@ -203,7 +252,67 @@ export class SortieDetailRayonComponent implements OnInit{
     return Math.ceil(diff / (1000 * 60 * 60 * 24))
   }
 
-  executerSortie(){
+  executerSortie() {
+    let dataSave = this.modifiedProducts.map((product: any) => ({
+      contenuDetail: null,
+      id: product.id ?? 0,
+      quantite: product.quantiteRestante ?? 0,
+      rayonId: product.rayonId ?? 0,
+      stockTotal: product.stockTotal ?? 0
+    }))
+    let sortie = {
+      enrayon: dataSave,
+      produitDetailId: "null",
+      typeSortieId: this.sortieForm.get("produitTypeSortieList").value
+    }
+    if (this.sortieForm.valid) {
+      const produitId = this.data.id
+      console.log("this.sortieForm.value");
+      console.log(this.sortieForm.value);
+      this.sortiesService.addProduitDetail(sortie).subscribe({
+        next: (response: any) => {
+          this.dialogRef.close(response);
+        },
+        error: (err: any) => {
+          if (err.status === 401 || err.status === 403) {
+            this.authService.logout();
+            localStorage.removeItem('token');
+            localStorage.setItem("lastLink",window.location.href);;
+            this.snackBar.open('Déconnexion réussie.', '×', {
+              panelClass: 'success',
+              verticalPosition: 'top',
+              duration: 3000,
+            });
+            // Redirect to login page or clear session
+            window.location.href = '/sign-in';
+          }
+          console.error('Failed to load products:', err);
+        }
+      });
+    }
 
+  }
+
+  getTypeSortiePageable(name: string) {
+    this.typeSortiesService.getTypeSortiePageable(0, 10, "id", "desc", name).subscribe({
+      next: (response: any) => {
+        this.typeSorties = response.content.filter((item: any) => item.id == 3)
+      },
+      error: (err: any) => {
+        if (err.status === 401 || err.status === 403) {
+          this.authService.logout();
+          localStorage.removeItem('token');
+          localStorage.setItem("lastLink", window.location.href);
+          this.snackBar.open('Déconnexion réussie.', '×', {
+            panelClass: 'success',
+            verticalPosition: 'top',
+            duration: 3000,
+          });
+            localStorage.removeItem('token');
+          window.location.href = '/sign-in';
+        }
+        console.error('Failed to load products:', err);
+      }
+    });
   }
 }

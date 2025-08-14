@@ -12,6 +12,8 @@ import com.example.backend.services.CaisseService
 import com.example.backend.services.CustomUserDetailsService
 import com.example.backend.utility.JwtUtil
 import com.example.backend.utility.UserUtils
+import jakarta.servlet.http.HttpServletRequest
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
@@ -40,6 +42,16 @@ class AuthController(
 
   fun AuthController(authenticationManager: AuthenticationManager) {
     this.authenticationManager = authenticationManager
+  }
+
+  @CrossOrigin(origins = ["http://localhost:4200"])
+  @GetMapping("/check")
+  fun checkSession(request: HttpServletRequest): ResponseEntity<String> {
+    return if (request.getSession(false) != null) {
+      ResponseEntity.ok("ACTIVE")
+    } else {
+      ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("EXPIRED")
+    }
   }
 
   @CrossOrigin(origins = ["http://localhost:4200"])

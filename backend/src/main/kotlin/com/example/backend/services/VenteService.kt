@@ -1172,4 +1172,70 @@ class VenteService(
     // Generate the reference
     return venteRepository.save(venteCredit)
   }
+
+  fun listerVentesPageableDetailByProduit(
+    pageable: Pageable,
+    etat: String?,
+    produitId: String?,
+    startDateVente: String?,
+    endDateVente: String?,
+    startDateEncaissement: String?,
+    endDateEncaissement: String?,
+    userId: String?,
+    employeId: String?,
+    prescripteurId: String?,
+    caisseId: String?
+  ): VentePageableCustomlDto {
+    var activeCaisse = caisseService.getCaisseActive()
+    if (caisseId == "non") {
+      activeCaisse = null
+    }
+
+    val spec = VenteRepository.filterVentesRange(
+      activeCaisse, 0, 1, etat, startDateVente,
+      endDateVente,
+      startDateEncaissement,
+      endDateEncaissement, userId, employeId, prescripteurId, caisseId
+    )
+    var ventes = venteRepository.findAll(spec, pageable).map { vente ->
+      val concerner = concernerRepository.findByVenteIdAndProduitId(vente.id!!.toLong(),produitId!!.toInt())
+
+      mapOf("id" to vente.id as Any?,
+        "prixPercu" to vente.prixPercu as Any?,
+        "netAPayer" to vente.prixTotal as Any?,
+        "reduction" to vente.reduction as Any?,
+        "quantite" to concerner!!.quantite as Any?,
+        "prixVente" to concerner!!.prixUnit as Any?,
+        "reduction" to concerner!!.reduction as Any?,
+        "reference" to vente.reference as Any?,
+        "infoClients" to (vente.user?.let { "${it.nom} (${it.telephone})" } ?: "Aucun client") as Any?,
+        "vendeur" to (vente.employe?.user?.nom ?: "Inconnu") as Any?,
+        "commentaire" to vente.commentaire as Any?,
+        "etat" to vente.etat as Any?,
+        "dateVente" to vente.dateVente as Any?,
+        "dateEncaissement" to vente.dateEncaissement as Any?,
+//        "produits" to concerner,
+        "actions" to "edit,delete" as Any? // Placeholder for actions
+      )
+    }
+
+    var totalAmount = 0.0
+    if (ventes.totalElements > 0) {
+      val pageableElement = PageRequest.of(0, ventes.totalElements.toInt(), Sort.by(Sort.Direction.DESC, "dateVente"))
+      val venteTotal = venteRepository.findAll(spec, pageableElement)
+      totalAmount = venteTotal.content.sumOf { it.prixTotal as Double }
+    }
+
+
+    var data = VentePageableCustomlDto(
+      content = ventes,
+      totalElements = ventes.totalElements,
+      totalPages = ventes.totalPages,
+      pageSize = ventes.size,
+      pageNumber = ventes.number,
+      totalAmount = totalAmount
+    )
+
+    return data
+  }
 }

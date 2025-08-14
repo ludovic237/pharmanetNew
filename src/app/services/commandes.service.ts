@@ -33,6 +33,13 @@ export class CommandesService {
     return this.http.get<Page>(this.url + `/paged?page=${page}&etat=${selectedEtats}&fournisseurId=${selectedFournisseur}&typeFournisseur=${selectedFournisseurType}&startDate=${startDate}&endDate=${endDate}&size=${size}`, {headers: this.getHeaders()});
   }
 
+  getCommandeInfoByProduct(page: number, size: number,
+                         produitId: string,
+                         startDate: string,
+                         endDate: string): Observable<any> {
+    return this.http.get<any>(this.url + `/paged?produitId=${produitId}&page=${page}&size=${size}&startDate=${startDate}&endDate=${endDate}&size=${size}`, {headers: this.getHeaders()});
+  }
+
   fetchCommandesPageablePrint(page: number, size: number,
                          selectedEtats: string,
                          selectedFournisseurType: string,

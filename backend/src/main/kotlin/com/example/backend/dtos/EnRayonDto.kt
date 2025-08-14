@@ -1,5 +1,6 @@
 package com.example.backend.dtos
 
+import org.springframework.data.domain.Page
 import java.time.LocalDateTime
 
 data class ProduitEnRayonDto(
@@ -27,4 +28,14 @@ data class EnRayonDto (
    val reductionMax :Int? = 0,
    val quantiteRestante :Int? = 0,
    val datePeremption: String? = null // Getters and Setters
+)
+
+data class EnRayonPageableCustomDto(
+  var content: Page<Map<String, Any?>>,
+  var totalElements: Long?,
+  var totalPages: Int?,
+  var pageSize: Int?,
+  var pageNumber: Int?,
+  var totalAmountEnRayon: Double?,
+  var totalQte: Int?,
 )

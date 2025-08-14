@@ -105,6 +105,7 @@ import {MatRadioModule} from "@angular/material/radio";
 })
 export class ProductDetailInfoDialogComponent implements OnInit {
 
+  public title: string = "Ajouter un nouveau produit detail"
   public id: any;
   medOptions: { name: string }[] = [];
   medControl = new FormControl('');
@@ -132,11 +133,12 @@ export class ProductDetailInfoDialogComponent implements OnInit {
     this.form = this.formBuilder.group({
       nom: [null, Validators.compose([Validators.required, Validators.minLength(4)])],
       reference: [null, Validators.maxLength(32)],
-      stock: [null, Validators.min(0)],
-      stockMax: [null, Validators.min(0)],
-      stockMin: [null, Validators.min(0)],
-      prix: [null],
-      reductionMax: [null, Validators.min(0)],
+      stock: [0, [Validators.required, Validators.min(0)]],
+      stockMax: [0, [Validators.required, Validators.min(0)]],
+      stockMin: [0, [Validators.required, Validators.min(0)]],
+      prix: [0, Validators.required],
+      images: [null],
+      reductionMax: [0, Validators.min(0)],
       magasinId: [null]
     });
 
@@ -149,8 +151,9 @@ export class ProductDetailInfoDialogComponent implements OnInit {
     console.log("this.data produit detail")
     console.log(this.data)
     if (this.data != null) {
-      this.form.patchValue(this.data);
-      this.parentList = this.data.grossisteList
+      this.title = this.data.title
+      this.form.patchValue(this.data.data);
+      this.parentList = this.data.data.grossisteList
     }
   }
 
@@ -299,14 +302,15 @@ export class ProductDetailInfoDialogComponent implements OnInit {
       error: (err) => {
         if (err.status === 401 || err.status === 403) {
           this.authService.logout();
-           localStorage.removeItem('token');
-          localStorage.setItem("lastLink",window.location.href);;
+          localStorage.removeItem('token');
+          localStorage.setItem("lastLink", window.location.href);
+          ;
           this.snackBar.open('Déconnexion réussie.', '×', {
             panelClass: 'success',
             verticalPosition: 'top',
             duration: 3000,
           });
-          // Redirect to login page or clear session
+            localStorage.removeItem('token');
           window.location.href = '/sign-in';
         }
         console.error('Error fetching products:', err);

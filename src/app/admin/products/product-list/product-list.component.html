@@ -11,7 +11,7 @@
   </div>
   <div class="user-search" [class.show]="controls.value == 'search'">
     <mat-form-field class="user-search-input">
-      <input matInput placeholder="Search user by name..."
+      <input matInput placeholder="Recherche produit..."
              formControlName="searchForm" name="search">
     </mat-form-field>
   </div>
@@ -47,28 +47,32 @@
         <mat-card class="product-item text-center">
           <img [src]="product.image" alt="">
           <h4 class="category text-muted">{{ (categories | filterById : product.categorieNom)?.name }}</h4>
-          <div class="title text-truncate">{{ $index }} {{ product.nom }}</div>
+          <div class="title text-truncate">
+<!--            {{ $index }} -->
+            {{ product.nom }} ({{product.quantiteTotaleEnStock}})</div>
           <div fxLayout="row" fxLayoutAlign="space-between center" class="prices">
             <div fxLayout="column" fxLayoutAlign="center start">
-              <p class="old-price text-muted">
-                @if (product.prixAchatInitial) {
-                  <span>FCFA {{ product.prixAchatInitial | number : '1.2-2' }}</span>
-                }
-              </p>
-              <p class="new-price">FCFA {{ product.prixVenteActuel | number : '1.2-2' }}</p>
+<!--              <p class="old-price text-muted">-->
+<!--                @if (product.prixAchatInitial) {-->
+<!--                  <span>FCFA {{ product.prixAchatInitial | number : '1.2-2' }}</span>-->
+<!--                }-->
+<!--              </p>-->
+              <p class="new-price">{{ product.categorieNom }}</p>
             </div>
             <!--            <app-rating [ratingsCount]="product.ratingsCount" [ratingsValue]="product.ratingsValue" [direction]="'column'"></app-rating>-->
           </div>
           <div class="divider mt-2"></div>
           <div class="product-name">
-            {{ product.nom }}
+            {{ product.uniteMesure }}
           </div>
           <div class="icons">
-            <a (click)="updateProduit(product)"  mat-mini-fab color="primary" matTooltip="Edit">
+            <a (click)="getDetailProduit(product)" mat-mini-fab color="basic" matTooltip="Detail">
+              <mat-icon>info</mat-icon>
+            </a>
+            <a (click)="updateProduit(product)" mat-mini-fab color="accent" matTooltip="Edit">
               <mat-icon>edit</mat-icon>
             </a>
-            <a (click)="getInfoProduit(product)" mat-mini-fab color="primary"
-               matTooltip="View" class="mx-2">
+            <a (click)="getInfoProduit(product)" mat-mini-fab color="primary" matTooltip="View">
               <mat-icon>remove_red_eye</mat-icon>
             </a>
             <button mat-mini-fab color="warn" matTooltip="Remove" (click)="remove(product)">

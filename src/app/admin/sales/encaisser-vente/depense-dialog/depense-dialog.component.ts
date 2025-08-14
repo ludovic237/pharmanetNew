@@ -110,7 +110,7 @@ export class DepenseDialogComponent implements OnInit {
             verticalPosition: 'top',
             duration: 3000,
           });
-          // Redirect to login page or clear session
+            localStorage.removeItem('token');
           window.location.href = '/sign-in';
         }
         // this.snackBar.open('Failed to delete depense', '×', {panelClass: 'error', duration: 3000})

@@ -3,7 +3,7 @@ import {MatMenuModule} from "@angular/material/menu";
 import {MatListModule} from "@angular/material/list";
 import {MatChipsModule} from "@angular/material/chips";
 import {MatSlideToggleModule} from "@angular/material/slide-toggle";
-import {FormsModule, ReactiveFormsModule} from "@angular/forms";
+import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
 import {MatCheckboxModule} from "@angular/material/checkbox";
 import {MatFormFieldModule} from "@angular/material/form-field";
 import {MatInputModule} from "@angular/material/input";
@@ -100,6 +100,7 @@ import {AuthService} from "@services/auth.service";
   styleUrl: './entree.component.scss'
 })
 export class EntreeComponent implements OnInit {
+  public form: FormGroup;
 
   nomProduit: string | null = null;
   bientotPerimee: boolean | null = null;
@@ -127,8 +128,8 @@ export class EntreeComponent implements OnInit {
   public count = 10;
 
   constructor(
-    public authService: AuthService
-    , public appSettings: SettingsService,
+    public authService: AuthService,
+    public appSettings: SettingsService,
     public snackBar: MatSnackBar,
     public enRayonService: EnrayonsService,
     public commandesService: CommandesService,
@@ -138,13 +139,40 @@ export class EntreeComponent implements OnInit {
     public usersService: UsersService,
     public prescripteursService: PrescripteursService,
     public domHandlerService: DomHandlerService,
+    public formBuilder: FormBuilder,
     public dialog: MatDialog) {
 
+    this.form = this.formBuilder.group({
+      nomProduit: [null],
+      bientotPerimee: [null],
+      joursAvantPeremption: [0, Validators.min(0)],
+      enStock: [null],
+    })
   }
 
   ngOnInit(): void {
 
     this.fetchEnRayonsPageable();
+
+    this.form.get('nomProduit').valueChanges.subscribe(nomProduit => {
+      this.nomProduit = nomProduit
+      this.fetchEnRayonsPageable()
+    });
+
+    this.form.get('bientotPerimee').valueChanges.subscribe(bientotPerimee => {
+      this.bientotPerimee = bientotPerimee
+      this.fetchEnRayonsPageable()
+    });
+
+    this.form.get('joursAvantPeremption').valueChanges.subscribe(joursAvantPeremption => {
+      this.joursAvantPeremption = joursAvantPeremption
+      this.fetchEnRayonsPageable()
+    });
+
+    this.form.get('enStock').valueChanges.subscribe(enStock => {
+      this.enStock = enStock
+      this.fetchEnRayonsPageable()
+    });
   }
 
   fetchEnRayonsPageable(): void {
@@ -164,16 +192,17 @@ export class EntreeComponent implements OnInit {
         this.entrees = data.content;
       },
       error: (err: any) => {
-        if (err.status === 401 || err.status === 403){
+        if (err.status === 401 || err.status === 403) {
           this.authService.logout();
-           localStorage.removeItem('token');
-          localStorage.setItem("lastLink",window.location.href);;
+          localStorage.removeItem('token');
+          localStorage.setItem("lastLink", window.location.href);
+          ;
           this.snackBar.open('Déconnexion réussie.', '×', {
             panelClass: 'success',
             verticalPosition: 'top',
             duration: 3000,
           });
-          // Redirect to login page or clear session
+            localStorage.removeItem('token');
           window.location.href = '/sign-in';
         }
         console.error('Error fetching commandes:', err);

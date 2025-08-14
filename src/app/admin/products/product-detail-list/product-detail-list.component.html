@@ -1,4 +1,4 @@
-<div fxLayout="row" fxLayoutAlign="space-between center" class="px-2 py-1">
+<form [formGroup]="form" fxLayout="row" fxLayoutAlign="space-between center" class="px-2 py-1">
   <div fxLayout="row">
     <mat-button-toggle-group #controls="matButtonToggleGroup" appearance="legacy" hideSingleSelectionIndicator="true">
       <mat-button-toggle value="add" (click)="addProduitDetail()">
@@ -9,12 +9,12 @@
       </mat-button-toggle>
     </mat-button-toggle-group>
   </div>
-  <form class="user-search" [class.show]="controls.value == 'search'">
+  <div class="user-search" [class.show]="controls.value == 'search'">
     <mat-form-field class="user-search-input">
-      <input matInput placeholder="Search user by name..." (ngModelChange)="searchUsers()"
-             [(ngModel)]="searchText" name="search">
+      <input matInput placeholder="Recherche produit detail..."
+             formControlName="searchForm" name="search">
     </mat-form-field>
-  </form>
+  </div>
   <div fxLayout="row" fxLayoutAlign="space-between center">
     <mat-button-toggle-group #viewType="matButtonToggleGroup" appearance="legacy" value="grid"
                              hideSingleSelectionIndicator="true">
@@ -26,15 +26,8 @@
       </mat-button-toggle>
     </mat-button-toggle-group>
   </div>
-</div>
+</form>
 
-<div [formGroup]="form" fxLayout="row wrap" class="search-bar">
-  <mat-form-field appearance="outline" class="w-40">
-    <input matInput formControlName="searchForm">
-  </mat-form-field>
-
-  <button mat-raised-button color="primary" (click)="searchProducts()">Search</button>
-</div>
 
 @if (viewType.value == 'grid') {
   <div fxLayout="row wrap">
@@ -47,30 +40,34 @@
         <mat-card class="product-item text-center">
           <img [src]="product.image" alt="">
           <h4 class="category text-muted">{{ (categories | filterById : product.categorieNom)?.name }}</h4>
-          <div class="title text-truncate">{{ $index }} {{ product.nom }}</div>
+          <div class="title text-truncate">
+<!--            {{ $index }}-->
+            {{ product.nom }} ({{product.stock}})</div>
           <div fxLayout="row" fxLayoutAlign="space-between center" class="prices">
             <div fxLayout="column" fxLayoutAlign="center start">
-              <p class="old-price text-muted">
-                @if (product.prixAchatInitial) {
-                  <span>FCFA {{ product.prixAchatInitial | number : '1.2-2' }}</span>
-                }
-              </p>
-              <p class="new-price">FCFA {{ product.prixVenteActuel | number : '1.2-2' }}</p>
+<!--              <p class="old-price text-muted">-->
+<!--                @if (product.prix) {-->
+<!--                  <span>FCFA {{ product.prix | number : '1.2-2' }}</span>-->
+<!--                }-->
+<!--              </p>-->
+              <p class="new-price">FCFA {{ product.prix | number : '1.2-2' }}</p>
             </div>
             <!--            <app-rating [ratingsCount]="product.ratingsCount" [ratingsValue]="product.ratingsValue" [direction]="'column'"></app-rating>-->
           </div>
           <div class="divider mt-2"></div>
           <div class="product-name">
-            {{ product.nom }}
+            <div>
+              <ul>
+                <li *ngFor="let produit of product.grossisteList">
+                  {{ produit.nom }} ({{ produit.quantite }})
+                </li>
+              </ul>
+            </div>
           </div>
           <div class="icons">
-            <a [routerLink]="['/admin/products/add-product', product.id]" mat-mini-fab color="primary"
+            <a (click)="getDetailProduit(product)"  mat-mini-fab color="primary"
                matTooltip="Edit">
               <mat-icon>edit</mat-icon>
-            </a>
-            <a [routerLink]="['/admin/products/product-detail', product.id]" mat-mini-fab color="primary"
-               matTooltip="View" class="mx-2">
-              <mat-icon>remove_red_eye</mat-icon>
             </a>
             <button mat-mini-fab color="warn" matTooltip="Remove" (click)="remove(product)">
               <mat-icon>delete</mat-icon>
@@ -83,70 +80,69 @@
 }
 
 @if (viewType.value == 'list') {
-  <mat-card class="p-2">
-    <mat-table [dataSource]="products" class="mat-elevation-z2">
-      <!-- Image Column -->
-      <!-- Name Column -->
-      <ng-container matColumnDef="nom">
-        <mat-header-cell *matHeaderCellDef> Nom</mat-header-cell>
-        <mat-cell *matCellDef="let product"> {{ product.nom }}</mat-cell>
-      </ng-container>
+  <mat-table [dataSource]="products" class="mat-elevation-z2">
+    <!-- Image Column -->
+    <!-- Name Column -->
+    <ng-container matColumnDef="nom">
+      <mat-header-cell *matHeaderCellDef> Nom</mat-header-cell>
+      <mat-cell *matCellDef="let product"> {{ product.nom }}</mat-cell>
+    </ng-container>
 
-      <!-- Category Column -->
-      <ng-container matColumnDef="reference">
-        <mat-header-cell *matHeaderCellDef> Reference</mat-header-cell>
-        <mat-cell *matCellDef="let product">
-          {{ product.reference }}
-          <!--          {{ (categories | filterById : product.categorieNom)?.name }}-->
-        </mat-cell>
-      </ng-container>
+    <!-- Category Column -->
+    <ng-container matColumnDef="reference">
+      <mat-header-cell *matHeaderCellDef> Reference</mat-header-cell>
+      <mat-cell *matCellDef="let product">
+        {{ product.reference }}
+        <!--          {{ (categories | filterById : product.categorieNom)?.name }}-->
+      </mat-cell>
+    </ng-container>
 
-      <!-- Name Column -->
-      <ng-container matColumnDef="quantiteStock">
-        <mat-header-cell *matHeaderCellDef> Quantite en stock</mat-header-cell>
-        <mat-cell *matCellDef="let product"> {{ product.stock }}</mat-cell>
-      </ng-container>
+    <!-- Name Column -->
+    <ng-container matColumnDef="quantiteStock">
+      <mat-header-cell *matHeaderCellDef> Quantite en stock</mat-header-cell>
+      <mat-cell *matCellDef="let product"> {{ product.stock }}</mat-cell>
+    </ng-container>
 
-      <!-- Old Price Column -->
-      <ng-container matColumnDef="grossiste">
-        <mat-header-cell *matHeaderCellDef>Produit grossiste</mat-header-cell>
-        <mat-cell *matCellDef="let product">
-          <div>
-            <ul>
-              <li *ngFor="let produit of product.grossisteList">
-                {{ produit.nom }} ({{ produit.quantite }})
-              </li>
-            </ul>
-          </div>
-        </mat-cell>
-      </ng-container>
+    <!-- Old Price Column -->
+    <ng-container matColumnDef="grossiste">
+      <mat-header-cell *matHeaderCellDef>Produit grossiste</mat-header-cell>
+      <mat-cell *matCellDef="let product">
+        <div>
+          <ul>
+            <li *ngFor="let produit of product.grossisteList">
+              {{ produit.nom }} ({{ produit.quantite }})
+            </li>
+          </ul>
+        </div>
+      </mat-cell>
+    </ng-container>
 
-      <!-- New Price Column -->
-      <ng-container matColumnDef="reduction">
-        <mat-header-cell *matHeaderCellDef> New Price</mat-header-cell>
-        <mat-cell *matCellDef="let product">
-          FCFA {{ product.reductionMax }}
-        </mat-cell>
-      </ng-container>
+    <!-- New Price Column -->
+    <ng-container matColumnDef="reduction">
+      <mat-header-cell *matHeaderCellDef> New Price</mat-header-cell>
+      <mat-cell *matCellDef="let product">
+        FCFA {{ product.reductionMax }}
+      </mat-cell>
+    </ng-container>
 
-      <!-- Actions Column -->
-      <ng-container matColumnDef="actions">
-        <mat-header-cell *matHeaderCellDef> Actions</mat-header-cell>
-        <mat-cell *matCellDef="let product">
-          <a (click)="getDetailProduit(product)" mat-icon-button color="basic" matTooltip="Detail">
-            <mat-icon>info</mat-icon>
-          </a>
-          <button mat-icon-button color="warn" matTooltip="Remove" (click)="remove(product)">
-            <mat-icon>delete</mat-icon>
-          </button>
-        </mat-cell>
-      </ng-container>
+    <!-- Actions Column -->
+    <ng-container matColumnDef="actions">
+      <mat-header-cell *matHeaderCellDef> Actions</mat-header-cell>
+      <mat-cell *matCellDef="let product">
+        <a (click)="getDetailProduit(product)"  mat-mini-fab color="primary"
+           matTooltip="Edit">
+          <mat-icon>edit</mat-icon>
+        </a>
+        <button mat-mini-fab color="warn" matTooltip="Remove" (click)="remove(product)">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </mat-cell>
+    </ng-container>
 
-      <!-- Header and Row Definitions -->
-      <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
-      <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
-    </mat-table>
-  </mat-card>
+    <!-- Header and Row Definitions -->
+    <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+    <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+  </mat-table>
 }
 
 <!--@if (products.length) {-->

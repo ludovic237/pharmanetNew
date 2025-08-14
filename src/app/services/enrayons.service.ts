@@ -8,9 +8,9 @@ import {environment} from "../../environments/environment";
   providedIn: 'root'
 })
 export class EnrayonsService {
-  private apiUrl = environment.url+'/api';
+  private apiUrl = environment.url + '/api';
 
-   constructor(
+  constructor(
     private http: HttpClient) {
   }
 
@@ -35,13 +35,23 @@ export class EnrayonsService {
 
   decrementerStock(enRayonId: string, produitDetailId: string): Observable<any> {
     return this.http.post<any>(this.apiUrl + `/en-rayon/increment-produit-detail`, {
-      enRayonId:enRayonId,
-      produitDetailId:produitDetailId
+      enRayonId: enRayonId,
+      produitDetailId: produitDetailId
     }, {headers: this.getHeaders()});
   }
 
   getProduitsEnRayonPageable(page: number, size: number, nomProduit: string, bientotPerimee: boolean, joursAvantPeremption: number, enStock: boolean): Observable<Page> {
-    return this.http.get<Page>(this.apiUrl + `/en-rayon/pageable?page=${page}&nomProduit=${nomProduit}&bientotPerimee=${bientotPerimee}&joursAvantPeremption=${joursAvantPeremption}&enStock=${enStock}&size=${size}`, {headers: this.getHeaders()});
+    return this.http.get<Page>(this.apiUrl + `/en-rayon/pageable/new?page=${page}&nomProduit=${nomProduit}&bientotPerimee=${bientotPerimee}&joursAvantPeremption=${joursAvantPeremption}&enStock=${enStock}&size=${size}`, {headers: this.getHeaders()});
+  }
+
+  getProduitsEnRayonPageableProduitRange(page: number,
+                                         size: number,
+                                         nomProduit: string,
+                                         produitId: string,
+                                         startDate: string,
+                                         endDAte: string,
+                                         bientotPerimee: boolean, joursAvantPeremption: number, enStock: boolean): Observable<any> {
+    return this.http.get<any>(this.apiUrl + `/en-rayon/product/pageable/new?page=${page}&nomProduit=${nomProduit}&produitId=${produitId}&startDate=${startDate}&endDAte=${endDAte}&bientotPerimee=${bientotPerimee}&joursAvantPeremption=${joursAvantPeremption}&enStock=${enStock}&size=${size}`, {headers: this.getHeaders()});
   }
 
 }

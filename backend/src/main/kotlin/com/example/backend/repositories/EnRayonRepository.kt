@@ -3,6 +3,7 @@ package com.example.backend.repositories;
 import com.example.backend.dtos.StockAlertRowView
 import com.example.backend.models.Commande
 import com.example.backend.models.EnRayon
+import com.example.backend.models.Produit
 import jakarta.persistence.criteria.Predicate
 import org.springframework.data.jpa.domain.Specification
 import org.springframework.data.jpa.repository.JpaRepository
@@ -40,11 +41,16 @@ interface EnRayonRepository : JpaRepository<EnRayon, String>, JpaSpecificationEx
 
   fun findAllByProduitIdAndSupprimer(produit: Int, supprimer: Int = 0): List<EnRayon>
   fun findAllByProduitIdInAndSupprimer(produitIdList: List<Int?>, supprimer: Int = 0): List<EnRayon>
-  fun findAllByProduitIdAndSupprimerAndQuantiteRestanteGreaterThan(produit: Int, supprimer: Int = 0, quantite: Int = 0): List<EnRayon>
+  fun findAllByProduitIdAndSupprimerAndQuantiteRestanteGreaterThan(
+    produit: Int,
+    supprimer: Int = 0,
+    quantite: Int = 0
+  ): List<EnRayon>
 //  fun findAllByRayon(rayon: EnRayon): EnRayon
 
   fun findByProduitIdInAndSupprimer(nomProduit: List<Int>, supprimer: Int): List<EnRayon>
-//  fun findByRayonIdInAndSupprimer(nomRayon: List<Int>, supprimer: Int): List<EnRayon>
+
+  //  fun findByRayonIdInAndSupprimer(nomRayon: List<Int>, supprimer: Int): List<EnRayon>
   fun findByFournisseurNomContainingIgnoreCaseAndSupprimer(nomFournisseur: String, supprimer: Int): List<EnRayon>
 
   //  fun findByProduitUniterContainingIgnoreCaseAndSupprimer(uniter: String, supprimer: Int): List<EnRayon>
@@ -111,6 +117,68 @@ interface EnRayonRepository : JpaRepository<EnRayon, String>, JpaSpecificationEx
               predicates.add(criteriaBuilder.equal(root.get<Int>("quantiteRestante"), 0))
             }
           }
+        }
+        criteriaBuilder.and(*predicates.toTypedArray())
+      }
+    }
+
+    fun filterEnRayonRange(
+      nomProduit: String?,
+      startDate: String?,
+      endDate: String?,
+      bientotPerimee: Boolean?,
+      joursAvantPeremption: Int?,
+      enStock: Boolean?,
+    ): Specification<EnRayon> {
+      return Specification { root, query, criteriaBuilder ->
+        val now = LocalDateTime.now()
+        val predicates = mutableListOf<Predicate>()
+
+        if (!nomProduit.isNullOrEmpty() && nomProduit != "null") {
+          predicates.add(
+            criteriaBuilder.like(
+              criteriaBuilder.lower(root.get<String>("produit").get("nom")),
+              "%${nomProduit}%"
+            )
+          )
+        }
+
+        bientotPerimee?.let {
+          if (it is Boolean) {
+            val dateThreshold = now.plusDays(7) // Example: 7 days threshold for "bientôt périmée"
+            if (it) {
+              predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("datePeremption"), dateThreshold))
+            } else {
+              predicates.add(criteriaBuilder.greaterThan(root.get("datePeremption"), dateThreshold))
+            }
+          }
+        }
+
+        joursAvantPeremption?.let {
+          if (it > 0) {
+            val targetDate = now.plusDays(it.toLong())
+            predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("datePeremption"), targetDate))
+          }
+        }
+
+        enStock?.let {
+          if (it is Boolean) {
+            if (it) {
+              predicates.add(criteriaBuilder.greaterThan(root.get("quantiteRestante"), 0))
+            } else {
+              predicates.add(criteriaBuilder.equal(root.get<Int>("quantiteRestante"), 0))
+            }
+          }
+        }
+
+        if (!startDate.isNullOrEmpty() && !startDate.trim().equals("null", ignoreCase = true)) {
+          val startDateTime = LocalDateTime.parse(startDate.trim())
+          predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get<LocalDateTime>("dateLivraison"), startDateTime))
+        }
+
+        if (!endDate.isNullOrEmpty() && !endDate.trim().equals("null", ignoreCase = true)) {
+          val endDateTime = LocalDateTime.parse(endDate)
+          predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get<LocalDateTime>("dateLivraison"), endDateTime))
         }
         criteriaBuilder.and(*predicates.toTypedArray())
       }

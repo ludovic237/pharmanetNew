@@ -51,8 +51,8 @@ class ProduitDetailService(
     }
   }
 
-  fun getProduitDetailsByNamePageable(nom: String, pageable: Pageable): Page<Map<String, Any?>> {
-    if (nom.isBlank()) {
+  fun getProduitDetailsByNamePageable(nom: String?, pageable: Pageable): Page<Map<String, Any?>> {
+    if (nom!!.isBlank()) {
       return Page.empty(pageable) // Retourne une page vide si la recherche est vide
     }
     // Appelle la nouvelle méthode paginée du repository
@@ -60,13 +60,20 @@ class ProduitDetailService(
 
     // La fonction .map sur un objet Page transforme son contenu tout en conservant les informations de pagination.
     return produitsDetailsPage.map { produitDetail ->
+      var produitGrossiste = produitDetail.id?.let { produitRepository.findByDetailId(it) }?.map { produit ->
+        mapOf(
+          "nom" to produit.nom,
+          "stock" to produit.stock
+        )
+      }
       mapOf(
         "id" to produitDetail.id,
         "nom" to produitDetail.nom,
         "reference" to produitDetail.reference,
         "stock" to produitDetail.stock,
         "prix" to produitDetail.prix,
-        "grossisteList" to produitDetail.grossisteList,
+        "reductionMax" to produitDetail.reductionMax,
+        "grossisteList" to produitGrossiste,
         "stockMin" to produitDetail.stockMin,
         "stockMax" to produitDetail.stockMax
       )

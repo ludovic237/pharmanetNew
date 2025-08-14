@@ -21,15 +21,20 @@ export class ProduitdetailsService {
     });
   }
 
-  searchProduitDetailsByName(nom: string): Observable<any[]> {
+  searchProduitDetailsByName(nom: string, page: number, size: number): Observable<any[]> {
     // Crée les paramètres de la requête URL (ex: ?nom=doliprane)
     const params = new HttpParams().set('nom', nom);
-
+    if (page == -1) {
+      page = 0
+    }
     // Effectue la requête GET vers l'endpoint /api/produits-detail/search
-    return this.http.get<any[]>(`${this.url}/search/pageable`, {headers: this.getHeaders(), params: params});
+    return this.http.get<any[]>(`${this.url}/search/pageable?page=${page}&size=${size}`, {headers: this.getHeaders(), params: params});
   }
 
   getProduitDetailsList(searchTerm: string, page: number, size: number): Observable<any[]> {
+    if (page == -1) {
+      page = 0
+    }
     return this.http.get<any[]>(`${this.url}/list/pageable?query=${searchTerm}&page=${page}&size=${size}`, {headers: this.getHeaders()});
   }
 

@@ -130,6 +130,44 @@ class VenteController(
 
   @CrossOrigin(origins = ["http://localhost:4200"])
   @PreAuthorize("isAuthenticated()")
+  @GetMapping("/product/pageable/lister")
+  fun listerVentesPageableDetailByProduit(
+    @RequestParam(defaultValue = "0") page: String,
+    @RequestParam(defaultValue = "10") size: String,
+    @RequestParam(defaultValue = "id") sortBy: String,
+    @RequestParam(required = false) search: String?,
+    @RequestParam(required = false) etat: String?,
+    @RequestParam(required = false) produitId: String?,
+    @RequestParam(required = false) startDateVente: String?,
+    @RequestParam(required = false) endDateVente: String?,
+    @RequestParam(required = false) startDateEncaissement: String?,
+    @RequestParam(required = false) endDateEncaissement: String?,
+    @RequestParam(required = false) userId: String?,
+    @RequestParam(required = false) employeId: String?,
+    @RequestParam(required = false) prescripteurId: String?,
+    @RequestParam(required = false) caisseId: String?
+  ): ResponseEntity<VentePageableCustomlDto> {
+    val pageNumber = page.toIntOrNull()?.coerceAtLeast(0) ?: 0
+    val pageSize = size.toIntOrNull()?.coerceAtLeast(1) ?: 10
+    val pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.DESC, "dateVente"))
+    val commandes = venteService.listerVentesPageableDetailByProduit(
+      pageable,
+      etat,
+      produitId,
+      startDateVente,
+      endDateVente,
+      startDateEncaissement,
+      endDateEncaissement,
+      userId,
+      employeId,
+      prescripteurId,
+      caisseId
+    )
+    return ResponseEntity.ok(commandes)
+  }
+
+  @CrossOrigin(origins = ["http://localhost:4200"])
+  @PreAuthorize("isAuthenticated()")
   @GetMapping("/pageable/lister/print")
   fun listerPageableVentesPrint(
     @RequestParam(defaultValue = "0") page: String,

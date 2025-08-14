@@ -8,6 +8,7 @@ import com.example.backend.services.ProduitDetailService
 import com.example.backend.services.ProduitService
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Sort
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
@@ -48,13 +49,16 @@ class ProduitDetailController(
   @PreAuthorize("isAuthenticated()")
   @GetMapping("/search/pageable")
   fun searchProduitDetailsByName(
-    @RequestParam nom: String,
-    @RequestParam(defaultValue = "0") page: Int, // Paramètre pour le numéro de page
-    @RequestParam(defaultValue = "10") size: Int  // Paramètre pour la taille de la page
+    @RequestParam(required = false) nom: String?,
+    @RequestParam(defaultValue = "0") page: String, // Paramètre pour le numéro de page
+    @RequestParam(defaultValue = "10") size: String,  // Paramètre pour la taille de la page
+    @RequestParam(defaultValue = "id") sortBy: String
   ): ResponseEntity<Any> {
     return try {
+      val pageNumber = page.toIntOrNull() ?: 0 // Default to 0 if conversion fails
+      val pageSize = size.toIntOrNull() ?: 10 // Default to 10 if conversion fails
       // Crée un objet Pageable à partir des paramètres de la requête
-      val pageable: Pageable = PageRequest.of(page, size)
+      val pageable: Pageable = PageRequest.of(pageNumber, pageSize, Sort.by(sortBy))
       // Appelle la nouvelle méthode de service paginée
       val resultPage = produitDetailService.getProduitDetailsByNamePageable(nom, pageable)
       ResponseEntity.ok(resultPage)
@@ -67,12 +71,16 @@ class ProduitDetailController(
   @PreAuthorize("isAuthenticated()")
   @GetMapping("/list/pageable")
   fun getProduitDetailsList(
-    @RequestParam(defaultValue = "0") page: Int, // Paramètre pour le numéro de page
-    @RequestParam(defaultValue = "10") size: Int  // Paramètre pour la taille de la page
+    @RequestParam(required = false) query: String?,
+    @RequestParam(defaultValue = "0") page: String, // Paramètre pour le numéro de page
+    @RequestParam(defaultValue = "10") size: String,  // Paramètre pour la taille de la page
+    @RequestParam(defaultValue = "id") sortBy: String
   ): ResponseEntity<Any> {
     return try {
+      val pageNumber = page.toIntOrNull() ?: 0 // Default to 0 if conversion fails
+      val pageSize = size.toIntOrNull() ?: 10 // Default to 10 if conversion fails
       // Crée un objet Pageable à partir des paramètres de la requête
-      val pageable: Pageable = PageRequest.of(page, size)
+      val pageable: Pageable = PageRequest.of(pageNumber, pageSize, Sort.by(sortBy))
       // Appelle la nouvelle méthode de service paginée
       val resultPage = produitDetailService.getProduitDetailsPageable(pageable)
       ResponseEntity.ok(resultPage)

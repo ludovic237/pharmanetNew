@@ -1,37 +1,47 @@
-<div class="filters">
-  <mat-form-field appearance="fill">
-    <mat-label>Nom Produit</mat-label>
-    <input matInput [(ngModel)]="nomProduit" placeholder="Rechercher un produit">
-  </mat-form-field>
-
-  <mat-form-field appearance="fill">
-    <mat-label>Bientôt Périmée</mat-label>
-    <mat-select [(ngModel)]="bientotPerimee">
-      <mat-option [value]="null">Tous</mat-option>
-      <mat-option [value]="true">Oui</mat-option>
-      <mat-option [value]="false">Non</mat-option>
-    </mat-select>
-  </mat-form-field>
-
-  <mat-form-field appearance="fill">
-    <mat-label>Jours Avant Péremption</mat-label>
-    <input matInput type="number" [(ngModel)]="joursAvantPeremption" placeholder="Nombre de jours">
-  </mat-form-field>
-
-  <mat-form-field appearance="fill">
-    <mat-label>En Stock</mat-label>
-    <mat-select [(ngModel)]="enStock">
-      <mat-option [value]="null">Tous</mat-option>
-      <mat-option [value]="true">Oui</mat-option>
-      <mat-option [value]="false">Non</mat-option>
-    </mat-select>
-  </mat-form-field>
-
-  <div class="actions">
-    <button mat-raised-button color="primary" (click)="fetchEnRayonsPageable()">Filtrer</button>
-    <button mat-raised-button color="warn" (click)="resetFilters()">Réinitialiser</button>
-  </div>
-</div>
+<mat-card>
+  <mat-card-content>
+    <form [formGroup]="form" fxLayout="row wrap">
+      <div fxFlex="100" fxFlex.gt-sm="25" class="px-1">
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Nom Produit</mat-label>
+          <input matInput formControlName="nomProduit" placeholder="Rechercher un produit">
+        </mat-form-field>
+      </div>
+      <div fxFlex="100" fxFlex.gt-sm="25" class="px-1">
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Bientôt Périmée</mat-label>
+          <mat-select formControlName="bientotPerimee">
+            <mat-option [value]="null">Tous</mat-option>
+            <mat-option [value]="true">Oui</mat-option>
+            <mat-option [value]="false">Non</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <div fxFlex="100" fxFlex.gt-sm="25" class="px-1">
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Jours Avant Péremption</mat-label>
+          <input matInput type="number" formControlName="joursAvantPeremption" placeholder="Nombre de jours">
+        </mat-form-field>
+      </div>
+      <div fxFlex="100" fxFlex.gt-sm="25" class="px-1">
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>En Stock</mat-label>
+          <mat-select formControlName="enStock">
+            <mat-option [value]="null">Tous</mat-option>
+            <mat-option [value]="true">Oui</mat-option>
+            <mat-option [value]="false">Non</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+    </form>
+  </mat-card-content>
+  <mat-card-footer>
+    <div class="actions">
+      <button mat-raised-button color="primary" (click)="fetchEnRayonsPageable()">Filtrer</button>
+      <button mat-raised-button color="warn" (click)="resetFilters()">Réinitialiser</button>
+    </div>
+  </mat-card-footer>
+</mat-card>
 
 <div class="table-container">
   <table mat-table [dataSource]="entrees" class="mat-elevation-z8">

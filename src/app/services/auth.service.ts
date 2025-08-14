@@ -23,6 +23,10 @@ export class AuthService {
     });
   }
 
+  checkSession(): Observable<any> {
+    return this.http.get(`${this.baseUrl}/check`, {headers: this.getHeaders()});
+  }
+
   login(username: string, password: string): Observable<any> {
     return this.http.post(`${this.baseUrl}/login`, {username, password});
   }

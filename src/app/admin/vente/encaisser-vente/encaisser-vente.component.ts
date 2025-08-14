@@ -222,7 +222,7 @@ export class EncaisserVenteComponent implements OnInit {
             verticalPosition: 'top',
             duration: 3000,
           });
-          // Redirect to login page or clear session
+            localStorage.removeItem('token');
           window.location.href = '/sign-in';
         } else {
           this.caisseStatus = CaisseStatus.CLOSE;
@@ -429,7 +429,7 @@ export class EncaisserVenteComponent implements OnInit {
             verticalPosition: 'top',
             duration: 3000,
           });
-          // Redirect to login page or clear session
+            localStorage.removeItem('token');
           window.location.href = '/sign-in';
         } else
           this.snackBar.open('Failed', '×', {
@@ -649,7 +649,7 @@ export class EncaisserVenteComponent implements OnInit {
             verticalPosition: 'top',
             duration: 3000,
           });
-          // Redirect to login page or clear session
+            localStorage.removeItem('token');
           window.location.href = '/sign-in';
         } else
           this.snackBar.open('Erreur lors de la récupération des bons de caisse.', '×', {
@@ -701,7 +701,7 @@ export class EncaisserVenteComponent implements OnInit {
             verticalPosition: 'top',
             duration: 3000,
           });
-          // Redirect to login page or clear session
+            localStorage.removeItem('token');
           window.location.href = '/sign-in';
         } else
           this.snackBar.open('Erreur lors de la récupération des bons de caisse.', '×', {
@@ -737,7 +737,7 @@ export class EncaisserVenteComponent implements OnInit {
             verticalPosition: 'top',
             duration: 3000,
           });
-          // Redirect to login page or clear session
+            localStorage.removeItem('token');
           window.location.href = '/sign-in';
         } else
           this.snackBar.open('Erreur lors de la récupération des bons de caisse.', '×', {
@@ -802,7 +802,7 @@ export class EncaisserVenteComponent implements OnInit {
             verticalPosition: 'top',
             duration: 3000,
           });
-          // Redirect to login page or clear session
+            localStorage.removeItem('token');
           window.location.href = '/sign-in';
         } else
           this.snackBar.open('Erreur lors de la vérification des ventes non encaissées.', '×', {
@@ -858,7 +858,7 @@ export class EncaisserVenteComponent implements OnInit {
             verticalPosition: 'top',
             duration: 3000,
           });
-          // Redirect to login page or clear session
+            localStorage.removeItem('token');
           window.location.href = '/sign-in';
         } else
           this.snackBar.open('Erreur lors de la mise en attente de clôture de la caisse.', '×', {
@@ -931,7 +931,7 @@ export class EncaisserVenteComponent implements OnInit {
             verticalPosition: 'top',
             duration: 3000,
           });
-          // Redirect to login page or clear session
+            localStorage.removeItem('token');
           window.location.href = '/sign-in';
         } else
           this.snackBar.open('Erreur lors de la déconnexion.', '×', {
@@ -978,7 +978,7 @@ export class EncaisserVenteComponent implements OnInit {
             verticalPosition: 'top',
             duration: 3000,
           });
-          // Redirect to login page or clear session
+            localStorage.removeItem('token');
           window.location.href = '/sign-in';
         } else
           this.snackBar.open('Failed to refresh sale', '×', {
@@ -1018,7 +1018,7 @@ export class EncaisserVenteComponent implements OnInit {
             verticalPosition: 'top',
             duration: 3000,
           });
-          // Redirect to login page or clear session
+            localStorage.removeItem('token');
           window.location.href = '/sign-in';
         }
       }
@@ -1049,7 +1049,7 @@ export class EncaisserVenteComponent implements OnInit {
             verticalPosition: 'top',
             duration: 3000,
           });
-          // Redirect to login page or clear session
+            localStorage.removeItem('token');
           window.location.href = '/sign-in';
         }
       }

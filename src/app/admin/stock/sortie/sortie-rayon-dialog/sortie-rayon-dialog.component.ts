@@ -181,7 +181,7 @@ export class SortieRayonDialogComponent implements OnInit {
             verticalPosition: 'top',
             duration: 3000,
           });
-          // Redirect to login page or clear session
+            localStorage.removeItem('token');
           window.location.href = '/sign-in';
         } else
           alert('Une erreur est survenue lors de la récupération des produits en rayon.');
@@ -259,7 +259,7 @@ export class SortieRayonDialogComponent implements OnInit {
             verticalPosition: 'top',
             duration: 3000,
           });
-          // Redirect to login page or clear session
+            localStorage.removeItem('token');
           window.location.href = '/sign-in';
         }
         console.error('Failed to load products:', err);
@@ -284,7 +284,7 @@ export class SortieRayonDialogComponent implements OnInit {
             verticalPosition: 'top',
             duration: 3000,
           });
-          // Redirect to login page or clear session
+            localStorage.removeItem('token');
           window.location.href = '/sign-in';
         }
         console.error('Error searching products:', err);

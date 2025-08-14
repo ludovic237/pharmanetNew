@@ -49,8 +49,8 @@ export class ProductService {
   }
 
   // Get a product by ID
-  getProductById(id: number): Observable<Product> {
-    return this.http.get<Product>(`${this.baseUrl}/${id}/map`, {headers: this.getHeaders()});
+  getProductById(id: number): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/${id}/map`, {headers: this.getHeaders()});
   }
 
   // Create a new product

@@ -2,8 +2,6 @@ package com.example.backend.models
 
 import jakarta.persistence.*
 import org.hibernate.annotations.ColumnDefault
-import java.time.Instant
-import java.time.LocalDate
 import java.time.LocalDateTime
 
 @Entity
@@ -13,12 +11,16 @@ class EnRayon {
   @Column(name = "id", nullable = false)
   var id: String? = null
 
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "produit_id", insertable = false, updatable = false)
+  var produit: Produit? = null
+
   @Column(name = "produit_id")
   var produitId: Int? = null
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne(fetch = FetchType.EAGER)
   @JoinColumn(name = "fournisseur_id")
-  var fournisseur: com.example.backend.models.Fournisseur? = null
+  var fournisseur: Fournisseur? = null
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "commande_id")
@@ -47,5 +49,5 @@ class EnRayon {
 
   @ColumnDefault("0")
   @Column(name = "supprimer")
-  var  supprimer: Int? = 0
+  var supprimer: Int? = 0
 }

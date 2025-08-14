@@ -46,6 +46,36 @@ export class SortiesService {
     return this.http.get<any>(this.url, { headers: this.getHeaders(), params });
   }
 
+  getSortieStockPageableProductRange(
+    page: number = 0,
+    size: number = 10,
+    sort: string = 'id',
+    direction: string = 'asc',
+    nomProduit?: string,
+    produitId?: string,
+    startDate?: string,
+    endDate?: string,
+    typeSortie?: string,
+    enRayonId?: string,
+    produitDetailId?: string
+  ): Observable<any> {
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString())
+      .set('sort', sort)
+      .set('direction', direction);
+
+    if (nomProduit) params = params.set('nomProduit', nomProduit);
+    if (produitId) params = params.set('produitId', produitId);
+    if (startDate) params = params.set('startDate', startDate);
+    if (endDate) params = params.set('endDate', endDate);
+    if (typeSortie) params = params.set('typeSortie', typeSortie);
+    if (enRayonId) params = params.set('enRayonId', enRayonId.toString());
+    if (produitDetailId) params = params.set('produitDetailId', produitDetailId.toString());
+
+    return this.http.get<any>(this.url+"/product", { headers: this.getHeaders(), params });
+  }
+
   addProduitDetail(sortie: any): Observable<any> {
     return this.http.post<any>(this.url+"/save", sortie, { headers: this.getHeaders() });
   }

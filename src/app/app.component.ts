@@ -10,6 +10,7 @@ import {MatFormFieldModule} from "@angular/material/form-field";
 import {MatAutocompleteModule} from "@angular/material/autocomplete";
 import {MatInputModule} from "@angular/material/input";
 import {AppSettingsService} from "@services/app-settings.service";
+import {AuthService} from "@services/auth.service";
 
 @Component({
   selector: 'app-root',
@@ -34,6 +35,7 @@ export class AppComponent {
   constructor(public settingsService: SettingsService,
               public router: Router,
               public translate: TranslateService,
+              public authService: AuthService,
               public appSettingsService: AppSettingsService,
               public domHandlerService: DomHandlerService) {
     this.settings = this.settingsService.settings;
@@ -44,6 +46,18 @@ export class AppComponent {
 
   ngOnInit() {
     // this.appSettingsService.refreshSetting()
+
+    this.authService.checkSession().subscribe({
+      next: (response) => {
+
+      },
+      error: (err) => {
+        if (err.status === 401 || err.status === 403) {
+          localStorage.removeItem('token');
+        }
+      },
+    });
+
     if (this.domHandlerService.isBrowser) {
       setTimeout(() => {
         this.isServer = false;

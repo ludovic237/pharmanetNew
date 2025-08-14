@@ -1,4 +1,4 @@
-import {Component, HostListener, OnInit} from '@angular/core';
+import {Component, HostListener, OnInit, ViewChild} from '@angular/core';
 import {ProductNew} from "@models/product";
 import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {AppService} from "@services/app.service";
@@ -25,7 +25,7 @@ import {NgxPaginationModule} from "ngx-pagination";
 import {PipesModule} from "../../../theme/pipes/pipes.module";
 import {ProduitdetailsService} from "@services/produitdetails.service";
 import {ProductDetailInfoDialogComponent} from "./product-detail-info-dialog/product-detail-info-dialog.component";
-import {MatPaginatorModule, PageEvent} from "@angular/material/paginator";
+import {MatPaginator, MatPaginatorModule, PageEvent} from "@angular/material/paginator";
 import {AuthService} from "@services/auth.service";
 import {MatSnackBar} from "@angular/material/snack-bar";
 
@@ -56,21 +56,22 @@ import {MatSnackBar} from "@angular/material/snack-bar";
   styleUrl: './product-detail-list.component.scss'
 })
 export class ProductDetailListComponent implements OnInit {
-  // displayedColumns: string[] = ['image', 'category', 'name', 'oldPrice', 'newPrice', 'actions'];
   displayedColumns: string[] = ['nom', 'reference', 'quantiteStock', 'grossiste', 'reduction', 'actions'];
 
   public searchText: string;
 
-  public products: Array<ProductNew> = [];
+  public products: any[] = [];
   public categories: Array<any> = [];
   public viewCol: number = 25;
   public page = 1; // Default to 0 if undefined
   public size = 100;  // Default to 10 if undefined
   public totalItems = 0;  // Default to 10 if undefined
   public totalPages = 50;  // Default to 10 if undefined
-  public count = 90;
+  public count = 10;
   public searchTerm: string = '';
   public form: FormGroup;
+
+  @ViewChild(MatPaginator) paginator: MatPaginator;
 
   constructor(
     public authService: AuthService,
@@ -82,16 +83,44 @@ export class ProductDetailListComponent implements OnInit {
     public dialog: MatDialog,
     public fb: FormBuilder,
     public domHandlerService: DomHandlerService) {
+    this.form = this.fb.group({
+      searchForm: [""],
+    });
   }
 
   ngOnInit(): void {
-    this.form = this.fb.group({
-      searchForm: [null],
+
+    this.form.get("searchForm").valueChanges.subscribe((searchTerm) => {
+      if (this.page == -1) {
+        this.page = 1
+      }
+      this.searchText = searchTerm;
+      if (searchTerm == "") {
+        this.page = 0
+        this.getAllProductsDetail()
+      } else {
+        this.paginator.firstPage();
+        if (this.page > 0) {
+          this.page = 0
+        }
+        this.produitdetailsService.searchProduitDetailsByName(searchTerm, this.page - 1, this.count).subscribe({
+          // this.productService.searchProducts(this.searchTerm, this.page, this.count).subscribe({
+          next: (data: any) => {
+            this.count = data.pageable.pageSize;
+            this.totalItems = data.totalElements;
+            this.products = data.content; // Les produits pour la page actuelle
+          },
+          error: (err) => {
+            console.error('Error searching products:', err);
+          }
+        });
+      }
     });
+
     if (this.domHandlerService.window?.innerWidth < 1280) {
       this.viewCol = 33.3;
-    }
-    ;
+    };
+
     this.getCategories();
   }
 
@@ -112,7 +141,7 @@ export class ProductDetailListComponent implements OnInit {
             verticalPosition: 'top',
             duration: 3000,
           });
-          // Redirect to login page or clear session
+            localStorage.removeItem('token');
           window.location.href = '/sign-in';
         }
         console.error('Error fetching products:', err);
@@ -120,8 +149,8 @@ export class ProductDetailListComponent implements OnInit {
     });
   }
 
-  searchUsers(): void {
-    this.productService.searchProducts(this.searchText, this.page - 1, this.count).subscribe({
+  searchProduitDetail(): void {
+    this.produitdetailsService.searchProduitDetailsByName(this.searchText, this.page - 1, this.count).subscribe({
       // this.productService.searchProducts(this.searchTerm, this.page, this.count).subscribe({
       next: (data: any) => {
         this.count = data.pageable.pageSize;
@@ -134,26 +163,31 @@ export class ProductDetailListComponent implements OnInit {
     });
   }
 
-  public searchProducts(): void {
-    console.log('Searching for products with term:', this.form.value);
-    this.productService.searchProducts(this.form.value.searchForm, this.page, 40).subscribe({
-      // this.productService.searchProducts(this.searchTerm, this.page, this.count).subscribe({
-      next: (data: any) => {
-        this.count = data.numberOfElements;
-        this.totalItems = data.totalElements;
-        this.products = data.content; // Les produits pour la page actuelle
-      },
-      error: (err) => {
-        console.error('Error searching products:', err);
+  public onPageChanged(event: PageEvent) {
+    if (this.searchText === "" || this.searchText === undefined) {
+      if (this.page == 0){
+        this.page = 1
+        this.paginator.firstPage(); // Ensure the paginator UI resets
+        this.getAllProductsDetail();
       }
-    });
+      else {
+        this.page = event.pageIndex + 1;
+        this.getAllProductsDetail();
+      }
+
+    } else {
+      this.page = event.pageIndex + 1;
+      this.count = event.pageSize;
+      this.searchProduitDetail()
+    }
+
+    this.domHandlerService.winScroll(0, 0);
   }
 
   @HostListener('window:resize')
   public onWindowResize(): void {
     (this.domHandlerService.window?.innerWidth < 1280) ? this.viewCol = 33.3 : this.viewCol = 25;
   }
-
 
   public remove(product: any) {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
@@ -202,7 +236,7 @@ export class ProductDetailListComponent implements OnInit {
             verticalPosition: 'top',
             duration: 3000,
           });
-          // Redirect to login page or clear session
+            localStorage.removeItem('token');
           window.location.href = '/sign-in';
         }
         console.error('Error fetching products:', err);
@@ -223,17 +257,17 @@ export class ProductDetailListComponent implements OnInit {
     this.produitdetailsService.getProduitDetailsInfo(product.id).subscribe({
       next: (data) => {
         const dialogRef = this.dialog.open(ProductDetailInfoDialogComponent, {
-          data: data,
+          data: {
+            data:data,
+            title:"Mettre a jour produit detail : "+product.nom,
+          },
           width: "80%",
           panelClass: ['theme-dialog'],
           autoFocus: false,
         });
         dialogRef.afterClosed().subscribe(dialogResult => {
           if (dialogResult) {
-            const index: number = this.products.indexOf(product);
-            if (index !== -1) {
-              this.products.splice(index, 1);
-            }
+           this.getAllProductsDetail()
           }
         });
       },
@@ -247,7 +281,7 @@ export class ProductDetailListComponent implements OnInit {
             verticalPosition: 'top',
             duration: 3000,
           });
-          // Redirect to login page or clear session
+            localStorage.removeItem('token');
           window.location.href = '/sign-in';
         }
         console.error('Error fetching products:', err);
@@ -255,11 +289,6 @@ export class ProductDetailListComponent implements OnInit {
     });
   }
 
-  public onPageChanged(event: PageEvent) {
-    this.page = event.pageIndex + 1;
-    this.count = event.pageSize;
-    this.getAllProductsDetail();
-    this.domHandlerService.winScroll(0, 0);
-  }
+
 
 }
