@@ -15,6 +15,7 @@ interface SortieStockRepository : JpaRepository<SortieStock, Int>, JpaSpecificat
     fun filterSortieStockRange(
       nomProduit: String?,
       produitId: String?,
+      supprimer: String?,
       startDate: String?,
       endDate: String?,
       typeSortie: String?,
@@ -31,6 +32,10 @@ interface SortieStockRepository : JpaRepository<SortieStock, Int>, JpaSpecificat
               "%${nomProduit}%"
             )
           )
+        }
+
+        if (!supprimer.isNullOrEmpty() && produitId != "null") {
+          predicates.add(criteriaBuilder.equal(root.get<String>("supprimer"), supprimer))
         }
 
         if (!produitId.isNullOrEmpty() && produitId != "null") {

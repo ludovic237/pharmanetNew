@@ -250,6 +250,7 @@ export class ProductListComponent implements OnInit {
         const dialogRef = this.dialog.open(DetailProduitDialogComponent, {
           data: {
             data:data,
+            product:product,
             produitId:product.id,
           },
           width: "80%",

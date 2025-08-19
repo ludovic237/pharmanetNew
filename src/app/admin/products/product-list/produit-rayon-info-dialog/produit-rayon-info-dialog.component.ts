@@ -87,14 +87,14 @@ export class ProduitRayonInfoDialogComponent {
     })
     this.productForm = this.fb.group({
       nomProduit: [data?.data.nom || 'FLUIDTEC 750MG 10ML SACH 15', Validators.required],
-      codeBarre: [data?.data.codeBarre || '200084202303081', Validators.required],
+      codeBarre: [data?.data.id || '200084202303081', Validators.required],
       nomFournisseur: [data?.data.nomFournisseur || 'laborex', Validators.required],
       codeFournisseur: [data?.data.codeFournisseur || '04', Validators.required],
       dateLivraison: [data?.data.dateLivraison || '2023-03-08'],
       datePeremption: [data?.data.datePeremption || '2024-05-01'],
       prixVente: [data?.data.prixVente || 2950, [Validators.required, Validators.min(0)]],
-      quantite: [data?.data.quantite || 15, [Validators.required, Validators.min(1)]],
-      quantiteRestante: [data?.data.quantiteRestante || 1, [Validators.required, Validators.min(0)]],
+      quantite: [data?.data.quantiteRecu || 15, [Validators.required, Validators.min(1)]],
+      quantiteRestante: [data?.data.quantiteStock || 1, [Validators.required, Validators.min(0)]],
       prixAchat: [data?.data.prixAchat || 2207, [Validators.required, Validators.min(0)]],
       reduction: [data?.data.reduction || 10, [Validators.min(0), Validators.max(100)]]
     });
@@ -136,7 +136,7 @@ export class ProduitRayonInfoDialogComponent {
       const todayCode = todayFormatted.replace(/-/g, '');
 
       const qrCodePromises = Array.from({length: qte}, async (_, index) => {
-        const code = `${etiquetteData.id}${etiquetteData.codeFournisseur || ''}${todayCode}`;
+        const code = `${etiquetteData.id}`;
         return QRCode.toDataURL(code);
       });
 

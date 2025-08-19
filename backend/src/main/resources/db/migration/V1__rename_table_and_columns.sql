@@ -86,6 +86,17 @@ UPDATE `concerner`
 SET `prix_unit` = `prixUnit`;
 
 
+ALTER TABLE `produit_detail`
+  add column reduction_max  int default 0 null,
+  add column stock_max      int           null,
+  add column stock_min      int           null;
+
+UPDATE `produit_detail`
+SET `reduction_max`  = `reductionMax`,
+    `stock_max`      = `stockMax`,
+    `stock_min`      = `stockMin`;
+
+
 ALTER TABLE `produit`
   add column code_laborex   varchar(32)   null,
   add column code_ubipharm  varchar(32)   null,
@@ -328,9 +339,20 @@ alter table inventaire
 
 alter table user
   add password varchar(255) not null,
-  add username varchar(255) not null,
+  add username varchar(255) not null;
+
+alter table user
   modify password varchar(255) null,
   modify username varchar(255) null;
+
+alter table user
+  add   role              tinytext                not null;
+
+alter table commande
+  add column employe_id     int          null;
+
+alter table facturation
+  modify id bigint auto_increment;
 
 CREATE TABLE application_settings
 (

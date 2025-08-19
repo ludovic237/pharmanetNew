@@ -35,6 +35,8 @@ import {
   MatNativeDateModule,
   provideNativeDateAdapter
 } from "@angular/material/core";
+import {MatPaginatorModule, PageEvent} from "@angular/material/paginator";
+import {CommandeInfoDialogComponent} from "../commande-info-dialog/commande-info-dialog.component";
 
 @Component({
   selector: 'app-detail-produit-dialog',
@@ -61,7 +63,8 @@ import {
     PipesModule,
     MatDialogModule,
     MatDatepickerModule,
-    MatNativeDateModule
+    MatNativeDateModule,
+    MatPaginatorModule
   ],
   providers: [
     provideNativeDateAdapter(),
@@ -74,32 +77,43 @@ export class DetailProduitDialogComponent implements OnInit {
 
   selectedTabIndex: number = 0;
 
+  produit: any;
+
+  prixVenteTotal: number = 0;
+  qteVenteTotal: number = 0;
+  reductionVenteTotal: number = 0;
   pageVentes: number = 1;
   countVentes = 5;
   totalItemsVentes = 0;
-  startDateVentes: Date | null = new Date();
+  startDateVentes: Date | null = this.getFirstDayOfCurrentMonth();
   endDateVentes: Date | null = new Date();
 
+  totalAmountRecu: number = 0;
+  totalAmountCommande: number = 0;
+  totalQteRecu: number = 0;
+  totalQteCommande: number = 0;
   pageCommandes: number = 1;
   countCommandes = 5;
   totalItemsCommandes = 0;
-  startDateCommandes: Date | null = new Date();
+  startDateCommandes: Date | null = this.getFirstDayOfCurrentMonth();
   endDateCommandes: Date | null = new Date();
 
+  totalCommandeEnRayon: number = 0;
+  totalStockEnRayon: number = 0;
   pageEnRayons: number = 1;
   countEnRayons = 5;
   totalItemsEnRayons = 0;
-  startDateEnRayons: Date | null = new Date();
+  startDateEnRayons: Date | null = this.getFirstDayOfCurrentMonth();
   endDateEnRayons: Date | null = new Date();
 
+  totalStockSortie: number = 0;
   pageSorties: number = 1;
   countSorties = 5;
   totalItemsSorties = 0;
-  startDateSorties: Date | null = new Date();
+  startDateSorties: Date | null = this.getFirstDayOfCurrentMonth();
   endDateSorties: Date | null = new Date();
 
-  produitId:String="0"
-
+  produitId: String = "0";
 
   public form: FormGroup;
 
@@ -133,11 +147,7 @@ export class DetailProduitDialogComponent implements OnInit {
   commandesListDS: any[] = [];
   commandesMoisCols = ['nom', 'quantite', 'cout'];
   commandesTotalCols = ['nom', 'quantite', 'cout'];
-  commandesListCols = [
-    'date', 'produitId', 'commandeId', 'fournisseur',
-    'prixAchat', 'prixVente', 'quantiteCommandee', 'quantiteRecue',
-    'totalCommandee', 'totalRecu', 'etat', 'action'
-  ];
+  commandesListCols = ['date', 'produitId', 'commandeId', 'fournisseur', 'prixAchat', 'prixVente', 'quantiteCommandee', 'quantiteRecue', 'totalCommandee', 'totalRecu', 'etat', 'action'];
 
   // Stock résumé
   totalCommande = 0;
@@ -155,16 +165,16 @@ export class DetailProduitDialogComponent implements OnInit {
   sortieCols = ['nom', 'quantite', 'detail', 'forme', 'dateOperation', 'operation'];
 
   ngOnInit(): void {
-
+    this.produit = this.data.product
     this.produitId = this.data.produitId
     combineLatest([
       this.ventesService.fetchVentesPageableRangeProduct(
         this.pageSorties - 1,
         this.countSorties,
         null,
-        this.produitId+"",
-        this.appService.formatDate(this.startDateVentes+""),
-        this.appService.formatDate(this.endDateVentes+""),
+        this.produitId + "",
+        this.appService.formatDate(this.startDateVentes + ""),
+        this.appService.formatDate(this.endDateVentes + ""),
         null,
         null,
         null,
@@ -175,17 +185,18 @@ export class DetailProduitDialogComponent implements OnInit {
       this.commandesService.getCommandeInfoByProduct(
         this.pageSorties - 1,
         this.countSorties,
-        this.produitId+"",
-        this.appService.formatDate(this.startDateCommandes+""),
-        this.appService.formatDate(this.endDateCommandes+""),
+        this.produitId + "",
+        this.appService.formatDate(this.startDateCommandes + ""),
+        this.appService.formatDate(this.endDateCommandes + ""),
       ),
       this.enrayonsService.getProduitsEnRayonPageableProduitRange(
         this.pageEnRayons - 1,
         this.countEnRayons,
         null,
-        this.produitId+"",
-        this.appService.formatDate(this.startDateSorties+""),
-        this.appService.formatDate(this.endDateSorties+""),
+        this.produitId + "",
+        0 + "",
+        this.appService.formatDate(this.startDateSorties + ""),
+        this.appService.formatDate(this.endDateSorties + ""),
         null,
         null,
         null,
@@ -196,9 +207,10 @@ export class DetailProduitDialogComponent implements OnInit {
         null,
         null,
         null,
-        this.produitId+"",
-        this.appService.formatDate(this.startDateSorties+""),
-        this.appService.formatDate(this.endDateSorties+""),
+        this.produitId + "",
+        0 + "",
+        this.appService.formatDate(this.startDateSorties + ""),
+        this.appService.formatDate(this.endDateSorties + ""),
         null,
         null,
         null,
@@ -208,23 +220,33 @@ export class DetailProduitDialogComponent implements OnInit {
       next: ([dataVente, dataCommande, dataEnRayon, dataSortie]) => {
 
         this.ventesListDS = dataVente.content.content
-        this.countVentes = dataVente.pageable.pageSize;
+        this.countVentes = dataVente.pageSize;
         this.totalItemsVentes = dataVente.totalElements;
+        this.prixVenteTotal = dataVente.data.prixVenteTotal
+        this.qteVenteTotal = dataVente.data.qteVenteTotal
+        this.reductionVenteTotal = dataVente.data.reductionVenteTotal
 
-        this.commandesListCols = dataCommande.content.content
-        this.countCommandes = dataCommande.pageable.pageSize;
+        this.commandesListDS = dataCommande.content.content
+        this.countCommandes = dataCommande.pageSize;
         this.totalItemsCommandes = dataCommande.totalElements;
+        this.totalAmountRecu = dataCommande.totalAmountRecu
+        this.totalAmountCommande = dataCommande.totalAmountCommande
+        this.totalQteRecu = dataCommande.totalQteRecu
+        this.totalQteCommande = dataCommande.totalQteCommande
 
         this.stockEntryDS = dataEnRayon.content.content
-        this.countEnRayons = dataEnRayon.pageable.pageSize;
+        this.countEnRayons = dataEnRayon.pageSize;
         this.totalItemsEnRayons = dataEnRayon.totalElements;
+        this.totalCommandeEnRayon = dataEnRayon.totalAmountEnRayon
+        this.totalStockEnRayon = dataEnRayon.totalQte
 
         this.sortieDS = dataSortie.content.content
-        this.countSorties = dataSortie.pageable.pageSize;
+        this.countSorties = dataSortie.pageSize;
         this.totalItemsSorties = dataSortie.totalElements;
+        this.totalStockSortie = dataSortie.totalQteRecu
 
       },
-      error:(err)=>{
+      error: (err) => {
         console.log("error");
         console.log(err);
         if (err.status === 401 || err.status === 403) {
@@ -234,7 +256,7 @@ export class DetailProduitDialogComponent implements OnInit {
             verticalPosition: 'top',
             duration: 3000,
           });
-            localStorage.removeItem('token');
+          localStorage.removeItem('token');
           window.location.href = '/sign-in';
         }
       }
@@ -244,41 +266,57 @@ export class DetailProduitDialogComponent implements OnInit {
     // TODO: remplacer par vos services
     this.ventesMoisDS = this.data.data.ventesMois;
     this.ventesTotalDS = this.data.data.ventesTotal;
-    this.ventesListDS = this.data.data.ventesList;
+    // this.ventesListDS = this.data.data.ventesList;
 
     this.commandesMoisDS = this.data.data.commandesMois;
     this.commandesTotalDS = this.data.data.commandesTotal;
-    this.commandesListDS = this.data.data.commandesList;
+    // this.commandesListDS = this.data.data.commandesList;
 
     this.totalCommande = this.data.data.stockSummary.totalCommandeValue;
     this.stockTotal = this.data.data.stockSummary.stockTotalQuantity;
 
-    this.stockEntryDS = this.data.data.stockEntries;
-    this.sortieDS = this.data.data.stockSorties;
+    // this.stockEntryDS = this.data.data.stockEntries;
+    // this.sortieDS = this.data.data.stockSorties;
   }
 
-  deleteProduct(productId: number): void {
+  deleteProduct(rayonId: number): void {
     if (confirm('Are you sure you want to delete this product?')) {
-      this.productService.deleteProduct(productId).subscribe(() => {
-        console.log('Product deleted');
-        // Refresh the product list
-        this.productService.getProduitDetails(productId).subscribe({
-          next: (data) => {
-            this.data.data = data
-            this.snackBar.open('Product deleted.', '×', {
-              panelClass: 'success',
-              verticalPosition: 'top',
-              duration: 3000,
-            });
-          },
-          error: (err) => {
-            this.snackBar.open('Product deleted failed.', '×', {
-              panelClass: 'error',
-              verticalPosition: 'top',
-              duration: 3000,
-            });
+      this.enrayonsService.deleteEnRayon(rayonId).subscribe({
+        next: (dataVente: any) => {
+          this.getProduitsEnRayonPageableProduitRange()
+        },
+        error: (err) => {
+          console.error('Error fetching commandes:', err);
+          if (err.status === 401 || err.status === 403) {
+            this.authService.logout().subscribe({
+              next: (data) => {
+                localStorage.removeItem('token');
+                localStorage.setItem("lastLink", window.location.href);
+                window.location.href = '/sign-in';
+                this.snackBar.open('Déconnexion réussie.', '×', {
+                  panelClass: 'success',
+                  verticalPosition: 'top',
+                  duration: 3000,
+                });
+              },
+              error: (err) => {
+                console.error('Error  subscription:', err);
+                if (err.status === 401 || err.status === 403) {
+                  this.authService.logout();
+                  localStorage.removeItem('token');
+                  localStorage.setItem("lastLink", window.location.href);
+                  ;
+                  this.snackBar.open('Déconnexion, une erreur.', '×', {
+                    panelClass: 'success',
+                    verticalPosition: 'top',
+                    duration: 3000,
+                  });
+                  window.location.href = '/sign-in';
+                }
+              }
+            })
           }
-        });
+        }
       });
     }
   }
@@ -307,7 +345,7 @@ export class DetailProduitDialogComponent implements OnInit {
   }
 
   markAsExpired(productId: number): void {
-    window.location.href = '/admin/stock/sorties/'+productId;
+    window.location.href = '/admin/stock/sorties/' + productId;
   }
 
   modifyProduct(product: any): void {
@@ -317,26 +355,25 @@ export class DetailProduitDialogComponent implements OnInit {
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      this.productService.getProduitDetails(product.id).subscribe({
-        next: (data) => {
-          this.data.data = data
-          this.snackBar.open('Product deleted.', '×', {
-            panelClass: 'success',
-            verticalPosition: 'top',
-            duration: 3000,
-          });
-        },
-        error: (err) => {
-          this.snackBar.open('Product deleted failed.', '×', {
-            panelClass: 'error',
-            verticalPosition: 'top',
-            duration: 3000,
-          });
-        }
-      });
       if (result) {
         // Update the product list or call the backend to save changes
         console.log('Product modified:', result);
+        this.getProduitsEnRayonPageableProduitRange()
+      }
+    });
+  }
+
+  updateProduitCommande(product: any): void {
+    const dialogRef = this.dialog.open(CommandeInfoDialogComponent, {
+      width: '500px',
+      data: product
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        // Update the product list or call the backend to save changes
+        console.log('Product modified:', result);
+        this.getCommandeInfoByProduct()
       }
     });
   }
@@ -346,9 +383,9 @@ export class DetailProduitDialogComponent implements OnInit {
       this.pageSorties - 1,
       this.countSorties,
       null,
-      this.produitId+"",
-      this.appService.formatDate(this.startDateVentes+""),
-      this.appService.formatDate(this.endDateVentes+""),
+      this.produitId + "",
+      this.appService.formatDate(this.startDateVentes + ""),
+      this.appService.formatDate(this.endDateVentes + ""),
       null,
       null,
       null,
@@ -358,8 +395,11 @@ export class DetailProduitDialogComponent implements OnInit {
     ).subscribe({
       next: (dataVente: any) => {
         this.ventesListDS = dataVente.content.content
-        this.countVentes = dataVente.pageable.pageSize;
+        this.countVentes = dataVente.pageSize;
         this.totalItemsVentes = dataVente.totalElements;
+        this.prixVenteTotal = dataVente.data.prixVenteTotal
+        this.qteVenteTotal = dataVente.data.qteVenteTotal
+        this.reductionVenteTotal = dataVente.data.reductionVenteTotal
       },
       error: (err) => {
         console.error('Error fetching commandes:', err);
@@ -397,17 +437,33 @@ export class DetailProduitDialogComponent implements OnInit {
   }
 
   getCommandeInfoByProduct(): void {
+    console.log("test")
     this.commandesService.getCommandeInfoByProduct(
-      this.pageSorties - 1,
-      this.countSorties,
-      this.produitId+"",
-      this.appService.formatDate(this.startDateCommandes+""),
-      this.appService.formatDate(this.endDateCommandes+""),
+      this.pageCommandes - 1,
+      this.countCommandes,
+      this.produitId + "",
+      this.appService.formatDate(this.startDateCommandes + ""),
+      this.appService.formatDate(this.endDateCommandes + ""),
     ).subscribe({
       next: (dataCommande: any) => {
-        this.commandesListCols = dataCommande.content.content
-        this.countCommandes = dataCommande.pageable.pageSize;
+        console.log("dataCommande")
+        console.log(dataCommande)
+        this.commandesListDS = [...dataCommande.content.content];
+        this.countCommandes = dataCommande.pageSize;
         this.totalItemsCommandes = dataCommande.totalElements;
+        this.totalAmountRecu = dataCommande.totalAmountRecu
+        this.totalAmountCommande = dataCommande.totalAmountCommande
+        this.totalQteRecu = dataCommande.totalQteRecu
+        this.totalQteCommande = dataCommande.totalQteCommande
+
+        console.log("this.commandesListDS")
+        console.log(this.commandesListDS)
+        console.log(this.countCommandes)
+        console.log(this.totalItemsCommandes)
+        console.log(this.totalAmountRecu)
+        console.log(this.totalAmountCommande)
+        console.log(this.totalQteRecu)
+        console.log(this.totalQteCommande)
       },
       error: (err) => {
         console.error('Error fetching commandes:', err);
@@ -449,17 +505,20 @@ export class DetailProduitDialogComponent implements OnInit {
       this.pageEnRayons - 1,
       this.countEnRayons,
       null,
-      this.produitId+"",
-      this.appService.formatDate(this.startDateSorties+""),
-      this.appService.formatDate(this.endDateSorties+""),
+      this.produitId + "",
+      0 + "",
+      this.appService.formatDate(this.startDateEnRayons + ""),
+      this.appService.formatDate(this.endDateEnRayons + ""),
       null,
       null,
       null,
     ).subscribe({
       next: (dataEnRayon: any) => {
         this.stockEntryDS = dataEnRayon.content.content
-        this.countEnRayons = dataEnRayon.pageable.pageSize;
+        this.countEnRayons = dataEnRayon.pageSize;
         this.totalItemsEnRayons = dataEnRayon.totalElements;
+        this.totalCommandeEnRayon = dataEnRayon.totalAmountEnRayon
+        this.totalStockEnRayon = dataEnRayon.totalQte
       },
       error: (err) => {
         console.error('Error fetching commandes:', err);
@@ -503,17 +562,19 @@ export class DetailProduitDialogComponent implements OnInit {
       null,
       null,
       null,
-      this.produitId+"",
-      this.appService.formatDate(this.startDateSorties+""),
-      this.appService.formatDate(this.endDateSorties+""),
+      this.produitId + "",
+      0 + "",
+      this.appService.formatDate(this.startDateSorties + ""),
+      this.appService.formatDate(this.endDateSorties + ""),
       null,
       null,
       null,
     ).subscribe({
       next: (dataSortie: any) => {
         this.sortieDS = dataSortie.content.content
-        this.countSorties = dataSortie.pageable.pageSize;
+        this.countSorties = dataSortie.pageSize;
         this.totalItemsSorties = dataSortie.totalElements;
+        this.totalStockSortie = dataSortie.totalQteRecu
       },
       error: (err) => {
         console.error('Error fetching commandes:', err);
@@ -548,5 +609,34 @@ export class DetailProduitDialogComponent implements OnInit {
         }
       }
     });
+  }
+
+  getFirstDayOfCurrentMonth() {
+    const now = new Date();
+    return new Date(now.getFullYear(), now.getMonth(), 1)
+  }
+
+  public onPageChangedVente(event: PageEvent) {
+    this.pageVentes = event.pageIndex + 1;
+    this.countVentes = event.pageSize;
+    this.fetchVentesPageableRangeProduct();
+  }
+
+  public onPageChangedCommande(event: PageEvent) {
+    this.pageCommandes = event.pageIndex + 1;
+    this.countCommandes = event.pageSize;
+    this.getCommandeInfoByProduct();
+  }
+
+  public onPageChangedEnRayon(event: PageEvent) {
+    this.pageEnRayons = event.pageIndex + 1;
+    this.countEnRayons = event.pageSize;
+    this.getProduitsEnRayonPageableProduitRange();
+  }
+
+  public onPageChangedSortie(event: PageEvent) {
+    this.pageSorties = event.pageIndex + 1;
+    this.countSorties = event.pageSize;
+    this.getSortieStockPageableProductRange();
   }
 }

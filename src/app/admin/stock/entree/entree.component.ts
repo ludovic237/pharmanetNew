@@ -187,9 +187,9 @@ export class EntreeComponent implements OnInit {
       this.enStock,
     ).subscribe({
       next: (data: any) => {
-        this.count = data.pageable.pageSize;
+        this.count = data.pageSize;
         this.totalItems = data.totalElements;
-        this.entrees = data.content;
+        this.entrees = data.content.content;
       },
       error: (err: any) => {
         if (err.status === 401 || err.status === 403) {

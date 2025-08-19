@@ -53,6 +53,7 @@ export class SortiesService {
     direction: string = 'asc',
     nomProduit?: string,
     produitId?: string,
+    supprimer?: string,
     startDate?: string,
     endDate?: string,
     typeSortie?: string,
@@ -67,6 +68,7 @@ export class SortiesService {
 
     if (nomProduit) params = params.set('nomProduit', nomProduit);
     if (produitId) params = params.set('produitId', produitId);
+    if (supprimer) params = params.set('supprimer', supprimer);
     if (startDate) params = params.set('startDate', startDate);
     if (endDate) params = params.set('endDate', endDate);
     if (typeSortie) params = params.set('typeSortie', typeSortie);

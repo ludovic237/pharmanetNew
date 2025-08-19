@@ -36,6 +36,7 @@ data class EnRayonPageableCustomDto(
   var totalPages: Int?,
   var pageSize: Int?,
   var pageNumber: Int?,
-  var totalAmountEnRayon: Double?,
+  var totalAmountEnRayon: Int?,
   var totalQte: Int?,
+  var data: Map<String, Any?>?,
 )

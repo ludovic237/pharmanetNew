@@ -83,5 +83,6 @@ data class VentePageableCustomlDto(
     var totalPages:Int,
     var pageSize:Int,
     var pageNumber:Int,
-    var totalAmount:Double
+    var totalAmount:Double,
+    var data:Map<String,Any?>,
 )

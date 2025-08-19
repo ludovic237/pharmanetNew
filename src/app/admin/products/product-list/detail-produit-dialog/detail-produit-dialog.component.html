@@ -1,6 +1,6 @@
 <mat-toolbar color="primary">
   <div fxLayout="row" fxLayoutAlign="space-between center" class="user-info">
-    <h2>Produit detail</h2>
+    <h2>Produit detail : {{this.produit.nom}}</h2>
   </div>
 </mat-toolbar>
 <mat-dialog-content>
@@ -93,9 +93,9 @@
           <mat-card-content fxLayout="column" fxLayoutGap="16px">
             <div fxLayout="row wrap" fxLayoutAlign="space-between center" class="w-100 p-3">
               <div fxLayout="row" fxLayoutGap="32px">
-                <div>Quantité : <strong>{{ ventesListDS.length }}</strong></div>
-                <div>Réduction : <strong><!-- bind reduction --></strong></div>
-                <div>Prix : <strong><!-- bind total prix --></strong></div>
+                <div>Quantité : <strong>{{ qteVenteTotal }}</strong></div>
+                <div>Réduction : <strong>{{ reductionVenteTotal }}</strong></div>
+                <div>Prix : <strong>{{ prixVenteTotal }}</strong></div>
               </div>
               <div fxLayout="row" fxLayoutGap="8px">
                 <mat-form-field appearance="outline">
@@ -109,7 +109,8 @@
                   <mat-date-range-picker #pickerVentes>
                     <mat-date-range-picker-actions>
                       <button mat-button matDateRangePickerCancel>Annuler</button>
-                      <button mat-button matDateRangePickerApply (click)="fetchVentesPageableRangeProduct()" >Apply</button>
+                      <button mat-button matDateRangePickerApply (click)="fetchVentesPageableRangeProduct()">Apply
+                      </button>
                     </mat-date-range-picker-actions>
                   </mat-date-range-picker>
                 </mat-form-field>
@@ -131,7 +132,7 @@
 
               <ng-container matColumnDef="client">
                 <th mat-header-cell *matHeaderCellDef>Client</th>
-                <td mat-cell *matCellDef="let r">{{ r.client }}</td>
+                <td mat-cell *matCellDef="let r">{{ r.infoClients }}</td>
               </ng-container>
 
               <ng-container matColumnDef="prixUnitaire">
@@ -162,6 +163,9 @@
               <tr mat-header-row *matHeaderRowDef="ventesListCols"></tr>
               <tr mat-row *matRowDef="let row; columns: ventesListCols;"></tr>
             </table>
+            <mat-paginator [length]="totalItemsVentes" [pageSize]="countVentes" [pageSizeOptions]="[5, 10, 25, 100]"
+                           (page)="onPageChangedVente($event)">
+            </mat-paginator>
           </mat-card-content>
         </mat-card>
       </div>
@@ -223,122 +227,117 @@
           <mat-card-header>
             <mat-card-title>Liste des commandes</mat-card-title>
           </mat-card-header>
-          <mat-card-content>
-            <div fxLayout="row" fxLayoutGap="32px" class="mb-16">
-              <div>Total commandé : <strong>{{ totalCommande }} FCFA</strong></div>
-              <div>Total reçu : <strong>{{ stockTotal }} FCFA</strong></div>
-            </div>
-            <div class="table-responsive">
-              <div class="table-responsive">
-                <div fxLayout="row wrap" fxLayoutAlign="space-between center" class="w-100 p-3">
-                  <div fxLayout="row" fxLayoutGap="32px">
-                    <div>Quantité : <strong>{{ commandesListCols.length }}</strong></div>
-                    <div>Réduction : <strong><!-- bind reduction --></strong></div>
-                    <div>Prix : <strong><!-- bind total prix --></strong></div>
-                  </div>
-                  <div fxLayout="row" fxLayoutGap="8px">
-                    <mat-form-field appearance="outline">
-                      <mat-label>Entrer date commande</mat-label>
-                      <mat-date-range-input [rangePicker]="pickerCommandes">
-                        <input matStartDate placeholder="Start date" [(ngModel)]="startDateCommandes">
-                        <input matEndDate placeholder="End date" [(ngModel)]="endDateCommandes">
-                      </mat-date-range-input>
-                      <!--            <mat-hint>MM/DD/YYYY - MM/DD/YYYY</mat-hint>-->
-                      <mat-datepicker-toggle matIconSuffix [for]="pickerCommandes"></mat-datepicker-toggle>
-                      <mat-date-range-picker #pickerCommandes>
-                        <mat-date-range-picker-actions>
-                          <button mat-button matDateRangePickerCancel>Annuler</button>
-                          <button mat-button matDateRangePickerApply (click)="getCommandeInfoByProduct()" >Apply</button>
-                        </mat-date-range-picker-actions>
-                      </mat-date-range-picker>
-                    </mat-form-field>
-                  </div>
-                </div>
-
-                <table mat-table [dataSource]="commandesListDS" class="full-width mat-elevation-z1">
-
-                  <!-- Date Column -->
-                  <ng-container matColumnDef="date">
-                    <th mat-header-cell *matHeaderCellDef>Date</th>
-                    <td mat-cell *matCellDef="let r">{{ r.date | date:'dd/MM/yyyy' }}</td>
-                  </ng-container>
-
-                  <!-- Produit ID Column -->
-                  <ng-container matColumnDef="produitId">
-                    <th mat-header-cell *matHeaderCellDef>Produit ID</th>
-                    <td mat-cell *matCellDef="let r">{{ r.produitId }}</td>
-                  </ng-container>
-
-                  <!-- Commande ID Column -->
-                  <ng-container matColumnDef="commandeId">
-                    <th mat-header-cell *matHeaderCellDef>Commande ID</th>
-                    <td mat-cell *matCellDef="let r">{{ r.commandeId }}</td>
-                  </ng-container>
-
-                  <!-- Fournisseur Column -->
-                  <ng-container matColumnDef="fournisseur">
-                    <th mat-header-cell *matHeaderCellDef>Fournisseur</th>
-                    <td mat-cell *matCellDef="let r">{{ r.fournisseur }}</td>
-                  </ng-container>
-
-                  <!-- Prix Achat Column -->
-                  <ng-container matColumnDef="prixAchat">
-                    <th mat-header-cell *matHeaderCellDef>Prix Achat</th>
-                    <td mat-cell *matCellDef="let r">{{ r.prixAchat | currency:'FCFA':'symbol':'1.0-0' }}</td>
-                  </ng-container>
-
-                  <!-- Prix Vente Column -->
-                  <ng-container matColumnDef="prixVente">
-                    <th mat-header-cell *matHeaderCellDef>Prix Vente</th>
-                    <td mat-cell *matCellDef="let r">{{ r.prixVente | currency:'FCFA':'symbol':'1.0-0' }}</td>
-                  </ng-container>
-
-                  <!-- Quantité Commandée Column -->
-                  <ng-container matColumnDef="quantiteCommandee">
-                    <th mat-header-cell *matHeaderCellDef>Qté Commandée</th>
-                    <td mat-cell *matCellDef="let r">{{ r.quantiteCommandee }}</td>
-                  </ng-container>
-
-                  <!-- Quantité Reçue Column -->
-                  <ng-container matColumnDef="quantiteRecue">
-                    <th mat-header-cell *matHeaderCellDef>Qté Reçue</th>
-                    <td mat-cell *matCellDef="let r">{{ r.quantiteRecue }}</td>
-                  </ng-container>
-
-                  <!-- Total Commandé Column -->
-                  <ng-container matColumnDef="totalCommandee">
-                    <th mat-header-cell *matHeaderCellDef>Total Commandé</th>
-                    <td mat-cell *matCellDef="let r">{{ r.totalCommandee | currency:'FCFA':'symbol':'1.0-0' }}</td>
-                  </ng-container>
-
-                  <!-- Total Reçu Column -->
-                  <ng-container matColumnDef="totalRecu">
-                    <th mat-header-cell *matHeaderCellDef>Total Reçu</th>
-                    <td mat-cell *matCellDef="let r">{{ r.totalRecu | currency:'FCFA':'symbol':'1.0-0' }}</td>
-                  </ng-container>
-
-                  <!-- État Column -->
-                  <ng-container matColumnDef="etat">
-                    <th mat-header-cell *matHeaderCellDef>État</th>
-                    <td mat-cell *matCellDef="let r">{{ r.etat }}</td>
-                  </ng-container>
-
-                  <!-- Action Column -->
-                  <ng-container matColumnDef="action">
-                    <th mat-header-cell *matHeaderCellDef>Action</th>
-                    <td mat-cell *matCellDef="let r">
-                      <!-- Mettez ici vos boutons d'action, par exemple -->
-                      <button mat-icon-button color="primary" matTooltip="Voir les détails">
-                        <mat-icon>visibility</mat-icon>
-                      </button>
-                    </td>
-                  </ng-container>
-
-                  <tr mat-header-row *matHeaderRowDef="commandesListCols"></tr>
-                  <tr mat-row *matRowDef="let row; columns: commandesListCols;"></tr>
-                </table>
+          <mat-card-content  fxLayout="column" fxLayoutGap="16px">
+            <div fxLayout="row wrap" fxLayoutAlign="space-between center" class="w-100 p-3">
+              <div fxLayout="row" fxLayoutGap="32px">
+                <div>Total commande : <strong>{{ totalAmountCommande }} FCFA</strong></div>
+                <div>Total recu : <strong>{{totalAmountRecu}} FCFA</strong></div>
+                <!--                    <div>Prix : <strong>&lt;!&ndash; bind total prix &ndash;&gt;</strong></div>-->
+              </div>
+              <div fxLayout="row" fxLayoutGap="8px">
+                <mat-form-field appearance="outline">
+                  <mat-label>Entrer date commande</mat-label>
+                  <mat-date-range-input [rangePicker]="pickerCommandes">
+                    <input matStartDate placeholder="Start date" [(ngModel)]="startDateCommandes">
+                    <input matEndDate placeholder="End date" [(ngModel)]="endDateCommandes">
+                  </mat-date-range-input>
+                  <!--            <mat-hint>MM/DD/YYYY - MM/DD/YYYY</mat-hint>-->
+                  <mat-datepicker-toggle matIconSuffix [for]="pickerCommandes"></mat-datepicker-toggle>
+                  <mat-date-range-picker #pickerCommandes>
+                    <mat-date-range-picker-actions>
+                      <button mat-button matDateRangePickerCancel>Annuler</button>
+                      <button mat-button matDateRangePickerApply (click)="getCommandeInfoByProduct()">Apply</button>
+                    </mat-date-range-picker-actions>
+                  </mat-date-range-picker>
+                </mat-form-field>
               </div>
             </div>
+
+            <table mat-table [dataSource]="commandesListDS" class="full-width mat-elevation-z1">
+
+              <!-- Date Column -->
+              <ng-container matColumnDef="date">
+                <th mat-header-cell *matHeaderCellDef>Date</th>
+                <td mat-cell *matCellDef="let r">{{ r.dateCreation | date:'dd/MM/yyyy' }}</td>
+              </ng-container>
+
+              <!-- Produit ID Column -->
+              <ng-container matColumnDef="produitId">
+                <th mat-header-cell *matHeaderCellDef>Produit ID</th>
+                <td mat-cell *matCellDef="let r">{{ r.produitId }}</td>
+              </ng-container>
+
+              <!-- Commande ID Column -->
+              <ng-container matColumnDef="commandeId">
+                <th mat-header-cell *matHeaderCellDef>Commande ID</th>
+                <td mat-cell *matCellDef="let r">{{ r.commandeId }}</td>
+              </ng-container>
+
+              <!-- Fournisseur Column -->
+              <ng-container matColumnDef="fournisseur">
+                <th mat-header-cell *matHeaderCellDef>Fournisseur</th>
+                <td mat-cell *matCellDef="let r">{{ r.fournisseur }}</td>
+              </ng-container>
+
+              <!-- Prix Achat Column -->
+              <ng-container matColumnDef="prixAchat">
+                <th mat-header-cell *matHeaderCellDef>Prix Achat</th>
+                <td mat-cell *matCellDef="let r">{{ r.prixAchat | currency:'FCFA':'symbol':'1.0-0' }}</td>
+              </ng-container>
+
+              <!-- Prix Vente Column -->
+              <ng-container matColumnDef="prixVente">
+                <th mat-header-cell *matHeaderCellDef>Prix Vente</th>
+                <td mat-cell *matCellDef="let r">{{ r.prixVente | currency:'FCFA':'symbol':'1.0-0' }}</td>
+              </ng-container>
+
+              <!-- Quantité Commandée Column -->
+              <ng-container matColumnDef="quantiteCommandee">
+                <th mat-header-cell *matHeaderCellDef>Qté Commandée</th>
+                <td mat-cell *matCellDef="let r">{{ r.quantiteCommandee }}</td>
+              </ng-container>
+
+              <!-- Quantité Reçue Column -->
+              <ng-container matColumnDef="quantiteRecue">
+                <th mat-header-cell *matHeaderCellDef>Qté Reçue</th>
+                <td mat-cell *matCellDef="let r">{{ r.quantiteRecue }}</td>
+              </ng-container>
+
+              <!-- Total Commandé Column -->
+              <ng-container matColumnDef="totalCommandee">
+                <th mat-header-cell *matHeaderCellDef>Total Commandé</th>
+                <td mat-cell *matCellDef="let r">{{ r.totalCommandee }}</td>
+              </ng-container>
+
+              <!-- Total Reçu Column -->
+              <ng-container matColumnDef="totalRecu">
+                <th mat-header-cell *matHeaderCellDef>Total Reçu</th>
+                <td mat-cell *matCellDef="let r">{{ r.totalRecu }}</td>
+              </ng-container>
+
+              <!-- État Column -->
+              <ng-container matColumnDef="etat">
+                <th mat-header-cell *matHeaderCellDef>État</th>
+                <td mat-cell *matCellDef="let r">{{ r.etat }}</td>
+              </ng-container>
+
+              <!-- Action Column -->
+              <ng-container matColumnDef="action">
+                <th mat-header-cell *matHeaderCellDef>Action</th>
+                <td mat-cell *matCellDef="let r">
+                  <!-- Mettez ici vos boutons d'action, par exemple -->
+                  <button (click)="updateProduitCommande(r)" mat-icon-button color="primary" matTooltip="Voir les détails">
+                    <mat-icon>visibility</mat-icon>
+                  </button>
+                </td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="commandesListCols"></tr>
+              <tr mat-row *matRowDef="let row; columns: commandesListCols;"></tr>
+            </table>
+            <mat-paginator [length]="totalItemsCommandes" [pageSize]="countCommandes" [pageSizeOptions]="[5, 10, 25, 100]"
+                           (page)="onPageChangedCommande($event)">
+            </mat-paginator>
           </mat-card-content>
         </mat-card>
       </div>
@@ -349,8 +348,8 @@
       <div fxLayout="column" fxLayoutGap="24px" class="p-16">
         <mat-card>
           <mat-card-content>
-            <h3>Total commandé : <strong>{{ totalCommande }}</strong></h3>
-            <h3>Stock total : <strong>{{ stockTotal }}</strong></h3>
+            <h3>Total commandé : <strong>{{ totalCommandeEnRayon }}</strong></h3>
+            <h3>Stock total : <strong>{{ totalStockEnRayon }}</strong></h3>
           </mat-card-content>
         </mat-card>
 
@@ -361,9 +360,9 @@
           <mat-card-content class="table-responsive">
             <div fxLayout="row wrap" fxLayoutAlign="space-between center" class="w-100 p-3">
               <div fxLayout="row" fxLayoutGap="32px">
-                <div>Quantité : <strong>{{ stockEntryDS.length }}</strong></div>
-                <div>Réduction : <strong><!-- bind reduction --></strong></div>
-                <div>Prix : <strong><!-- bind total prix --></strong></div>
+                <div>Total commande : <strong>{{ totalCommandeEnRayon }}</strong></div>
+                <div>Stock total : <strong>{{totalStockEnRayon}}</strong></div>
+                <!--                <div>Prix : <strong>&lt;!&ndash; bind total prix &ndash;&gt;</strong></div>-->
               </div>
               <div fxLayout="row" fxLayoutGap="8px">
                 <mat-form-field appearance="outline">
@@ -377,7 +376,9 @@
                   <mat-date-range-picker #pickerEnRayons>
                     <mat-date-range-picker-actions>
                       <button mat-button matDateRangePickerCancel>Annuler</button>
-                      <button mat-button matDateRangePickerApply (click)="getProduitsEnRayonPageableProduitRange()">Apply</button>
+                      <button mat-button matDateRangePickerApply (click)="getProduitsEnRayonPageableProduitRange()">
+                        Apply
+                      </button>
                     </mat-date-range-picker-actions>
                   </mat-date-range-picker>
                 </mat-form-field>
@@ -391,16 +392,16 @@
                 <td mat-cell *matCellDef="let s">{{ s.nom }}</td>
               </ng-container>
               <ng-container matColumnDef="fournisseurId">
-                <th mat-header-cell *matHeaderCellDef>Fournisseur ID</th>
-                <td mat-cell *matCellDef="let s">{{ s.fournisseurId }}</td>
+                <th mat-header-cell *matHeaderCellDef>Fournisseur</th>
+                <td mat-cell *matCellDef="let s">{{ s.nomFournisseur }}</td>
               </ng-container>
               <ng-container matColumnDef="dateLivraison">
                 <th mat-header-cell *matHeaderCellDef>Date Livraison</th>
-                <td mat-cell *matCellDef="let s">{{ s.dateLivraison  | date:'yyyy-MM-dd HH:mm:ss'  }}</td>
+                <td mat-cell *matCellDef="let s">{{ s.dateLivraison  | date:'yyyy-MM-dd HH:mm:ss' }}</td>
               </ng-container>
               <ng-container matColumnDef="datePeremption">
                 <th mat-header-cell *matHeaderCellDef>Date Péremption</th>
-                <td mat-cell *matCellDef="let s">{{ s.datePeremption  | date:'yyyy-MM-dd HH:mm:ss'  }}</td>
+                <td mat-cell *matCellDef="let s">{{ s.datePeremption  | date:'yyyy-MM-dd HH:mm:ss' }}</td>
               </ng-container>
               <ng-container matColumnDef="prixAchat">
                 <th mat-header-cell *matHeaderCellDef>Prix Achat</th>
@@ -428,7 +429,7 @@
                   <button mat-icon-button color="primary" matTooltip="Modify" (click)="modifyProduct(s)">
                     <mat-icon>edit</mat-icon>
                   </button>
-                  <button mat-icon-button color="warn" matTooltip="Mark as Expired" (click)="markAsExpired(s.id)">
+                  <button mat-icon-button color="warn" matTooltip="Mark as Expired" (click)="markAsExpired(s.produitId)">
                     <mat-icon>warning</mat-icon>
                   </button>
                   <button mat-icon-button color="accent" matTooltip="Print Label" (click)="printLabel(s)">
@@ -447,6 +448,9 @@
               <tr mat-header-row *matHeaderRowDef="stockEntryCols"></tr>
               <tr mat-row *matRowDef="let row; columns: stockEntryCols;"></tr>
             </table>
+            <mat-paginator [length]="totalItemsEnRayons" [pageSize]="countEnRayons" [pageSizeOptions]="[5, 10, 25, 100]"
+                           (page)="onPageChangedEnRayon($event)">
+            </mat-paginator>
           </mat-card-content>
         </mat-card>
       </div>
@@ -462,9 +466,9 @@
           <mat-card-content>
             <div fxLayout="row wrap" fxLayoutAlign="space-between center" class="w-100 p-3">
               <div fxLayout="row" fxLayoutGap="32px">
-                <div>Quantité : <strong>{{ sortieDS.length }}</strong></div>
-                <div>Réduction : <strong><!-- bind reduction --></strong></div>
-                <div>Prix : <strong><!-- bind total prix --></strong></div>
+                <div>Stock total : <strong>{{ totalStockSortie }}</strong></div>
+                <!--                <div>Réduction : <strong>&lt;!&ndash; bind reduction &ndash;&gt;</strong></div>-->
+                <!--                <div>Prix : <strong>&lt;!&ndash; bind total prix &ndash;&gt;</strong></div>-->
               </div>
               <div fxLayout="row" fxLayoutGap="8px">
                 <mat-form-field appearance="outline">
@@ -478,7 +482,8 @@
                   <mat-date-range-picker #pickerSorties>
                     <mat-date-range-picker-actions>
                       <button mat-button matDateRangePickerCancel>Annuler</button>
-                      <button mat-button matDateRangePickerApply (click)="getSortieStockPageableProductRange()">Apply</button>
+                      <button mat-button matDateRangePickerApply (click)="getSortieStockPageableProductRange()">Apply
+                      </button>
                     </mat-date-range-picker-actions>
                   </mat-date-range-picker>
                 </mat-form-field>
@@ -498,24 +503,27 @@
               </ng-container>
               <ng-container matColumnDef="detail">
                 <th mat-header-cell *matHeaderCellDef>detail</th>
-                <td mat-cell *matCellDef="let s">{{ s.detail }}</td>
+                <td mat-cell *matCellDef="let s">{{ s.produitDetailNom }}</td>
               </ng-container>
               <ng-container matColumnDef="forme">
                 <th mat-header-cell *matHeaderCellDef>forme</th>
                 <td mat-cell *matCellDef="let s">{{ s.forme }}</td>
               </ng-container>
               <ng-container matColumnDef="dateOperation">
-                <th mat-header-cell *matHeaderCellDef>dateOperation</th>
-                <td mat-cell *matCellDef="let s">{{ s.dateOperation }}</td>
+                <th mat-header-cell *matHeaderCellDef>date Operation</th>
+                <td mat-cell *matCellDef="let s">{{ s.dateSortie }}</td>
               </ng-container>
               <ng-container matColumnDef="operation">
                 <th mat-header-cell *matHeaderCellDef>operation</th>
-                <td mat-cell *matCellDef="let s">{{ s.operation }}</td>
+                <td mat-cell *matCellDef="let s">{{ s.typeSortie.nom }}</td>
               </ng-container>
 
               <tr mat-header-row *matHeaderRowDef="sortieCols"></tr>
               <tr mat-row *matRowDef="let row; columns: sortieCols;"></tr>
             </table>
+            <mat-paginator [length]="totalItemsSorties" [pageSize]="countSorties" [pageSizeOptions]="[5, 10, 25, 100]"
+                           (page)="onPageChangedSortie($event)">
+            </mat-paginator>
           </mat-card-content>
         </mat-card>
       </div>

@@ -72,6 +72,7 @@ class SortieStockService(
   fun getSortieStockPageableProductRange(
     nomProduit: String?,
     produitId: String?,
+    supprimer: String?,
     startDate: String?,
     endDate: String?,
     typeSortie: String?,
@@ -82,6 +83,7 @@ class SortieStockService(
     val specification = SortieStockRepository.filterSortieStockRange(
       nomProduit,
       produitId,
+      supprimer,
       startDate,
       endDate,
       typeSortie,
@@ -102,16 +104,19 @@ class SortieStockService(
         val enRayon = enRayonRepository.findById(sortieStock.enRayon!!.id!!).get()
         val produit = produitRepository.findById(enRayon.produitId!!).getOrNull()
         var nom = produit?.nom
+        var forme = produit?.forme!!.nom
         var id = produit?.id
         if (sortieStock.typeSortie!!.nom!! === "detail") {
           var produitDetail = produitDetailRepository.findById(sortieStock.enRayon!!.id!!.toInt()).get()
           nom = produitDetail.nom
           id = produitDetail.id
+          forme = ""
         }
         if (produit != null) {
           mapOf(
             "id" to sortieStock.id as Any?,
-            "nomProduit" to nom as Any?,
+            "nom" to nom as Any?,
+            "forme" to forme as Any?,
 //          "formeProduit" to forme as Any?,
             "typeSortie" to sortieStock.typeSortie as Any?,
             "enRayonId" to sortieStock.enRayon?.id as Any?,

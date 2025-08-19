@@ -1,3 +1,24 @@
+-- Renommer la table
+-- ALTER TABLE employe RENAME TO employe_updated;
+-- ALTER TABLE employe RENAME TO employe_updated;
+
+-- Renommer une colonne
+ALTER TABLE employe RENAME COLUMN faireReductionMax TO faire_reduction_max;
+
+-- Ajouter une nouvelle colonne faire_reduction_max
+ALTER TABLE employe
+  ADD COLUMN faire_reduction_max INT;
+
+-- Copier les données de faireReductionMax vers faire_reduction_max
+UPDATE employe
+SET faire_reduction_max = faireReductionMax;
+
+-- (Optionnel) Supprimer l'ancienne colonne faireReductionMax si elle n'est plus nécessaire
+-- ALTER TABLE employe DROP COLUMN faireReductionMax;
+-- ALTER TABLE employe_updated RENAME COLUMN identifiant TO username;
+
+-- Modifier une autre colonne
+-- ALTER TABLE employe_updated RENAME COLUMN password TO hashed_password;
 ALTER TABLE `concerner`
   ADD COLUMN `prix_unit` int null;
 
@@ -5,12 +26,12 @@ UPDATE `concerner`
 SET `prix_unit` = `prixUnit`;
 
 ALTER TABLE `depense`
-  add column date_delivrance datetime  null,
-    add column date_depense    datetime  null,
-    add column lieu_delivrance varchar(100) null,
-    add column numero_cni      varchar(100) null,
-    add column prix_unitaire   int          null,
-    add column type_depense    int          null;
+  add column date_delivrance datetime     null,
+  add column date_depense    datetime     null,
+  add column lieu_delivrance varchar(100) null,
+  add column numero_cni      varchar(100) null,
+  add column prix_unitaire   int          null,
+  add column type_depense    int          null;
 
 UPDATE `depense`
 SET `date_delivrance` = `dateDelivrance`,
@@ -22,12 +43,12 @@ SET `date_delivrance` = `dateDelivrance`,
 
 ALTER TABLE `commande`
   ADD COLUMN date_creation  datetime null,
-    ADD COLUMN date_livraison datetime null,
-    ADD COLUMN montant_cmd    double   null,
-    ADD COLUMN montant_recu   double   null,
-    ADD COLUMN qtite_cmd      int      null,
-    ADD COLUMN qtite_recu     int      null,
-    ADD COLUMN unite_gratuite int      null;
+  ADD COLUMN date_livraison datetime null,
+  ADD COLUMN montant_cmd    double   null,
+  ADD COLUMN montant_recu   double   null,
+  ADD COLUMN qtite_cmd      int      null,
+  ADD COLUMN qtite_recu     int      null,
+  ADD COLUMN unite_gratuite int      null;
 
 UPDATE `commande`
 SET `date_creation`  = `dateCreation`,
@@ -47,7 +68,7 @@ SET `numero_telephone` = `numeroTelephone`;
 
 ALTER TABLE `inventaire`
   ADD COLUMN date_debut datetime null,
-    ADD COLUMN date_fin   datetime null;
+  ADD COLUMN date_fin   datetime null;
 
 UPDATE `inventaire`
 SET `date_debut` = `dateDebut`,
@@ -65,14 +86,25 @@ UPDATE `concerner`
 SET `prix_unit` = `prixUnit`;
 
 
+ALTER TABLE `produit_detail`
+  add column reduction_max  int default 0 null,
+  add column stock_max      int           null,
+  add column stock_min      int           null;
+
+UPDATE `produit_detail`
+SET `reduction_max`  = `reductionMax`,
+    `stock_max`      = `stockMax`,
+    `stock_min`      = `stockMin`;
+
+
 ALTER TABLE `produit`
   add column code_laborex   varchar(32)   null,
-    add column code_ubipharm  varchar(32)   null,
-    add column contenu_detail varchar(10)   null,
-    add column prix_detail    varchar(10)   null,
-    add column reduction_max  int default 0 null,
-    add column stock_max      int           null,
-    add column stock_min      int           null;
+  add column code_ubipharm  varchar(32)   null,
+  add column contenu_detail varchar(10)   null,
+  add column prix_detail    varchar(10)   null,
+  add column reduction_max  int default 0 null,
+  add column stock_max      int           null,
+  add column stock_min      int           null;
 
 UPDATE `produit`
 SET `code_laborex`   = `codeLaborex`,
@@ -85,13 +117,13 @@ SET `code_laborex`   = `codeLaborex`,
 
 ALTER TABLE `produit_cmd`
   add column prix_public    double null,
-    add column pt_cmd         double null,
-    add column pt_recept      double null,
-    add column pu_cmd         double null,
-    add column pu_recept      double null,
-    add column qtite_cmd      int    null,
-    add column qtite_recu     int    null,
-    add column unite_gratuite int    null;
+  add column pt_cmd         double null,
+  add column pt_recept      double null,
+  add column pu_cmd         double null,
+  add column pu_recept      double null,
+  add column qtite_cmd      int    null,
+  add column qtite_recu     int    null,
+  add column unite_gratuite int    null;
 
 UPDATE `produit_cmd`
 SET `prix_public`    = `prixPublic`,
@@ -117,12 +149,12 @@ SET `date_sortie` = `dateSortie`;
 
 ALTER TABLE `produit1`
   add column date_cmd        datetime null,
-    add column date_peremption datetime null,
-    add column prix_achat      double      null,
-    add column prix_public     double      null,
-    add column stock_mag       int         null,
-    add column stock_max       int         null,
-    add column stock_min       int         null;
+  add column date_peremption datetime null,
+  add column prix_achat      double   null,
+  add column prix_public     double   null,
+  add column stock_mag       int      null,
+  add column stock_max       int      null,
+  add column stock_min       int      null;
 
 UPDATE `produit1`
 SET `date_cmd`        = `dateCmd`,
@@ -130,16 +162,6 @@ SET `date_cmd`        = `dateCmd`,
     `prix_achat`      = `prixAchat`,
     `prix_public`     = `prixPublic`,
     `stock_mag`       = `stockMag`,
-    `stock_max`       = `stockMax`,
-    `stock_min`       = `stockMin`;
-
-ALTER TABLE `produit_detail`
-    add column reduction_max       int         null,
-    add column stock_max       int         null,
-    add column stock_min       int         null;
-
-UPDATE `produit_detail`
-SET `reduction_max`        = `reductionMax`,
     `stock_max`       = `stockMax`,
     `stock_min`       = `stockMin`;
 
@@ -157,12 +179,12 @@ SET employe.`faire_reduction_max` = `faireReductionMax`;
 
 
 ALTER TABLE `caisse`
-  add column date_ferme         datetime  null,
-    add column date_ouvert        datetime  null,
-    add column fermeture_caisse   varchar(255) null,
-    add column fond_caisse_ferme  double       null,
-    add column fond_caisse_ouvert double       null,
-    add column ouverture_caisse   varchar(255) null;
+  add column date_ferme         datetime     null,
+  add column date_ouvert        datetime     null,
+  add column fermeture_caisse   varchar(255) null,
+  add column fond_caisse_ferme  double       null,
+  add column fond_caisse_ouvert double       null,
+  add column ouverture_caisse   varchar(255) null;
 
 UPDATE `caisse`
 SET `date_ferme`         = `dateFerme`,
@@ -174,24 +196,23 @@ SET `date_ferme`         = `dateFerme`,
 
 
 ALTER TABLE `en_rayon`
-  add column date_livraison    datetime   null,
-                        add column date_peremption   datetime   null,
-                        add column prix_achat        int           null,
-                        add column prix_vente        int           null,
-                        add column quantite_restante int           null;
+  add column date_livraison    datetime null,
+  add column date_peremption   datetime null,
+  add column prix_achat        int      null,
+  add column prix_vente        int      null,
+  add column quantite_restante int      null;
 
 UPDATE `en_rayon`
-SET
-  `date_livraison`        = `dateLivraison`,
-  `date_peremption`   = `datePeremption`,
-  `prix_achat`  = `prixAchat`,
-  `prix_vente` = `prixVente`,
-  `quantite_restante`   = `quantiteRestante`;
+SET `date_livraison`    = `dateLivraison`,
+    `date_peremption`   = `datePeremption`,
+    `prix_achat`        = `prixAchat`,
+    `prix_vente`        = `prixVente`,
+    `quantite_restante` = `quantiteRestante`;
 
 
 ALTER TABLE `bon_caisse`
   add column date_encaisser datetime null,
-    add column date_generer   datetime null;
+  add column date_generer   datetime null;
 
 UPDATE `bon_caisse`
 SET `date_encaisser` = `dateEncaisser`,
@@ -200,7 +221,7 @@ SET `date_encaisser` = `dateEncaisser`,
 
 ALTER TABLE `history`
   add column date_histo datetime    null,
-    add column type_histo varchar(64) not null;
+  add column type_histo varchar(64) not null;
 
 UPDATE `history`
 SET `date_histo` = `dateHisto`,
@@ -209,7 +230,7 @@ SET `date_histo` = `dateHisto`,
 
 ALTER TABLE `ligne_caisse`
   add column date_ligne  datetime not null,
-    add column ref_produit int      not null;
+  add column ref_produit int      not null;
 
 UPDATE `ligne_caisse`
 SET `date_ligne`  = `dateLigne`,
@@ -218,7 +239,7 @@ SET `date_ligne`  = `dateLigne`,
 
 ALTER TABLE `produit_inventaire`
   add column stock_avant  int null,
-    add column stock_valide int null;
+  add column stock_valide int null;
 
 UPDATE `produit_inventaire`
 SET `stock_avant`  = `stockAvant`,
@@ -233,7 +254,7 @@ SET `date_transac` = `dateTransac`;
 
 ALTER TABLE `malade`
   add column mode_reglement varchar(32) not null,
-    add column code_postal_id int         null;
+  add column code_postal_id int         null;
 
 UPDATE `malade`
 SET `mode_reglement` = `modeReglement`,
@@ -248,9 +269,9 @@ SET `code_postal_id` = `CodePostal_id`;
 
 ALTER TABLE `vente`
   add column date_encaissement datetime null,
-    add column date_vente        datetime null,
-    add column prix_percu        double      null,
-    add column prix_total        double      null;
+  add column date_vente        datetime null,
+  add column prix_percu        double   null,
+  add column prix_total        double   null;
 
 UPDATE `vente`
 SET `date_encaissement` = `dateEncaissement`,
@@ -260,10 +281,10 @@ SET `date_encaissement` = `dateEncaissement`,
 
 
 ALTER TABLE `facturation`
-  add column date_facture  datetime  null,
-    add column montant_percu int          null,
-    add column montant_ttc   int          null,
-    add column type_paiement varchar(100) null;
+  add column date_facture  datetime     null,
+  add column montant_percu int          null,
+  add column montant_ttc   int          null,
+  add column type_paiement varchar(100) null;
 
 UPDATE `facturation`
 SET `date_facture`  = `dateFacture`,
@@ -274,7 +295,7 @@ SET `date_facture`  = `dateFacture`,
 
 ALTER TABLE `produit_vendu`
   add column prix_unit   double null,
-    add column qtite_vendu int    null;
+  add column qtite_vendu int    null;
 
 UPDATE `produit_vendu`
 SET `prix_unit`   = `prixUnit`,
@@ -302,25 +323,41 @@ CREATE TABLE audit_logs
 );
 
 alter table inventaire
-  add column employe_id       int       null,
-  add column rayon_id       int       null,
-  add column categorie_id    int       null,
-  add column fabriquant_id   int       null,
-  add column forme_id        int       null,
-  add column fournisseur_id  int       null,
-  add column commentaire   varchar(255) null,
-  add foreign key (employe_id ) references employe (id),
-  add foreign key (rayon_id ) references rayon (id),
-  add foreign key (categorie_id ) references categorie (id),
-  add foreign key (fabriquant_id ) references fabriquant (id),
-  add foreign key (forme_id ) references forme (id),
-  add foreign key (fournisseur_id ) references fournisseur (id);
+  add column employe_id     int          null,
+  add column rayon_id       int          null,
+  add column categorie_id   int          null,
+  add column fabriquant_id  int          null,
+  add column forme_id       int          null,
+  add column fournisseur_id int          null,
+  add column commentaire    varchar(255) null,
+  add foreign key (employe_id) references employe (id),
+  add foreign key (rayon_id) references rayon (id),
+  add foreign key (categorie_id) references categorie (id),
+  add foreign key (fabriquant_id) references fabriquant (id),
+  add foreign key (forme_id) references forme (id),
+  add foreign key (fournisseur_id) references fournisseur (id);
 
 alter table user
-  add password varchar(255) not null ,
-  add username varchar(255) not null,
+  add password varchar(255) not null,
+  add username varchar(255) not null;
+
+alter table user
   modify password varchar(255) null,
   modify username varchar(255) null;
 
+alter table user
+  add   role              tinytext                not null;
+
+alter table commande
+  add column employe_id     int          null;
+
 alter table facturation
   modify id bigint auto_increment;
+
+CREATE TABLE application_settings
+(
+  id           BIGINT AUTO_INCREMENT PRIMARY KEY,
+  key_name      VARCHAR(255)   NULL,
+  value       Text  NULL,
+  type  VARCHAR(50) default '0'
+);

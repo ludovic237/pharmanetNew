@@ -47,6 +47,7 @@ class SortieController(private val sortieStockService: SortieStockService) {
   fun getSortieStockPageableProductRange(
     @RequestParam(required = false) nomProduit: String?,
     @RequestParam(required = false) produitId: String?,
+    @RequestParam(required = false) supprimer: String?,
     @RequestParam(required = false) startDate: String?,
     @RequestParam(required = false) endDate: String?,
     @RequestParam(required = false) typeSortie: String?,
@@ -64,6 +65,7 @@ class SortieController(private val sortieStockService: SortieStockService) {
     val result = sortieStockService.getSortieStockPageableProductRange(
       nomProduit,
       produitId,
+      supprimer,
       startDate,
       endDate,
       typeSortie,

@@ -15,11 +15,18 @@ class ProduitCmd {
   var prixPublic: Double? = 0.0
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "produit_id")
+  @JoinColumn(name = "produit_id", insertable = false, updatable = false)
   var produit: Produit? = null
+
+  @Column(name = "produit_id")
+  var produitId: Int? = null
 
   @Column(name = "commande_id")
   var commandeId: Long? = null
+
+  @ManyToOne(fetch = FetchType.EAGER)
+  @JoinColumn(name = "commande_id", insertable = false, updatable = false)
+  var commande: Commande?=null
 
   @Column(name = "puCmd")
   var puCmd: Double? = 0.0

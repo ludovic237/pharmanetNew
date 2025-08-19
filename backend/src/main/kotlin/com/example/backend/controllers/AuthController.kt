@@ -46,11 +46,15 @@ class AuthController(
 
   @CrossOrigin(origins = ["http://localhost:4200"])
   @GetMapping("/check")
-  fun checkSession(request: HttpServletRequest): ResponseEntity<String> {
-    return if (request.getSession(false) != null) {
-      ResponseEntity.ok("ACTIVE")
+  fun checkSession(
+    @RequestHeader("Authorization")
+    authHeader: String
+  ): ResponseEntity<String> {
+    val token = authHeader.replace("Bearer ", "")
+    if (jwtUtil.validateToken(token)) {
+      return ResponseEntity.ok("Token is valid")
     } else {
-      ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("EXPIRED")
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("EXPIRED")
     }
   }
 

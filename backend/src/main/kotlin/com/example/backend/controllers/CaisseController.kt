@@ -74,6 +74,7 @@ class CaisseController(
   fun isCaisseOuverte(): ResponseEntity<Map<String, Any?>> {
     val caisseActive = caisseService.getCaisseActive()
     val caisseEnCours = caisseService.getCaisseEnCours()
+    val lastCaisse = caisseService.getLastCaisse()
     val employeCurrentId = userUtils.getCurrentEmployeId()
     var employeCurrent = employeRepository.findById(employeCurrentId!!.toInt()).get()
 
@@ -82,77 +83,83 @@ class CaisseController(
 
 
     val response: Map<String, Any?> =
-      if (caisseActive != null && caisseActive.user?.id == employeCurrent?.id?.toInt()) {
-        mapOf(
-          "status" to "active",
-          "caisseDetails" to mapOf(
-            "id" to caisseActive.id,
-            "etat" to caisseActive.etat,
-            "session" to caisseActive.session,
-            "nomEmploye" to (caisseActive.user?.user?.nom ?: "Inconnu"),
-            "dateOuvert" to caisseActive.dateOuvert,
-            "dateFerme" to caisseActive.dateFerme
-          )
-        )
-      } else if (employeCurrent != null && caisseEnCoursCurrentUser != null && caisseEnCoursCurrentUser?.user?.id == employeCurrent.id?.toInt()) {
-        mapOf(
-          "status" to "pending",
-          "caisseDetails" to mapOf(
-            "id" to caisseEnCoursCurrentUser?.id,
-            "etat" to caisseEnCoursCurrentUser?.etat,
-            "session" to caisseEnCoursCurrentUser?.session,
-            "nomEmploye" to (caisseEnCoursCurrentUser?.user?.user?.nom ?: "Inconnu"),
-            "dateOuvert" to caisseEnCoursCurrentUser?.dateOuvert,
-            "dateFerme" to caisseEnCoursCurrentUser?.dateFerme
-          )
-        )
-      } else if (caisseActive != null && caisseEnCoursCurrentUser != null) {
-        mapOf(
-          "status" to "already",
-          "caisseDetails" to mapOf(
-            "id" to caisseActive.id,
-            "etat" to caisseActive.etat,
-            "session" to caisseActive.session,
-            "nomEmploye" to (caisseActive.user?.user?.nom ?: "Inconnu"),
-            "dateOuvert" to caisseActive.dateOuvert,
-            "dateFerme" to caisseActive.dateFerme
-          )
-        )
-      } else if (caisseActive == null && caisseEnCours != null) {
-        mapOf(
-          "status" to "open",
-          "caisseDetails" to mapOf(
-            "id" to caisseActive?.id,
-            "etat" to caisseActive?.etat,
-            "session" to caisseActive?.session,
-            "nomEmploye" to (caisseActive?.user?.user?.nom ?: "Inconnu"),
-            "dateOuvert" to caisseActive?.dateOuvert,
-            "dateFerme" to caisseActive?.dateFerme
-          )
-        )
-      } else if (caisseActive != null && caisseEnCours == null) {
-        mapOf(
-          "status" to "already",
-          "caisseDetails" to mapOf(
-            "id" to caisseActive?.id,
-            "etat" to caisseActive?.etat,
-            "session" to caisseActive?.session,
-            "nomEmploye" to (caisseActive?.user?.user?.nom ?: "Inconnu"),
-            "dateOuvert" to caisseActive?.dateOuvert,
-            "dateFerme" to caisseActive?.dateFerme
-          )
-        )
-      } else if (caisseActive == null) {
+      if (lastCaisse?.etat == "Clot") {
         mapOf(
           "status" to "close",
           "caisseDetails" to null
         )
-      } else {
-        mapOf(
-          "status" to "close",
-          "caisseDetails" to null
-        )
-      }
+      } else
+        if (caisseActive != null && caisseActive.user?.id == employeCurrent?.id?.toInt()) {
+          mapOf(
+            "status" to "active",
+            "caisseDetails" to mapOf(
+              "id" to caisseActive.id,
+              "etat" to caisseActive.etat,
+              "session" to caisseActive.session,
+              "nomEmploye" to (caisseActive.user?.user?.nom ?: "Inconnu"),
+              "dateOuvert" to caisseActive.dateOuvert,
+              "dateFerme" to caisseActive.dateFerme
+            )
+          )
+        } else if (employeCurrent != null && caisseEnCoursCurrentUser != null && caisseEnCoursCurrentUser?.user?.id == employeCurrent.id?.toInt()) {
+          mapOf(
+            "status" to "pending",
+            "caisseDetails" to mapOf(
+              "id" to caisseEnCoursCurrentUser?.id,
+              "etat" to caisseEnCoursCurrentUser?.etat,
+              "session" to caisseEnCoursCurrentUser?.session,
+              "nomEmploye" to (caisseEnCoursCurrentUser?.user?.user?.nom ?: "Inconnu"),
+              "dateOuvert" to caisseEnCoursCurrentUser?.dateOuvert,
+              "dateFerme" to caisseEnCoursCurrentUser?.dateFerme
+            )
+          )
+        } else if (caisseActive != null && caisseEnCoursCurrentUser != null) {
+          mapOf(
+            "status" to "already",
+            "caisseDetails" to mapOf(
+              "id" to caisseActive.id,
+              "etat" to caisseActive.etat,
+              "session" to caisseActive.session,
+              "nomEmploye" to (caisseActive.user?.user?.nom ?: "Inconnu"),
+              "dateOuvert" to caisseActive.dateOuvert,
+              "dateFerme" to caisseActive.dateFerme
+            )
+          )
+        } else if (caisseActive == null && caisseEnCours != null) {
+          mapOf(
+            "status" to "open",
+            "caisseDetails" to mapOf(
+              "id" to caisseActive?.id,
+              "etat" to caisseActive?.etat,
+              "session" to caisseActive?.session,
+              "nomEmploye" to (caisseActive?.user?.user?.nom ?: "Inconnu"),
+              "dateOuvert" to caisseActive?.dateOuvert,
+              "dateFerme" to caisseActive?.dateFerme
+            )
+          )
+        } else if (caisseActive != null && caisseEnCours == null) {
+          mapOf(
+            "status" to "already",
+            "caisseDetails" to mapOf(
+              "id" to caisseActive?.id,
+              "etat" to caisseActive?.etat,
+              "session" to caisseActive?.session,
+              "nomEmploye" to (caisseActive?.user?.user?.nom ?: "Inconnu"),
+              "dateOuvert" to caisseActive?.dateOuvert,
+              "dateFerme" to caisseActive?.dateFerme
+            )
+          )
+        } else if (caisseActive == null) {
+          mapOf(
+            "status" to "close",
+            "caisseDetails" to null
+          )
+        } else {
+          mapOf(
+            "status" to "close",
+            "caisseDetails" to null
+          )
+        }
 
 
     return ResponseEntity.ok(response)

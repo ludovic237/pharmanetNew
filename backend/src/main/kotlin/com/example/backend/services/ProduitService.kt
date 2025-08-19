@@ -38,7 +38,8 @@ class ProduitService(
   private val fabriquantRepository: FabriquantRepository,
   private val caisseRepository: CaisseRepository,
   private val commandeRepository: CommandeRepository,
-  private val caisseService: CaisseService
+  private val caisseService: CaisseService,
+  private val sortieStockRepository: SortieStockRepository
 ) {
 
   @Transactional

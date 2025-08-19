@@ -48,10 +48,15 @@ export class EnrayonsService {
                                          size: number,
                                          nomProduit: string,
                                          produitId: string,
+                                         supprimer: string,
                                          startDate: string,
                                          endDate: string,
                                          bientotPerimee: boolean, joursAvantPeremption: number, enStock: boolean): Observable<any> {
-    return this.http.get<any>(this.apiUrl + `/en-rayon/product/pageable/new?page=${page}&nomProduit=${nomProduit}&produitId=${produitId}&startDate=${startDate}&endDate=${endDate}&bientotPerimee=${bientotPerimee}&joursAvantPeremption=${joursAvantPeremption}&enStock=${enStock}&size=${size}`, {headers: this.getHeaders()});
+    return this.http.get<any>(this.apiUrl + `/en-rayon/product/pageable/new?page=${page}&nomProduit=${nomProduit}&supprimer=${supprimer}&produitId=${produitId}&startDate=${startDate}&endDate=${endDate}&bientotPerimee=${bientotPerimee}&joursAvantPeremption=${joursAvantPeremption}&enStock=${enStock}&size=${size}`, {headers: this.getHeaders()});
+  }
+
+  deleteEnRayon(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/en-rayon/${id}`, {headers: this.getHeaders()});
   }
 
 }

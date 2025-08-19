@@ -37,6 +37,10 @@ class CaisseService(
     return caisseRepository.existsByEtatAndSupprimer("Ouvert", 0)
   }
 
+  fun getLastCaisse(): Caisse? {
+    return caisseRepository.findTopByOrderByIdDesc()
+  }
+
   fun getCaisseActive(): Caisse? {
     return caisseRepository.findByEtatAndSupprimer("Ouvert", 0)
       .firstOrNull()
@@ -104,7 +108,7 @@ class CaisseService(
       employeNom = "${caisse.user?.user?.prenom ?: ""} ${caisse.user?.user?.nom ?: ""}".trim(),
       dateOuvert = caisse.dateOuvert,
       dateFerme = null,
-      session = caisse.session,
+      session = genererSessionId(),
       fondCaisseOuvert = caisse.fondCaisseOuvert!!.toBigDecimal(),
       fondCaisseFerme = null,
       etat = caisse.etat

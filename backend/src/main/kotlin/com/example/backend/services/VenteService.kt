@@ -12,6 +12,7 @@ import com.itextpdf.layout.element.Paragraph
 import com.itextpdf.layout.element.Table
 import com.itextpdf.layout.properties.UnitValue
 import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
@@ -821,7 +822,7 @@ class VenteService(
     if (ventes.totalElements > 0) {
       val pageableElement = PageRequest.of(0, ventes.totalElements.toInt(), Sort.by(Sort.Direction.DESC, "dateVente"))
       val venteTotal = venteRepository.findAll(spec, pageableElement)
-      totalAmount = venteTotal.content.sumOf { it.prixTotal as Double }
+      totalAmount = venteTotal.content.sumOf { it.prixTotal ?: 0.0 }
     }
 
 
@@ -831,7 +832,10 @@ class VenteService(
       totalPages = ventes.totalPages,
       pageSize = ventes.size,
       pageNumber = ventes.number,
-      totalAmount = totalAmount
+      totalAmount = totalAmount,
+      data = mapOf(
+
+      )
     )
 
     return data
@@ -867,7 +871,7 @@ class VenteService(
     var totalAmount = 0.0
     val pageableElement = PageRequest.of(0, ventes.totalElements.toInt(), Sort.by(Sort.Direction.DESC, "dateVente"))
     val venteTotal = venteRepository.findAll(spec, pageableElement)
-    totalAmount = venteTotal.content.sumOf { it.prixTotal as Double }
+    totalAmount = venteTotal.content.sumOf { it.prixTotal?:0.0  }
 
     val smallFontSize = 8f
 
@@ -1199,34 +1203,74 @@ class VenteService(
       startDateEncaissement,
       endDateEncaissement, userId, employeId, prescripteurId, caisseId
     )
-    var ventes = venteRepository.findAll(spec, pageable).map { vente ->
-      val concerner = concernerRepository.findByVenteIdAndProduitId(vente.id!!.toLong(), produitId!!.toInt())
-      if (concerner != null) {
-        mapOf("id" to (vente.id ?: 0) as Any?,
-          "prixPercu" to ((vente.prixPercu ?: 0)) as Any?,
-          "netAPayer" to (vente.prixTotal ?: 0) as Any?,
-          "reduction" to (vente.reduction ?: 0) as Any?,
-          "quantite" to (concerner?.quantite ?: 0) as Any?,
-          "prixVente" to (concerner?.prixUnit ?: 0) as Any?,
-          "reduction" to (concerner?.reduction ?: 0) as Any?,
-          "reference" to (vente.reference ?: 0) as Any?,
-          "infoClients" to ((vente.user?.let { "${it.nom} (${it.telephone})" } ?: "Aucun client") ?: 0) as Any?,
-          "vendeur" to ((vente.employe?.user?.nom ?: "Inconnu") ?: 0) as Any?,
-          "commentaire" to (vente.commentaire ?: 0) as Any?,
-          "etat" to (vente.etat ?: 0) as Any?,
-          "dateVente" to (vente.dateVente ?: 0) as Any?,
-          "dateEncaissement" to (vente.dateEncaissement ?: 0) as Any?,
-//        "produits" to concerner,
-          "actions" to "edit,delete" as Any? // Placeholder for actions
-        )
+
+    var ventes: Page<Map<String, Any?>?> = venteRepository.findAll(spec, pageable).mapNotNull { vente ->
+      val enRayon = enRayonRepository.findAllByProduitIdAndSupprimer(produitId!!.toInt())
+      var concernerList = concernerRepository.findByVenteIdAndEnRayonIdIn(vente.id!!.toLong(), enRayon.map { it.id })
+      if (concernerList.isNotEmpty()) {
+
+        buildMap<String, Any?> {
+          vente.id?.let { put("venteId", it) }
+          vente.prixPercu?.let { put("prixPercu", it) }
+          vente.prixTotal?.let { put("netAPayer", it) }
+          vente.reference?.let { put("reference", it) }
+          vente.commentaire?.let { put("commentaire", it) }
+          vente.etat?.let { put("etat", it) }
+          vente.dateVente?.let { put("date", it) }
+          vente.dateEncaissement?.let { put("dateEncaissement", it) }
+
+          put("produits", concernerList.map { c ->
+            buildMap<String, Any?> {
+              c?.quantite?.let { put("quantite", it) }
+              c?.prixUnit?.let { put("prixUnitaire", it) }
+              c?.reduction?.let { put("reduction", it) }
+            }
+          })
+          put("quantite", concernerList.sumOf { it?.quantite!! })
+          put("prixUnitaire", concernerList.sumOf { it?.prixUnit!! })
+          put("reduction", concernerList.sumOf { it?.reduction!! })
+          put("prixVente", vente.prixTotal)
+          put("prixTotal", concernerList.sumOf { (it?.quantite!! * it?.prixUnit!!) })
+
+          if (vente.user != null) {
+            put("infoClients", "${vente.user!!.nom} (${vente.user!!.telephone})")
+          } else {
+            put("infoClients", "Aucun client")
+          }
+
+          if (vente.employe?.user != null) {
+            put("vendeur", "${vente.employe!!.user!!.nom} ")
+          } else {
+            put("vendeur", "Invonnu")
+          }
+
+          put("actions", "edit,delete")
+
+        }
       } else null
+    }.let { list ->
+      PageImpl(list, pageable, list.size.toLong())
     }
 
-    var totalAmount = 0.0
+    var prixVenteTotal = 0.0
+    var qteVenteTotal = 0.0
+    var reductionVenteTotal = 0.0
     if (ventes.totalElements > 0) {
       val pageableElement = PageRequest.of(0, ventes.totalElements.toInt(), Sort.by(Sort.Direction.DESC, "dateVente"))
       val venteTotal = venteRepository.findAll(spec, pageableElement)
-      totalAmount = venteTotal.content.sumOf { it.prixTotal as Double }
+        .map { vente ->
+          val enRayon = enRayonRepository.findAllByProduitIdAndSupprimer(produitId!!.toInt())
+          val concernerList =
+            concernerRepository.findByVenteIdAndEnRayonIdIn(vente.id!!.toLong(), enRayon.map { it.id })
+          if (concernerList != null) {
+            concernerList.stream().forEach { concerner ->
+              prixVenteTotal = (concerner?.prixUnit!! * concerner?.quantite!!) + prixVenteTotal
+              qteVenteTotal = concerner?.quantite!! + qteVenteTotal
+              reductionVenteTotal = (concerner?.reduction!!) + reductionVenteTotal
+            }
+
+          }
+        }
     }
 
 
@@ -1236,7 +1280,12 @@ class VenteService(
       totalPages = ventes.totalPages,
       pageSize = ventes.size,
       pageNumber = ventes.number,
-      totalAmount = totalAmount
+      totalAmount = 0.0,
+      data = mapOf(
+        "prixVenteTotal" to prixVenteTotal,
+        "qteVenteTotal" to qteVenteTotal,
+        "reductionVenteTotal" to reductionVenteTotal,
+      )
     )
 
     return data

@@ -13,8 +13,10 @@ import java.time.LocalDateTime
 interface ConcernerRepository : JpaRepository<Concerner, Int> {
   fun findByVenteIdAndProduitId(vente: Long, produit: Int): Concerner?
   fun findByVenteIdAndEnRayonId(vente: Long, enRayonId: String): Concerner?
+  fun findByVenteIdAndEnRayonIdIn(vente: Long, enRayonId: List<String?>): List<Concerner?>
   fun findByVenteId(vente: Long): List<Concerner?>
   fun findByProduitId(produit: Int): List<Concerner?>
+
 
   @Query(
     value = """

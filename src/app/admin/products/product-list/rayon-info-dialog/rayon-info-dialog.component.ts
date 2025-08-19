@@ -39,6 +39,7 @@ import {MatRadioModule} from "@angular/material/radio";
 import {AuthService} from "@services/auth.service";
 import {MatPaginatorModule} from "@angular/material/paginator";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
+import {AppService} from "@services/app.service";
 
 @Component({
   selector: 'app-rayon-info-dialog',
@@ -150,6 +151,7 @@ export class RayonInfoDialogComponent {
 
    constructor(
     public authService: AuthService,
+    public appService: AppService,
     public snackBar:MatSnackBar,
     private enRayonService:EnrayonsService,
     private fb: FormBuilder,
@@ -157,7 +159,7 @@ export class RayonInfoDialogComponent {
     @Inject(MAT_DIALOG_DATA) public data: any
   ) {
     this.detailForm = this.fb.group({
-      enRayonId: data?.rayonId,
+      enRayonId: data?.id,
       prixAchat: [data?.prixAchat || 1172, [Validators.required, Validators.min(0)]],
       prixVente: [data?.prixVente || 1575, [Validators.required, Validators.min(0)]],
       reductionMax: [data?.reductionMax || 10, [Validators.required, Validators.min(0), Validators.max(100)]],
@@ -174,6 +176,7 @@ export class RayonInfoDialogComponent {
 
   onSave(): void {
     if (this.detailForm.valid) {
+      this.detailForm.value.datePeremption =  this.appService.formatDate(this.detailForm.value.datePeremption+"")
       this.enRayonService.mettreAJourProduitEnRayon(this.detailForm.value).subscribe({
         next: () => {
           this.snackBar.open('Rayon mis a jour.', '×', {

@@ -37,7 +37,7 @@ export class CommandesService {
                          produitId: string,
                          startDate: string,
                          endDate: string): Observable<any> {
-    return this.http.get<any>(this.url + `/paged?produitId=${produitId}&page=${page}&size=${size}&startDate=${startDate}&endDate=${endDate}&size=${size}`, {headers: this.getHeaders()});
+    return this.http.get<any>(this.url + `/product/paged?produitId=${produitId}&page=${page}&size=${size}&startDate=${startDate}&endDate=${endDate}`, {headers: this.getHeaders()});
   }
 
   fetchCommandesPageablePrint(page: number, size: number,
@@ -175,5 +175,9 @@ export class CommandesService {
     return this.http.post<void>(`${this.url}/${commandeId}/ajouter-motif-annulation?motif=${motif}`, null, {headers: this.getHeaders()});
   }
 
+  updateCommandeSimple(
+    data: any): Observable<any> {
+    return this.http.post<any>(`${this.url}/product-commande/update?commandeId=${data.commandeId}&produitCmdId=${data.produitCmdId}&qteRecu=${data.qteRecu}&prixAchat=${data.prixAchat}&prixVente=${data.prixVente}`, null, {headers: this.getHeaders()});
+  }
 
 }

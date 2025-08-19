@@ -213,6 +213,7 @@ class EnRayonController(private val enRayonService: EnRayonService) {
     @RequestParam(required = false) joursAvantPeremption: String?,
     @RequestParam(required = false) enStock: String?,
     @RequestParam(required = false) produitId: String?,
+    @RequestParam(required = false) supprimer: String?,
     @RequestParam(required = false) startDate: String?,
     @RequestParam(required = false) endDate: String?,
     @RequestParam(defaultValue = "0") page: String,
@@ -237,6 +238,7 @@ class EnRayonController(private val enRayonService: EnRayonService) {
     val result = enRayonService.getProduitsEnRayonPageableProduitRange(
       nomProduit,
       produitId,
+      supprimer,
       startDate,
       endDate,
       bientotPerimeeBoolean,
@@ -245,6 +247,14 @@ class EnRayonController(private val enRayonService: EnRayonService) {
       pageable
     )
     return ResponseEntity.ok(result)
+  }
+
+  @CrossOrigin(origins = ["http://localhost:4200"])
+  @PreAuthorize("isAuthenticated()")
+  @DeleteMapping("/{id}")
+  fun deleteEnRayon(@PathVariable id: Long): ResponseEntity<Void> {
+    enRayonService.deleteEnRayon(id)
+    return ResponseEntity.noContent().build()
   }
 
 }

@@ -23,7 +23,7 @@ class Employe {
   @Column(name = "type", length = 100)
   var type: String? = null
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne(fetch = FetchType.EAGER)
   @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
   var user: User? = null
 

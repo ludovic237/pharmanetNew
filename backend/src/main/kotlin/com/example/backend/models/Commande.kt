@@ -28,6 +28,9 @@ class Commande (
   @JoinColumn(name = "fournisseur_id")
   var fournisseur: com.example.backend.models.Fournisseur? = null,
 
+  @OneToMany(mappedBy = "commande", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
+  var produits: MutableList<ProduitCmd?> = mutableListOf(),
+
   @Column(name = "qtiteCmd")
   var qtiteCmd: Int? = null,
 

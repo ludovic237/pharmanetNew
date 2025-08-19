@@ -1,0 +1,91 @@
+.detail-dialog {
+  min-width: 500px;
+  max-width: 600px;
+  position: relative;
+}
+
+.default-button-container {
+  position: absolute;
+  top: -10px;
+  left: 20px;
+  z-index: 10;
+}
+
+.default-button {
+  background-color: #7c4dff;
+  color: white;
+  border-radius: 20px;
+  padding: 8px 20px;
+  font-size: 14px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.default-button:hover {
+  background-color: #6a3df0;
+}
+
+.dialog-content {
+  padding: 30px 20px 20px 20px;
+  overflow-y: auto;
+  max-height: 60vh;
+}
+
+.detail-form {
+  width: 100%;
+}
+
+.form-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-field {
+  width: 100%;
+}
+
+.date-field {
+  width: 100%;
+}
+
+.dialog-actions {
+  padding: 20px;
+  border-top: 1px solid #e0e0e0;
+  gap: 10px;
+}
+
+.cancel-button {
+  color: #666;
+  background-color: #f5f5f5;
+  border: 1px solid #ddd;
+}
+
+.save-button {
+  background-color: #1976d2;
+  color: white;
+}
+
+.save-button:disabled {
+  background-color: #cccccc;
+  color: #999999;
+}
+
+/* Responsive design */
+@media (max-width: 600px) {
+  .detail-dialog {
+    min-width: 90vw;
+    max-width: 95vw;
+  }
+
+  .default-button-container {
+    position: relative;
+    top: 0;
+    left: 0;
+    margin-bottom: 10px;
+    text-align: center;
+  }
+
+  .dialog-content {
+    padding: 20px 15px;
+  }
+}

@@ -13,10 +13,10 @@ class Produit {
   @Column(name = "ean13", length = 16)
   var ean13: String? = null
 
-  @Column(name = "codeLaborex", length = 32)
+  @Column(name = "code_laborex", length = 32)
   var codeLaborex: String? = null
 
-  @Column(name = "codeUbipharm", length = 32)
+  @Column(name = "code_ubipharm", length = 32)
   var codeUbipharm: String? = null
 
   @Column(name = "reference", length = 32)
@@ -28,16 +28,16 @@ class Produit {
   @Column(name = "stock")
   var stock: Int? = null
 
-  @Column(name = "stockMax")
+  @Column(name = "stock_max")
   var stockMax: Int? = null
 
-  @Column(name = "stockMin")
+  @Column(name = "stock_min")
   var stockMin: Int? = null
 
-  @Column(name = "contenuDetail", length = 10)
+  @Column(name = "contenu_detail", length = 10)
   var contenuDetail: String? = null
 
-  @Column(name = "prixDetail", length = 10)
+  @Column(name = "prix_detail", length = 10)
   var prixDetail: String? = null
 
   @ColumnDefault("'Utile'")
@@ -45,7 +45,7 @@ class Produit {
   var etat: String? = null
 
   @ColumnDefault("0")
-  @Column(name = "reductionMax")
+  @Column(name = "reduction_max")
   var reductionMax: Int? = 0
 
   @Column(name = "grossiste_id", length = 100)

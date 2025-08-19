@@ -375,9 +375,9 @@ class EnRayonService(
   ): EnRayonPageableCustomDto {
     val specification = EnRayonRepository.filterEnRayon(nomProduit, bientotPerimee, joursAvantPeremption, enStock)
     val enRayons = enRayonRepository.findAll(specification, pageable)
-      .map { enRayon:EnRayon? ->
+      .map { enRayon: EnRayon? ->
         val produit = produitRepository.findById(enRayon?.produitId!!.toInt()).get()
-        if(produit!=null){
+        if (produit != null) {
           mapOf(
             "id" to enRayon?.id as Any?,
             "produitId" to produit!!.id as Any?,
@@ -398,16 +398,15 @@ class EnRayonService(
             "quantiteRestante" to enRayon?.quantiteRestante as Any?,
             "supprimer" to enRayon?.supprimer as Any?,
           )
-        }
-       else null
+        } else null
       }
-    var totalAmountEnRayon = 0.0
+    var totalAmountEnRayon = 0
     var totalQte = 0
     if (enRayons.totalElements > 0) {
       val pageableElement =
         PageRequest.of(0, enRayons.totalElements.toInt(), Sort.by(Sort.Direction.DESC, "dateLivraison"))
       val venteTotal = enRayonRepository.findAll(specification, pageableElement)
-      totalAmountEnRayon = venteTotal.content.sumOf { (it.prixVente!! * it.quantiteRestante!!) as Double }
+      totalAmountEnRayon = venteTotal.content.sumOf { (it.prixVente!! * it.quantiteRestante!!) }
       totalQte = venteTotal.content.sumOf { it.quantiteRestante as Int }
     }
 
@@ -419,6 +418,9 @@ class EnRayonService(
       pageNumber = enRayons.number,
       totalAmountEnRayon = totalAmountEnRayon,
       totalQte = totalQte,
+      data = mapOf(
+
+      )
     )
     return data;
   }
@@ -427,6 +429,7 @@ class EnRayonService(
   fun getProduitsEnRayonPageableProduitRange(
     nomProduit: String?,
     produitId: String?,
+    supprimer: String?,
     startDate: String?,
     endDate: String?,
     bientotPerimee: Boolean?,
@@ -434,42 +437,43 @@ class EnRayonService(
     enStock: Boolean?,
     pageable: Pageable
   ): EnRayonPageableCustomDto {
-    val specification = EnRayonRepository.filterEnRayonRange(null, startDate, endDate, null, null, null)
+    val specification =
+      EnRayonRepository.filterEnRayonRangeWithProduitId(produitId,supprimer, startDate, endDate, null, null, null)
     val enRayons = enRayonRepository.findAll(specification, pageable)
-      .map { enRayon:EnRayon? ->
+      .map { enRayon: EnRayon? ->
         val produit = produitRepository.findById(produitId!!.toInt()).get()
-        if (produit!=null){
-          mapOf(
-            "id" to enRayon?.id as Any?,
-            "produitId" to produit!!.id as Any?,
-            "produitNom" to produit!!.nom as Any?,
-            "rayonId" to produit.rayon?.id as Any?,
-            "rayonNom" to produit.rayon?.nom as Any?,
-            "fournisseurId" to enRayon?.fournisseur?.id as Any?,
-            "fournisseurNom" to enRayon?.fournisseur?.nom as Any?,
+        mapOf(
+          "id" to enRayon?.id as Any?,
+          "produitId" to produit!!.id as Any?,
+          "nom" to produit!!.nom as Any?,
+          "rayonId" to produit.rayon?.id as Any?,
+          "rayonNom" to produit.rayon?.nom as Any?,
+          "fournisseurId" to enRayon?.fournisseur?.id as Any?,
+          "nomFournisseur" to enRayon?.fournisseur?.nom as Any?,
+          "codeFournisseur" to enRayon?.fournisseur?.code as Any?,
 //          "unite" to enRayon?.unite as Any?,
-            "commandeId" to enRayon?.commande?.id as Any?,
-            "commandeRef" to enRayon?.commande?.ref as Any?,
-            "dateLivraison" to enRayon?.dateLivraison as Any?,
-            "datePeremption" to enRayon?.datePeremption as Any?,
-            "prixAchat" to enRayon?.prixAchat as Any?,
-            "prixVente" to enRayon?.prixVente as Any?,
-            "reduction" to enRayon?.reduction as Any?,
-            "quantite" to enRayon?.quantite as Any?,
-            "quantiteRestante" to enRayon?.quantiteRestante as Any?,
-            "supprimer" to enRayon?.supprimer as Any?,
-          )
-        }
-       else null
+          "commandeId" to enRayon?.commande?.id as Any?,
+          "commandeRef" to enRayon?.commande?.ref as Any?,
+          "dateLivraison" to enRayon?.dateLivraison as Any?,
+          "datePeremption" to enRayon?.datePeremption as Any?,
+          "prixAchat" to enRayon?.prixAchat as Any?,
+          "prixVente" to enRayon?.prixVente as Any?,
+          "reduction" to enRayon?.reduction as Any?,
+          "quantiteRecu" to enRayon?.quantite as Any?,
+          "quantiteStock" to enRayon?.quantiteRestante as Any?,
+          "supprimer" to enRayon?.supprimer as Any?,
+        )
       }
-    var totalAmountEnRayon = 0.0
+    var totalAmountEnRayon = 0
     var totalQte = 0
+    var totalCommandeQte = 0
     if (enRayons.totalElements > 0) {
       val pageableElement =
         PageRequest.of(0, enRayons.totalElements.toInt(), Sort.by(Sort.Direction.DESC, "dateLivraison"))
       val venteTotal = enRayonRepository.findAll(specification, pageableElement)
-      totalAmountEnRayon = venteTotal.content.sumOf { (it.prixVente!! * it.quantiteRestante!!) as Double }
+      totalAmountEnRayon = venteTotal.content.sumOf { (it.prixVente!! * it.quantiteRestante!!) }
       totalQte = venteTotal.content.sumOf { it.quantiteRestante as Int }
+      totalCommandeQte = venteTotal.content.sumOf { it.quantite as Int }
     }
 
     val data = EnRayonPageableCustomDto(
@@ -480,8 +484,23 @@ class EnRayonService(
       pageNumber = enRayons.number,
       totalAmountEnRayon = totalAmountEnRayon,
       totalQte = totalQte,
+      data = mapOf(
+        "totalAmountEnRayon" to totalAmountEnRayon,
+        "totalQte" to totalQte,
+        "totalCommandeQte" to totalCommandeQte,
+      )
     )
     return data;
+  }
+
+  fun deleteEnRayon(id: Long) {
+    if (!enRayonRepository.existsById(id.toString())) {
+      throw IllegalArgumentException("User with ID $id not found")
+    }
+//    userRepository.deleteById(id.toInt())
+    var enRayon = enRayonRepository.findById(id.toString()).get()
+    enRayon.supprimer=1
+    enRayonRepository.save(enRayon)
   }
 
 }

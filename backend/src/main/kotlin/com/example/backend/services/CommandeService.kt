@@ -20,6 +20,7 @@ import java.io.File
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import kotlin.jvm.optionals.getOrNull
 
 @Service
 class CommandeService(
@@ -859,46 +860,55 @@ class CommandeService(
     endDate: String?
   ): CommandePageableCustomlDto {
     val produit = produitRepository.findById(produitId!!.toInt()).get()
-    val specificationCommande = CommandeRepository.filterCommandes(null, null, null, startDate, endDate)
-    val commandes = commandeRepository.findAll(specificationCommande, pageable)
-      .map { commande ->
-        val commandeProduit = produitCmdRepository.findByCommandeIdAndProduit(commande?.id!!, produit)
-        if (commandeProduit != null) {
-          mapOf(
-            "commandeId" to commande.id as Any?,
-            "commandeReference" to commande.ref as Any?,
-            "dateCreation" to commande.dateCreation as Any?,
-            "prixAchat" to commandeProduit.puRecept as Any?,
-            "prixVente" to commandeProduit.prixPublic as Any?,
-            "qteCommande" to commandeProduit.qtiteCmd as Any?,
-            "qteRecu" to commandeProduit.qtiteRecu as Any?,
-            "qteTotalRecu" to commande.qtiteRecu as Any?,
-            "qteTotalCommande" to commande.qtiteCmd as Any?,
-            "fournisseur" to commande.fournisseur!!.nom as Any?,
-            "etat" to commande.etat as Any?
-          )
-        } else null
+    val spec = ProduitCmdRepository.dateBetweenWithProduitId(
+      LocalDateTime.parse(startDate!!),
+      LocalDateTime.parse(endDate!!),
+      produitId
+    )
+    val produitCommandeList = produitCmdRepository.findAll(spec, pageable).map { produitCmd ->
+//    val produitCommandeList = produitCmdRepository.findByCommandeDateBetweenWithProduitId(LocalDateTime.parse(startDate),LocalDateTime.parse(endDate),produitId.toInt(), pageable)
+//      .mapNotNull { produitCmd ->
+      val commande = commandeRepository.findById(produitCmd.commandeId!!).get()
+      mapOf(
+        "produitId" to produit.id as Any?,
+        "commandeId" to commande.id as Any?,
+        "commandeReference" to commande.ref as Any?,
+        "dateCreation" to commande.dateCreation as Any?,
+        "produitCmdId" to produitCmd.id as Any?,
+        "prixAchat" to produitCmd.puRecept as Any?,
+        "prixVente" to produitCmd.prixPublic as Any?,
+        "quantiteCommandee" to produitCmd.qtiteCmd as Any?,
+        "quantiteRecue" to produitCmd.qtiteRecu as Any?,
+        "totalRecu" to produitCmd.qtiteRecu as Any?,
+        "totalCommandee" to produitCmd.qtiteCmd as Any?,
+        "fournisseur" to commande.fournisseur!!.nom as Any?,
+        "etat" to produitCmd.etat as Any?
+      )
+    }
 
-      }
     var totalAmountRecu = 0.0
     var totalAmountCommande = 0.0
     var totalQteRecu = 0
     var totalQteCommande = 0
-    if (commandes.totalElements > 0) {
+    if (produitCommandeList.totalElements > 0) {
       val pageableElement =
-        PageRequest.of(0, commandes.totalElements.toInt(), Sort.by(Sort.Direction.DESC, "dateCreation"))
-      val commandeTotal = commandeRepository.findAll(specificationCommande, pageableElement)
-      totalAmountRecu = commandeTotal.content.sumOf { it.montantRecu as Double }
-      totalAmountCommande = commandeTotal.content.sumOf { it.montantCmd as Double }
-      totalQteRecu = commandeTotal.content.sumOf { it.qtiteRecu as Int }
-      totalQteCommande = commandeTotal.content.sumOf { it.qtiteCmd as Int }
+        PageRequest.of(
+          0,
+          produitCommandeList.totalElements.toInt(),
+          Sort.by(Sort.Direction.DESC, "commande.dateCreation")
+        )
+      val produitCommandeTotal = produitCmdRepository.findAll(spec, pageableElement)
+      totalAmountRecu = produitCommandeTotal.content.sumOf { (it.puRecept!! * it.qtiteRecu!!) as Double }
+      totalAmountCommande = produitCommandeTotal.content.sumOf { (it.puCmd!! * it.qtiteCmd!!) as Double }
+      totalQteRecu = produitCommandeTotal.content.sumOf { it.qtiteRecu as Int }
+      totalQteCommande = produitCommandeTotal.content.sumOf { it.qtiteCmd as Int }
     }
     val data = CommandePageableCustomlDto(
-      content = commandes,
-      totalElements = commandes.totalElements,
-      totalPages = commandes.totalPages,
-      pageSize = commandes.size,
-      pageNumber = commandes.number,
+      content = produitCommandeList,
+      totalElements = produitCommandeList.totalElements,
+      totalPages = produitCommandeList.totalPages,
+      pageSize = produitCommandeList.size,
+      pageNumber = produitCommandeList.number,
       totalAmountRecu = totalAmountRecu,
       totalAmountCommande = totalAmountCommande,
       totalQteRecu = totalQteRecu,
@@ -906,4 +916,52 @@ class CommandeService(
     )
     return data
   }
+
+  @Transactional
+  fun updateCommandeSimple(
+    commandeId: String?,
+    produitCmdId: String?,
+    qteRecu: String?,
+    prixAchat: String?,
+    prixVente: String?,
+  ): Commande {
+    val commande = commandeRepository.findById(commandeId!!.toLong()).get()
+
+    val produitCmd = produitCmdRepository.findById(produitCmdId!!.toInt()).get()
+    produitCmd.qtiteRecu = qteRecu!!.toInt() ?: 0
+    produitCmd.prixPublic = prixVente!!.toDouble()
+    produitCmd.puRecept = prixAchat!!.toDouble()
+    produitCmd.puCmd = prixAchat!!.toDouble()
+    produitCmdRepository.save(produitCmd)
+
+    val produit = produitRepository.findById(produitCmd.produitId!!).get()
+    val enRayon = enRayonRepository.findByProduitIdAndCommandeAndSupprimer(produitCmd.produitId!!, commande, 0).getOrNull()
+    if (enRayon!=null){
+      enRayon.quantiteRestante = qteRecu.toInt() - (enRayon.quantite!! - enRayon.quantiteRestante!!)
+      enRayon.quantite = qteRecu.toInt()
+      enRayon.prixAchat = prixAchat.toInt()
+      enRayonRepository.save(enRayon)
+    }
+    else {
+      val enRayonNew = EnRayon().apply {
+        this.produit = produit
+        this.produitId = produit.id
+        this.fournisseur = commande.fournisseur
+        this.commande = commande
+        this.dateLivraison = commande.dateLivraison
+//        this.datePeremption = produitCmd.
+        this.prixAchat = prixAchat.toInt()
+        this.prixVente = prixVente.toInt()
+        this.reduction = 0
+        this.quantite = qteRecu.toInt()
+        this.quantiteRestante = qteRecu.toInt()
+        this.supprimer = 0
+      }
+      enRayonRepository.save(enRayonNew)
+    }
+
+
+    return commande
+  }
+
 }
