@@ -26,8 +26,14 @@
           <input matStartDate formControlName="dateDebut" placeholder="Date de début">
           <input matEndDate formControlName="dateFin" placeholder="Date de fin">
         </mat-date-range-input>
-        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
         <mat-date-range-picker #picker></mat-date-range-picker>
+        @if (rechercheForm.controls.dateDebut.hasError('matStartDateInvalid')) {
+          <mat-error>Invalid start date</mat-error>
+        }
+        @if (rechercheForm.controls.dateFin.hasError('matEndDateInvalid')) {
+          <mat-error>Invalid end date</mat-error>
+        }
       </mat-form-field>
 
       <div class="mt-3">

@@ -37,6 +37,7 @@ import {FormeService} from "@services/formes.service";
 import {ProductService} from "@services/products.service";
 import {InventaireService} from "@services/inventaire.service";
 import {AuthService} from "@services/auth.service";
+import {LoaderService} from "@services/loader.service";
 
 @Component({
   selector: 'app-inventaire-valdation-dialog',
@@ -109,7 +110,8 @@ export class InventaireValdationDialogComponent implements OnInit {
   commentaire: string = '';
   commentaireErreur: string = '';
 
-   constructor(
+  constructor(
+    public loaderService: LoaderService,
     public authService: AuthService,
     private dialogRef: MatDialogRef<InventaireValdationDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
@@ -132,7 +134,8 @@ export class InventaireValdationDialogComponent implements OnInit {
     this.getInfoProduitsInventaire();
   }
 
-  getInfoProduitsInventaire(){
+  getInfoProduitsInventaire() {
+
     this.inventaireService.getInfoProduitsInventaire(this.data.id).subscribe({
       next: (data: any) => {
         console.log('Produits en stock récupérés:', data);
@@ -147,34 +150,38 @@ export class InventaireValdationDialogComponent implements OnInit {
         // this.data.produitsEnStock = data.produitsEnStock || [];
       },
       error: (err: any) => {
-        if (err.status === 401 || err.status === 403){
+
+        if (err.status === 401 || err.status === 403) {
+
           this.authService.logout().subscribe({
-                  next: (data) => {
-                    localStorage.removeItem('token');
-                    localStorage.setItem("lastLink", window.location.href);
-                    window.location.href = '/sign-in';
-                    this.snackBar.open('Déconnexion réussie.', '×', {
-                      panelClass: 'success',
-                      verticalPosition: 'top',
-                      duration: 3000,
-                    });
-                  },
-                  error: (err) => {
-                    console.error('Error  subscription:', err);
-                    if (err.status === 401 || err.status === 403) {
-                      this.authService.logout();
-                      localStorage.removeItem('token');
-                      localStorage.setItem("lastLink", window.location.href);
-                      ;
-                      this.snackBar.open('Déconnexion, une erreur.', '×', {
-                        panelClass: 'success',
-                        verticalPosition: 'top',
-                        duration: 3000,
-                      });
-                      window.location.href = '/sign-in';
-                    }
-                  }
-                })
+            next: (data) => {
+
+              localStorage.removeItem('token');
+              localStorage.setItem("lastLink", window.location.href);
+              window.location.href = '/sign-in';
+              this.snackBar.open('Déconnexion réussie.', '×', {
+                panelClass: 'success',
+                verticalPosition: 'top',
+                duration: 3000,
+              });
+            },
+            error: (err) => {
+
+              console.error('Error  subscription:', err);
+              if (err.status === 401 || err.status === 403) {
+                this.authService.logout();
+                localStorage.removeItem('token');
+                localStorage.setItem("lastLink", window.location.href);
+                ;
+                this.snackBar.open('Déconnexion, une erreur.', '×', {
+                  panelClass: 'success',
+                  verticalPosition: 'top',
+                  duration: 3000,
+                });
+                window.location.href = '/sign-in';
+              }
+            }
+          })
         }
         console.error('Failed to fetch products in stock:', err);
         alert('Une erreur est survenue lors de la récupération des produits en rayon.');
@@ -190,7 +197,8 @@ export class InventaireValdationDialogComponent implements OnInit {
       console.log('Inventaire validé avec commentaire:', this.commentaire);
       // Add logic to save or process the validation
     }
-    this.inventaireService.terminerInventaire(this.data.id,this.commentaire).subscribe({
+
+    this.inventaireService.terminerInventaire(this.data.id, this.commentaire).subscribe({
       next: (data: any) => {
         this.snackBar.open('Inventory terminated successfully!', '×', {
           panelClass: 'success',
@@ -198,43 +206,47 @@ export class InventaireValdationDialogComponent implements OnInit {
           duration: 3000
         });
         this.dialogRef.close()
+
       },
       error: (err: any) => {
-        if (err.status === 401 || err.status === 403){
+
+        if (err.status === 401 || err.status === 403) {
+
           this.authService.logout().subscribe({
-                  next: (data) => {
-                    localStorage.removeItem('token');
-                    localStorage.setItem("lastLink", window.location.href);
-                    window.location.href = '/sign-in';
-                    this.snackBar.open('Déconnexion réussie.', '×', {
-                      panelClass: 'success',
-                      verticalPosition: 'top',
-                      duration: 3000,
-                    });
-                  },
-                  error: (err) => {
-                    console.error('Error  subscription:', err);
-                    if (err.status === 401 || err.status === 403) {
-                      this.authService.logout();
-                      localStorage.removeItem('token');
-                      localStorage.setItem("lastLink", window.location.href);
-                      ;
-                      this.snackBar.open('Déconnexion, une erreur.', '×', {
-                        panelClass: 'success',
-                        verticalPosition: 'top',
-                        duration: 3000,
-                      });
-                      window.location.href = '/sign-in';
-                    }
-                  }
-                })
-        }
-        else
-        this.snackBar.open('Failed to terminate inventory.', '×', {
-          panelClass: 'error',
-          verticalPosition: 'top',
-          duration: 3000
-        });
+            next: (data) => {
+
+              localStorage.removeItem('token');
+              localStorage.setItem("lastLink", window.location.href);
+              window.location.href = '/sign-in';
+              this.snackBar.open('Déconnexion réussie.', '×', {
+                panelClass: 'success',
+                verticalPosition: 'top',
+                duration: 3000,
+              });
+            },
+            error: (err) => {
+
+              console.error('Error  subscription:', err);
+              if (err.status === 401 || err.status === 403) {
+                this.authService.logout();
+                localStorage.removeItem('token');
+                localStorage.setItem("lastLink", window.location.href);
+                ;
+                this.snackBar.open('Déconnexion, une erreur.', '×', {
+                  panelClass: 'success',
+                  verticalPosition: 'top',
+                  duration: 3000,
+                });
+                window.location.href = '/sign-in';
+              }
+            }
+          })
+        } else
+          this.snackBar.open('Failed to terminate inventory.', '×', {
+            panelClass: 'error',
+            verticalPosition: 'top',
+            duration: 3000
+          });
       },
     });
   }

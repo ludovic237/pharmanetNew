@@ -23,6 +23,7 @@ import {FlexLayoutModule} from "@ngbracket/ngx-layout";
 import {MatGridListModule} from "@angular/material/grid-list";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {AuthService} from "@services/auth.service";
+import {LoaderService} from "@services/loader.service";
 
 @Component({
   selector: 'app-gestion-caisse-dialog',
@@ -68,6 +69,7 @@ export class GestionCaisseDialogComponent {
   totalFond: number = 0;
 
    constructor(
+     public loaderService: LoaderService,
     public authService: AuthService,
     public snackBar:MatSnackBar,
     private fb: FormBuilder,

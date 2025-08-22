@@ -41,6 +41,7 @@ import {MatPaginatorModule} from "@angular/material/paginator";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {AppService} from "@services/app.service";
 import {CommandesService} from "@services/commandes.service";
+import {LoaderService} from "@services/loader.service";
 
 @Component({
   selector: 'app-commande-info-dialog',
@@ -151,6 +152,7 @@ export class CommandeInfoDialogComponent {
   detailForm: FormGroup;
 
   constructor(
+     public loaderService: LoaderService,
     public authService: AuthService,
     public appService: AppService,
     public snackBar: MatSnackBar,
@@ -178,6 +180,7 @@ export class CommandeInfoDialogComponent {
 
   onSave(): void {
     if (this.detailForm.valid) {
+
       // this.detailForm.value.datePeremption =  this.appService.formatDate(this.detailForm.value.datePeremption+"")
       this.commandesService.updateCommandeSimple(this.detailForm.value).subscribe({
         next: () => {
@@ -187,6 +190,7 @@ export class CommandeInfoDialogComponent {
             duration: 3000,
           });
           this.dialogRef.close(this.detailForm.value);
+
         },
         error: (err) => {
           this.snackBar.open('Mise a jour echoue', '×', {

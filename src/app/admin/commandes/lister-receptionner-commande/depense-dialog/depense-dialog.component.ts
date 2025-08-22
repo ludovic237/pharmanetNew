@@ -17,6 +17,7 @@ import {FlexLayoutModule} from "@ngbracket/ngx-layout";
 import {DepenseService} from "@services/depenses.service";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {AuthService} from "@services/auth.service";
+import {LoaderService} from "@services/loader.service";
 
 @Component({
   selector: 'app-depense-dialog',
@@ -48,6 +49,7 @@ export class DepenseDialogComponent implements OnInit {
   depenseForm: FormGroup;
 
   constructor(
+    public loaderService: LoaderService,
     public authService: AuthService, private fb: FormBuilder, private depenseService: DepenseService, private snackBar: MatSnackBar) {
     this.depenseForm = this.fb.group({
       designation: ['', Validators.required],
@@ -62,14 +64,22 @@ export class DepenseDialogComponent implements OnInit {
   }
 
   loadDepenses(): void {
+
     this.depenseService.getAllDepenses().subscribe({
-      next: (data) => this.depenses = data,
-      error: () => this.snackBar.open('Failed to load depenses', '×', {panelClass: 'error', duration: 3000})
+      next: (data) => {
+
+        this.depenses = data
+      },
+      error: () => {
+
+        this.snackBar.open('Failed to load depenses', '×', {panelClass: 'error', duration: 3000})
+      }
     });
   }
 
   createDepense(): void {
     if (this.depenseForm.valid) {
+
       this.depenseService.createDepense(this.depenseForm.value).subscribe({
         next: () => {
           this.snackBar.open('Depense created successfully', '×', {panelClass: 'success', duration: 3000});
@@ -78,19 +88,28 @@ export class DepenseDialogComponent implements OnInit {
           this.depenseForm.markAsPristine();
           this.depenseForm.markAsUntouched();
           this.depenseForm.updateValueAndValidity();
+
         },
-        error: () => this.snackBar.open('Failed to create depense', '×', {panelClass: 'error', duration: 3000})
+        error: () => {
+
+          this.snackBar.open('Failed to create depense', '×', {panelClass: 'error', duration: 3000})
+        }
       });
     }
   }
 
   deleteDepense(id: number): void {
+
     this.depenseService.deleteDepense(id).subscribe({
       next: () => {
+
         this.snackBar.open('Depense deleted successfully', '×', {panelClass: 'success', duration: 3000});
         this.loadDepenses();
       },
-      error: () => this.snackBar.open('Failed to delete depense', '×', {panelClass: 'error', duration: 3000})
+      error: () => {
+
+        this.snackBar.open('Failed to delete depense', '×', {panelClass: 'error', duration: 3000})
+      }
     });
   }
 }

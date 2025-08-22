@@ -19,6 +19,7 @@ import {jsPDF} from "jspdf";
 import QRCode from "qrcode";
 import {VentesService} from "@services/ventes.service";
 import {AuthService} from "@services/auth.service";
+import {LoaderService} from "@services/loader.service";
 
 @Component({
   selector: 'app-vente-dialog',
@@ -47,7 +48,8 @@ export class VenteDialogComponent {
   displayedColumns: string[] = ['montant', 'montantPerçu', 'dateEncaissement', 'dateVente', 'etat', 'ref', 'actions'];
   ventes: any[] = []; // Replace with actual data source
 
-   constructor(
+  constructor(
+    public loaderService: LoaderService,
     public authService: AuthService,
     public dialogRef: MatDialogRef<VenteDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any[],
@@ -63,6 +65,7 @@ export class VenteDialogComponent {
 
 
   imprimerTicket(venteId: string): void {
+
     this.venteService.chargerVentesEncaisser(Number(venteId)).subscribe({
       next: (vente: any) => {
         this.generateTicket(vente).then(() => {
@@ -71,37 +74,42 @@ export class VenteDialogComponent {
             duration: 3000,
           });
         });
+
       },
       error: (err: any) => {
+
         console.error('Erreur lors de la récupération des informations de la vente:', err);
         if (err.status === 401 || err.status === 403) {
+
           this.authService.logout().subscribe({
-                  next: (data) => {
-                    localStorage.removeItem('token');
-                    localStorage.setItem("lastLink", window.location.href);
-                    window.location.href = '/sign-in';
-                    this.snackBar.open('Déconnexion réussie.', '×', {
-                      panelClass: 'success',
-                      verticalPosition: 'top',
-                      duration: 3000,
-                    });
-                  },
-                  error: (err) => {
-                    console.error('Error  subscription:', err);
-                    if (err.status === 401 || err.status === 403) {
-                      this.authService.logout();
-                      localStorage.removeItem('token');
-                      localStorage.setItem("lastLink", window.location.href);
-                      ;
-                      this.snackBar.open('Déconnexion, une erreur.', '×', {
-                        panelClass: 'success',
-                        verticalPosition: 'top',
-                        duration: 3000,
-                      });
-                      window.location.href = '/sign-in';
-                    }
-                  }
-                })
+            next: (data) => {
+
+              localStorage.removeItem('token');
+              localStorage.setItem("lastLink", window.location.href);
+              window.location.href = '/sign-in';
+              this.snackBar.open('Déconnexion réussie.', '×', {
+                panelClass: 'success',
+                verticalPosition: 'top',
+                duration: 3000,
+              });
+            },
+            error: (err) => {
+
+              console.error('Error  subscription:', err);
+              if (err.status === 401 || err.status === 403) {
+                this.authService.logout();
+                localStorage.removeItem('token');
+                localStorage.setItem("lastLink", window.location.href);
+                ;
+                this.snackBar.open('Déconnexion, une erreur.', '×', {
+                  panelClass: 'success',
+                  verticalPosition: 'top',
+                  duration: 3000,
+                });
+                window.location.href = '/sign-in';
+              }
+            }
+          })
         }
       },
     });

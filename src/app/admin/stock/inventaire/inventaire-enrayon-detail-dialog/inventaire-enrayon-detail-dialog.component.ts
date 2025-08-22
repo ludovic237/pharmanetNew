@@ -30,6 +30,7 @@ import {MatPaginator} from "@angular/material/paginator";
 import {ProductService} from "@services/products.service";
 import {InventaireService} from "@services/inventaire.service";
 import {AuthService} from "@services/auth.service";
+import {LoaderService} from "@services/loader.service";
 
 @Component({
   selector: 'app-inventaire-enrayon-detail-dialog',
@@ -88,6 +89,7 @@ export class InventaireEnrayonDetailDialogComponent implements OnInit{
   filteredProducts: any[] = [];
 
    constructor(
+     public loaderService: LoaderService,
     public authService: AuthService,
     public snackBar:MatSnackBar,
     private dialogRef: MatDialogRef<InventaireEnrayonDetailDialogComponent>,
@@ -117,9 +119,11 @@ openMedicamentDialog(med: any): void {
       }));
 
       this.filteredProducts = [...this.filteredProducts, ...filteredData];
+
     },
     error: (err: any) => {
       console.error('Failed to fetch products in stock:', err);
+
       if (err.status === 401 || err.status === 403){
         this.authService.logout();
         this.snackBar.open('Déconnexion réussie.', '×', {

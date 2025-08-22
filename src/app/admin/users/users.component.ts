@@ -52,6 +52,7 @@ export class UsersComponent implements OnInit {
   domHandlerService = inject(DomHandlerService);
 
    constructor(
+     public loaderService: LoaderService,
     public authService: AuthService,
     public snackBar:MatSnackBar,public settingsService: SettingsService,
               public dialog: MatDialog,

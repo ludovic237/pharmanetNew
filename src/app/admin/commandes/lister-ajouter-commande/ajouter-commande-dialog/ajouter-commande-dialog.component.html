@@ -1,7 +1,7 @@
 <div class="p-2">
   <mat-card>
     <div fxLayout="row wrap" fxLayoutAlign="space-between center" class="w-100 p-3">
-      <h2>Ajouter une Vente</h2>
+      <h2>Ajouter une commande</h2>
     </div>
     <mat-divider></mat-divider>
     <div class="container" fxLayout="column" fxLayoutGap="16px">
@@ -12,7 +12,7 @@
                (input)="searchProducts($event)"
                placeholder="Nom du produit">
         <mat-autocomplete #auto="matAutocomplete">
-          <mat-option *ngFor="let option of products" [value]="option.nom" (click)="addProduct(option)">
+          <mat-option *ngFor="let option of products" [value]="option.nom">
             {{ option.nom }} - {{ option.prixAchat | currency }}
             <button mat-button color="primary" (click)="addProduct(option)">Ajouter</button>
           </mat-option>
@@ -188,6 +188,9 @@
           <td mat-cell *matCellDef="let product; let i = index">
             <button mat-icon-button color="warn" (click)="removeProduct(i)">
               <mat-icon>delete</mat-icon>
+            </button>
+            <button mat-icon-button color="accent" (click)="generatePDF(product)">
+              <mat-icon>print</mat-icon>
             </button>
           </td>
         </ng-container>

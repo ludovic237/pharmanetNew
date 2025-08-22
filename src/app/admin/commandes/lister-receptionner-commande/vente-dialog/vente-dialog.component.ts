@@ -19,6 +19,7 @@ import {jsPDF} from "jspdf";
 import QRCode from "qrcode";
 import {VentesService} from "@services/ventes.service";
 import {AuthService} from "@services/auth.service";
+import {LoaderService} from "@services/loader.service";
 
 @Component({
   selector: 'app-vente-dialog',
@@ -48,6 +49,7 @@ export class VenteDialogComponent {
   ventes: any[] = []; // Replace with actual data source
 
    constructor(
+     public loaderService: LoaderService,
     public authService: AuthService,
     public dialogRef: MatDialogRef<VenteDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any[],

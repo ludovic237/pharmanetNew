@@ -15,6 +15,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatIconModule } from '@angular/material/icon';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import {LoaderService} from "@services/loader.service";
 
 @Component({
     selector: 'app-coupon-dialog',
@@ -41,6 +42,7 @@ export class CouponDialogComponent implements OnInit {
   public products: any[] = [];
   public form: FormGroup;
    constructor(
+     public loaderService: LoaderService,
     public authService: AuthService,
     public snackBar:MatSnackBar,public dialogRef: MatDialogRef<CouponDialogComponent>,
               @Inject(MAT_DIALOG_DATA) public data: any,

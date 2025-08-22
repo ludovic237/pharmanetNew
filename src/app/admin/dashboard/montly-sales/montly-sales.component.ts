@@ -6,6 +6,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { FlexLayoutModule } from '@ngbracket/ngx-layout';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
+import {LoaderService} from "@services/loader.service";
 
 @Component({
     selector: 'app-montly-sales',
@@ -31,6 +32,7 @@ export class MontlySalesComponent implements OnInit {
   public previousWidthOfResizedDiv: number = 0;
 
    constructor(
+     public loaderService: LoaderService,
     public authService: AuthService,
     public snackBar:MatSnackBar,) { }
 

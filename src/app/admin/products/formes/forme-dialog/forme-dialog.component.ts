@@ -11,6 +11,7 @@ import {FlexLayoutModule} from '@ngbracket/ngx-layout';
 import {FormeService} from "@services/formes.service";
 import {MatFormFieldModule} from "@angular/material/form-field";
 import {MatToolbarModule} from "@angular/material/toolbar";
+import {LoaderService} from "@services/loader.service";
 
 @Component({
   selector: 'app-forme-dialog',
@@ -34,6 +35,7 @@ export class FormeDialogComponent implements OnInit {
   public form: FormGroup;
 
   constructor(
+     public loaderService: LoaderService,
     public authService: AuthService,
     public formeService: FormeService,
     public snackBar: MatSnackBar, public dialogRef: MatDialogRef<FormeDialogComponent>,
@@ -73,6 +75,7 @@ export class FormeDialogComponent implements OnInit {
               duration: 3000,
             });
             this.dialogRef.close();
+
           },
           error: (err) => {
             console.error('Error applying filters:', err);
@@ -81,9 +84,11 @@ export class FormeDialogComponent implements OnInit {
               verticalPosition: 'top',
               duration: 3000,
             });
+
           }
         });
       } else if (this.data.type == "update") {
+
         this.formeService.updateForme(this.form.value).subscribe({
           next: (data: any) => {
             this.snackBar.open(`Mise a jour reussi`, '×', {
@@ -92,6 +97,7 @@ export class FormeDialogComponent implements OnInit {
               duration: 3000,
             });
             this.dialogRef.close();
+
           },
           error: (err) => {
             console.error('Error applying filters:', err);
@@ -100,6 +106,7 @@ export class FormeDialogComponent implements OnInit {
               verticalPosition: 'top',
               duration: 3000,
             });
+
           }
         });
       }

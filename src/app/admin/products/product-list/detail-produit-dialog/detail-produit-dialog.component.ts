@@ -37,6 +37,7 @@ import {
 } from "@angular/material/core";
 import {MatPaginatorModule, PageEvent} from "@angular/material/paginator";
 import {CommandeInfoDialogComponent} from "../commande-info-dialog/commande-info-dialog.component";
+import {LoaderService} from "@services/loader.service";
 
 @Component({
   selector: 'app-detail-produit-dialog',
@@ -118,6 +119,7 @@ export class DetailProduitDialogComponent implements OnInit {
   public form: FormGroup;
 
   constructor(
+     public loaderService: LoaderService,
     public authService: AuthService,
     public appService: AppService,
     public enrayonsService: EnrayonsService,
@@ -167,6 +169,7 @@ export class DetailProduitDialogComponent implements OnInit {
   ngOnInit(): void {
     this.produit = this.data.product
     this.produitId = this.data.produitId
+
     combineLatest([
       this.ventesService.fetchVentesPageableRangeProduct(
         this.pageSorties - 1,
@@ -249,6 +252,7 @@ export class DetailProduitDialogComponent implements OnInit {
       error: (err) => {
         console.log("error");
         console.log(err);
+
         if (err.status === 401 || err.status === 403) {
           this.authService.logout();
           this.snackBar.open('Déconnexion réussie.', '×', {
@@ -281,15 +285,20 @@ export class DetailProduitDialogComponent implements OnInit {
 
   deleteProduct(rayonId: number): void {
     if (confirm('Are you sure you want to delete this product?')) {
+
       this.enrayonsService.deleteEnRayon(rayonId).subscribe({
         next: (dataVente: any) => {
           this.getProduitsEnRayonPageableProduitRange()
+
         },
         error: (err) => {
+
           console.error('Error fetching commandes:', err);
           if (err.status === 401 || err.status === 403) {
+
             this.authService.logout().subscribe({
               next: (data) => {
+
                 localStorage.removeItem('token');
                 localStorage.setItem("lastLink", window.location.href);
                 window.location.href = '/sign-in';
@@ -301,6 +310,7 @@ export class DetailProduitDialogComponent implements OnInit {
               },
               error: (err) => {
                 console.error('Error  subscription:', err);
+
                 if (err.status === 401 || err.status === 403) {
                   this.authService.logout();
                   localStorage.removeItem('token');
@@ -379,6 +389,7 @@ export class DetailProduitDialogComponent implements OnInit {
   }
 
   fetchVentesPageableRangeProduct(): void {
+
     this.ventesService.fetchVentesPageableRangeProduct(
       this.pageSorties - 1,
       this.countSorties,
@@ -400,12 +411,16 @@ export class DetailProduitDialogComponent implements OnInit {
         this.prixVenteTotal = dataVente.data.prixVenteTotal
         this.qteVenteTotal = dataVente.data.qteVenteTotal
         this.reductionVenteTotal = dataVente.data.reductionVenteTotal
+
       },
       error: (err) => {
+
         console.error('Error fetching commandes:', err);
         if (err.status === 401 || err.status === 403) {
+
           this.authService.logout().subscribe({
             next: (data) => {
+
               localStorage.removeItem('token');
               localStorage.setItem("lastLink", window.location.href);
               window.location.href = '/sign-in';
@@ -417,6 +432,7 @@ export class DetailProduitDialogComponent implements OnInit {
             },
             error: (err) => {
               console.error('Error  subscription:', err);
+
               if (err.status === 401 || err.status === 403) {
                 this.authService.logout();
                 localStorage.removeItem('token');
@@ -437,6 +453,7 @@ export class DetailProduitDialogComponent implements OnInit {
   }
 
   getCommandeInfoByProduct(): void {
+
     console.log("test")
     this.commandesService.getCommandeInfoByProduct(
       this.pageCommandes - 1,
@@ -464,12 +481,16 @@ export class DetailProduitDialogComponent implements OnInit {
         console.log(this.totalAmountCommande)
         console.log(this.totalQteRecu)
         console.log(this.totalQteCommande)
+
       },
       error: (err) => {
+
         console.error('Error fetching commandes:', err);
         if (err.status === 401 || err.status === 403) {
+
           this.authService.logout().subscribe({
             next: (data) => {
+
               localStorage.removeItem('token');
               localStorage.setItem("lastLink", window.location.href);
               window.location.href = '/sign-in';
@@ -480,6 +501,7 @@ export class DetailProduitDialogComponent implements OnInit {
               });
             },
             error: (err) => {
+
               console.error('Error  subscription:', err);
               if (err.status === 401 || err.status === 403) {
                 this.authService.logout();
@@ -501,6 +523,7 @@ export class DetailProduitDialogComponent implements OnInit {
   }
 
   getProduitsEnRayonPageableProduitRange(): void {
+
     this.enrayonsService.getProduitsEnRayonPageableProduitRange(
       this.pageEnRayons - 1,
       this.countEnRayons,
@@ -519,12 +542,16 @@ export class DetailProduitDialogComponent implements OnInit {
         this.totalItemsEnRayons = dataEnRayon.totalElements;
         this.totalCommandeEnRayon = dataEnRayon.totalAmountEnRayon
         this.totalStockEnRayon = dataEnRayon.totalQte
+
       },
       error: (err) => {
         console.error('Error fetching commandes:', err);
+
         if (err.status === 401 || err.status === 403) {
+
           this.authService.logout().subscribe({
             next: (data) => {
+
               localStorage.removeItem('token');
               localStorage.setItem("lastLink", window.location.href);
               window.location.href = '/sign-in';
@@ -536,6 +563,7 @@ export class DetailProduitDialogComponent implements OnInit {
             },
             error: (err) => {
               console.error('Error  subscription:', err);
+
               if (err.status === 401 || err.status === 403) {
                 this.authService.logout();
                 localStorage.removeItem('token');
@@ -556,6 +584,7 @@ export class DetailProduitDialogComponent implements OnInit {
   }
 
   getSortieStockPageableProductRange(): void {
+
     this.sortiesService.getSortieStockPageableProductRange(
       this.pageSorties - 1,
       this.countSorties,
@@ -575,10 +604,13 @@ export class DetailProduitDialogComponent implements OnInit {
         this.countSorties = dataSortie.pageSize;
         this.totalItemsSorties = dataSortie.totalElements;
         this.totalStockSortie = dataSortie.totalQteRecu
+
       },
       error: (err) => {
+
         console.error('Error fetching commandes:', err);
         if (err.status === 401 || err.status === 403) {
+
           this.authService.logout().subscribe({
             next: (data) => {
               localStorage.removeItem('token');
@@ -589,9 +621,11 @@ export class DetailProduitDialogComponent implements OnInit {
                 verticalPosition: 'top',
                 duration: 3000,
               });
+
             },
             error: (err) => {
               console.error('Error  subscription:', err);
+
               if (err.status === 401 || err.status === 403) {
                 this.authService.logout();
                 localStorage.removeItem('token');

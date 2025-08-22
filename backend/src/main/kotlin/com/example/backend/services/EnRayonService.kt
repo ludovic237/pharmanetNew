@@ -370,10 +370,12 @@ class EnRayonService(
     nomProduit: String?,
     bientotPerimee: Boolean?,
     joursAvantPeremption: Int?,
+    startDate: String?,
+    endDate: String?,
     enStock: Boolean?,
     pageable: Pageable
   ): EnRayonPageableCustomDto {
-    val specification = EnRayonRepository.filterEnRayon(nomProduit, bientotPerimee, joursAvantPeremption, enStock)
+    val specification = EnRayonRepository.filterEnRayonRange(nomProduit, startDate, endDate, bientotPerimee, joursAvantPeremption, enStock)
     val enRayons = enRayonRepository.findAll(specification, pageable)
       .map { enRayon: EnRayon? ->
         val produit = produitRepository.findById(enRayon?.produitId!!.toInt()).get()

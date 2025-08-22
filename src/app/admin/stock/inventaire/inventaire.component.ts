@@ -39,6 +39,7 @@ import {
 } from "./inventaire-comparaison-dialog/inventaire-comparaison-dialog.component";
 import {InventaireValdationDialogComponent} from "./inventaire-valdation-dialog/inventaire-valdation-dialog.component";
 import {AuthService} from "@services/auth.service";
+import {LoaderService} from "@services/loader.service";
 
 @Component({
   selector: 'app-inventaire',
@@ -99,56 +100,64 @@ export class InventaireComponent implements OnInit {
   dateDebut: Date | null = null;
   dateFin: Date | null = null;
 
-  public page:number = 1; // Default to 0 if undefined
+  public page: number = 1; // Default to 0 if undefined
   public size = 100;  // Default to 10 if undefined
   public totalItems = 0;  // Default to 10 if undefined
   public count = 10;
 
-   constructor(
+  constructor(
+    public loaderService: LoaderService,
     public authService: AuthService,
-    public snackBar:MatSnackBar,private inventaireService: InventaireService,
-              public dialog: MatDialog) {}
+    public snackBar: MatSnackBar, private inventaireService: InventaireService,
+    public dialog: MatDialog) {
+  }
 
   ngOnInit(): void {
     this.fetchInventaire();
   }
 
   fetchInventaire(): void {
-    this.inventaireService.getInventaire(this.page-1,this.count,this.etat, this.dateDebut, this.dateFin).subscribe({
+
+    this.inventaireService.getInventaire(this.page - 1, this.count, this.etat, this.dateDebut, this.dateFin).subscribe({
       next: (data: any) => {
         this.count = data.pageable.pageSize;
         this.totalItems = data.totalElements;
         this.inventaire = data.content;
+
       },
-      error: (err:any) => {
-        if (err.status === 401 || err.status === 403){
+      error: (err: any) => {
+
+        if (err.status === 401 || err.status === 403) {
+
           this.authService.logout().subscribe({
-                  next: (data) => {
-                    localStorage.removeItem('token');
-                    localStorage.setItem("lastLink", window.location.href);
-                    window.location.href = '/sign-in';
-                    this.snackBar.open('Déconnexion réussie.', '×', {
-                      panelClass: 'success',
-                      verticalPosition: 'top',
-                      duration: 3000,
-                    });
-                  },
-                  error: (err) => {
-                    console.error('Error  subscription:', err);
-                    if (err.status === 401 || err.status === 403) {
-                      this.authService.logout();
-                      localStorage.removeItem('token');
-                      localStorage.setItem("lastLink", window.location.href);
-                      ;
-                      this.snackBar.open('Déconnexion, une erreur.', '×', {
-                        panelClass: 'success',
-                        verticalPosition: 'top',
-                        duration: 3000,
-                      });
-                      window.location.href = '/sign-in';
-                    }
-                  }
-                })
+            next: (data) => {
+
+              localStorage.removeItem('token');
+              localStorage.setItem("lastLink", window.location.href);
+              window.location.href = '/sign-in';
+              this.snackBar.open('Déconnexion réussie.', '×', {
+                panelClass: 'success',
+                verticalPosition: 'top',
+                duration: 3000,
+              });
+            },
+            error: (err) => {
+
+              console.error('Error  subscription:', err);
+              if (err.status === 401 || err.status === 403) {
+                this.authService.logout();
+                localStorage.removeItem('token');
+                localStorage.setItem("lastLink", window.location.href);
+                ;
+                this.snackBar.open('Déconnexion, une erreur.', '×', {
+                  panelClass: 'success',
+                  verticalPosition: 'top',
+                  duration: 3000,
+                });
+                window.location.href = '/sign-in';
+              }
+            }
+          })
         }
         console.error('Error fetching commandes:', err);
       }
@@ -181,7 +190,7 @@ export class InventaireComponent implements OnInit {
       autoFocus: false,
     });
     dialogRef.afterClosed().subscribe((data: any) => {
-      if (data.type === "cloture"){
+      if (data.type === "cloture") {
         const dialogRef = this.dialog.open(InventaireComparaisonDialogComponent, {
           data: {
             type: "edit",
@@ -203,7 +212,7 @@ export class InventaireComponent implements OnInit {
     // Open dialog for editing item
     const dialogRef = this.dialog.open(InventaireDialogComponent, {
       data: {
-        type:"add",
+        type: "add",
       },
       width: "80%",
       panelClass: ['theme-dialog'],

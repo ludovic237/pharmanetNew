@@ -21,6 +21,7 @@ import {jsPDF} from "jspdf";
 import QRCode from "qrcode";
 import JsBarcode from "jsbarcode";
 import {AuthService} from "@services/auth.service";
+import {LoaderService} from "@services/loader.service";
 
 @Component({
   selector: 'app-bon-caisse-dialog',
@@ -54,6 +55,7 @@ export class BonCaisseDialogComponent {
   bonForm: FormGroup; // Form for creating bon
 
   constructor(
+    public loaderService: LoaderService,
     public authService: AuthService,
     private fb: FormBuilder,
     public dialogRef: MatDialogRef<BonCaisseDialogComponent>,
@@ -78,6 +80,7 @@ export class BonCaisseDialogComponent {
 
   encaisserBon(codebarreId: string): void {
     if (codebarreId) {
+
       this.bonCaisseService.updateBon(codebarreId).subscribe({
         next: () => {
           this.snackBar.open('Bon encaissé avec succès.', '×', {
@@ -87,10 +90,12 @@ export class BonCaisseDialogComponent {
           });
           this.loadBons(); // Refresh the list of bons
           this.showBonCaisse()
+
         },
         error: (err) => {
+
           console.error('Erreur lors de l\'encaissement du bon:', err);
-          if (err.status === 401 || err.status === 403){
+          if (err.status === 401 || err.status === 403) {
             this.authService.logout();
             this.snackBar.open('Déconnexion réussie.', '×', {
               panelClass: 'success',
@@ -99,13 +104,12 @@ export class BonCaisseDialogComponent {
             });
             // Redirect to login page or clear session
             window.location.href = '/sign-in';
-          }
-          else
-          this.snackBar.open('Erreur lors de l\'encaissement du bon.', '×', {
-            panelClass: 'error',
-            verticalPosition: 'top',
-            duration: 3000,
-          });
+          } else
+            this.snackBar.open('Erreur lors de l\'encaissement du bon.', '×', {
+              panelClass: 'error',
+              verticalPosition: 'top',
+              duration: 3000,
+            });
         },
       });
     } else {
@@ -120,6 +124,7 @@ export class BonCaisseDialogComponent {
   creerBon(): void {
     if (this.bonForm.valid) {
       const newBon = this.bonForm.value;
+
       this.bonCaisseService.createBon(newBon).subscribe({
         next: (bon: any) => {
           this.snackBar.open('Bon créé avec succès.', '×', {
@@ -137,10 +142,12 @@ export class BonCaisseDialogComponent {
           this.loadBons(); // Refresh the list of bons
           this.showBonCaisse()
           this.selectedTabIndex = 0; // Switch to "Lister Bon" tab
+
         },
         error: (err) => {
+
           console.error('Erreur lors de la création du bon:', err);
-          if (err.status === 401 || err.status === 403){
+          if (err.status === 401 || err.status === 403) {
             this.authService.logout();
             this.snackBar.open('Déconnexion réussie.', '×', {
               panelClass: 'success',
@@ -149,13 +156,12 @@ export class BonCaisseDialogComponent {
             });
             // Redirect to login page or clear session
             window.location.href = '/sign-in';
-          }
-          else
-          this.snackBar.open('Erreur lors de la création du bon.', '×', {
-            panelClass: 'error',
-            verticalPosition: 'top',
-            duration: 3000,
-          });
+          } else
+            this.snackBar.open('Erreur lors de la création du bon.', '×', {
+              panelClass: 'error',
+              verticalPosition: 'top',
+              duration: 3000,
+            });
         },
       });
     } else {
@@ -168,47 +174,52 @@ export class BonCaisseDialogComponent {
   }
 
   showBonCaisse() {
+
     this.bonCaisseService.getAllBons().subscribe({
       next: (bons: any[]) => {
         this.bons = bons;
+
       },
       error: (err: any) => {
         console.error('Failed to fetch BonCaisse list:', err);
-        if (err.status === 401 || err.status === 403){
+
+        if (err.status === 401 || err.status === 403) {
+
           this.authService.logout().subscribe({
-                  next: (data) => {
-                    localStorage.removeItem('token');
-                    localStorage.setItem("lastLink", window.location.href);
-                    window.location.href = '/sign-in';
-                    this.snackBar.open('Déconnexion réussie.', '×', {
-                      panelClass: 'success',
-                      verticalPosition: 'top',
-                      duration: 3000,
-                    });
-                  },
-                  error: (err) => {
-                    console.error('Error  subscription:', err);
-                    if (err.status === 401 || err.status === 403) {
-                      this.authService.logout();
-                      localStorage.removeItem('token');
-                      localStorage.setItem("lastLink", window.location.href);
-                      ;
-                      this.snackBar.open('Déconnexion, une erreur.', '×', {
-                        panelClass: 'success',
-                        verticalPosition: 'top',
-                        duration: 3000,
-                      });
-                      window.location.href = '/sign-in';
-                    }
-                  }
-                })
-        }
-        else
-        this.snackBar.open('Erreur lors de la récupération des bons de caisse.', '×', {
-          panelClass: 'error',
-          verticalPosition: 'top',
-          duration: 3000,
-        });
+            next: (data) => {
+              localStorage.removeItem('token');
+              localStorage.setItem("lastLink", window.location.href);
+              window.location.href = '/sign-in';
+              this.snackBar.open('Déconnexion réussie.', '×', {
+                panelClass: 'success',
+                verticalPosition: 'top',
+                duration: 3000,
+              });
+
+            },
+            error: (err) => {
+
+              console.error('Error  subscription:', err);
+              if (err.status === 401 || err.status === 403) {
+                this.authService.logout();
+                localStorage.removeItem('token');
+                localStorage.setItem("lastLink", window.location.href);
+                ;
+                this.snackBar.open('Déconnexion, une erreur.', '×', {
+                  panelClass: 'success',
+                  verticalPosition: 'top',
+                  duration: 3000,
+                });
+                window.location.href = '/sign-in';
+              }
+            }
+          })
+        } else
+          this.snackBar.open('Erreur lors de la récupération des bons de caisse.', '×', {
+            panelClass: 'error',
+            verticalPosition: 'top',
+            duration: 3000,
+          });
       }
     });
   }

@@ -23,6 +23,7 @@ import {MatNativeDateModule} from "@angular/material/core";
 import {MatSelectModule} from "@angular/material/select";
 import {FlexLayoutModule} from "@ngbracket/ngx-layout";
 import {AuthService} from "@services/auth.service";
+import {LoaderService} from "@services/loader.service";
 
 @Component({
   selector: 'app-confirmation-dialog',
@@ -64,6 +65,7 @@ export class ConfirmationDialogComponent implements OnInit {
   message: string = '';
 
    constructor(
+     public loaderService: LoaderService,
     public authService: AuthService,
     public snackBar:MatSnackBar,
     public dialogRef: MatDialogRef<ConfirmationDialogComponent>,

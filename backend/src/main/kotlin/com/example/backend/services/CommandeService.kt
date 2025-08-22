@@ -153,9 +153,10 @@ class CommandeService(
     // Ajout des produits dans la table ProduitCommande
     request.produits.forEach { produitRequest ->
       var produitCommande = ProduitCmd().apply {
+
         this.commandeId = savedCommande.id
-        this.produit = produitRepository.findById(produitRequest.id!!.toInt())
-          .orElseThrow { IllegalArgumentException("Produit non trouvé avec l'ID fourni.") }
+        this.produitId = produitRequest?.id!!.toInt()
+        this.produit = produitRepository.findById(produitRequest.id!!.toInt()).get()
         this.puRecept = when (request.type.lowercase()) {
           "livree" -> produitRequest.prixUnitaire
           "cloture" -> produitRequest.prixUnitaire
@@ -392,6 +393,7 @@ class CommandeService(
       enRayonRepository.save(enRayon)
     } else {
       val enRayon = EnRayon().apply {
+        this.id = produitCmd.codebarre
         this.produitId = produitCmdEntity.produit!!.id
         this.commande = commande
         this.reduction = 0
@@ -399,8 +401,8 @@ class CommandeService(
         this.dateLivraison = commande.dateLivraison ?: LocalDateTime.now()
         this.datePeremption = produitCmd.dateDePeremption ?: LocalDateTime.now().plusDays(30)
 //        this.datePeremption = produitCmd.datePeremption?.plusDays(30) ?: LocalDateTime.now().plusDays(30)
-        this.prixAchat = produitCmdEntity.puCmd?.toInt() ?: 0
-        this.prixVente = produitCmdEntity.prixPublic?.toInt() ?: 0
+        this.prixAchat = produitCmd.prixAchat?.toInt() ?: 0
+        this.prixVente = produitCmd.prixVente?.toInt() ?: 0
         this.quantite = quantiteARecevoir
         this.quantiteRestante = quantiteARecevoir
       }
@@ -935,14 +937,14 @@ class CommandeService(
     produitCmdRepository.save(produitCmd)
 
     val produit = produitRepository.findById(produitCmd.produitId!!).get()
-    val enRayon = enRayonRepository.findByProduitIdAndCommandeAndSupprimer(produitCmd.produitId!!, commande, 0).getOrNull()
-    if (enRayon!=null){
+    val enRayon =
+      enRayonRepository.findByProduitIdAndCommandeAndSupprimer(produitCmd.produitId!!, commande, 0).getOrNull()
+    if (enRayon != null) {
       enRayon.quantiteRestante = qteRecu.toInt() - (enRayon.quantite!! - enRayon.quantiteRestante!!)
       enRayon.quantite = qteRecu.toInt()
       enRayon.prixAchat = prixAchat.toInt()
       enRayonRepository.save(enRayon)
-    }
-    else {
+    } else {
       val enRayonNew = EnRayon().apply {
         this.produit = produit
         this.produitId = produit.id

@@ -1,5 +1,5 @@
 import {NgClass} from '@angular/common';
-import {Component} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {NavigationEnd, Router, RouterOutlet} from '@angular/router';
 import {TranslateModule, TranslateService} from '@ngx-translate/core';
 import {DomHandlerService} from '@services/dom-handler.service';
@@ -11,6 +11,8 @@ import {MatAutocompleteModule} from "@angular/material/autocomplete";
 import {MatInputModule} from "@angular/material/input";
 import {AppSettingsService} from "@services/app-settings.service";
 import {AuthService} from "@services/auth.service";
+import {filter} from "rxjs";
+import {LoaderService} from "@services/loader.service";
 
 @Component({
   selector: 'app-root',
@@ -27,17 +29,21 @@ import {AuthService} from "@services/auth.service";
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   loading: boolean = false;
   public settings: Settings;
   isServer: boolean = true;
 
   constructor(public settingsService: SettingsService,
               public router: Router,
+              public loader: LoaderService,
               public translate: TranslateService,
               public authService: AuthService,
               public appSettingsService: AppSettingsService,
               public domHandlerService: DomHandlerService) {
+    // router.events.pipe(filter(e => e instanceof NavigationEnd)).subscribe(() =>
+    //   loader.reset()
+    // )
     this.settings = this.settingsService.settings;
     translate.addLangs(['en', 'de', 'fr', 'ru', 'tr']);
     translate.setDefaultLang('en');
@@ -46,17 +52,26 @@ export class AppComponent {
 
   ngOnInit() {
     // this.appSettingsService.refreshSetting()
+    // const token = localStorage.getItem('token');
+    // console.log("token");
+    // console.log(token);
+    // if (token){
+    //   this.authService.checkSession().subscribe({
+    //     next: (response) => {
+    //       window.location.href = '/admin';
+    //     },
+    //     error: (err) => {
+    //       if (err.status === 401 || err.status === 403) {
+    //         localStorage.removeItem('token');
+    //         window.location.href = '/sign-in';
+    //       }
+    //     },
+    //   });
+    // }
+    // else {
+    //
+    // }
 
-    this.authService.checkSession().subscribe({
-      next: (response) => {
-
-      },
-      error: (err) => {
-        if (err.status === 401 || err.status === 403) {
-          localStorage.removeItem('token');
-        }
-      },
-    });
 
     if (this.domHandlerService.isBrowser) {
       setTimeout(() => {

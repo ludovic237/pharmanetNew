@@ -35,7 +35,7 @@ export class AdminMenuComponent implements OnInit {
   }
 
   ngOnInit() {
-  this.parentMenu = this.menuItems.filter(item => item.parentId == this.menuParentId);
+    this.parentMenu = this.menuItems.filter(item => item.parentId == this.menuParentId);
   }
 
   onClick(menuId: number) {

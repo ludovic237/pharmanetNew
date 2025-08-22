@@ -18,9 +18,20 @@
         </mat-form-field>
       </div>
       <div fxFlex="100" fxFlex.gt-sm="25" class="px-1">
-        <mat-form-field appearance="outline" class="w-100">
-          <mat-label>Jours Avant Péremption</mat-label>
-          <input matInput type="number" formControlName="joursAvantPeremption" placeholder="Nombre de jours">
+        <mat-form-field appearance="outline">
+          <mat-label>Entrer date livraison</mat-label>
+          <mat-date-range-input [rangePicker]="picker">
+            <input matStartDate placeholder="Start date" formControlName="startDateLivraison">
+            <input matEndDate placeholder="End date" formControlName="endDateLivraison">
+          </mat-date-range-input>
+          <!--            <mat-hint>MM/DD/YYYY - MM/DD/YYYY</mat-hint>-->
+          <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+          <mat-date-range-picker #picker>
+            <mat-date-range-picker-actions>
+              <button mat-button matDateRangePickerCancel>Annuler</button>
+              <button mat-button matDateRangePickerApply (click)="fetchEnRayonsPageable()">Apply</button>
+            </mat-date-range-picker-actions>
+          </mat-date-range-picker>
         </mat-form-field>
       </div>
       <div fxFlex="100" fxFlex.gt-sm="25" class="px-1">
@@ -35,12 +46,15 @@
       </div>
     </form>
   </mat-card-content>
-  <mat-card-footer>
+</mat-card>
+<mat-divider></mat-divider>
+<mat-card>
+  <mat-card-content>
     <div class="actions">
       <button mat-raised-button color="primary" (click)="fetchEnRayonsPageable()">Filtrer</button>
       <button mat-raised-button color="warn" (click)="resetFilters()">Réinitialiser</button>
     </div>
-  </mat-card-footer>
+  </mat-card-content>
 </mat-card>
 
 <div class="table-container">
@@ -48,56 +62,56 @@
 
     <!-- Nom Produit Column -->
     <ng-container matColumnDef="nomProduit">
-      <th mat-header-cell *matHeaderCellDef> Nom Produit </th>
-      <td mat-cell *matCellDef="let element"> {{ element.produitNom }} </td>
+      <th mat-header-cell *matHeaderCellDef> Nom Produit</th>
+      <td mat-cell *matCellDef="let element"> {{ element.produitNom }}</td>
     </ng-container>
 
     <!-- Nom Produit Column -->
     <ng-container matColumnDef="fournisseurNom">
       <th mat-header-cell *matHeaderCellDef>Fournisseur</th>
-      <td mat-cell *matCellDef="let element"> {{ element.fournisseurNom }} </td>
+      <td mat-cell *matCellDef="let element"> {{ element.fournisseurNom }}</td>
     </ng-container>
 
     <!-- Quantité Column -->
     <ng-container matColumnDef="quantite">
-      <th mat-header-cell *matHeaderCellDef> Quantité </th>
-      <td mat-cell *matCellDef="let element"> {{ element.quantite }} </td>
+      <th mat-header-cell *matHeaderCellDef> Quantité</th>
+      <td mat-cell *matCellDef="let element"> {{ element.quantite }}</td>
     </ng-container>
 
     <!-- Quantité Column -->
     <ng-container matColumnDef="quantiteRestante">
-      <th mat-header-cell *matHeaderCellDef> Quantité restante </th>
-      <td mat-cell *matCellDef="let element"> {{ element.quantiteRestante }} </td>
+      <th mat-header-cell *matHeaderCellDef> Quantité restante</th>
+      <td mat-cell *matCellDef="let element"> {{ element.quantiteRestante }}</td>
     </ng-container>
 
     <!-- Prix Achat Column -->
     <ng-container matColumnDef="prixAchat">
-      <th mat-header-cell *matHeaderCellDef> Prix Achat </th>
-      <td mat-cell *matCellDef="let element"> {{ element.prixAchat | currency }} </td>
+      <th mat-header-cell *matHeaderCellDef> Prix Achat</th>
+      <td mat-cell *matCellDef="let element"> {{ element.prixAchat | currency }}</td>
     </ng-container>
 
     <!-- Prix Vente Column -->
     <ng-container matColumnDef="prixVente">
-      <th mat-header-cell *matHeaderCellDef> Prix Vente </th>
-      <td mat-cell *matCellDef="let element"> {{ element.prixVente | currency }} </td>
+      <th mat-header-cell *matHeaderCellDef> Prix Vente</th>
+      <td mat-cell *matCellDef="let element"> {{ element.prixVente | currency }}</td>
     </ng-container>
 
     <!-- Date Péremption Column -->
     <ng-container matColumnDef="dateLivraison">
-      <th mat-header-cell *matHeaderCellDef> Date Livraison </th>
-      <td mat-cell *matCellDef="let element"> {{ element.dateLivraison | date:'dd/MM/yyyy HH:mm' }} </td>
+      <th mat-header-cell *matHeaderCellDef> Date Livraison</th>
+      <td mat-cell *matCellDef="let element"> {{ element.dateLivraison | date:'dd/MM/yyyy HH:mm' }}</td>
     </ng-container>
 
     <!-- Date Péremption Column -->
     <ng-container matColumnDef="datePeremption">
-      <th mat-header-cell *matHeaderCellDef> Date Péremption </th>
-      <td mat-cell *matCellDef="let element"> {{ element.datePeremption | date:'dd/MM/yyyy HH:mm' }} </td>
+      <th mat-header-cell *matHeaderCellDef> Date Péremption</th>
+      <td mat-cell *matCellDef="let element"> {{ element.datePeremption | date:'dd/MM/yyyy HH:mm' }}</td>
     </ng-container>
 
     <!-- En Stock Column -->
     <ng-container matColumnDef="enStock">
-      <th mat-header-cell *matHeaderCellDef> En Stock </th>
-      <td mat-cell *matCellDef="let element"> {{ element.enStock ? 'Oui' : 'Non' }} </td>
+      <th mat-header-cell *matHeaderCellDef> En Stock</th>
+      <td mat-cell *matCellDef="let element"> {{ element.enStock ? 'Oui' : 'Non' }}</td>
     </ng-container>
 
     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>

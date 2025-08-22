@@ -13,6 +13,7 @@ import { NgxPaginationModule } from 'ngx-pagination';
 import { PipesModule } from '../../theme/pipes/pipes.module';
 import { DatePipe } from '@angular/common';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import {LoaderService} from "@services/loader.service";
 
 @Component({
     selector: 'app-support',
@@ -57,6 +58,7 @@ export class SupportComponent {
   domHandlerService = inject(DomHandlerService);
 
    constructor(
+     public loaderService: LoaderService,
     public authService: AuthService,
     public snackBar:MatSnackBar,public dialog: MatDialog) { }
 

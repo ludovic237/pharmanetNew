@@ -78,11 +78,11 @@ export class PagesComponent implements OnInit {
   }
 
   public getCategories() {
-    this.appService.getCategories().subscribe(data => {
-      this.categories = data;
-      this.category = data[0];
-      this.appService.Data.categories = data;
-    })
+    // this.appService.getCategories().subscribe(data => {
+    //   this.categories = data;
+    //   this.category = data[0];
+    //   this.appService.Data.categories = data;
+    // })
   }
 
   public changeCategory(event: any) {

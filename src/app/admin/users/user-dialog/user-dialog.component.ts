@@ -15,6 +15,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatInputModule } from '@angular/material/input';
 import { FlexLayoutModule } from '@ngbracket/ngx-layout';
+import {LoaderService} from "@services/loader.service";
 
 @Component({
     selector: 'app-user-dialog',
@@ -40,6 +41,7 @@ export class UserDialogComponent implements OnInit {
   public form: FormGroup;
   public passwordHide:boolean = true;
    constructor(
+     public loaderService: LoaderService,
     public authService: AuthService,
     public snackBar:MatSnackBar,public dialogRef: MatDialogRef<UserDialogComponent>,
               @Inject(MAT_DIALOG_DATA) public user: User,

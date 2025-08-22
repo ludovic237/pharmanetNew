@@ -16,6 +16,7 @@ import {NgxPaginationModule} from 'ngx-pagination';
 import {MatDividerModule} from '@angular/material/divider';
 import {MatButtonModule} from '@angular/material/button';
 import {CategorieService} from "@services/categories.service";
+import {LoaderService} from "@services/loader.service";
 
 @Component({
   selector: 'app-categories',
@@ -41,6 +42,7 @@ export class CategoriesComponent implements OnInit {
   public settings: Settings;
 
   constructor(
+    public loaderService: LoaderService,
     public authService: AuthService,
     public snackBar: MatSnackBar, public appService: AppService, public categorieService: CategorieService, public dialog: MatDialog, public settingsService: SettingsService) {
     this.settings = this.settingsService.settings;
@@ -51,42 +53,48 @@ export class CategoriesComponent implements OnInit {
   }
 
   public getCategories() {
+
     this.categorieService.getCategories().subscribe({
       next: (data) => {
         this.categories = data;
         this.totalItems = data.length;
         // this.count = this.categories.length
+
       },
       error: (err) => {
         console.error('Error  subscription:', err);
+
         if (err.status === 401 || err.status === 403) {
+
           this.authService.logout().subscribe({
-                  next: (data) => {
-                    localStorage.removeItem('token');
-                    localStorage.setItem("lastLink", window.location.href);
-                    window.location.href = '/sign-in';
-                    this.snackBar.open('Déconnexion réussie.', '×', {
-                      panelClass: 'success',
-                      verticalPosition: 'top',
-                      duration: 3000,
-                    });
-                  },
-                  error: (err) => {
-                    console.error('Error  subscription:', err);
-                    if (err.status === 401 || err.status === 403) {
-                      this.authService.logout();
-                      localStorage.removeItem('token');
-                      localStorage.setItem("lastLink", window.location.href);
-                      ;
-                      this.snackBar.open('Déconnexion, une erreur.', '×', {
-                        panelClass: 'success',
-                        verticalPosition: 'top',
-                        duration: 3000,
-                      });
-                      window.location.href = '/sign-in';
-                    }
-                  }
-                })
+            next: (data) => {
+              localStorage.removeItem('token');
+              localStorage.setItem("lastLink", window.location.href);
+              window.location.href = '/sign-in';
+              this.snackBar.open('Déconnexion réussie.', '×', {
+                panelClass: 'success',
+                verticalPosition: 'top',
+                duration: 3000,
+              });
+
+            },
+            error: (err) => {
+
+              console.error('Error  subscription:', err);
+              if (err.status === 401 || err.status === 403) {
+                this.authService.logout();
+                localStorage.removeItem('token');
+                localStorage.setItem("lastLink", window.location.href);
+                ;
+                this.snackBar.open('Déconnexion, une erreur.', '×', {
+                  panelClass: 'success',
+                  verticalPosition: 'top',
+                  duration: 3000,
+                });
+                window.location.href = '/sign-in';
+              }
+            }
+          })
         }
       }
     });
@@ -140,43 +148,49 @@ export class CategoriesComponent implements OnInit {
     });
     dialogRef.afterClosed().subscribe(dialogResult => {
       if (dialogResult) {
+
         this.categorieService.deleteCategorie(category.id).subscribe({
           next: (data) => {
             const index: number = this.categories.indexOf(category);
             if (index !== -1) {
               this.categories.splice(index, 1);
             }
+
           },
           error: (err) => {
+
             console.error('Error  subscription:', err);
             if (err.status === 401 || err.status === 403) {
+
               this.authService.logout().subscribe({
-                  next: (data) => {
+                next: (data) => {
+                  localStorage.removeItem('token');
+                  localStorage.setItem("lastLink", window.location.href);
+                  window.location.href = '/sign-in';
+                  this.snackBar.open('Déconnexion réussie.', '×', {
+                    panelClass: 'success',
+                    verticalPosition: 'top',
+                    duration: 3000,
+                  });
+
+                },
+                error: (err) => {
+                  console.error('Error  subscription:', err);
+
+                  if (err.status === 401 || err.status === 403) {
+                    this.authService.logout();
                     localStorage.removeItem('token');
                     localStorage.setItem("lastLink", window.location.href);
-                    window.location.href = '/sign-in';
-                    this.snackBar.open('Déconnexion réussie.', '×', {
+                    ;
+                    this.snackBar.open('Déconnexion, une erreur.', '×', {
                       panelClass: 'success',
                       verticalPosition: 'top',
                       duration: 3000,
                     });
-                  },
-                  error: (err) => {
-                    console.error('Error  subscription:', err);
-                    if (err.status === 401 || err.status === 403) {
-                      this.authService.logout();
-                      localStorage.removeItem('token');
-                      localStorage.setItem("lastLink", window.location.href);
-                      ;
-                      this.snackBar.open('Déconnexion, une erreur.', '×', {
-                        panelClass: 'success',
-                        verticalPosition: 'top',
-                        duration: 3000,
-                      });
-                      window.location.href = '/sign-in';
-                    }
+                    window.location.href = '/sign-in';
                   }
-                })
+                }
+              })
             }
           }
         });

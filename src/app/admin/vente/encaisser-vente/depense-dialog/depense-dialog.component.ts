@@ -18,6 +18,7 @@ import {DepenseService} from "@services/depenses.service";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {AuthService} from "@services/auth.service";
 import {MatPaginatorModule, PageEvent} from "@angular/material/paginator";
+import {LoaderService} from "@services/loader.service";
 
 @Component({
   selector: 'app-depense-dialog',
@@ -54,7 +55,8 @@ export class DepenseDialogComponent implements OnInit {
   public totalItemsDepense = 0;  // Default to 10 if undefined
   public countDepense = 10;
 
-   constructor(
+  constructor(
+    public loaderService: LoaderService,
     public authService: AuthService,
     private fb: FormBuilder, private depenseService: DepenseService, private snackBar: MatSnackBar) {
     this.depenseForm = this.fb.group({
@@ -76,8 +78,9 @@ export class DepenseDialogComponent implements OnInit {
   }
 
   loadDepenses(): void {
+
     this.depenseService.getAllDepensesPageable(this.pageDepense - 1, this.countDepense).subscribe({
-      next: (data:any) => {
+      next: (data: any) => {
         this.depenses = data.content;
         this.countDepense = data.pageable.pageSize;
         this.totalItemsDepense = data.totalElements;
@@ -89,35 +92,39 @@ export class DepenseDialogComponent implements OnInit {
         });
       },
       error: (err) => {
+
         this.snackBar.open('Failed to load depenses', '×', {panelClass: 'error', duration: 3000})
         if (err.status === 401 || err.status === 403) {
+
           this.authService.logout().subscribe({
-                  next: (data) => {
-                    localStorage.removeItem('token');
-                    localStorage.setItem("lastLink", window.location.href);
-                    window.location.href = '/sign-in';
-                    this.snackBar.open('Déconnexion réussie.', '×', {
-                      panelClass: 'success',
-                      verticalPosition: 'top',
-                      duration: 3000,
-                    });
-                  },
-                  error: (err) => {
-                    console.error('Error  subscription:', err);
-                    if (err.status === 401 || err.status === 403) {
-                      this.authService.logout();
-                      localStorage.removeItem('token');
-                      localStorage.setItem("lastLink", window.location.href);
-                      ;
-                      this.snackBar.open('Déconnexion, une erreur.', '×', {
-                        panelClass: 'success',
-                        verticalPosition: 'top',
-                        duration: 3000,
-                      });
-                      window.location.href = '/sign-in';
-                    }
-                  }
-                })
+            next: (data) => {
+              localStorage.removeItem('token');
+              localStorage.setItem("lastLink", window.location.href);
+              window.location.href = '/sign-in';
+              this.snackBar.open('Déconnexion réussie.', '×', {
+                panelClass: 'success',
+                verticalPosition: 'top',
+                duration: 3000,
+              });
+
+            },
+            error: (err) => {
+              console.error('Error  subscription:', err);
+
+              if (err.status === 401 || err.status === 403) {
+                this.authService.logout();
+                localStorage.removeItem('token');
+                localStorage.setItem("lastLink", window.location.href);
+                ;
+                this.snackBar.open('Déconnexion, une erreur.', '×', {
+                  panelClass: 'success',
+                  verticalPosition: 'top',
+                  duration: 3000,
+                });
+                window.location.href = '/sign-in';
+              }
+            }
+          })
         }
       }
     });
@@ -125,6 +132,7 @@ export class DepenseDialogComponent implements OnInit {
 
   createDepense(): void {
     if (this.depenseForm.valid) {
+
       this.depenseService.createDepense(this.depenseForm.value).subscribe({
         next: () => {
           this.snackBar.open('Depense created successfully', '×', {panelClass: 'success', duration: 3000});
@@ -133,8 +141,10 @@ export class DepenseDialogComponent implements OnInit {
           this.depenseForm.markAsPristine();
           this.depenseForm.markAsUntouched();
           this.depenseForm.updateValueAndValidity();
+
         },
         error: (err) => {
+
           this.snackBar.open('Failed to create depense', '×', {panelClass: 'error', duration: 3000})
           if (err.status === 401 || err.status === 403) {
             this.authService.logout();
@@ -152,41 +162,46 @@ export class DepenseDialogComponent implements OnInit {
   }
 
   deleteDepense(id: number): void {
+
     this.depenseService.deleteDepense(id).subscribe({
       next: () => {
         this.snackBar.open('Depense deleted successfully', '×', {panelClass: 'success', duration: 3000});
         this.loadDepenses();
+
       },
       error: (err) => {
         this.snackBar.open('Failed to delete depense', '×', {panelClass: 'error', duration: 3000})
         if (err.status === 401 || err.status === 403) {
+
           this.authService.logout().subscribe({
-                  next: (data) => {
-                    localStorage.removeItem('token');
-                    localStorage.setItem("lastLink", window.location.href);
-                    window.location.href = '/sign-in';
-                    this.snackBar.open('Déconnexion réussie.', '×', {
-                      panelClass: 'success',
-                      verticalPosition: 'top',
-                      duration: 3000,
-                    });
-                  },
-                  error: (err) => {
-                    console.error('Error  subscription:', err);
-                    if (err.status === 401 || err.status === 403) {
-                      this.authService.logout();
-                      localStorage.removeItem('token');
-                      localStorage.setItem("lastLink", window.location.href);
-                      ;
-                      this.snackBar.open('Déconnexion, une erreur.', '×', {
-                        panelClass: 'success',
-                        verticalPosition: 'top',
-                        duration: 3000,
-                      });
-                      window.location.href = '/sign-in';
-                    }
-                  }
-                })
+            next: (data) => {
+
+              localStorage.removeItem('token');
+              localStorage.setItem("lastLink", window.location.href);
+              window.location.href = '/sign-in';
+              this.snackBar.open('Déconnexion réussie.', '×', {
+                panelClass: 'success',
+                verticalPosition: 'top',
+                duration: 3000,
+              });
+            },
+            error: (err) => {
+
+              console.error('Error  subscription:', err);
+              if (err.status === 401 || err.status === 403) {
+                this.authService.logout();
+                localStorage.removeItem('token');
+                localStorage.setItem("lastLink", window.location.href);
+                ;
+                this.snackBar.open('Déconnexion, une erreur.', '×', {
+                  panelClass: 'success',
+                  verticalPosition: 'top',
+                  duration: 3000,
+                });
+                window.location.href = '/sign-in';
+              }
+            }
+          })
         }
       }
     });

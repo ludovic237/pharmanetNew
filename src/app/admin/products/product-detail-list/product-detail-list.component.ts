@@ -28,6 +28,7 @@ import {ProductDetailInfoDialogComponent} from "./product-detail-info-dialog/pro
 import {MatPaginator, MatPaginatorModule, PageEvent} from "@angular/material/paginator";
 import {AuthService} from "@services/auth.service";
 import {MatSnackBar} from "@angular/material/snack-bar";
+import {LoaderService} from "@services/loader.service";
 
 @Component({
   selector: 'app-product-detail-list',
@@ -74,6 +75,7 @@ export class ProductDetailListComponent implements OnInit {
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
   constructor(
+    public loaderService: LoaderService,
     public authService: AuthService,
     public snackBar: MatSnackBar,
     public appService: AppService,
@@ -103,12 +105,14 @@ export class ProductDetailListComponent implements OnInit {
         if (this.page > 0) {
           this.page = 0
         }
+
         this.produitdetailsService.searchProduitDetailsByName(searchTerm, this.page - 1, this.count).subscribe({
           // this.productService.searchProducts(this.searchTerm, this.page, this.count).subscribe({
           next: (data: any) => {
             this.count = data.pageable.pageSize;
             this.totalItems = data.totalElements;
             this.products = data.content; // Les produits pour la page actuelle
+
           },
           error: (err) => {
             console.error('Error searching products:', err);
@@ -119,47 +123,54 @@ export class ProductDetailListComponent implements OnInit {
 
     if (this.domHandlerService.window?.innerWidth < 1280) {
       this.viewCol = 33.3;
-    };
+    }
+    ;
 
     this.getCategories();
   }
 
   public getAllProductsDetail() {
+
     this.produitdetailsService.getProduitDetailsList(this.searchText, this.page - 1, this.count).subscribe({
       next: (data: any) => {
         this.count = data.pageable.pageSize;
         this.totalItems = data.totalElements;
         this.products = data.content; // Les produits pour la page actuelle
+
       },
       error: (err) => {
+
         if (err.status === 401 || err.status === 403) {
+
           this.authService.logout().subscribe({
-                  next: (data) => {
-                    localStorage.removeItem('token');
-                    localStorage.setItem("lastLink", window.location.href);
-                    window.location.href = '/sign-in';
-                    this.snackBar.open('Déconnexion réussie.', '×', {
-                      panelClass: 'success',
-                      verticalPosition: 'top',
-                      duration: 3000,
-                    });
-                  },
-                  error: (err) => {
-                    console.error('Error  subscription:', err);
-                    if (err.status === 401 || err.status === 403) {
-                      this.authService.logout();
-                      localStorage.removeItem('token');
-                      localStorage.setItem("lastLink", window.location.href);
-                      ;
-                      this.snackBar.open('Déconnexion, une erreur.', '×', {
-                        panelClass: 'success',
-                        verticalPosition: 'top',
-                        duration: 3000,
-                      });
-                      window.location.href = '/sign-in';
-                    }
-                  }
-                })
+            next: (data) => {
+
+              localStorage.removeItem('token');
+              localStorage.setItem("lastLink", window.location.href);
+              window.location.href = '/sign-in';
+              this.snackBar.open('Déconnexion réussie.', '×', {
+                panelClass: 'success',
+                verticalPosition: 'top',
+                duration: 3000,
+              });
+            },
+            error: (err) => {
+              console.error('Error  subscription:', err);
+
+              if (err.status === 401 || err.status === 403) {
+                this.authService.logout();
+                localStorage.removeItem('token');
+                localStorage.setItem("lastLink", window.location.href);
+                ;
+                this.snackBar.open('Déconnexion, une erreur.', '×', {
+                  panelClass: 'success',
+                  verticalPosition: 'top',
+                  duration: 3000,
+                });
+                window.location.href = '/sign-in';
+              }
+            }
+          })
         }
         console.error('Error fetching products:', err);
       }
@@ -167,27 +178,29 @@ export class ProductDetailListComponent implements OnInit {
   }
 
   searchProduitDetail(): void {
+
     this.produitdetailsService.searchProduitDetailsByName(this.searchText, this.page - 1, this.count).subscribe({
       // this.productService.searchProducts(this.searchTerm, this.page, this.count).subscribe({
       next: (data: any) => {
         this.count = data.pageable.pageSize;
         this.totalItems = data.totalElements;
         this.products = data.content; // Les produits pour la page actuelle
+
       },
       error: (err) => {
         console.error('Error searching products:', err);
+
       }
     });
   }
 
   public onPageChanged(event: PageEvent) {
     if (this.searchText === "" || this.searchText === undefined) {
-      if (this.page == 0){
+      if (this.page == 0) {
         this.page = 1
         this.paginator.firstPage(); // Ensure the paginator UI resets
         this.getAllProductsDetail();
-      }
-      else {
+      } else {
         this.page = event.pageIndex + 1;
         this.getAllProductsDetail();
       }
@@ -216,39 +229,45 @@ export class ProductDetailListComponent implements OnInit {
     });
     dialogRef.afterClosed().subscribe(dialogResult => {
       if (dialogResult) {
+
         this.produitdetailsService.removeProduitDetail(product.id).subscribe({
           next: (data) => {
             this.getAllProductsDetail();
+
           },
           error: (err) => {
+
             if (err.status === 401 || err.status === 403) {
+
               this.authService.logout().subscribe({
-                  next: (data) => {
+                next: (data) => {
+
+                  localStorage.removeItem('token');
+                  localStorage.setItem("lastLink", window.location.href);
+                  window.location.href = '/sign-in';
+                  this.snackBar.open('Déconnexion réussie.', '×', {
+                    panelClass: 'success',
+                    verticalPosition: 'top',
+                    duration: 3000,
+                  });
+                },
+                error: (err) => {
+
+                  console.error('Error  subscription:', err);
+                  if (err.status === 401 || err.status === 403) {
+                    this.authService.logout();
                     localStorage.removeItem('token');
                     localStorage.setItem("lastLink", window.location.href);
-                    window.location.href = '/sign-in';
-                    this.snackBar.open('Déconnexion réussie.', '×', {
+                    ;
+                    this.snackBar.open('Déconnexion, une erreur.', '×', {
                       panelClass: 'success',
                       verticalPosition: 'top',
                       duration: 3000,
                     });
-                  },
-                  error: (err) => {
-                    console.error('Error  subscription:', err);
-                    if (err.status === 401 || err.status === 403) {
-                      this.authService.logout();
-                      localStorage.removeItem('token');
-                      localStorage.setItem("lastLink", window.location.href);
-                      ;
-                      this.snackBar.open('Déconnexion, une erreur.', '×', {
-                        panelClass: 'success',
-                        verticalPosition: 'top',
-                        duration: 3000,
-                      });
-                      window.location.href = '/sign-in';
-                    }
+                    window.location.href = '/sign-in';
                   }
-                })
+                }
+              })
             }
             console.error('Error fetching products:', err);
           }
@@ -258,39 +277,45 @@ export class ProductDetailListComponent implements OnInit {
   }
 
   public getCategories() {
+
     this.categorieService.getCategories().subscribe({
       next: (data) => {
         this.getAllProductsDetail();
+
       },
       error: (err) => {
+
         if (err.status === 401 || err.status === 403) {
+
           this.authService.logout().subscribe({
-                  next: (data) => {
-                    localStorage.removeItem('token');
-                    localStorage.setItem("lastLink", window.location.href);
-                    window.location.href = '/sign-in';
-                    this.snackBar.open('Déconnexion réussie.', '×', {
-                      panelClass: 'success',
-                      verticalPosition: 'top',
-                      duration: 3000,
-                    });
-                  },
-                  error: (err) => {
-                    console.error('Error  subscription:', err);
-                    if (err.status === 401 || err.status === 403) {
-                      this.authService.logout();
-                      localStorage.removeItem('token');
-                      localStorage.setItem("lastLink", window.location.href);
-                      ;
-                      this.snackBar.open('Déconnexion, une erreur.', '×', {
-                        panelClass: 'success',
-                        verticalPosition: 'top',
-                        duration: 3000,
-                      });
-                      window.location.href = '/sign-in';
-                    }
-                  }
-                })
+            next: (data) => {
+
+              localStorage.removeItem('token');
+              localStorage.setItem("lastLink", window.location.href);
+              window.location.href = '/sign-in';
+              this.snackBar.open('Déconnexion réussie.', '×', {
+                panelClass: 'success',
+                verticalPosition: 'top',
+                duration: 3000,
+              });
+            },
+            error: (err) => {
+
+              console.error('Error  subscription:', err);
+              if (err.status === 401 || err.status === 403) {
+                this.authService.logout();
+                localStorage.removeItem('token');
+                localStorage.setItem("lastLink", window.location.href);
+                ;
+                this.snackBar.open('Déconnexion, une erreur.', '×', {
+                  panelClass: 'success',
+                  verticalPosition: 'top',
+                  duration: 3000,
+                });
+                window.location.href = '/sign-in';
+              }
+            }
+          })
         }
         console.error('Error fetching products:', err);
       }
@@ -307,12 +332,13 @@ export class ProductDetailListComponent implements OnInit {
   }
 
   getDetailProduit(product: any) {
+
     this.produitdetailsService.getProduitDetailsInfo(product.id).subscribe({
       next: (data) => {
         const dialogRef = this.dialog.open(ProductDetailInfoDialogComponent, {
           data: {
-            data:data,
-            title:"Mettre a jour produit detail : "+product.nom,
+            data: data,
+            title: "Mettre a jour produit detail : " + product.nom,
           },
           width: "80%",
           panelClass: ['theme-dialog'],
@@ -320,45 +346,49 @@ export class ProductDetailListComponent implements OnInit {
         });
         dialogRef.afterClosed().subscribe(dialogResult => {
           if (dialogResult) {
-           this.getAllProductsDetail()
+            this.getAllProductsDetail()
           }
         });
+
       },
       error: (err) => {
+
         if (err.status === 401 || err.status === 403) {
+
           this.authService.logout().subscribe({
-                  next: (data) => {
-                    localStorage.removeItem('token');
-                    localStorage.setItem("lastLink", window.location.href);
-                    window.location.href = '/sign-in';
-                    this.snackBar.open('Déconnexion réussie.', '×', {
-                      panelClass: 'success',
-                      verticalPosition: 'top',
-                      duration: 3000,
-                    });
-                  },
-                  error: (err) => {
-                    console.error('Error  subscription:', err);
-                    if (err.status === 401 || err.status === 403) {
-                      this.authService.logout();
-                      localStorage.removeItem('token');
-                      localStorage.setItem("lastLink", window.location.href);
-                      ;
-                      this.snackBar.open('Déconnexion, une erreur.', '×', {
-                        panelClass: 'success',
-                        verticalPosition: 'top',
-                        duration: 3000,
-                      });
-                      window.location.href = '/sign-in';
-                    }
-                  }
-                })
+            next: (data) => {
+
+              localStorage.removeItem('token');
+              localStorage.setItem("lastLink", window.location.href);
+              window.location.href = '/sign-in';
+              this.snackBar.open('Déconnexion réussie.', '×', {
+                panelClass: 'success',
+                verticalPosition: 'top',
+                duration: 3000,
+              });
+            },
+            error: (err) => {
+
+              console.error('Error  subscription:', err);
+              if (err.status === 401 || err.status === 403) {
+                this.authService.logout();
+                localStorage.removeItem('token');
+                localStorage.setItem("lastLink", window.location.href);
+                ;
+                this.snackBar.open('Déconnexion, une erreur.', '×', {
+                  panelClass: 'success',
+                  verticalPosition: 'top',
+                  duration: 3000,
+                });
+                window.location.href = '/sign-in';
+              }
+            }
+          })
         }
         console.error('Error fetching products:', err);
       }
     });
   }
-
 
 
 }

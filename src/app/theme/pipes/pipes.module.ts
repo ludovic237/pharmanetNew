@@ -8,8 +8,8 @@ import { ProfilePicturePipe } from './profilePicture.pipe';
 import { UserSearchPipe } from './user-search.pipe';
 
 @NgModule({
-    imports: [ 
-        CommonModule 
+    imports: [
+        CommonModule
     ],
     declarations: [
         FilterByIdPipe,

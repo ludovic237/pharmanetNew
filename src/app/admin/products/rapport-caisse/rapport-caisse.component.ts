@@ -43,6 +43,7 @@ import {AuthService} from "@services/auth.service";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import html2canvas from "html2canvas";
 import {jsPDF} from "jspdf";
+import {LoaderService} from "@services/loader.service";
 
 @Component({
   selector: 'app-rapport-caisse',
@@ -177,6 +178,7 @@ export class RapportCaisseComponent implements OnInit {
   sessionForm!: FormGroup;
 
   constructor(
+    public loaderService: LoaderService,
     public authService: AuthService,
     public snackBar: MatSnackBar,
     public appService: AppService,
@@ -222,6 +224,7 @@ export class RapportCaisseComponent implements OnInit {
 
   public getRapportCaisse(): void {
     const caisseId = this.caisseControl.value
+
     this.caisseService.getCaisseReport(caisseId).subscribe({
       // this.productService.searchProducts(this.searchTerm, this.page, this.count).subscribe({
       next: (data: any) => {
@@ -336,48 +339,56 @@ export class RapportCaisseComponent implements OnInit {
             difference: (data.soldeReelTotal - (data.soldeSystemelTotal - data.prixTotalFactureRendu))
           }
         ];
+
       },
       error: (err: any) => {
+
         console.error('Error searching products:', err);
         if (err.status === 401 || err.status === 403) {
+
           this.authService.logout().subscribe({
-                  next: (data) => {
-                    localStorage.removeItem('token');
-                    localStorage.setItem("lastLink", window.location.href);
-                    window.location.href = '/sign-in';
-                    this.snackBar.open('Déconnexion réussie.', '×', {
-                      panelClass: 'success',
-                      verticalPosition: 'top',
-                      duration: 3000,
-                    });
-                  },
-                  error: (err) => {
-                    console.error('Error  subscription:', err);
-                    if (err.status === 401 || err.status === 403) {
-                      this.authService.logout();
-                      localStorage.removeItem('token');
-                      localStorage.setItem("lastLink", window.location.href);
-                      ;
-                      this.snackBar.open('Déconnexion, une erreur.', '×', {
-                        panelClass: 'success',
-                        verticalPosition: 'top',
-                        duration: 3000,
-                      });
-                      window.location.href = '/sign-in';
-                    }
-                  }
-                })
+            next: (data) => {
+
+              localStorage.removeItem('token');
+              localStorage.setItem("lastLink", window.location.href);
+              window.location.href = '/sign-in';
+              this.snackBar.open('Déconnexion réussie.', '×', {
+                panelClass: 'success',
+                verticalPosition: 'top',
+                duration: 3000,
+              });
+            },
+            error: (err) => {
+
+              console.error('Error  subscription:', err);
+              if (err.status === 401 || err.status === 403) {
+                this.authService.logout();
+                localStorage.removeItem('token');
+                localStorage.setItem("lastLink", window.location.href);
+                ;
+                this.snackBar.open('Déconnexion, une erreur.', '×', {
+                  panelClass: 'success',
+                  verticalPosition: 'top',
+                  duration: 3000,
+                });
+                window.location.href = '/sign-in';
+              }
+            }
+          })
         }
       }
     });
   }
 
   loadCaisses(): void {
+
     this.caisseService.getAllCaisses(0, 10, 'id').subscribe({
       next: (data: any) => {
+
         this.caisses = data.content; // Assuming the API returns a pageable response
       },
       error: (err: any) => {
+
         console.error('Error loading caisses:', err);
       }
     });
@@ -423,9 +434,11 @@ export class RapportCaisseComponent implements OnInit {
 
     this.caisseService.getAllCaisses(0, nombre, 'id').subscribe({
       next: (data: any) => {
+
         this.caisses = data.content; // Assuming the API returns a pageable response
       },
       error: (err: any) => {
+
         console.error('Error loading caisses:', err);
       }
     });

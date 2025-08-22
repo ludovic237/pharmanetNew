@@ -22,6 +22,7 @@ import {FlexLayoutModule} from "@ngbracket/ngx-layout";
 import {MatFormFieldModule} from "@angular/material/form-field";
 import {MatToolbarModule} from "@angular/material/toolbar";
 import {ProductService} from "@services/products.service";
+import {LoaderService} from "@services/loader.service";
 
 @Component({
   selector: 'app-sortie-rayon-dialog',
@@ -71,6 +72,7 @@ export class SortieRayonDialogComponent implements OnInit {
   displayedColumns: string[] = ['nomProduit', 'quantite', 'contenu', 'dateLivraison', 'action'];
 
   constructor(
+    public loaderService: LoaderService,
     public authService: AuthService,
     public typeSortiesService: TypeSortiesService,
     public productService: ProductService,
@@ -169,37 +171,42 @@ export class SortieRayonDialogComponent implements OnInit {
             // this.mouvelQuantite = this.sortieForm.get("produitDetailStock").value + this.quantiteAjouter;
           }
         });
+
       },
       error: (err: any) => {
+
         console.error('Failed to fetch products in stock:', err);
         if (err.status === 401 || err.status === 403) {
+
           this.authService.logout().subscribe({
-                  next: (data) => {
-                    localStorage.removeItem('token');
-                    localStorage.setItem("lastLink", window.location.href);
-                    window.location.href = '/sign-in';
-                    this.snackBar.open('Déconnexion réussie.', '×', {
-                      panelClass: 'success',
-                      verticalPosition: 'top',
-                      duration: 3000,
-                    });
-                  },
-                  error: (err) => {
-                    console.error('Error  subscription:', err);
-                    if (err.status === 401 || err.status === 403) {
-                      this.authService.logout();
-                      localStorage.removeItem('token');
-                      localStorage.setItem("lastLink", window.location.href);
-                      ;
-                      this.snackBar.open('Déconnexion, une erreur.', '×', {
-                        panelClass: 'success',
-                        verticalPosition: 'top',
-                        duration: 3000,
-                      });
-                      window.location.href = '/sign-in';
-                    }
-                  }
-                })
+            next: (data) => {
+
+              localStorage.removeItem('token');
+              localStorage.setItem("lastLink", window.location.href);
+              window.location.href = '/sign-in';
+              this.snackBar.open('Déconnexion réussie.', '×', {
+                panelClass: 'success',
+                verticalPosition: 'top',
+                duration: 3000,
+              });
+            },
+            error: (err) => {
+
+              console.error('Error  subscription:', err);
+              if (err.status === 401 || err.status === 403) {
+                this.authService.logout();
+                localStorage.removeItem('token');
+                localStorage.setItem("lastLink", window.location.href);
+                ;
+                this.snackBar.open('Déconnexion, une erreur.', '×', {
+                  panelClass: 'success',
+                  verticalPosition: 'top',
+                  duration: 3000,
+                });
+                window.location.href = '/sign-in';
+              }
+            }
+          })
         } else
           alert('Une erreur est survenue lors de la récupération des produits en rayon.');
       },
@@ -238,15 +245,19 @@ export class SortieRayonDialogComponent implements OnInit {
     console.log("sortie")
     console.log(sortie)
     if (this.sortieForm.valid) {
+
       this.sortiesService.addProduitDetail(sortie).subscribe({
         next: (response: any) => {
           this.dialogRef.close(response);
+
         },
         error: (err: any) => {
+
           if (err.status === 401 || err.status === 403) {
             this.authService.logout();
-             localStorage.removeItem('token');
-          localStorage.setItem("lastLink",window.location.href);;
+            localStorage.removeItem('token');
+            localStorage.setItem("lastLink", window.location.href);
+            ;
             this.snackBar.open('Déconnexion réussie.', '×', {
               panelClass: 'success',
               verticalPosition: 'top',
@@ -262,21 +273,24 @@ export class SortieRayonDialogComponent implements OnInit {
   }
 
   getTypeSortiePageable(name: string) {
+
     this.typeSortiesService.getTypeSortiePageable(0, 10, "id", "desc", name).subscribe({
       next: (response: any) => {
-        this.typeSorties = response.content.filter((item:any) => item.id==3)
+        this.typeSorties = response.content.filter((item: any) => item.id == 3)
+
       },
       error: (err: any) => {
+
         if (err.status === 401 || err.status === 403) {
           this.authService.logout();
-           localStorage.removeItem('token');
-          localStorage.setItem("lastLink",window.location.href);
+          localStorage.removeItem('token');
+          localStorage.setItem("lastLink", window.location.href);
           this.snackBar.open('Déconnexion réussie.', '×', {
             panelClass: 'success',
             verticalPosition: 'top',
             duration: 3000,
           });
-            localStorage.removeItem('token');
+          localStorage.removeItem('token');
           window.location.href = '/sign-in';
         }
         console.error('Failed to load products:', err);
@@ -290,36 +304,41 @@ export class SortieRayonDialogComponent implements OnInit {
       // this.productService.searchProducts(this.searchTerm, this.page, this.count).subscribe({
       next: (data: any) => {
         this.medOptions = data.content;
+
       },
       error: (err: any) => {
+
         if (err.status === 401 || err.status === 403) {
+
           this.authService.logout().subscribe({
-                  next: (data) => {
-                    localStorage.removeItem('token');
-                    localStorage.setItem("lastLink", window.location.href);
-                    window.location.href = '/sign-in';
-                    this.snackBar.open('Déconnexion réussie.', '×', {
-                      panelClass: 'success',
-                      verticalPosition: 'top',
-                      duration: 3000,
-                    });
-                  },
-                  error: (err) => {
-                    console.error('Error  subscription:', err);
-                    if (err.status === 401 || err.status === 403) {
-                      this.authService.logout();
-                      localStorage.removeItem('token');
-                      localStorage.setItem("lastLink", window.location.href);
-                      ;
-                      this.snackBar.open('Déconnexion, une erreur.', '×', {
-                        panelClass: 'success',
-                        verticalPosition: 'top',
-                        duration: 3000,
-                      });
-                      window.location.href = '/sign-in';
-                    }
-                  }
-                })
+            next: (data) => {
+
+              localStorage.removeItem('token');
+              localStorage.setItem("lastLink", window.location.href);
+              window.location.href = '/sign-in';
+              this.snackBar.open('Déconnexion réussie.', '×', {
+                panelClass: 'success',
+                verticalPosition: 'top',
+                duration: 3000,
+              });
+            },
+            error: (err) => {
+              console.error('Error  subscription:', err);
+
+              if (err.status === 401 || err.status === 403) {
+                this.authService.logout();
+                localStorage.removeItem('token');
+                localStorage.setItem("lastLink", window.location.href);
+                ;
+                this.snackBar.open('Déconnexion, une erreur.', '×', {
+                  panelClass: 'success',
+                  verticalPosition: 'top',
+                  duration: 3000,
+                });
+                window.location.href = '/sign-in';
+              }
+            }
+          })
         }
         console.error('Error searching products:', err);
       }

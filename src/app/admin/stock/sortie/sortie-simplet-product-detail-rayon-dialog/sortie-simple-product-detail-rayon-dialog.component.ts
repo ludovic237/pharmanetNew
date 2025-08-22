@@ -24,6 +24,7 @@ import {TypeSortiesService} from "@services/type-sorties.service";
 import {ProductService} from "@services/products.service";
 import {BehaviorSubject, Subject, combineLatest, switchMap, takeUntil} from 'rxjs';
 import {SortiesService} from "@services/sorties.service";
+import {LoaderService} from "@services/loader.service";
 
 @Component({
   selector: 'app-sortie-simple-product-detail-rayon-dialog',
@@ -74,6 +75,7 @@ export class SortieSimpleProductDetailRayonDialogComponent implements OnInit {
   produit: any
 
   constructor(
+     public loaderService: LoaderService,
     public authService: AuthService,
     public snackBar: MatSnackBar, public dialogRef: MatDialogRef<SortieSimpleProductDetailRayonDialogComponent>,
     public enRayonService: EnrayonsService, // Replace with actual service
@@ -107,8 +109,10 @@ export class SortieSimpleProductDetailRayonDialogComponent implements OnInit {
           produitName: this.produitName,
           // produitTypeSortieList: 0,
         })
+
       },
       error: (err) => {
+
         if (err.status === 401 || err.status === 403) {
           this.authService.logout();
           this.snackBar.open('Déconnexion réussie.', '×', {
@@ -269,11 +273,14 @@ export class SortieSimpleProductDetailRayonDialogComponent implements OnInit {
       const produitId = this.data.id
       console.log("this.sortieForm.value");
       console.log(this.sortieForm.value);
+
       this.sortiesService.addProduitDetail(sortie).subscribe({
         next: (response: any) => {
           this.dialogRef.close(response);
+
         },
         error: (err: any) => {
+
           if (err.status === 401 || err.status === 403) {
             this.authService.logout();
             localStorage.removeItem('token');
@@ -294,11 +301,14 @@ export class SortieSimpleProductDetailRayonDialogComponent implements OnInit {
   }
 
   getTypeSortiePageable(name: string) {
+
     this.typeSortiesService.getTypeSortiePageable(0, 10, "id", "desc", name).subscribe({
       next: (response: any) => {
         this.typeSorties = response.content.filter((item: any) => item.id == 3)
+
       },
       error: (err: any) => {
+
         if (err.status === 401 || err.status === 403) {
           this.authService.logout();
           localStorage.removeItem('token');

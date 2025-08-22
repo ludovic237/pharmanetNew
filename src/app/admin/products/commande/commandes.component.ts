@@ -40,6 +40,7 @@ export class CommandesComponent implements OnInit {
   domHandlerService = inject(DomHandlerService);
   public settings: Settings;
    constructor(
+     public loaderService: LoaderService,
     public authService: AuthService,
     public snackBar:MatSnackBar,public appService: AppService,
               public commandeService: CommandesService, public dialog: MatDialog, public settingsService: SettingsService) {

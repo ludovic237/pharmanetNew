@@ -37,6 +37,8 @@ import {PrescripteursService} from "@services/prescripteurs.service";
 import {DomHandlerService} from "@services/dom-handler.service";
 import {MatPaginator, PageEvent} from "@angular/material/paginator";
 import {AuthService} from "@services/auth.service";
+import {AppService} from "@services/app.service";
+import {LoaderService} from "@services/loader.service";
 
 @Component({
   selector: 'app-entree',
@@ -127,8 +129,13 @@ export class EntreeComponent implements OnInit {
   public totalItems = 0;  // Default to 10 if undefined
   public count = 10;
 
+  startDateLivraison: Date | null = new Date(new Date().getFullYear(), 0, 1);
+  endDateLivraison: Date | null = new Date();
+
   constructor(
+     public loaderService: LoaderService,
     public authService: AuthService,
+    public appService: AppService,
     public appSettings: SettingsService,
     public snackBar: MatSnackBar,
     public enRayonService: EnrayonsService,
@@ -145,7 +152,8 @@ export class EntreeComponent implements OnInit {
     this.form = this.formBuilder.group({
       nomProduit: [null],
       bientotPerimee: [null],
-      joursAvantPeremption: [0, Validators.min(0)],
+      startDateLivraison: [this.startDateLivraison],
+      endDateLivraison: [this.endDateLivraison],
       enStock: [null],
     })
   }
@@ -156,42 +164,43 @@ export class EntreeComponent implements OnInit {
 
     this.form.get('nomProduit').valueChanges.subscribe(nomProduit => {
       this.nomProduit = nomProduit
+      this.page = 1
       this.fetchEnRayonsPageable()
     });
 
     this.form.get('bientotPerimee').valueChanges.subscribe(bientotPerimee => {
       this.bientotPerimee = bientotPerimee
-      this.fetchEnRayonsPageable()
-    });
-
-    this.form.get('joursAvantPeremption').valueChanges.subscribe(joursAvantPeremption => {
-      this.joursAvantPeremption = joursAvantPeremption
+      this.page = 1
       this.fetchEnRayonsPageable()
     });
 
     this.form.get('enStock').valueChanges.subscribe(enStock => {
       this.enStock = enStock
+      this.page = 1
       this.fetchEnRayonsPageable()
     });
   }
 
   fetchEnRayonsPageable(): void {
 
-
     this.enRayonService.getProduitsEnRayonPageable(
       this.page - 1,
       this.count,
       this.nomProduit,
+      this.appService.formatDate( this.form.get('startDateLivraison').value),
+      this.appService.formatDate( this.form.get('endDateLivraison').value),
       this.bientotPerimee,
-      this.joursAvantPeremption,
+      null,
       this.enStock,
     ).subscribe({
       next: (data: any) => {
         this.count = data.pageSize;
         this.totalItems = data.totalElements;
         this.entrees = data.content.content;
+
       },
       error: (err: any) => {
+
         if (err.status === 401 || err.status === 403) {
           this.authService.logout();
           localStorage.removeItem('token');
@@ -202,7 +211,7 @@ export class EntreeComponent implements OnInit {
             verticalPosition: 'top',
             duration: 3000,
           });
-            localStorage.removeItem('token');
+          localStorage.removeItem('token');
           window.location.href = '/sign-in';
         }
         console.error('Error fetching commandes:', err);

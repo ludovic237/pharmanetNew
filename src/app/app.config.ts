@@ -5,15 +5,15 @@ import { routes } from './app.routes';
 import { provideClientHydration } from '@angular/platform-browser';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
-import { TranslateHttpLoader } from '@ngx-translate/http-loader'; 
-import { HttpClient, provideHttpClient, withFetch } from '@angular/common/http';
+import { TranslateHttpLoader } from '@ngx-translate/http-loader';
+import {HTTP_INTERCEPTORS, HttpClient, provideHttpClient, withFetch, withInterceptors} from '@angular/common/http';
 import { environment } from '../environments/environment';
 import { OverlayContainer } from '@angular/cdk/overlay';
 import { CustomOverlayContainer } from './theme/utils/custom-overlay-container';
 
-export function HttpLoaderFactory(httpClient: HttpClient) { 
+export function HttpLoaderFactory(httpClient: HttpClient) {
   return new TranslateHttpLoader(httpClient, environment.url +'/i18n/', '.json');
-} 
+}
 
 import { InputFileConfig, InputFileModule } from './theme/components/input-file/input-file.module';
 const config: InputFileConfig = {
@@ -22,18 +22,28 @@ const config: InputFileConfig = {
 
 import { InMemoryWebApiModule } from 'angular-in-memory-web-api';
 import { UsersData } from './common/data/users-data';
+import {LoaderInterceptor} from "./theme/utils/loader-interceptor";
+import {AuthInterceptor} from "./theme/utils/auth-interceptor";
 
 export const appConfig: ApplicationConfig = {
-  providers: [ 
-    provideHttpClient(withFetch()),
+  providers: [
+    provideHttpClient(
+      withFetch(),
+      withInterceptors([LoaderInterceptor])
+    ),
+    // {
+    //   provide:HTTP_INTERCEPTORS,
+    //   useClass:LoaderInterceptor,
+    //   multi:true
+    // },
     provideRouter(
       routes,
       withViewTransitions(),
       withPreloading(PreloadAllModules),  // comment this line for enable lazy-loading
-    ),    
+    ),
     provideClientHydration(),
-    provideAnimationsAsync(),    
-    importProvidersFrom([ 
+    provideAnimationsAsync(),
+    importProvidersFrom([
       TranslateModule.forRoot({
         loader: {
           provide: TranslateLoader,
@@ -41,9 +51,9 @@ export const appConfig: ApplicationConfig = {
           deps: [HttpClient]
         }
       }),
-      InputFileModule.forRoot(config), 
+      InputFileModule.forRoot(config),
       InMemoryWebApiModule.forRoot(UsersData, { passThruUnknownUrl: true, delay: 1000 })
     ]),
-    { provide: OverlayContainer, useClass: CustomOverlayContainer }   
+    { provide: OverlayContainer, useClass: CustomOverlayContainer }
   ]
 };

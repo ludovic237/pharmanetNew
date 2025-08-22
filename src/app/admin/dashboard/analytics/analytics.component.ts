@@ -5,6 +5,7 @@ import { analytics } from '../../../common/data/dashboard.data';
 import { MatCardModule } from '@angular/material/card';
 import { FlexLayoutModule } from '@ngbracket/ngx-layout';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
+import {LoaderService} from "@services/loader.service";
 
 @Component({
     selector: 'app-analytics',
@@ -34,6 +35,7 @@ export class AnalyticsComponent implements OnInit {
   public previousWidthOfResizedDiv: number = 0;
 
    constructor(
+     public loaderService: LoaderService,
     public authService: AuthService,
     public snackBar:MatSnackBar,) { }
 

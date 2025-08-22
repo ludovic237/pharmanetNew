@@ -20,6 +20,7 @@ import {
 } from "./update-produit-detail-dialog/update-produit-detail-dialog.component";
 import {MatToolbarModule} from "@angular/material/toolbar";
 import {AuthService} from "@services/auth.service";
+import {LoaderService} from "@services/loader.service";
 
 @Component({
   selector: 'app-ajouter-vente-dialog',
@@ -61,6 +62,7 @@ export class AjouterVenteDialogComponent implements OnInit {
   public settings: Settings;
 
   constructor(
+     public loaderService: LoaderService,
     public authService: AuthService,
     public snackBar: MatSnackBar, public dialogRef: MatDialogRef<AjouterVenteDialogComponent>,
     public enRayonService: EnrayonsService, // Replace with actual service

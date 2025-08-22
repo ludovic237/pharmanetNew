@@ -14,6 +14,7 @@ import { ConfirmDialogComponent } from '@shared-components/confirm-dialog/confir
 import { RatingComponent } from '@shared-components/rating/rating.component';
 import { NgxPaginationModule } from 'ngx-pagination';
 import { PipesModule } from '../../theme/pipes/pipes.module';
+import {LoaderService} from "@services/loader.service";
 
 @Component({
     selector: 'app-reviews',
@@ -53,6 +54,7 @@ export class ReviewsComponent {
   public count = 6;
 
    constructor(
+     public loaderService: LoaderService,
     public authService: AuthService,
     public snackBar:MatSnackBar,public dialog: MatDialog, public domHandlerService: DomHandlerService) { }
 

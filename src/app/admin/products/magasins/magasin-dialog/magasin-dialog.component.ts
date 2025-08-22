@@ -10,6 +10,7 @@ import {MatSelectModule} from '@angular/material/select';
 import {FlexLayoutModule} from '@ngbracket/ngx-layout';
 import {MagasinService} from "@services/magasins.service";
 import {MatToolbarModule} from "@angular/material/toolbar";
+import {LoaderService} from "@services/loader.service";
 
 
 @Component({
@@ -33,6 +34,7 @@ export class MagasinDialogComponent implements OnInit {
   public form: FormGroup;
 
   constructor(
+     public loaderService: LoaderService,
     public authService: AuthService,
     public magasinService: MagasinService,
     public snackBar: MatSnackBar, public dialogRef: MatDialogRef<MagasinDialogComponent>,
@@ -70,12 +72,16 @@ export class MagasinDialogComponent implements OnInit {
               duration: 3000,
             });
             this.dialogRef.close();
+
           },
           error: (err) => {
+
             console.error('Error applying filters:', err);
             if (err.status === 401 || err.status === 403) {
+
               this.authService.logout().subscribe({
                   next: (data) => {
+
                     localStorage.removeItem('token');
                     localStorage.setItem("lastLink", window.location.href);
                     window.location.href = '/sign-in';
@@ -87,6 +93,7 @@ export class MagasinDialogComponent implements OnInit {
                   },
                   error: (err) => {
                     console.error('Error  subscription:', err);
+
                     if (err.status === 401 || err.status === 403) {
                       this.authService.logout();
                       localStorage.removeItem('token');
@@ -105,6 +112,7 @@ export class MagasinDialogComponent implements OnInit {
           }
         });
       } else if (this.data.type == "update") {
+
         this.magasinService.updateMagasin(this.form.value).subscribe({
           next: (data: any) => {
             this.snackBar.open(`Mise a jour reussi`, '×', {
@@ -113,12 +121,15 @@ export class MagasinDialogComponent implements OnInit {
               duration: 3000,
             });
             this.dialogRef.close();
+
           },
           error: (err) => {
             console.error('Error applying filters:', err);
             if (err.status === 401 || err.status === 403) {
+
               this.authService.logout().subscribe({
                   next: (data) => {
+
                     localStorage.removeItem('token');
                     localStorage.setItem("lastLink", window.location.href);
                     window.location.href = '/sign-in';
@@ -130,6 +141,7 @@ export class MagasinDialogComponent implements OnInit {
                   },
                   error: (err) => {
                     console.error('Error  subscription:', err);
+
                     if (err.status === 401 || err.status === 403) {
                       this.authService.logout();
                       localStorage.removeItem('token');

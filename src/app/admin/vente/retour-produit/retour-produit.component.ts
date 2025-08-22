@@ -43,6 +43,7 @@ import {RetourProduitService} from "@services/retour-produit.service";
 import autoTable from 'jspdf-autotable';
 import {MatPaginatorModule, PageEvent} from "@angular/material/paginator";
 import {AuthService} from "@services/auth.service";
+import {LoaderService} from "@services/loader.service";
 
 @Component({
   selector: 'app-retour-produit',
@@ -125,6 +126,7 @@ export class RetourProduitComponent implements OnInit {
   totalReductionAmount = 0;
 
   constructor(
+     public loaderService: LoaderService,
     public authService: AuthService,
     private retourProduitService: RetourProduitService,
     private ventesService: VentesService,

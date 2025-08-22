@@ -20,6 +20,7 @@ import {MatTableModule} from "@angular/material/table";
 import {MatToolbarModule} from "@angular/material/toolbar";
 import {MatAutocompleteModule} from "@angular/material/autocomplete";
 import {FlexLayoutModule} from "@ngbracket/ngx-layout";
+import {LoaderService} from "@services/loader.service";
 
 @Component({
   selector: 'app-sortie-detail-rayon',
@@ -42,7 +43,7 @@ import {FlexLayoutModule} from "@ngbracket/ngx-layout";
   templateUrl: './sortie-detail-rayon.component.html',
   styleUrl: './sortie-detail-rayon.component.scss'
 })
-export class SortieDetailRayonComponent implements OnInit{
+export class SortieDetailRayonComponent implements OnInit {
   type = "detail"
   public enRayonList: any[] = [];
   public sourceList: any[] = [];
@@ -60,9 +61,10 @@ export class SortieDetailRayonComponent implements OnInit{
   public form: FormGroup;
   public settings: Settings;
 
-  title="Gestion des Produits en Rayon"
+  title = "Gestion des Produits en Rayon"
 
   constructor(
+    public loaderService: LoaderService,
     public authService: AuthService,
     public snackBar: MatSnackBar, public dialogRef: MatDialogRef<SortieDetailRayonComponent>,
     public enRayonService: EnrayonsService, // Replace with actual service
@@ -99,8 +101,8 @@ export class SortieDetailRayonComponent implements OnInit{
       disabled: existingRayonIds.includes(item.rayonId) // Mark as disabled if rayonId exists
     }));
 
-    this.enRayonList.forEach((item:any)=>{
-      item.quantiteRestante = (Number(item.quantiteOld)>0) ?Number(item.quantiteOld) : 0
+    this.enRayonList.forEach((item: any) => {
+      item.quantiteRestante = (Number(item.quantiteOld) > 0) ? Number(item.quantiteOld) : 0
     })
 
     console.log("this.enRayonList")
@@ -203,7 +205,7 @@ export class SortieDetailRayonComponent implements OnInit{
     return Math.ceil(diff / (1000 * 60 * 60 * 24))
   }
 
-  executerSortie(){
+  executerSortie() {
 
   }
 }

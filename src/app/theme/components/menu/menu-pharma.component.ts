@@ -38,8 +38,10 @@ export class MenuPharmaComponent implements OnInit {
 
   ngOnInit(): void {
     console.log('MenuPharmaComponent initialized');
-    console.log(localStorage.getItem('token'))
-    this.hasToken = !!localStorage.getItem('token');
+
+    if (typeof window !== 'undefined' && typeof localStorage!=='undefined'){
+      this.hasToken = !!localStorage.getItem('token');
+    }
   }
 
   openMegaMenu() {

@@ -32,6 +32,7 @@ import {MatExpansionModule} from "@angular/material/expansion";
 import {MatTabsModule} from "@angular/material/tabs";
 import {MatDatepickerModule} from "@angular/material/datepicker";
 import {MatNativeDateModule} from "@angular/material/core";
+import {LoaderService} from "@services/loader.service";
 
 @Component({
   selector: 'app-payment-dialog',
@@ -102,6 +103,7 @@ export class PaymentDialogComponent implements OnInit {
   result: any = {}
 
   constructor(
+    public loaderService: LoaderService,
     public authService: AuthService,
     public snackBar: MatSnackBar, public dialogRef: MatDialogRef<PaymentDialogComponent>,
     public appSettings: SettingsService,
@@ -209,7 +211,7 @@ export class PaymentDialogComponent implements OnInit {
     this.result.encaissementDto = encaissementDetails
 
     this.ventesService.encaisserVenteDirect(this.result).subscribe({
-      next: (data:any) => {
+      next: (data: any) => {
 
         // Show success message
         this.snackBar.open("Vente successfully", '×', {
@@ -218,44 +220,48 @@ export class PaymentDialogComponent implements OnInit {
           duration: 3000
         });
         this.dialogRef.close(data)
+
       },
       error: (err: any) => {
+
         console.error('Failed to fetch BonCaisse list:', err);
-        if (err.status === 401 || err.status === 403){
+        if (err.status === 401 || err.status === 403) {
+
           this.authService.logout().subscribe({
-                  next: (data) => {
-                    localStorage.removeItem('token');
-                    localStorage.setItem("lastLink", window.location.href);
-                    window.location.href = '/sign-in';
-                    this.snackBar.open('Déconnexion réussie.', '×', {
-                      panelClass: 'success',
-                      verticalPosition: 'top',
-                      duration: 3000,
-                    });
-                  },
-                  error: (err) => {
-                    console.error('Error  subscription:', err);
-                    if (err.status === 401 || err.status === 403) {
-                      this.authService.logout();
-                      localStorage.removeItem('token');
-                      localStorage.setItem("lastLink", window.location.href);
-                      ;
-                      this.snackBar.open('Déconnexion, une erreur.', '×', {
-                        panelClass: 'success',
-                        verticalPosition: 'top',
-                        duration: 3000,
-                      });
-                      window.location.href = '/sign-in';
-                    }
-                  }
-                })
-        }
-        else
-        this.snackBar.open('Erreur lors de la récupération des bons de caisse.', '×', {
-          panelClass: 'error',
-          verticalPosition: 'top',
-          duration: 3000,
-        });
+            next: (data) => {
+              localStorage.removeItem('token');
+              localStorage.setItem("lastLink", window.location.href);
+              window.location.href = '/sign-in';
+              this.snackBar.open('Déconnexion réussie.', '×', {
+                panelClass: 'success',
+                verticalPosition: 'top',
+                duration: 3000,
+              });
+
+            },
+            error: (err) => {
+
+              console.error('Error  subscription:', err);
+              if (err.status === 401 || err.status === 403) {
+                this.authService.logout();
+                localStorage.removeItem('token');
+                localStorage.setItem("lastLink", window.location.href);
+                ;
+                this.snackBar.open('Déconnexion, une erreur.', '×', {
+                  panelClass: 'success',
+                  verticalPosition: 'top',
+                  duration: 3000,
+                });
+                window.location.href = '/sign-in';
+              }
+            }
+          })
+        } else
+          this.snackBar.open('Erreur lors de la récupération des bons de caisse.', '×', {
+            panelClass: 'error',
+            verticalPosition: 'top',
+            duration: 3000,
+          });
       }
     });
   }
@@ -278,6 +284,7 @@ export class PaymentDialogComponent implements OnInit {
 
   validateTicket(): void {
     if (this.numeroTicket && this.numeroTicket.length === 12) {
+
       this.bonCaisseService.getBonByCodebarreId(this.numeroTicket).subscribe({
         next: (data) => {
           if (data) {
@@ -288,10 +295,12 @@ export class PaymentDialogComponent implements OnInit {
             this.montantTicket = 0;
             alert('Numéro de ticket invalide.');
           }
+
         },
-        error: (err:any) => {
+        error: (err: any) => {
+
           this.montantTicket = 0;
-          if (err.status === 401 || err.status === 403){
+          if (err.status === 401 || err.status === 403) {
             this.authService.logout();
             this.snackBar.open('Déconnexion réussie.', '×', {
               panelClass: 'success',
@@ -300,9 +309,8 @@ export class PaymentDialogComponent implements OnInit {
             });
             // Redirect to login page or clear session
             window.location.href = '/sign-in';
-          }
-          else
-          alert('Erreur lors de la validation du ticket.');
+          } else
+            alert('Erreur lors de la validation du ticket.');
         }
       });
     } else {
@@ -312,6 +320,7 @@ export class PaymentDialogComponent implements OnInit {
 
   validateTicketMixte(): void {
     if (this.numeroTicketMixte && this.numeroTicketMixte.length === 12) {
+
       this.bonCaisseService.getBonByCodebarreId(this.numeroTicketMixte).subscribe({
         next: (data) => {
           if (data) {
@@ -322,8 +331,10 @@ export class PaymentDialogComponent implements OnInit {
             this.montantTicketMixte = 0;
             alert('Numéro de ticket invalide.');
           }
+
         },
         error: () => {
+
           this.montantTicketMixte = 0;
           alert('Erreur lors de la validation du ticket.');
         }

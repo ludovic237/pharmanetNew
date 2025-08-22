@@ -40,12 +40,12 @@ import {MatSlideToggleModule} from "@angular/material/slide-toggle";
 import {MatSnackBar, MatSnackBarModule} from "@angular/material/snack-bar";
 import {TicketCaisseService} from "@services/tickets.service";
 import {BonCaisseService} from "@services/boncaisses.service";
-import {BonCaisseDialogComponent} from "./bon-caisse-dialog/bon-caisse-dialog.component";
 import {DepenseService} from "@services/depenses.service";
 import {DepenseDialogComponent} from "./depense-dialog/depense-dialog.component";
 import {VenteDialogComponent} from "./vente-dialog/vente-dialog.component";
 import {MatStepper, MatStepperModule} from "@angular/material/stepper";
 import {AuthService} from "@services/auth.service";
+import {LoaderService} from "@services/loader.service";
 
 interface Commande {
   id: string;
@@ -126,6 +126,7 @@ export class ListerReceptionnerCommandeComponent {
   form: FormGroup;
 
    constructor(
+     public loaderService: LoaderService,
     public authService: AuthService,
     public snackBar:MatSnackBar,
     private fb: FormBuilder,

@@ -8,7 +8,7 @@ import {MatButtonModule} from "@angular/material/button";
 import {FlexLayoutModule} from "@ngbracket/ngx-layout";
 import {EnrayonsService} from "@services/enrayons.service";
 import {MatCardModule} from "@angular/material/card";
-import {CommonModule} from "@angular/common";
+import {CommonModule, formatDate} from "@angular/common";
 import {MatAutocompleteModule} from "@angular/material/autocomplete";
 import {MatTableModule} from "@angular/material/table";
 import {MatIconModule} from "@angular/material/icon";
@@ -20,6 +20,9 @@ import {MatListModule} from "@angular/material/list";
 import {CommandesService} from "@services/commandes.service";
 import {FournisseursService} from "@services/fournisseurs.service";
 import {AuthService} from "@services/auth.service";
+import {jsPDF} from "jspdf";
+import QRCode from "qrcode";
+import {LoaderService} from "@services/loader.service";
 
 @Component({
   selector: 'app-ajouter-commande-dialog',
@@ -50,11 +53,14 @@ export class AjouterCommandeDialogComponent implements OnInit {
   selectedProducts: FormArray;
   columns: string[] = ['nom', 'prixAchat', 'prixVente', 'quantite', 'total', 'actions'];
 
+  codeFournisseur: string = "00";
   typeCommande: string = 'en_attente';
   fournisseurId: string = '';
+  fournisseur: any = {};
   defaultDateDePeremption: string;
 
   constructor(
+    public loaderService: LoaderService,
     public authService: AuthService,
     public dialogRef: MatDialogRef<AjouterCommandeDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
@@ -96,25 +102,31 @@ export class AjouterCommandeDialogComponent implements OnInit {
   public searchProducts(event: Event): void {
     const input = event.target as HTMLInputElement;
     const searchTerm = input.value;
+
     this.productService.searchProducts(searchTerm, 0, 40).subscribe({
       // this.productService.searchProducts(this.searchTerm, this.page, this.count).subscribe({
       next: (data: any) => {
         this.products = data.content;
+       ;
       },
       error: (err) => {
         console.error('Error searching products:', err);
+       ;
       }
     });
   }
 
   public searchFournisseur(): void {
+
     this.fournisseursService.getFournisseurs().subscribe({
       // this.productService.searchProducts(this.searchTerm, this.page, this.count).subscribe({
       next: (data: any) => {
         this.fournisseurs = data;
+       ;
       },
       error: (err) => {
         console.error('Error searching products:', err);
+       ;
       }
     });
   }
@@ -122,15 +134,23 @@ export class AjouterCommandeDialogComponent implements OnInit {
   addProduct(product: any): void {
     const productGroup = this.fb.group({
       id: [product.id],
+      codebarre: [product.id + "" + this.fournisseurs.find(fournisseur => fournisseur.id === this.fournisseurId).code + "" + formatDate(new Date(), 'yyyyMMddHHmmss', 'en-US')],
+      reductionMax: [product.reductionMax],
+      ean13: [product.ean13],
       nom: [product.nom],
-      prixAchat: [product.prixAchatInitial, [Validators.required, Validators.min(0)]],
-      prixVente: [product.prixVenteActuel, [Validators.required, Validators.min(0)]],
+      stock: [product.stock],
+      datePeremption: [product.datePeremption],
+      uniteGratuite: [product.uniteGratuite],
+      prix: [product.prix],
+      type: [product.type],
+      prixAchat: [product.prixAchat, [Validators.required, Validators.min(0)]],
+      prixVente: [product.prixVente, [Validators.required, Validators.min(0)]],
       quantite: [1, [Validators.required, Validators.min(1)]],
-      uniteGratuite: [0, [Validators.required, Validators.min(0)]],
       quantiteRecu: [this.typeCommande === 'en_cours' ? 0 : null, [Validators.min(0)]],
-      dateDePeremption: [this.typeCommande === 'livree' || this.typeCommande === 'en_cours' ? this.defaultDateDePeremption : null]
+      dateDePeremption: [this.typeCommande === 'livree' || this.typeCommande === 'en_cours' ? product.datePeremption : null]
     });
-
+    console.log("productGroup");
+    console.log(productGroup);
     this.selectedProducts.push(productGroup);
   }
 
@@ -146,6 +166,7 @@ export class AjouterCommandeDialogComponent implements OnInit {
         fournisseurId: this.fournisseurId,
         produits: this.selectedProducts.value.map((product: any) => ({
           id: product.id,
+          codebarre: product.codebarre,
           nom: product.nom || "",
           quantite: product.quantite ?? 0,
           uniteGratuite: product.uniteGratuite ?? 0,
@@ -158,6 +179,7 @@ export class AjouterCommandeDialogComponent implements OnInit {
         })),
         type: this.typeCommande
       };
+
       this.commandesService.addCommande(payload).subscribe({
         next: (response) => {
           this.dialogRef.close();
@@ -166,6 +188,7 @@ export class AjouterCommandeDialogComponent implements OnInit {
             verticalPosition: 'top',
             duration: 3000
           });
+
         },
         error: (err) => {
           this.snackBar.open(`Error creating commande.`, '×', {
@@ -173,6 +196,7 @@ export class AjouterCommandeDialogComponent implements OnInit {
             verticalPosition: 'top',
             duration: 3000
           });
+
         }
       });
     }
@@ -198,6 +222,54 @@ export class AjouterCommandeDialogComponent implements OnInit {
     return this.typeCommande.trim() !== '' &&
       this.fournisseurId !== '' &&
       this.selectedProducts.value.length > 0;
+  }
+
+  generatePDF(product: any): Promise<void> {
+    return new Promise((resolve) => {
+
+      const qte = product.quantite + product.uniteGratuite;
+      const base64Image = product.codebarre;
+
+
+      const doc = new jsPDF({orientation: 'landscape', unit: 'mm', format: [30, 20]});
+
+      // Precompute reusable values
+      const today = new Date();
+      const todayFormatted = today.toLocaleDateString('en-GB').replace(/\//g, '-');
+      const todayCode = todayFormatted.replace(/-/g, '');
+
+      const qrCodePromises = Array.from({length: qte}, async (_, index) => {
+        const code = `${product.codebarre}`;
+        return QRCode.toDataURL(code);
+      });
+
+      Promise.all(qrCodePromises).then((qrCodes) => {
+        qrCodes.forEach((qrCodeDataUrl, index) => {
+          // Add content to the PDF
+          doc.cell(0, 0, 30, 20, ' ', 0, 'center');
+          doc.addImage(qrCodeDataUrl, 'JPEG', -2, -2, 22, 22);
+          doc.setFontSize(7).text(`${product.prixVente || ''} F`, 19, 6);
+          doc.setFontSize(5).text(`${this.codeFournisseur || ''}`, 19, 8);
+          doc.setFontSize(4)
+            .text(new Date(product.datePeremption || '').toLocaleString('fr-FR', {
+              year: 'numeric',
+              month: '2-digit',
+              day: '2-digit',
+              // hour: '2-digit',
+              // minute: '2-digit'
+            }).replaceAll('/', '-'), 19, 10)
+            .text(todayFormatted, 19, 12);
+          doc.text(product.nom || '', 1, 19);
+
+          // Add a new page unless it's the last iteration
+          if (index < qte - 1) doc.addPage([30, 20], 'l');
+        });
+
+        // this.isLoading = false;
+        doc.save(`${product.nom || 'Document'}.pdf`);
+        resolve();
+      });
+    });
   }
 
 }

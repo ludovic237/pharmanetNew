@@ -40,6 +40,7 @@ import {PrescripteursService} from "@services/prescripteurs.service";
 import {MatSlideToggleModule} from "@angular/material/slide-toggle";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {AuthService} from "@services/auth.service";
+import {LoaderService} from "@services/loader.service";
 
 interface VenteLigne {
   id: string;
@@ -146,15 +147,16 @@ export class AjouterVenteComponent implements OnInit {
   public showOptions: boolean = false;
   public settings: Settings;
 
-   constructor(
-    public authService: AuthService,public appSettings: SettingsService,
-              public snackBar: MatSnackBar,
-              public enRayonService: EnrayonsService,
-              public productService: ProductService,
-              public ventesService: VentesService,
-              public usersService: UsersService,
-              public prescripteursService: PrescripteursService,
-              public dialog: MatDialog) {
+  constructor(
+    public loaderService: LoaderService,
+    public authService: AuthService, public appSettings: SettingsService,
+    public snackBar: MatSnackBar,
+    public enRayonService: EnrayonsService,
+    public productService: ProductService,
+    public ventesService: VentesService,
+    public usersService: UsersService,
+    public prescripteursService: PrescripteursService,
+    public dialog: MatDialog) {
     this.settings = this.appSettings.settings;
   }
 
@@ -300,6 +302,7 @@ export class AjouterVenteComponent implements OnInit {
 
 
   openMedicamentDialog(med: any): void {
+
     this.enRayonService.getProduitsEnRayon(med.id).subscribe({
       next: (data: any) => {
         const dialogRef = this.dialog.open(AjouterVenteDialogComponent, {
@@ -344,8 +347,10 @@ export class AjouterVenteComponent implements OnInit {
             this.calculeTotaux(); // Recalculate totals
           }
         });
+
       },
       error: (err: any) => {
+
         console.error('Failed to fetch products in stock:', err);
         alert('Une erreur est survenue lors de la récupération des produits en rayon.');
       },
@@ -361,8 +366,10 @@ export class AjouterVenteComponent implements OnInit {
           id: product.id,
           name: product.nom
         }));
+
       },
       error: (err) => {
+
         console.error('Error searching products:', err);
       }
     });
@@ -411,6 +418,7 @@ export class AjouterVenteComponent implements OnInit {
   }
 
   loadClients(): void {
+
     this.usersService.getUsers().subscribe({
       next: (data) => {
         this.clientOptions = data.map((client: any) => ({
@@ -428,13 +436,16 @@ export class AjouterVenteComponent implements OnInit {
   }
 
   loadPrescripteurs(): void {
+
     this.prescripteursService.getPrescripteurs().subscribe({
       next: (data) => {
         this.prescripteurOptions = data.map((prescipteur: any) => ({
           name: prescipteur.name,
         }));
+
       },
       error: (err) => {
+
         console.error('Error loading clients:', err);
       }
     });
@@ -491,7 +502,7 @@ export class AjouterVenteComponent implements OnInit {
       }))
     };
 
-  this.ventesService.creerVenteSansEncaissement(paymentVenteData).subscribe({
+    this.ventesService.creerVenteSansEncaissement(paymentVenteData).subscribe({
       next: (response: any) => {
         // Reset form controls
         this.clientTypeControl.reset('');
@@ -517,9 +528,11 @@ export class AjouterVenteComponent implements OnInit {
           verticalPosition: 'top',
           duration: 3000
         });
+
       },
       error: (err: any) => {
         console.error('Failed to create sale:', err);
+
         this.snackBar.open('Failed to create sale', '×', {
           panelClass: 'error',
           verticalPosition: 'top',

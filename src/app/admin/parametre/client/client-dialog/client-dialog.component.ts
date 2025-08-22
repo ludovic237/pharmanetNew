@@ -21,6 +21,7 @@ import {MatCardModule} from "@angular/material/card";
 import {MatSelectModule} from "@angular/material/select";
 import {MatToolbarModule} from "@angular/material/toolbar";
 import {InputFileModule} from "../../../../theme/components/input-file/input-file.module";
+import {LoaderService} from "@services/loader.service";
 
 @Component({
     selector: 'app-client-dialog',
@@ -54,6 +55,7 @@ export class ClientDialogComponent implements OnInit {
   title="Nouvelle employe"
 
   constructor(
+     public loaderService: LoaderService,
     public authService: AuthService,
     public usersService: UsersService,
     public snackBar: MatSnackBar, public dialogRef: MatDialogRef<ClientDialogComponent>,
@@ -91,11 +93,14 @@ export class ClientDialogComponent implements OnInit {
   onSubmit(){
 
     if (this.user.type=="add"){
+
       this.usersService.updateUser(this.form.value).subscribe({
         next: (users) => {
           this.dialogRef.close("add");
+
         },
         error: (err:any) => {
+
           if (err.status === 401 || err.status === 403){
             this.authService.logout();
             this.snackBar.open('Déconnexion réussie.', '×', {
@@ -111,11 +116,14 @@ export class ClientDialogComponent implements OnInit {
       });
     }
     else {
+
       this.usersService.updateUser(this.form.value).subscribe({
         next: (users) => {
           this.dialogRef.close("update");
+
         },
         error: (err:any) => {
+
           if (err.status === 401 || err.status === 403){
             this.authService.logout();
             this.snackBar.open('Déconnexion réussie.', '×', {

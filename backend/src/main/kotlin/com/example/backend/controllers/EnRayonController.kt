@@ -174,6 +174,8 @@ class EnRayonController(private val enRayonService: EnRayonService) {
     @RequestParam(required = false) bientotPerimee: String?,
     @RequestParam(required = false) joursAvantPeremption: String?,
     @RequestParam(required = false) enStock: String?,
+    @RequestParam(required = false) startDate: String?,
+    @RequestParam(required = false) endDate: String?,
     @RequestParam(defaultValue = "0") page: String,
     @RequestParam(defaultValue = "10") size: String,
     @RequestParam(defaultValue = "id") sort: String,
@@ -197,6 +199,8 @@ class EnRayonController(private val enRayonService: EnRayonService) {
       nomProduit,
       bientotPerimeeBoolean,
       joursAvantPeremptionInt,
+      startDate,
+      endDate,
       enStockBoolean,
       pageable
     )

@@ -24,6 +24,7 @@ import {jsPDF} from "jspdf";
 import QRCode from "qrcode";
 import {AuthService} from "@services/auth.service";
 import {MatSnackBar} from "@angular/material/snack-bar";
+import {LoaderService} from "@services/loader.service";
 
 @Component({
   selector: 'app-produit-rayon-info-dialog',
@@ -76,6 +77,7 @@ export class ProduitRayonInfoDialogComponent {
   quantiteEtiquette: number = 1;
 
    constructor(
+     public loaderService: LoaderService,
     public authService: AuthService,
     public snackBar:MatSnackBar,
     private fb: FormBuilder,

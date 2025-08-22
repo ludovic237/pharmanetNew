@@ -40,8 +40,9 @@ export class EnrayonsService {
     }, {headers: this.getHeaders()});
   }
 
-  getProduitsEnRayonPageable(page: number, size: number, nomProduit: string, bientotPerimee: boolean, joursAvantPeremption: number, enStock: boolean): Observable<Page> {
-    return this.http.get<Page>(this.apiUrl + `/en-rayon/pageable/new?page=${page}&nomProduit=${nomProduit}&bientotPerimee=${bientotPerimee}&joursAvantPeremption=${joursAvantPeremption}&enStock=${enStock}&size=${size}`, {headers: this.getHeaders()});
+  getProduitsEnRayonPageable(page: number, size: number, nomProduit: string,    startDate: string,
+                             endDate: string,bientotPerimee: boolean, joursAvantPeremption: number, enStock: boolean): Observable<Page> {
+    return this.http.get<Page>(this.apiUrl + `/en-rayon/pageable/new?page=${page}&startDate=${startDate}&endDate=${endDate}&nomProduit=${nomProduit}&bientotPerimee=${bientotPerimee}&joursAvantPeremption=${joursAvantPeremption}&enStock=${enStock}&size=${size}`, {headers: this.getHeaders()});
   }
 
   getProduitsEnRayonPageableProduitRange(page: number,

@@ -21,6 +21,7 @@ import {MatCardModule} from "@angular/material/card";
 import {MatSelectModule} from "@angular/material/select";
 import {MatToolbarModule} from "@angular/material/toolbar";
 import {InputFileModule} from "../../../../theme/components/input-file/input-file.module";
+import {LoaderService} from "@services/loader.service";
 
 
 @Component({
@@ -61,6 +62,7 @@ export class EmployeDialogComponent implements OnInit {
   ]
 
   constructor(
+     public loaderService: LoaderService,
     public authService: AuthService,
     public usersService: UsersService,
     public employesService: EmployesService,
@@ -99,13 +101,17 @@ export class EmployeDialogComponent implements OnInit {
 
   public getUsers(): void {
     this.users = null; //for show spinner each time
+
     this.usersService.getUsers().subscribe({
       next: (users) => {
         this.users = users
+
         // this.totalItems = users.length;
       },
       error: (err:any) => {
+
         if (err.status === 401 || err.status === 403){
+
           this.authService.logout().subscribe({
                   next: (data) => {
                     localStorage.removeItem('token');
@@ -116,9 +122,11 @@ export class EmployeDialogComponent implements OnInit {
                       verticalPosition: 'top',
                       duration: 3000,
                     });
+
                   },
                   error: (err) => {
                     console.error('Error  subscription:', err);
+
                     if (err.status === 401 || err.status === 403) {
                       this.authService.logout();
                       localStorage.removeItem('token');
@@ -142,11 +150,14 @@ export class EmployeDialogComponent implements OnInit {
   onSubmit(){
 
     if (this.user.type=="add"){
+
       this.employesService.updateEmploye(this.form.value).subscribe({
         next: (users) => {
           this.dialogRef.close("add");
+
         },
         error: (err:any) => {
+
           if (err.status === 401 || err.status === 403){
             this.authService.logout();
             this.snackBar.open('Déconnexion réussie.', '×', {
@@ -162,11 +173,14 @@ export class EmployeDialogComponent implements OnInit {
       });
     }
     else {
+
       this.employesService.updateEmploye(this.form.value).subscribe({
         next: (users) => {
           this.dialogRef.close("update");
+
         },
         error: (err:any) => {
+
           if (err.status === 401 || err.status === 403){
             this.authService.logout();
             this.snackBar.open('Déconnexion réussie.', '×', {

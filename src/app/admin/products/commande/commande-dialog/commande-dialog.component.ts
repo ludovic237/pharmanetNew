@@ -25,6 +25,7 @@ import { FlexLayoutModule } from '@ngbracket/ngx-layout';
 export class CommandeDialogComponent implements OnInit {
   public form: FormGroup;
    constructor(
+     public loaderService: LoaderService,
     public authService: AuthService,
     public snackBar:MatSnackBar,public dialogRef: MatDialogRef<CommandeDialogComponent>,
               @Inject(MAT_DIALOG_DATA) public data: any,

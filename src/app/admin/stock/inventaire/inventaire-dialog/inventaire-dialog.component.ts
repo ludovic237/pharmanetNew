@@ -47,6 +47,7 @@ import {
 import {InventaireSaisieDialogComponent} from "../inventaire-saisie-dialog/inventaire-saisie-dialog.component";
 import {FournisseursService} from "@services/fournisseurs.service";
 import {AuthService} from "@services/auth.service";
+import {LoaderService} from "@services/loader.service";
 
 @Component({
   selector: 'app-inventaire-dialog',
@@ -127,9 +128,10 @@ export class InventaireDialogComponent implements OnInit {
   medControl = new FormControl('');
   medOptions: { name: string }[] = [];
 
-   constructor(
+  constructor(
+    public loaderService: LoaderService,
     public authService: AuthService,
-    public snackBar:MatSnackBar,
+    public snackBar: MatSnackBar,
     private dialogRef: MatDialogRef<InventaireDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
     private fb: FormBuilder,
@@ -209,36 +211,41 @@ export class InventaireDialogComponent implements OnInit {
           name: product.nom
         }));
 
+
       },
-      error: (err:any) => {
-        if (err.status === 401 || err.status === 403){
+      error: (err: any) => {
+
+        if (err.status === 401 || err.status === 403) {
+
           this.authService.logout().subscribe({
-                  next: (data) => {
-                    localStorage.removeItem('token');
-                    localStorage.setItem("lastLink", window.location.href);
-                    window.location.href = '/sign-in';
-                    this.snackBar.open('Déconnexion réussie.', '×', {
-                      panelClass: 'success',
-                      verticalPosition: 'top',
-                      duration: 3000,
-                    });
-                  },
-                  error: (err) => {
-                    console.error('Error  subscription:', err);
-                    if (err.status === 401 || err.status === 403) {
-                      this.authService.logout();
-                      localStorage.removeItem('token');
-                      localStorage.setItem("lastLink", window.location.href);
-                      ;
-                      this.snackBar.open('Déconnexion, une erreur.', '×', {
-                        panelClass: 'success',
-                        verticalPosition: 'top',
-                        duration: 3000,
-                      });
-                      window.location.href = '/sign-in';
-                    }
-                  }
-                })
+            next: (data) => {
+
+              localStorage.removeItem('token');
+              localStorage.setItem("lastLink", window.location.href);
+              window.location.href = '/sign-in';
+              this.snackBar.open('Déconnexion réussie.', '×', {
+                panelClass: 'success',
+                verticalPosition: 'top',
+                duration: 3000,
+              });
+            },
+            error: (err) => {
+
+              console.error('Error  subscription:', err);
+              if (err.status === 401 || err.status === 403) {
+                this.authService.logout();
+                localStorage.removeItem('token');
+                localStorage.setItem("lastLink", window.location.href);
+                ;
+                this.snackBar.open('Déconnexion, une erreur.', '×', {
+                  panelClass: 'success',
+                  verticalPosition: 'top',
+                  duration: 3000,
+                });
+                window.location.href = '/sign-in';
+              }
+            }
+          })
         }
         console.error('Error searching products:', err);
       }
@@ -278,6 +285,7 @@ export class InventaireDialogComponent implements OnInit {
         quantiteSysteme: product.quantitySystem
       }))
     }
+
     this.inventaireService.addInventaire(this.data).subscribe({
       next: (response: any) => {
         this.snackBar.open('Inventory created successfully!', '×', {
@@ -286,50 +294,55 @@ export class InventaireDialogComponent implements OnInit {
           duration: 3000
         });
         this.dialogRef.close(response);
+
       },
       error: (err: any) => {
+
         console.error('Error creating inventory:', err);
-        if (err.status === 401 || err.status === 403){
+        if (err.status === 401 || err.status === 403) {
+
           this.authService.logout().subscribe({
-                  next: (data) => {
-                    localStorage.removeItem('token');
-                    localStorage.setItem("lastLink", window.location.href);
-                    window.location.href = '/sign-in';
-                    this.snackBar.open('Déconnexion réussie.', '×', {
-                      panelClass: 'success',
-                      verticalPosition: 'top',
-                      duration: 3000,
-                    });
-                  },
-                  error: (err) => {
-                    console.error('Error  subscription:', err);
-                    if (err.status === 401 || err.status === 403) {
-                      this.authService.logout();
-                      localStorage.removeItem('token');
-                      localStorage.setItem("lastLink", window.location.href);
-                      ;
-                      this.snackBar.open('Déconnexion, une erreur.', '×', {
-                        panelClass: 'success',
-                        verticalPosition: 'top',
-                        duration: 3000,
-                      });
-                      window.location.href = '/sign-in';
-                    }
-                  }
-                })
-        }
-        else
-        this.snackBar.open('Failed to create inventory.', '×', {
-          panelClass: 'error',
-          verticalPosition: 'top',
-          duration: 3000
-        });
+            next: (data) => {
+
+              localStorage.removeItem('token');
+              localStorage.setItem("lastLink", window.location.href);
+              window.location.href = '/sign-in';
+              this.snackBar.open('Déconnexion réussie.', '×', {
+                panelClass: 'success',
+                verticalPosition: 'top',
+                duration: 3000,
+              });
+            },
+            error: (err) => {
+
+              console.error('Error  subscription:', err);
+              if (err.status === 401 || err.status === 403) {
+                this.authService.logout();
+                localStorage.removeItem('token');
+                localStorage.setItem("lastLink", window.location.href);
+                ;
+                this.snackBar.open('Déconnexion, une erreur.', '×', {
+                  panelClass: 'success',
+                  verticalPosition: 'top',
+                  duration: 3000,
+                });
+                window.location.href = '/sign-in';
+              }
+            }
+          })
+        } else
+          this.snackBar.open('Failed to create inventory.', '×', {
+            panelClass: 'error',
+            verticalPosition: 'top',
+            duration: 3000
+          });
       }
     });
     // this.dialogRef.close(selectedProducts);
   }
 
   beginInventory(): void {
+
     this.inventaireService.createInventaire(this.form.value).subscribe({
       next: (response: any) => {
         this.snackBar.open('Inventory created successfully!', '×', {
@@ -338,44 +351,48 @@ export class InventaireDialogComponent implements OnInit {
           duration: 3000
         });
         this.dialogRef.close(response);
+
       },
       error: (err: any) => {
+
         console.error('Error creating inventory:', err);
-        if (err.status === 401 || err.status === 403){
+        if (err.status === 401 || err.status === 403) {
+
           this.authService.logout().subscribe({
-                  next: (data) => {
-                    localStorage.removeItem('token');
-                    localStorage.setItem("lastLink", window.location.href);
-                    window.location.href = '/sign-in';
-                    this.snackBar.open('Déconnexion réussie.', '×', {
-                      panelClass: 'success',
-                      verticalPosition: 'top',
-                      duration: 3000,
-                    });
-                  },
-                  error: (err) => {
-                    console.error('Error  subscription:', err);
-                    if (err.status === 401 || err.status === 403) {
-                      this.authService.logout();
-                      localStorage.removeItem('token');
-                      localStorage.setItem("lastLink", window.location.href);
-                      ;
-                      this.snackBar.open('Déconnexion, une erreur.', '×', {
-                        panelClass: 'success',
-                        verticalPosition: 'top',
-                        duration: 3000,
-                      });
-                      window.location.href = '/sign-in';
-                    }
-                  }
-                })
-        }
-        else
-        this.snackBar.open('Failed to create inventory.', '×', {
-          panelClass: 'error',
-          verticalPosition: 'top',
-          duration: 3000
-        });
+            next: (data) => {
+
+              localStorage.removeItem('token');
+              localStorage.setItem("lastLink", window.location.href);
+              window.location.href = '/sign-in';
+              this.snackBar.open('Déconnexion réussie.', '×', {
+                panelClass: 'success',
+                verticalPosition: 'top',
+                duration: 3000,
+              });
+            },
+            error: (err) => {
+
+              console.error('Error  subscription:', err);
+              if (err.status === 401 || err.status === 403) {
+                this.authService.logout();
+                localStorage.removeItem('token');
+                localStorage.setItem("lastLink", window.location.href);
+                ;
+                this.snackBar.open('Déconnexion, une erreur.', '×', {
+                  panelClass: 'success',
+                  verticalPosition: 'top',
+                  duration: 3000,
+                });
+                window.location.href = '/sign-in';
+              }
+            }
+          })
+        } else
+          this.snackBar.open('Failed to create inventory.', '×', {
+            panelClass: 'error',
+            verticalPosition: 'top',
+            duration: 3000
+          });
       }
     });
     // this.dialogRef.close(selectedProducts);
@@ -451,7 +468,7 @@ export class InventaireDialogComponent implements OnInit {
         },
         error: (err) => {
           console.error('Error updating inventory:', err);
-          if (err.status === 401 || err.status === 403){
+          if (err.status === 401 || err.status === 403) {
             this.authService.logout();
             this.snackBar.open('Déconnexion réussie.', '×', {
               panelClass: 'success',
@@ -460,13 +477,12 @@ export class InventaireDialogComponent implements OnInit {
             });
             // Redirect to login page or clear session
             window.location.href = '/sign-in';
-          }
-          else
-          this.snackBar.open('Failed to update inventory.', '×', {
-            panelClass: 'error',
-            verticalPosition: 'top',
-            duration: 3000
-          });
+          } else
+            this.snackBar.open('Failed to update inventory.', '×', {
+              panelClass: 'error',
+              verticalPosition: 'top',
+              duration: 3000
+            });
         }
       });
     }
@@ -484,41 +500,40 @@ export class InventaireDialogComponent implements OnInit {
       },
       error: (err) => {
         console.error('Error closing inventory:', err);
-        if (err.status === 401 || err.status === 403){
+        if (err.status === 401 || err.status === 403) {
           this.authService.logout().subscribe({
-                  next: (data) => {
-                    localStorage.removeItem('token');
-                    localStorage.setItem("lastLink", window.location.href);
-                    window.location.href = '/sign-in';
-                    this.snackBar.open('Déconnexion réussie.', '×', {
-                      panelClass: 'success',
-                      verticalPosition: 'top',
-                      duration: 3000,
-                    });
-                  },
-                  error: (err) => {
-                    console.error('Error  subscription:', err);
-                    if (err.status === 401 || err.status === 403) {
-                      this.authService.logout();
-                      localStorage.removeItem('token');
-                      localStorage.setItem("lastLink", window.location.href);
-                      ;
-                      this.snackBar.open('Déconnexion, une erreur.', '×', {
-                        panelClass: 'success',
-                        verticalPosition: 'top',
-                        duration: 3000,
-                      });
-                      window.location.href = '/sign-in';
-                    }
-                  }
-                })
-        }
-        else
-        this.snackBar.open('Failed to close inventory.', '×', {
-          panelClass: 'error',
-          verticalPosition: 'top',
-          duration: 3000
-        });
+            next: (data) => {
+              localStorage.removeItem('token');
+              localStorage.setItem("lastLink", window.location.href);
+              window.location.href = '/sign-in';
+              this.snackBar.open('Déconnexion réussie.', '×', {
+                panelClass: 'success',
+                verticalPosition: 'top',
+                duration: 3000,
+              });
+            },
+            error: (err) => {
+              console.error('Error  subscription:', err);
+              if (err.status === 401 || err.status === 403) {
+                this.authService.logout();
+                localStorage.removeItem('token');
+                localStorage.setItem("lastLink", window.location.href);
+                ;
+                this.snackBar.open('Déconnexion, une erreur.', '×', {
+                  panelClass: 'success',
+                  verticalPosition: 'top',
+                  duration: 3000,
+                });
+                window.location.href = '/sign-in';
+              }
+            }
+          })
+        } else
+          this.snackBar.open('Failed to close inventory.', '×', {
+            panelClass: 'error',
+            verticalPosition: 'top',
+            duration: 3000
+          });
       }
     });
   }
@@ -546,37 +561,36 @@ export class InventaireDialogComponent implements OnInit {
           },
           error: (err: any) => {
             console.error('Failed to fetch products in stock:', err);
-            if (err.status === 401 || err.status === 403){
+            if (err.status === 401 || err.status === 403) {
               this.authService.logout().subscribe({
-                  next: (data) => {
+                next: (data) => {
+                  localStorage.removeItem('token');
+                  localStorage.setItem("lastLink", window.location.href);
+                  window.location.href = '/sign-in';
+                  this.snackBar.open('Déconnexion réussie.', '×', {
+                    panelClass: 'success',
+                    verticalPosition: 'top',
+                    duration: 3000,
+                  });
+                },
+                error: (err) => {
+                  console.error('Error  subscription:', err);
+                  if (err.status === 401 || err.status === 403) {
+                    this.authService.logout();
                     localStorage.removeItem('token');
                     localStorage.setItem("lastLink", window.location.href);
-                    window.location.href = '/sign-in';
-                    this.snackBar.open('Déconnexion réussie.', '×', {
+                    ;
+                    this.snackBar.open('Déconnexion, une erreur.', '×', {
                       panelClass: 'success',
                       verticalPosition: 'top',
                       duration: 3000,
                     });
-                  },
-                  error: (err) => {
-                    console.error('Error  subscription:', err);
-                    if (err.status === 401 || err.status === 403) {
-                      this.authService.logout();
-                      localStorage.removeItem('token');
-                      localStorage.setItem("lastLink", window.location.href);
-                      ;
-                      this.snackBar.open('Déconnexion, une erreur.', '×', {
-                        panelClass: 'success',
-                        verticalPosition: 'top',
-                        duration: 3000,
-                      });
-                      window.location.href = '/sign-in';
-                    }
+                    window.location.href = '/sign-in';
                   }
-                })
-            }
-            else
-            alert('Une erreur est survenue lors de la récupération des produits en rayon.');
+                }
+              })
+            } else
+              alert('Une erreur est survenue lors de la récupération des produits en rayon.');
           },
         });
       }
@@ -589,6 +603,7 @@ export class InventaireDialogComponent implements OnInit {
   }
 
   getInventaireInfo() {
+
     this.inventaireService.listerProduitsParInventaireAsMap(this.data.id, this.page - 1,
       this.count,).subscribe({
       next: (data: any) => {
@@ -604,167 +619,189 @@ export class InventaireDialogComponent implements OnInit {
         this.form = this.fb.group({
           productSan: ['']
         });
+
       },
       error: (err: any) => {
+
         console.error('Failed to fetch products in stock:', err);
-        if (err.status === 401 || err.status === 403){
+        if (err.status === 401 || err.status === 403) {
+
           this.authService.logout().subscribe({
-                  next: (data) => {
-                    localStorage.removeItem('token');
-                    localStorage.setItem("lastLink", window.location.href);
-                    window.location.href = '/sign-in';
-                    this.snackBar.open('Déconnexion réussie.', '×', {
-                      panelClass: 'success',
-                      verticalPosition: 'top',
-                      duration: 3000,
-                    });
-                  },
-                  error: (err) => {
-                    console.error('Error  subscription:', err);
-                    if (err.status === 401 || err.status === 403) {
-                      this.authService.logout();
-                      localStorage.removeItem('token');
-                      localStorage.setItem("lastLink", window.location.href);
-                      ;
-                      this.snackBar.open('Déconnexion, une erreur.', '×', {
-                        panelClass: 'success',
-                        verticalPosition: 'top',
-                        duration: 3000,
-                      });
-                      window.location.href = '/sign-in';
-                    }
-                  }
-                })
-        }
-        else
-        alert('Une erreur est survenue lors de la récupération des produits en rayon.');
+            next: (data) => {
+
+              localStorage.removeItem('token');
+              localStorage.setItem("lastLink", window.location.href);
+              window.location.href = '/sign-in';
+              this.snackBar.open('Déconnexion réussie.', '×', {
+                panelClass: 'success',
+                verticalPosition: 'top',
+                duration: 3000,
+              });
+            },
+            error: (err) => {
+              console.error('Error  subscription:', err);
+
+              if (err.status === 401 || err.status === 403) {
+                this.authService.logout();
+                localStorage.removeItem('token');
+                localStorage.setItem("lastLink", window.location.href);
+                ;
+                this.snackBar.open('Déconnexion, une erreur.', '×', {
+                  panelClass: 'success',
+                  verticalPosition: 'top',
+                  duration: 3000,
+                });
+                window.location.href = '/sign-in';
+              }
+            }
+          })
+        } else
+          alert('Une erreur est survenue lors de la récupération des produits en rayon.');
       },
     });
   }
 
   public getCategories() {
+
     this.categorieService.getCategories().subscribe({
       next: (data: any) => {
         this.categories = data;
+
       },
-        error: (err) => {
-           if (err.status === 401 || err.status === 403){
-             this.authService.logout();
-             this.snackBar.open('Déconnexion réussie.', '×', {
-               panelClass: 'success',
-               verticalPosition: 'top',
-               duration: 3000,
-             });
-             // Redirect to login page or clear session
-             window.location.href = '/sign-in';
-           }
-           console.error('Error fetching products:', err);
-         }
+      error: (err) => {
+
+        if (err.status === 401 || err.status === 403) {
+          this.authService.logout();
+          this.snackBar.open('Déconnexion réussie.', '×', {
+            panelClass: 'success',
+            verticalPosition: 'top',
+            duration: 3000,
+          });
+          // Redirect to login page or clear session
+          window.location.href = '/sign-in';
+        }
+        console.error('Error fetching products:', err);
+      }
     });
   }
 
   public getRayon() {
+
     this.rayonService.getRayons().subscribe({
       next: (data: any[]) => {
         this.rayons = data;
+
       },
-        error: (err) => {
-           if (err.status === 401 || err.status === 403){
-             this.authService.logout();
-             this.snackBar.open('Déconnexion réussie.', '×', {
-               panelClass: 'success',
-               verticalPosition: 'top',
-               duration: 3000,
-             });
-             // Redirect to login page or clear session
-             window.location.href = '/sign-in';
-           }
-           console.error('Error fetching products:', err);
-         }
+      error: (err) => {
+
+        if (err.status === 401 || err.status === 403) {
+          this.authService.logout();
+          this.snackBar.open('Déconnexion réussie.', '×', {
+            panelClass: 'success',
+            verticalPosition: 'top',
+            duration: 3000,
+          });
+          // Redirect to login page or clear session
+          window.location.href = '/sign-in';
+        }
+        console.error('Error fetching products:', err);
+      }
     });
   }
 
   public getFournisseur() {
+
     this.fournisseurService.getFournisseurs().subscribe({
       next: (data: any[]) => {
         this.fournisseurs = data;
+
       },
-        error: (err) => {
-           if (err.status === 401 || err.status === 403){
-             this.authService.logout();
-             this.snackBar.open('Déconnexion réussie.', '×', {
-               panelClass: 'success',
-               verticalPosition: 'top',
-               duration: 3000,
-             });
-             // Redirect to login page or clear session
-             window.location.href = '/sign-in';
-           }
-           console.error('Error fetching products:', err);
-         }
+      error: (err) => {
+
+        if (err.status === 401 || err.status === 403) {
+          this.authService.logout();
+          this.snackBar.open('Déconnexion réussie.', '×', {
+            panelClass: 'success',
+            verticalPosition: 'top',
+            duration: 3000,
+          });
+          // Redirect to login page or clear session
+          window.location.href = '/sign-in';
+        }
+        console.error('Error fetching products:', err);
+      }
     });
   }
 
   public getMagasin() {
+
     this.magasinService.getMagasins().subscribe({
       next: (data: any[]) => {
         this.magasins = data;
+
       },
-        error: (err) => {
-           if (err.status === 401 || err.status === 403){
-             this.authService.logout();
-             this.snackBar.open('Déconnexion réussie.', '×', {
-               panelClass: 'success',
-               verticalPosition: 'top',
-               duration: 3000,
-             });
-             // Redirect to login page or clear session
-             window.location.href = '/sign-in';
-           }
-           console.error('Error fetching products:', err);
-         }
+      error: (err) => {
+
+        if (err.status === 401 || err.status === 403) {
+          this.authService.logout();
+          this.snackBar.open('Déconnexion réussie.', '×', {
+            panelClass: 'success',
+            verticalPosition: 'top',
+            duration: 3000,
+          });
+          // Redirect to login page or clear session
+          window.location.href = '/sign-in';
+        }
+        console.error('Error fetching products:', err);
+      }
     });
   }
 
   public getForme() {
+
     this.formeService.getFormes().subscribe({
       next: (data: any[]) => {
         this.formes = data;
+
       },
-        error: (err) => {
-           if (err.status === 401 || err.status === 403){
-             this.authService.logout();
-             this.snackBar.open('Déconnexion réussie.', '×', {
-               panelClass: 'success',
-               verticalPosition: 'top',
-               duration: 3000,
-             });
-             // Redirect to login page or clear session
-             window.location.href = '/sign-in';
-           }
-           console.error('Error fetching products:', err);
-         }
+      error: (err) => {
+
+        if (err.status === 401 || err.status === 403) {
+          this.authService.logout();
+          this.snackBar.open('Déconnexion réussie.', '×', {
+            panelClass: 'success',
+            verticalPosition: 'top',
+            duration: 3000,
+          });
+          // Redirect to login page or clear session
+          window.location.href = '/sign-in';
+        }
+        console.error('Error fetching products:', err);
+      }
     });
   }
 
   public getFabriquants() {
+
     this.fabriquantService.getFabriquants().subscribe({
       next: (data: any[]) => {
         this.fabriquants = data;
+
       },
-        error: (err) => {
-           if (err.status === 401 || err.status === 403){
-             this.authService.logout();
-             this.snackBar.open('Déconnexion réussie.', '×', {
-               panelClass: 'success',
-               verticalPosition: 'top',
-               duration: 3000,
-             });
-             // Redirect to login page or clear session
-             window.location.href = '/sign-in';
-           }
-           console.error('Error fetching products:', err);
-         }
+      error: (err) => {
+
+        if (err.status === 401 || err.status === 403) {
+          this.authService.logout();
+          this.snackBar.open('Déconnexion réussie.', '×', {
+            panelClass: 'success',
+            verticalPosition: 'top',
+            duration: 3000,
+          });
+          // Redirect to login page or clear session
+          window.location.href = '/sign-in';
+        }
+        console.error('Error fetching products:', err);
+      }
     });
   }
 

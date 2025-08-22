@@ -10,6 +10,7 @@ import {MatSelectModule} from '@angular/material/select';
 import {FlexLayoutModule} from '@ngbracket/ngx-layout';
 import {CategorieService} from "@services/categories.service";
 import {MatToolbarModule} from "@angular/material/toolbar";
+import {LoaderService} from "@services/loader.service";
 
 @Component({
   selector: 'app-category-dialog',
@@ -32,6 +33,7 @@ export class CategoryDialogComponent implements OnInit {
   public form: FormGroup;
 
   constructor(
+    public loaderService: LoaderService,
     public authService: AuthService,
     public categorieService: CategorieService,
     public snackBar: MatSnackBar, public dialogRef: MatDialogRef<CategoryDialogComponent>,
@@ -54,7 +56,8 @@ export class CategoryDialogComponent implements OnInit {
     }
     if (this.data.category) {
       this.form.patchValue(this.data.category);
-    };
+    }
+    ;
 
   }
 
@@ -72,42 +75,47 @@ export class CategoryDialogComponent implements OnInit {
               duration: 3000,
             });
             this.dialogRef.close();
+
           },
           error: (err) => {
+
             console.error('Error applying filters:', err);
             if (err.status === 401 || err.status === 403) {
+
               this.authService.logout().subscribe({
-                  next: (data) => {
+                next: (data) => {
+                  localStorage.removeItem('token');
+                  localStorage.setItem("lastLink", window.location.href);
+                  window.location.href = '/sign-in';
+                  this.snackBar.open('Déconnexion réussie.', '×', {
+                    panelClass: 'success',
+                    verticalPosition: 'top',
+                    duration: 3000,
+                  });
+
+                },
+                error: (err) => {
+
+                  console.error('Error  subscription:', err);
+                  if (err.status === 401 || err.status === 403) {
+                    this.authService.logout();
                     localStorage.removeItem('token');
                     localStorage.setItem("lastLink", window.location.href);
-                    window.location.href = '/sign-in';
-                    this.snackBar.open('Déconnexion réussie.', '×', {
+                    ;
+                    this.snackBar.open('Déconnexion, une erreur.', '×', {
                       panelClass: 'success',
                       verticalPosition: 'top',
                       duration: 3000,
                     });
-                  },
-                  error: (err) => {
-                    console.error('Error  subscription:', err);
-                    if (err.status === 401 || err.status === 403) {
-                      this.authService.logout();
-                      localStorage.removeItem('token');
-                      localStorage.setItem("lastLink", window.location.href);
-                      ;
-                      this.snackBar.open('Déconnexion, une erreur.', '×', {
-                        panelClass: 'success',
-                        verticalPosition: 'top',
-                        duration: 3000,
-                      });
-                      window.location.href = '/sign-in';
-                    }
+                    window.location.href = '/sign-in';
                   }
-                })
+                }
+              })
             }
           }
         });
-      }
-      else if (this.data.type == "update") {
+      } else if (this.data.type == "update") {
+
         this.categorieService.updateCategorie(this.form.value).subscribe({
           next: (data: any) => {
             this.snackBar.open(`Mise a jour reussi`, '×', {
@@ -116,37 +124,42 @@ export class CategoryDialogComponent implements OnInit {
               duration: 3000,
             });
             this.dialogRef.close();
+
           },
           error: (err) => {
             console.error('Error applying filters:', err);
+
             if (err.status === 401 || err.status === 403) {
+
               this.authService.logout().subscribe({
-                  next: (data) => {
+                next: (data) => {
+                  localStorage.removeItem('token');
+                  localStorage.setItem("lastLink", window.location.href);
+                  window.location.href = '/sign-in';
+                  this.snackBar.open('Déconnexion réussie.', '×', {
+                    panelClass: 'success',
+                    verticalPosition: 'top',
+                    duration: 3000,
+                  });
+
+                },
+                error: (err) => {
+
+                  console.error('Error  subscription:', err);
+                  if (err.status === 401 || err.status === 403) {
+                    this.authService.logout();
                     localStorage.removeItem('token');
                     localStorage.setItem("lastLink", window.location.href);
-                    window.location.href = '/sign-in';
-                    this.snackBar.open('Déconnexion réussie.', '×', {
+                    ;
+                    this.snackBar.open('Déconnexion, une erreur.', '×', {
                       panelClass: 'success',
                       verticalPosition: 'top',
                       duration: 3000,
                     });
-                  },
-                  error: (err) => {
-                    console.error('Error  subscription:', err);
-                    if (err.status === 401 || err.status === 403) {
-                      this.authService.logout();
-                      localStorage.removeItem('token');
-                      localStorage.setItem("lastLink", window.location.href);
-                      ;
-                      this.snackBar.open('Déconnexion, une erreur.', '×', {
-                        panelClass: 'success',
-                        verticalPosition: 'top',
-                        duration: 3000,
-                      });
-                      window.location.href = '/sign-in';
-                    }
+                    window.location.href = '/sign-in';
                   }
-                })
+                }
+              })
             }
           }
         });

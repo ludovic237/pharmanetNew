@@ -9,6 +9,7 @@ import {FlexLayoutModule} from '@ngbracket/ngx-layout';
 import {RayonService} from "@services/rayons.service";
 import {AuthService} from "@services/auth.service";
 import {MatSnackBar} from "@angular/material/snack-bar";
+import {LoaderService} from "@services/loader.service";
 
 @Component({
   selector: 'app-rayon-dialog',
@@ -27,12 +28,13 @@ export class RayonDialogComponent implements OnInit {
   title: "Create Rayon" | "Edit Rayon" = "Create Rayon";
   public form: FormGroup;
 
-   constructor(
+  constructor(
+    public loaderService: LoaderService,
     public authService: AuthService,
-    public snackBar:MatSnackBar,public dialogRef: MatDialogRef<RayonDialogComponent>,
-              public rayonService: RayonService, // Replace with actual RayonService type
-              @Inject(MAT_DIALOG_DATA) public data: any,
-              public fb: FormBuilder) {
+    public snackBar: MatSnackBar, public dialogRef: MatDialogRef<RayonDialogComponent>,
+    public rayonService: RayonService, // Replace with actual RayonService type
+    @Inject(MAT_DIALOG_DATA) public data: any,
+    public fb: FormBuilder) {
   }
 
   ngOnInit(): void {
@@ -47,7 +49,8 @@ export class RayonDialogComponent implements OnInit {
 
     if (this.data) {
       this.form.patchValue(this.data);
-    };
+    }
+    ;
   }
 
   public onSubmit() {
@@ -56,31 +59,40 @@ export class RayonDialogComponent implements OnInit {
 
       if (this.data.id > 0) {
         // Create a new Rayon
+
         this.rayonService.updateRayon(this.data.id, rayon).subscribe({
           next: (updatedRayon: any) => {
             this.dialogRef.close(updatedRayon);
+
           },
           error: (err: any) => {
+
             console.error('Error updating Rayon:', err);
           }
         });
-      } else   if (!rayon.id || rayon.id === 0) {
+      } else if (!rayon.id || rayon.id === 0) {
         // Create a new Rayon
+
         this.rayonService.addRayon(rayon).subscribe({
           next: (newRayon: any) => {
             this.dialogRef.close(newRayon);
+
           },
           error: (err: any) => {
             console.error('Error creating Rayon:', err);
+
           }
         });
       } else {
         // Update an existing Rayon
+
         this.rayonService.updateRayon(rayon.id, rayon).subscribe({
           next: (updatedRayon: any) => {
             this.dialogRef.close(updatedRayon);
+
           },
           error: (err: any) => {
+
             console.error('Error updating Rayon:', err);
           }
         });

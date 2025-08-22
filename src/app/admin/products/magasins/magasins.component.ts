@@ -16,6 +16,7 @@ import {NgxPaginationModule} from 'ngx-pagination';
 import {MatDividerModule} from '@angular/material/divider';
 import {MatButtonModule} from '@angular/material/button';
 import {MagasinService} from "@services/magasins.service";
+import {LoaderService} from "@services/loader.service";
 
 @Component({
   selector: 'app-magasins',
@@ -40,6 +41,7 @@ export class MagasinsComponent implements OnInit {
   public settings: Settings;
 
   constructor(
+     public loaderService: LoaderService,
     public authService: AuthService,
     public snackBar: MatSnackBar, public appService: AppService,
     public magasinsService: MagasinService,
@@ -52,16 +54,21 @@ export class MagasinsComponent implements OnInit {
   }
 
   public getMagasins() {
+
     this.magasinsService.getMagasins().subscribe({
       next: (data) => {
         this.magasins = data;
         this.count = this.magasins.length
+
       },
       error: (err) => {
         console.error('Error  subscription:', err);
+
         if (err.status === 401 || err.status === 403) {
+
           this.authService.logout().subscribe({
             next: (data) => {
+
               localStorage.removeItem('token');
               localStorage.setItem("lastLink", window.location.href);
               window.location.href = '/sign-in';
@@ -72,6 +79,7 @@ export class MagasinsComponent implements OnInit {
               });
             },
             error: (err) => {
+
               console.error('Error  subscription:', err);
               if (err.status === 401 || err.status === 403) {
                 this.authService.logout();
@@ -140,18 +148,23 @@ export class MagasinsComponent implements OnInit {
     });
     dialogRef.afterClosed().subscribe(dialogResult => {
       if (dialogResult) {
+
         this.magasinsService.deleteMagasin(magasin.id).subscribe({
           next: (data) => {
             const index: number = this.magasins.indexOf(magasin);
             if (index !== -1) {
               this.magasins.splice(index, 1);
             }
+
           },
           error: (err) => {
             console.error('Error  subscription:', err);
+
             if (err.status === 401 || err.status === 403) {
+
               this.authService.logout().subscribe({
                 next: (data) => {
+
                   localStorage.removeItem('token');
                   localStorage.setItem("lastLink", window.location.href);
                   window.location.href = '/sign-in';
@@ -163,6 +176,7 @@ export class MagasinsComponent implements OnInit {
                 },
                 error: (err) => {
                   console.error('Error  subscription:', err);
+
                   if (err.status === 401 || err.status === 403) {
                     this.authService.logout();
                     localStorage.removeItem('token');

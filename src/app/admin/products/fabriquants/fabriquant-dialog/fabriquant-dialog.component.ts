@@ -10,6 +10,7 @@ import {MatSelectModule} from '@angular/material/select';
 import {FlexLayoutModule} from '@ngbracket/ngx-layout';
 import {FabriquantService} from "@services/fabriquants.service";
 import {MatToolbarModule} from "@angular/material/toolbar";
+import {LoaderService} from "@services/loader.service";
 
 @Component({
   selector: 'app-fabriquant-dialog',
@@ -30,6 +31,7 @@ export class FabriquantDialogComponent implements OnInit {
   public form: FormGroup;
 
   constructor(
+     public loaderService: LoaderService,
     public authService: AuthService,
     public fabriquantService: FabriquantService,
     public snackBar: MatSnackBar, public dialogRef: MatDialogRef<FabriquantDialogComponent>,
@@ -71,6 +73,7 @@ export class FabriquantDialogComponent implements OnInit {
               duration: 3000,
             });
             this.dialogRef.close();
+
           },
           error: (err) => {
             console.error('Error applying filters:', err);
@@ -79,11 +82,14 @@ export class FabriquantDialogComponent implements OnInit {
               verticalPosition: 'top',
               duration: 3000,
             });
+
           }
         });
       } else if (this.data.type == "update") {
+
         this.fabriquantService.updateFabriquant(this.form.value).subscribe({
           next: (data: any) => {
+
             this.snackBar.open(`Mise a jour reussi`, '×', {
               panelClass: 'success',
               verticalPosition: 'top',
@@ -92,6 +98,7 @@ export class FabriquantDialogComponent implements OnInit {
             this.dialogRef.close();
           },
           error: (err) => {
+
             console.error('Error applying filters:', err);
             this.snackBar.open('Déconnexion réussie.', '×', {
               panelClass: 'success',

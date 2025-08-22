@@ -42,6 +42,7 @@ import {MatPaginatorModule, PageEvent} from "@angular/material/paginator";
 import {AuthService} from "@services/auth.service";
 import {EmployesService} from "@services/employes.service";
 import autoTable from "jspdf-autotable";
+import {LoaderService} from "@services/loader.service";
 
 @Component({
   selector: 'app-ventes',
@@ -124,16 +125,19 @@ export class VentesComponent implements OnInit {
   selectedPrescripteur: number | null = null;
   selectedCaisse: string = "oui";
 
-  startDateVente: Date | null = new Date();
+  startDateVente: Date | null = new Date(new Date().getFullYear(),0,1);
   endDateVente: Date | null = new Date();
-  startDateEncaissement: Date | null = new Date();
+  startDateEncaissement: Date | null = new Date(new Date().getFullYear(),0,1);
   endDateEncaissement: Date | null = new Date();
+
+
 
   fournisseurs: any[] = [];
 
   selectedEtats: string = 'all'; // Default to "All"
 
   constructor(
+     public loaderService: LoaderService,
     public authService: AuthService,
     public appSettings: SettingsService,
     public snackBar: MatSnackBar,
@@ -152,10 +156,6 @@ export class VentesComponent implements OnInit {
 
   ngOnInit(): void {
     const today = new Date()
-    this.endDateVente = today
-    this.startDateVente.setDate(today.getDate() - 14)
-    this.endDateEncaissement = today
-    this.startDateEncaissement.setDate(today.getDate() - 14)
     this.fetchVentesPageable()
     this.getEmployes();
     this.getPrescripteurs()

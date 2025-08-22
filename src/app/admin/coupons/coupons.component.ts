@@ -18,6 +18,7 @@ import { NgxPaginationModule } from 'ngx-pagination';
 import { PipesModule } from '../../theme/pipes/pipes.module';
 import { DatePipe } from '@angular/common';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import {LoaderService} from "@services/loader.service";
 
 @Component({
     selector: 'app-coupons',
@@ -52,6 +53,7 @@ export class CouponsComponent implements OnInit {
   domHandlerService = inject(DomHandlerService);
   public settings: Settings;
    constructor(
+     public loaderService: LoaderService,
     public authService: AuthService,
     public snackBar:MatSnackBar,public appService: AppService, public dialog: MatDialog, public settingsService: SettingsService) {
     this.settings = this.settingsService.settings;
@@ -63,10 +65,10 @@ export class CouponsComponent implements OnInit {
   }
 
   public getCategories() {
-    this.appService.getCategories().subscribe(data => {
-      this.categories = data;
-      this.categories.shift();
-    });
+    // this.appService.getCategories().subscribe(data => {
+    //   this.categories = data;
+    //   this.categories.shift();
+    // });
   }
 
   public onPageChanged(event: any) {

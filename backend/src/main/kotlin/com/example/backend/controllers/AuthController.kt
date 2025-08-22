@@ -23,6 +23,7 @@ import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.web.bind.annotation.*
 import java.time.LocalDateTime
 import java.time.LocalTime
+import kotlin.jvm.optionals.getOrNull
 
 
 @RestController
@@ -186,19 +187,19 @@ class AuthController(
   @PostMapping("/logout")
   fun logout(): ResponseEntity<*> {
     var user = userUtils.getCurrentEmploye()
-    val getCurrentEmploye = employeRepository.findById(userUtils.getCurrentEmployeId()!!.toInt()).get()
+    val getCurrentEmploye = employeRepository.findById(userUtils.getCurrentEmployeId()!!.toInt()).getOrNull()
     val currentUser = userUtils.getCurrentEmployeId()
     val activeCaisse = caisseService.getCaisseActive()
     val appSetting = appSettingRepository.findByKeyName("vente_mode")
     if (appSetting?.value !== "differe") {
       if (activeCaisse?.user == getCurrentEmploye) {
         activeCaisse.apply {
-          this.fermetureCaisse = fermetureCaisse
+          this!!.fermetureCaisse = fermetureCaisse
           this.fondCaisseFerme = fondCaisseFerme?.toDouble()
           this.dateFerme = LocalDateTime.now()
           this.etat = "Clot"
         }
-        caisseRepository.save(activeCaisse)
+        caisseRepository.save(activeCaisse!!)
       }
     }
 

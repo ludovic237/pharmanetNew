@@ -39,6 +39,7 @@ import {MatNativeDateModule} from "@angular/material/core";
 import {MatStepperModule} from "@angular/material/stepper";
 import {MatRadioModule} from "@angular/material/radio";
 import {NgxPaginationModule} from "ngx-pagination";
+import {LoaderService} from "@services/loader.service";
 
 @Component({
   selector: 'app-add-product-dialog',
@@ -122,6 +123,7 @@ export class AddProductDialogComponent implements OnInit {
   info: boolean = false;
 
   constructor(
+     public loaderService: LoaderService,
     public authService: AuthService,
     public snackBar: MatSnackBar,
     public categorieService: CategorieService,
@@ -166,6 +168,7 @@ export class AddProductDialogComponent implements OnInit {
       etagere: [null, Validators.maxLength(15)],
       magasinId: [null]
     });
+
     combineLatest([
       this.categorieService.getCategories(),
       this.rayonService.getRayons(),
@@ -187,10 +190,12 @@ export class AddProductDialogComponent implements OnInit {
         this.getProductById(this.data.id);
         console.log("next");
         // console.log()
+
       },
       error:(err)=>{
         console.log("error");
         console.log(err);
+
         if (err.status === 401 || err.status === 403) {
           this.authService.logout();
           this.snackBar.open('Déconnexion réussie.', '×', {
@@ -216,11 +221,14 @@ export class AddProductDialogComponent implements OnInit {
     if (this.form.valid){
       console.log("this.form.value");
       console.log(this.form.value);
+
       this.productService.updateProductNew(this.data.id, this.form.value).subscribe({
         next: (data: any) => {
           this.form.patchValue(data);
+
         },
         error: (err) => {
+
           if (err.status === 401 || err.status === 403){
             this.authService.logout();
             this.snackBar.open('Déconnexion réussie.', '×', {

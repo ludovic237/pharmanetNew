@@ -44,6 +44,7 @@ import {ProductService} from "@services/products.service";
 import {PrescripteursService} from "@services/prescripteurs.service";
 import {EmployesService} from "@services/employes.service";
 import {EmployeDialogComponent} from "./employe-dialog/employe-dialog.component";
+import {LoaderService} from "@services/loader.service";
 
 @Component({
   selector: 'app-employe',
@@ -99,7 +100,7 @@ import {EmployeDialogComponent} from "./employe-dialog/employe-dialog.component"
   templateUrl: './employe.component.html',
   styleUrl: './employe.component.scss'
 })
-export class EmployeComponent implements OnInit{
+export class EmployeComponent implements OnInit {
 
   displayedColumns: string[] = ['id', 'name', 'email', 'telephone', 'actions'];
   users: any[] = [];
@@ -111,6 +112,7 @@ export class EmployeComponent implements OnInit{
   domHandlerService = inject(DomHandlerService);
 
   constructor(
+    public loaderService: LoaderService,
     public authService: AuthService,
     public snackBar: MatSnackBar, public settingsService: SettingsService,
     public dialog: MatDialog,
@@ -125,43 +127,49 @@ export class EmployeComponent implements OnInit{
 
   public getEmployes(): void {
     this.users = null; //for show spinner each time
+
     this.employeService.getEmployes().subscribe({
       next: (users) => {
         this.users = users
         this.totalItems = users.length;
+
       },
       error: (err: any) => {
+
         if (err.status === 401 || err.status === 403) {
+
           this.authService.logout().subscribe({
-                  next: (data) => {
-                    localStorage.removeItem('token');
-                    localStorage.setItem("lastLink", window.location.href);
-                    window.location.href = '/sign-in';
-                    this.snackBar.open('Déconnexion réussie.', '×', {
-                      panelClass: 'success',
-                      verticalPosition: 'top',
-                      duration: 3000,
-                    });
-                  },
-                  error: (err) => {
-                    console.error('Error  subscription:', err);
-                    if (err.status === 401 || err.status === 403) {
-                      this.authService.logout();
-                      localStorage.removeItem('token');
-                      localStorage.setItem("lastLink", window.location.href);
-                      ;
-                      this.snackBar.open('Déconnexion, une erreur.', '×', {
-                        panelClass: 'success',
-                        verticalPosition: 'top',
-                        duration: 3000,
-                      });
-                      window.location.href = '/sign-in';
-                    }
-                  }
-                })
+            next: (data) => {
+              localStorage.removeItem('token');
+              localStorage.setItem("lastLink", window.location.href);
+              window.location.href = '/sign-in';
+              this.snackBar.open('Déconnexion réussie.', '×', {
+                panelClass: 'success',
+                verticalPosition: 'top',
+                duration: 3000,
+              });
+
+            },
+            error: (err) => {
+              console.error('Error  subscription:', err);
+
+              if (err.status === 401 || err.status === 403) {
+                this.authService.logout();
+                localStorage.removeItem('token');
+                localStorage.setItem("lastLink", window.location.href);
+                ;
+                this.snackBar.open('Déconnexion, une erreur.', '×', {
+                  panelClass: 'success',
+                  verticalPosition: 'top',
+                  duration: 3000,
+                });
+                window.location.href = '/sign-in';
+              }
+            }
+          })
         }
         this.users = [];
-        this.ngxSpinnerService.hide()
+        // this.ngxSpinnerService.hide()
       }
     });
   }
@@ -193,15 +201,14 @@ export class EmployeComponent implements OnInit{
       }
     });
     dialogRef.afterClosed().subscribe((user: string) => {
-      if (user=='add') {
+      if (user == 'add') {
         this.getEmployes();
         this.snackBar.open('Ajout reussi.', '×', {
           panelClass: 'success',
           verticalPosition: 'top',
           duration: 3000,
         });
-      }
-      else if (user=='update') {
+      } else if (user == 'update') {
         this.getEmployes();
         this.snackBar.open('Mise a jour reussi.', '×', {
           panelClass: 'success',
@@ -214,39 +221,45 @@ export class EmployeComponent implements OnInit{
 
 
   deleteUser(userId: number): void {
+
     this.employeService.deleteEmploye(userId).subscribe({
       next: () => {
+
         this.users = this.users.filter(user => user.id !== userId);
       },
       error: (err: any) => {
+
         if (err.status === 401 || err.status === 403) {
+
           this.authService.logout().subscribe({
-                  next: (data) => {
-                    localStorage.removeItem('token');
-                    localStorage.setItem("lastLink", window.location.href);
-                    window.location.href = '/sign-in';
-                    this.snackBar.open('Déconnexion réussie.', '×', {
-                      panelClass: 'success',
-                      verticalPosition: 'top',
-                      duration: 3000,
-                    });
-                  },
-                  error: (err) => {
-                    console.error('Error  subscription:', err);
-                    if (err.status === 401 || err.status === 403) {
-                      this.authService.logout();
-                      localStorage.removeItem('token');
-                      localStorage.setItem("lastLink", window.location.href);
-                      ;
-                      this.snackBar.open('Déconnexion, une erreur.', '×', {
-                        panelClass: 'success',
-                        verticalPosition: 'top',
-                        duration: 3000,
-                      });
-                      window.location.href = '/sign-in';
-                    }
-                  }
-                })
+            next: (data) => {
+              localStorage.removeItem('token');
+              localStorage.setItem("lastLink", window.location.href);
+              window.location.href = '/sign-in';
+              this.snackBar.open('Déconnexion réussie.', '×', {
+                panelClass: 'success',
+                verticalPosition: 'top',
+                duration: 3000,
+              });
+
+            },
+            error: (err) => {
+
+              console.error('Error  subscription:', err);
+              if (err.status === 401 || err.status === 403) {
+                this.authService.logout();
+                localStorage.removeItem('token');
+                localStorage.setItem("lastLink", window.location.href);
+                ;
+                this.snackBar.open('Déconnexion, une erreur.', '×', {
+                  panelClass: 'success',
+                  verticalPosition: 'top',
+                  duration: 3000,
+                });
+                window.location.href = '/sign-in';
+              }
+            }
+          })
         }
         console.error('Error deleting user:', err);
       }

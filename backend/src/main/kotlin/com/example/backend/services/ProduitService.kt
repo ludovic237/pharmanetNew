@@ -265,9 +265,20 @@ class ProduitService(
     val produits = if (query.isNullOrBlank()) {
       produitRepository.findAll(pageable)
         .map {
+          val enRayon = enRayonRepository.findTopByProduitIdOrderByIdDesc(
+            it.id!!
+          )
           mapOf(
             "id" to it.id,
+            "reductionMax" to it.reductionMax,
+            "ean13" to it.ean13,
             "nom" to it.nom,
+            "stock" to it.stock,
+            "prixAchat" to enRayon.prixAchat,
+            "prixVente" to enRayon.prixVente,
+            "datePeremption" to enRayon.datePeremption,
+            "quantite" to 1,
+            "uniteGratuite" to 0,
             "stock" to it.stock,
             "prix" to 0,
             "type" to "produit"
@@ -276,9 +287,20 @@ class ProduitService(
     } else {
       produitRepository.findByNomContainingIgnoreCase(query, pageable)
         .map {
+          val enRayon = enRayonRepository.findTopByProduitIdOrderByIdDesc(
+            it.id!!
+          )
           mapOf(
             "id" to it.id,
+            "reductionMax" to it.reductionMax,
+            "ean13" to it.ean13,
             "nom" to it.nom,
+            "stock" to it.stock,
+            "prixAchat" to enRayon.prixAchat,
+            "prixVente" to enRayon.prixVente,
+            "datePeremption" to enRayon.datePeremption,
+            "quantite" to 1,
+            "uniteGratuite" to 0,
             "stock" to it.stock,
             "prix" to 0,
             "type" to "produit"

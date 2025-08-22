@@ -44,6 +44,7 @@ data class CommandeRequest(
 
 
 data class ProduitCmdRequest(
+  var codebarre: String?,
   var productId: Long?,
   var productCmdId: Long?,
   val id: Long?,

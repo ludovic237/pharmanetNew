@@ -6,6 +6,7 @@ import { FlexLayoutModule } from '@ngbracket/ngx-layout';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
+import {LoaderService} from "@services/loader.service";
 
 @Component({
     selector: 'app-info-cards',
@@ -32,6 +33,7 @@ export class InfoCardsComponent implements OnInit {
   public previousWidthOfResizedDiv: number = 0;
 
    constructor(
+     public loaderService: LoaderService,
     public authService: AuthService,
     public snackBar:MatSnackBar,) { }
 

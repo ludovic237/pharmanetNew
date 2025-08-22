@@ -1,35 +1,39 @@
-import { Component, Inject, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatButtonModule } from '@angular/material/button';
-import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatTabsModule } from '@angular/material/tabs';
-import { FlexLayoutModule } from '@ngbracket/ngx-layout';
+import {Component, Inject, OnInit} from '@angular/core';
+import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
+import {MatButtonModule} from '@angular/material/button';
+import {MAT_DIALOG_DATA, MatDialogModule, MatDialogRef} from '@angular/material/dialog';
+import {MatInputModule} from '@angular/material/input';
+import {MatSelectModule} from '@angular/material/select';
+import {MatTabsModule} from '@angular/material/tabs';
+import {FlexLayoutModule} from '@ngbracket/ngx-layout';
 import {AuthService} from "@services/auth.service";
 import {MatSnackBar} from "@angular/material/snack-bar";
+import {LoaderService} from "@services/loader.service";
 
 @Component({
-    selector: 'app-customer-dialog',
-    imports: [
-        ReactiveFormsModule,
-        FlexLayoutModule,
-        MatTabsModule,
-        MatInputModule,
-        MatSelectModule,
-        MatButtonModule,
-        MatDialogModule
-    ],
-    templateUrl: './customer-dialog.component.html',
-    styleUrl: './customer-dialog.component.scss'
+  selector: 'app-customer-dialog',
+  imports: [
+    ReactiveFormsModule,
+    FlexLayoutModule,
+    MatTabsModule,
+    MatInputModule,
+    MatSelectModule,
+    MatButtonModule,
+    MatDialogModule
+  ],
+  templateUrl: './customer-dialog.component.html',
+  styleUrl: './customer-dialog.component.scss'
 })
 export class CustomerDialogComponent implements OnInit {
   public form: FormGroup;
-   constructor(
+
+  constructor(
+    public loaderService: LoaderService,
     public authService: AuthService,
-    public snackBar:MatSnackBar,public dialogRef: MatDialogRef<CustomerDialogComponent>,
-              @Inject(MAT_DIALOG_DATA) public data: any,
-              public fb: FormBuilder) { }
+    public snackBar: MatSnackBar, public dialogRef: MatDialogRef<CustomerDialogComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: any,
+    public fb: FormBuilder) {
+  }
 
   ngOnInit(): void {
     this.form = this.fb.group({
@@ -57,14 +61,15 @@ export class CustomerDialogComponent implements OnInit {
       })
     });
 
-    if(this.data.customer){
+    if (this.data.customer) {
       this.form.patchValue(this.data.customer);
-    };
+    }
+    ;
   }
 
-  public onSubmit(){
+  public onSubmit() {
     console.log(this.form.value);
-    if(this.form.valid){
+    if (this.form.valid) {
       this.dialogRef.close(this.form.value);
     }
   }

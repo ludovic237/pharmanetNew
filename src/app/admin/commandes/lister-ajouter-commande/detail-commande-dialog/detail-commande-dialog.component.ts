@@ -31,6 +31,7 @@ import {MatNativeDateModule} from "@angular/material/core";
 import {MatStepperModule} from "@angular/material/stepper";
 import {MatTooltip} from "@angular/material/tooltip";
 import {AuthService} from "@services/auth.service";
+import {LoaderService} from "@services/loader.service";
 
 @Component({
   selector: 'app-detail-commande-dialog',
@@ -109,6 +110,7 @@ export class DetailCommandeDialogComponent implements OnInit {
   fournisseurId: string = '';
 
   constructor(
+    public loaderService: LoaderService,
     public authService: AuthService,
     public dialogRef: MatDialogRef<DetailCommandeDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
@@ -273,8 +275,10 @@ export class DetailCommandeDialogComponent implements OnInit {
           duration: 3000,
         });
         this.dialogRef.close();
+
       },
       error: (err) => {
+
         this.snackBar.open('Erreur lors de l\'enregistrement de la réception', '×', {
           panelClass: 'error',
           verticalPosition: 'top',
@@ -294,6 +298,7 @@ export class DetailCommandeDialogComponent implements OnInit {
           duration: 3000,
         });
         this.dialogRef.close();
+
       },
       error: (err) => {
         this.snackBar.open('Erreur lors de l\'enregistrement de la réception', '×', {
@@ -301,6 +306,7 @@ export class DetailCommandeDialogComponent implements OnInit {
           verticalPosition: 'top',
           duration: 3000,
         });
+
       },
     });
   }

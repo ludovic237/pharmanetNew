@@ -40,12 +40,11 @@ import {MatSlideToggleModule} from "@angular/material/slide-toggle";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {TicketCaisseService} from "@services/tickets.service";
 import {BonCaisseService} from "@services/boncaisses.service";
-import {AjouterVenteDialogComponent} from "../ajouter-vente/ajouter-vente-dialog/ajouter-vente-dialog.component";
-import {BonCaisseDialogComponent} from "./bon-caisse-dialog/bon-caisse-dialog.component";
 import {DepenseService} from "@services/depenses.service";
 import {DepenseDialogComponent} from "./depense-dialog/depense-dialog.component";
 import {VenteDialogComponent} from "./vente-dialog/vente-dialog.component";
 import {AuthService} from "@services/auth.service";
+import {LoaderService} from "@services/loader.service";
 
 interface LigneHeader {
   netAPayer?: number;
@@ -144,6 +143,7 @@ export class EncaisserVenteComponent {
   netAPayer = 0;
 
   constructor(
+     public loaderService: LoaderService,
     public authService: AuthService, public appSettings: SettingsService,
     public snackBar: MatSnackBar,
     public enRayonService: EnrayonsService,
@@ -387,49 +387,7 @@ export class EncaisserVenteComponent {
 
   showBonCaisse() {
     this.bonCaisseService.getAllBons().subscribe({
-      next: (bons: any[]) => {
-        const dialogRef = this.dialog.open(BonCaisseDialogComponent, {
-          data: bons,
-          width: "80%",
-          panelClass: ['theme-dialog'],
-          autoFocus: false,
-        });
-        dialogRef.afterClosed().subscribe((data: any) => {
 
-        });
-      },
-      error: (err: any) => {
-        console.error('Failed to fetch BonCaisse list:', err);
-        if (err.status === 401 || err.status === 403) {
-          this.authService.logout().subscribe({
-                  next: (data) => {
-                    localStorage.removeItem('token');
-                    localStorage.setItem("lastLink", window.location.href);
-                    window.location.href = '/sign-in';
-                    this.snackBar.open('Déconnexion réussie.', '×', {
-                      panelClass: 'success',
-                      verticalPosition: 'top',
-                      duration: 3000,
-                    });
-                  },
-                  error: (err) => {
-                    console.error('Error  subscription:', err);
-                    if (err.status === 401 || err.status === 403) {
-                      this.authService.logout();
-                      localStorage.removeItem('token');
-                      localStorage.setItem("lastLink", window.location.href);
-                      ;
-                      this.snackBar.open('Déconnexion, une erreur.', '×', {
-                        panelClass: 'success',
-                        verticalPosition: 'top',
-                        duration: 3000,
-                      });
-                      window.location.href = '/sign-in';
-                    }
-                  }
-                })
-        }
-      }
     });
   }
 

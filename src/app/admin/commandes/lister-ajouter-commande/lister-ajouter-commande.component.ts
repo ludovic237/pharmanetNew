@@ -56,6 +56,7 @@ import {AuthService} from "@services/auth.service";
 import {
   SimpleReapprovisionnementCommandeDialogComponent
 } from "./simple-reapprovisionnement-commande-dialog/simple-reapprovisionnement-commande-dialog.component";
+import {LoaderService} from "@services/loader.service";
 
 interface Commande {
   id: string;
@@ -77,59 +78,59 @@ interface ProduitCommande {
   selector: 'app-lister-ajouter-commande',
   standalone: true,
   providers: [UsersService, VentesService, EnrayonsService, ProductService, PrescripteursService],
-    imports: [
-        MatMenuModule,
-        MatListModule,
-        MatChipsModule,
-        MatSlideToggleModule,
-        FormsModule,
-        MatCheckboxModule,
-        ReactiveFormsModule,
-        MatFormFieldModule,
-        MatInputModule,
-        MatDividerModule,
-        MatExpansionModule,
-        FormsModule,
-        ReactiveFormsModule,
-        CommonModule,
-        // Material
-        MatToolbarModule,
-        MatTabsModule,
-        MatIconModule,
-        MatFormFieldModule,
-        MatInputModule,
-        MatAutocompleteModule,
-        MatTableModule,
-        MatCardModule,
-        MatButtonModule,
-        MatDatepickerModule,
-        MatNativeDateModule,
-        MatSelectModule,
-        FlexLayoutModule,
-        FormsModule,
-        ReactiveFormsModule,
-        FlexLayoutModule,
-        // Material
-        MatStepperModule,
-        MatTableModule,
-        MatFormFieldModule,
-        MatInputModule,
-        MatButtonModule,
-        MatRadioModule,
-        MatIconModule,
-        MatCardModule,
-        MatSnackBarModule,
-        MatChipsModule,
-        NgxPaginationModule,
-        MatPaginator,
-    ],
+  imports: [
+    MatMenuModule,
+    MatListModule,
+    MatChipsModule,
+    MatSlideToggleModule,
+    FormsModule,
+    MatCheckboxModule,
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatDividerModule,
+    MatExpansionModule,
+    FormsModule,
+    ReactiveFormsModule,
+    CommonModule,
+    // Material
+    MatToolbarModule,
+    MatTabsModule,
+    MatIconModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatAutocompleteModule,
+    MatTableModule,
+    MatCardModule,
+    MatButtonModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatSelectModule,
+    FlexLayoutModule,
+    FormsModule,
+    ReactiveFormsModule,
+    FlexLayoutModule,
+    // Material
+    MatStepperModule,
+    MatTableModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatRadioModule,
+    MatIconModule,
+    MatCardModule,
+    MatSnackBarModule,
+    MatChipsModule,
+    NgxPaginationModule,
+    MatPaginator,
+  ],
   templateUrl: './lister-ajouter-commande.component.html',
   styleUrl: './lister-ajouter-commande.component.scss'
 })
 export class ListerAjouterCommandeComponent implements OnInit {
 
   public viewCol: number = 25;
-  public page:number = 1; // Default to 0 if undefined
+  public page: number = 1; // Default to 0 if undefined
   public size = 100;  // Default to 10 if undefined
   public totalItems = 0;  // Default to 10 if undefined
   public count = 10;
@@ -142,8 +143,8 @@ export class ListerAjouterCommandeComponent implements OnInit {
 
   public selectedFournisseur: string | null = null;
   public selectedFournisseurType: string | null = null;
-  public startDate: string | null = null;
-  public endDate: string | null = null;
+  public startDate: Date | null = new Date(new Date().getFullYear(), 0, 1);
+  public endDate: Date | null = new Date();
 
   selection = new SelectionModel<any>(true, []);
   filteredCommandes: any[] = [];
@@ -152,18 +153,19 @@ export class ListerAjouterCommandeComponent implements OnInit {
   typeFournisseur: string[] = ['all', 'Detaillant', 'Grossiste'];
   selectedEtats: string = 'all'; // Default to "All"
 
-   constructor(
+  constructor(
+    public loaderService: LoaderService,
     public authService: AuthService,
-    public snackBar:MatSnackBar,public appSettings: SettingsService,
-              public enRayonService: EnrayonsService,
-              public commandesService: CommandesService,
-              public fournisseursService: FournisseursService,
-              public productService: ProductService,
-              public ventesService: VentesService,
-              public usersService: UsersService,
-              public prescripteursService: PrescripteursService,
-              public domHandlerService: DomHandlerService,
-              public dialog: MatDialog) {
+    public snackBar: MatSnackBar, public appSettings: SettingsService,
+    public enRayonService: EnrayonsService,
+    public commandesService: CommandesService,
+    public fournisseursService: FournisseursService,
+    public productService: ProductService,
+    public ventesService: VentesService,
+    public usersService: UsersService,
+    public prescripteursService: PrescripteursService,
+    public domHandlerService: DomHandlerService,
+    public dialog: MatDialog) {
 
   }
 
@@ -181,91 +183,161 @@ export class ListerAjouterCommandeComponent implements OnInit {
   }
 
   public searchFournisseur(): void {
+
     this.fournisseursService.getFournisseurs().subscribe({
       // this.productService.searchProducts(this.searchTerm, this.page, this.count).subscribe({
       next: (data: any) => {
         this.fournisseurs = data;
+
       },
       error: (err) => {
-        console.error('Error searching products:', err);
+
+        if (err.status === 401 || err.status === 403) {
+
+          this.authService.logout().subscribe({
+            next: (data) => {
+
+              localStorage.removeItem('token');
+              localStorage.setItem("lastLink", window.location.href);
+              window.location.href = '/sign-in';
+              this.snackBar.open('Déconnexion réussie.', '×', {
+                panelClass: 'success',
+                verticalPosition: 'top',
+                duration: 3000,
+              });
+            },
+            error: (err) => {
+
+              console.error('Error  subscription:', err);
+              if (err.status === 401 || err.status === 403) {
+                this.authService.logout();
+                localStorage.removeItem('token');
+                localStorage.setItem("lastLink", window.location.href);
+                ;
+                this.snackBar.open('Déconnexion, une erreur.', '×', {
+                  panelClass: 'success',
+                  verticalPosition: 'top',
+                  duration: 3000,
+                });
+                window.location.href = '/sign-in';
+              }
+            }
+          })
+        }
       }
     });
   }
 
   fetchCommandes(): void {
+
     this.commandesService.getCommandes().subscribe({
       next: (data) => {
         this.commandes = data
         this.filteredCommandes = data
+
       },
       error: (err) => {
         console.error('Error fetching commandes:', err)
+
       }
     });
   }
 
-fetchCommandesPageable(): void {
-  const formatDate = (date: string | null): string | null => {
-    if (!date) return null;
-    const parsedDate = new Date(date);
-    return `${parsedDate.getFullYear()}-${String(parsedDate.getMonth() + 1).padStart(2, '0')}-${String(parsedDate.getDate()).padStart(2, '0')}T${String(parsedDate.getHours()).padStart(2, '0')}:${String(parsedDate.getMinutes()).padStart(2, '0')}:${String(parsedDate.getSeconds()).padStart(2, '0')}`;
-  };
+  fetchCommandesPageable(): void {
+    const formatDate = (date: string | null): string | null => {
+      if (!date) return null;
+      const parsedDate = new Date(date);
+      return `${parsedDate.getFullYear()}-${String(parsedDate.getMonth() + 1).padStart(2, '0')}-${String(parsedDate.getDate()).padStart(2, '0')}T${String(parsedDate.getHours()).padStart(2, '0')}:${String(parsedDate.getMinutes()).padStart(2, '0')}:${String(parsedDate.getSeconds()).padStart(2, '0')}`;
+    };
 
-  const formattedStartDate = formatDate(this.startDate);
-  const formattedEndDate = formatDate(this.endDate);
+    const formattedStartDate = formatDate(this.startDate + "");
+    const formattedEndDate = formatDate(this.endDate + "");
 
-  this.commandesService.fetchCommandesPageable(
-    this.page - 1,
-    this.count,
-    this.selectedEtats === 'all' ? null : this.selectedEtats,
-    this.selectedFournisseurType,
-    this.selectedFournisseur,
-    formattedStartDate,
-    formattedEndDate
-  ).subscribe({
-    next: (data: any) => {
-      this.count = data.pageSize;
-      this.totalItems = data.totalElements;
-      this.commandes = data.content.content;
-      this.filteredCommandes = data.content.content;
-      this.totalAmountRecu = data.totalAmountRecu;
-      this.totalAmountCommande = data.totalAmountCommande;
-      this.totalQteRecu = data.totalQteRecu;
-      this.totalQteCommande = data.totalQteCommande;
-    },
-    error: (err) => {
-      console.error('Error fetching commandes:', err);
-    }
-  });
-}
+    this.commandesService.fetchCommandesPageable(
+      this.page - 1,
+      this.count,
+      this.selectedEtats === 'all' ? null : this.selectedEtats,
+      this.selectedFournisseurType,
+      this.selectedFournisseur,
+      formattedStartDate,
+      formattedEndDate
+    ).subscribe({
+      next: (data: any) => {
+        this.count = data.pageSize;
+        this.totalItems = data.totalElements;
+        this.commandes = data.content.content;
+        this.filteredCommandes = data.content.content;
+        this.totalAmountRecu = data.totalAmountRecu;
+        this.totalAmountCommande = data.totalAmountCommande;
+        this.totalQteRecu = data.totalQteRecu;
+        this.totalQteCommande = data.totalQteCommande;
 
-fetchCommandesPageablePrint(): void {
-  const formatDate = (date: string | null): string | null => {
-    if (!date) return null;
-    const parsedDate = new Date(date);
-    return `${parsedDate.getFullYear()}-${String(parsedDate.getMonth() + 1).padStart(2, '0')}-${String(parsedDate.getDate()).padStart(2, '0')}T${String(parsedDate.getHours()).padStart(2, '0')}:${String(parsedDate.getMinutes()).padStart(2, '0')}:${String(parsedDate.getSeconds()).padStart(2, '0')}`;
-  };
+      },
+      error: (err) => {
 
-  const formattedStartDate = formatDate(this.startDate);
-  const formattedEndDate = formatDate(this.endDate);
+        if (err.status === 401 || err.status === 403) {
 
-  this.commandesService.fetchCommandesPageablePrint(
-    this.page - 1,
-    this.count,
-    this.selectedEtats === 'all' ? null : this.selectedEtats,
-    this.selectedFournisseurType,
-    this.selectedFournisseur,
-    formattedStartDate,
-    formattedEndDate
-  ).subscribe({
-    next: (data: any) => {
+          this.authService.logout().subscribe({
+            next: (data) => {
 
-    },
-    error: (err) => {
-      console.error('Error fetching commandes:', err);
-    }
-  });
-}
+              localStorage.removeItem('token');
+              localStorage.setItem("lastLink", window.location.href);
+              window.location.href = '/sign-in';
+              this.snackBar.open('Déconnexion réussie.', '×', {
+                panelClass: 'success',
+                verticalPosition: 'top',
+                duration: 3000,
+              });
+            },
+            error: (err) => {
+
+              console.error('Error  subscription:', err);
+              if (err.status === 401 || err.status === 403) {
+                this.authService.logout();
+                localStorage.removeItem('token');
+                localStorage.setItem("lastLink", window.location.href);
+                ;
+                this.snackBar.open('Déconnexion, une erreur.', '×', {
+                  panelClass: 'success',
+                  verticalPosition: 'top',
+                  duration: 3000,
+                });
+                window.location.href = '/sign-in';
+              }
+            }
+          })
+        }
+      }
+    });
+  }
+
+  fetchCommandesPageablePrint(): void {
+    const formatDate = (date: string | null): string | null => {
+      if (!date) return null;
+      const parsedDate = new Date(date);
+      return `${parsedDate.getFullYear()}-${String(parsedDate.getMonth() + 1).padStart(2, '0')}-${String(parsedDate.getDate()).padStart(2, '0')}T${String(parsedDate.getHours()).padStart(2, '0')}:${String(parsedDate.getMinutes()).padStart(2, '0')}:${String(parsedDate.getSeconds()).padStart(2, '0')}`;
+    };
+
+    const formattedStartDate = formatDate(this.startDate + "");
+    const formattedEndDate = formatDate(this.endDate + "");
+
+    this.commandesService.fetchCommandesPageablePrint(
+      this.page - 1,
+      this.count,
+      this.selectedEtats === 'all' ? null : this.selectedEtats,
+      this.selectedFournisseurType,
+      this.selectedFournisseur,
+      formattedStartDate,
+      formattedEndDate
+    ).subscribe({
+      next: (data: any) => {
+
+      },
+      error: (err) => {
+        console.error('Error fetching commandes:', err);
+      }
+    });
+  }
 
   public onPageChanged(event: PageEvent) {
     this.page = event.pageIndex + 1;
@@ -416,9 +488,11 @@ fetchCommandesPageablePrint(): void {
       next: (response) => {
         console.log('Réception complète réussie:', response);
         this.fetchCommandesPageable();
+
       },
       error: (err) => {
         console.error('Erreur lors de la réception complète:', err);
+
       },
     });
   }
@@ -462,6 +536,7 @@ fetchCommandesPageablePrint(): void {
   }
 
   viewDetails(commande: any): void {
+
     this.commandesService.getCommandeInfo(commande.id).subscribe({
       next: (data) => {
         const dialogRef = this.dialog.open(DetailCommandeDialogComponent, {
@@ -474,9 +549,11 @@ fetchCommandesPageablePrint(): void {
           console.log('Dialog closed', data);
           this.fetchCommandesPageable();
         });
+
       },
       error: (err) => {
         console.error('Error fetching commandes:', err)
+
       }
     });
     console.log('Commande details:', commande);
@@ -488,6 +565,7 @@ fetchCommandesPageablePrint(): void {
   modifierLignes(commande: any): void {
     console.log('Modifier les lignes:', commande);
     // Logic to modify products or quantities
+
     this.commandesService.getCommandeInfo(commande.id).subscribe({
       next: (data) => {
         const dialogRef = this.dialog.open(DetailCommandeDialogComponent, {
@@ -499,20 +577,25 @@ fetchCommandesPageablePrint(): void {
         dialogRef.afterClosed().subscribe((data: any) => {
           this.fetchCommandesPageable();
         });
+
       },
       error: (err) => {
         console.error('Error fetching commandes:', err)
+
       }
     });
   }
 
   supprimerCommande(commande: any): void {
+
     this.commandesService.supprimerCommande(commande.id).subscribe({
       next: () => {
         this.snackBar.open('Commande supprimée avec succès.', 'Fermer', {duration: 3000});
         this.fetchCommandesPageable();
+
       },
       error: (err) => {
+
         console.error('Erreur lors de la suppression de la commande:', err);
         this.snackBar.open('Échec de la suppression de la commande.', 'Fermer', {duration: 3000});
       },
@@ -520,12 +603,15 @@ fetchCommandesPageablePrint(): void {
   }
 
   ajouterFournisseur(commande: any): void {
+
     this.commandesService.ajouterFournisseur(commande.id, commande.fournisseurId).subscribe({
       next: () => {
         this.snackBar.open('Fournisseur ajouté avec succès.', 'Fermer', {duration: 3000});
         this.fetchCommandesPageable();
+
       },
       error: (err) => {
+
         console.error('Erreur lors de l\'ajout du fournisseur:', err);
         this.snackBar.open('Échec de l\'ajout du fournisseur.', 'Fermer', {duration: 3000});
       },
@@ -533,12 +619,15 @@ fetchCommandesPageablePrint(): void {
   }
 
   annulerCommande(commande: any): void {
+
     this.commandesService.annulerCommande(commande.id).subscribe({
       next: () => {
+
         this.snackBar.open('Commande annulée avec succès.', 'Fermer', {duration: 3000});
         this.fetchCommandesPageable();
       },
       error: (err) => {
+
         console.error('Erreur lors de l\'annulation de la commande:', err);
         this.snackBar.open('Échec de l\'annulation de la commande.', 'Fermer', {duration: 3000});
       },
@@ -546,11 +635,14 @@ fetchCommandesPageablePrint(): void {
   }
 
   imprimerBon(commande: any): void {
+
     this.commandesService.imprimerBonPdf(commande.id).subscribe({
       next: () => {
+
         this.snackBar.open('Bon imprimé avec succès.', 'Fermer', {duration: 3000});
       },
       error: (err) => {
+
         console.error('Erreur lors de l\'impression du bon:', err);
         this.snackBar.open('Échec de l\'impression du bon.', 'Fermer', {duration: 3000});
       },
@@ -558,6 +650,7 @@ fetchCommandesPageablePrint(): void {
   }
 
   recevoirComplementaire(commande: any): void {
+
     this.commandesService.getCommandeInfo(commande.id).subscribe({
       next: (data) => {
         const dialogRef = this.dialog.open(DetailCommandeDialogComponent, {
@@ -570,20 +663,25 @@ fetchCommandesPageablePrint(): void {
           console.log('Dialog closed', data);
           this.fetchCommandesPageable();
         });
+
       },
       error: (err) => {
+
         console.error('Error fetching commandes:', err)
       }
     });
   }
 
   ajouterJustificatif(commande: any): void {
+
     this.commandesService.ajouterJustificatif(commande.id, commande.justificatif).subscribe({
       next: () => {
+
         this.snackBar.open('Justificatif ajouté avec succès.', 'Fermer', {duration: 3000});
         this.fetchCommandesPageable();
       },
       error: (err) => {
+
         console.error('Erreur lors de l\'ajout du justificatif:', err);
         this.snackBar.open('Échec de l\'ajout du justificatif.', 'Fermer', {duration: 3000});
       },
@@ -591,11 +689,14 @@ fetchCommandesPageablePrint(): void {
   }
 
   visualiserHistorique(commande: any): void {
+
     this.commandesService.visualiserHistoriqueReception(commande.id).subscribe({
       next: () => {
+
         this.snackBar.open('Historique visualisé avec succès.', 'Fermer', {duration: 3000});
       },
       error: (err) => {
+
         console.error('Erreur lors de la visualisation de l\'historique:', err);
         this.snackBar.open('Échec de la visualisation de l\'historique.', 'Fermer', {duration: 3000});
       },
@@ -603,12 +704,15 @@ fetchCommandesPageablePrint(): void {
   }
 
   cloturerManuellement(commande: any): void {
+
     this.commandesService.cloturerCommande(commande.id).subscribe({
       next: () => {
+
         this.snackBar.open('Commande clôturée avec succès.', 'Fermer', {duration: 3000});
         this.fetchCommandesPageable();
       },
       error: (err) => {
+
         console.error('Erreur lors de la clôture de la commande:', err);
         this.snackBar.open('Échec de la clôture de la commande.', 'Fermer', {duration: 3000});
       },
@@ -616,12 +720,15 @@ fetchCommandesPageablePrint(): void {
   }
 
   ajouterFacture(commande: any): void {
+
     this.commandesService.ajouterFacture(commande.id, commande.facture).subscribe({
       next: () => {
+
         this.snackBar.open('Facture ajoutée avec succès.', 'Fermer', {duration: 3000});
         this.fetchCommandesPageable();
       },
       error: (err) => {
+
         console.error('Erreur lors de l\'ajout de la facture:', err);
         this.snackBar.open('Échec de l\'ajout de la facture.', 'Fermer', {duration: 3000});
       },
@@ -629,11 +736,14 @@ fetchCommandesPageablePrint(): void {
   }
 
   genererRapport(commande: any): void {
+
     this.commandesService.genererRapportLivraison(commande.id).subscribe({
       next: () => {
+
         this.snackBar.open('Rapport généré avec succès.', 'Fermer', {duration: 3000});
       },
       error: (err) => {
+
         console.error('Erreur lors de la génération du rapport:', err);
         this.snackBar.open('Échec de la génération du rapport.', 'Fermer', {duration: 3000});
       },
@@ -641,11 +751,14 @@ fetchCommandesPageablePrint(): void {
   }
 
   exporterCommande(commande: any): void {
+
     this.commandesService.exporterCommande(commande.id).subscribe({
       next: () => {
+
         this.snackBar.open('Commande exportée avec succès.', 'Fermer', {duration: 3000});
       },
       error: (err) => {
+
         console.error('Erreur lors de l\'exportation de la commande:', err);
         this.snackBar.open('Échec de l\'exportation de la commande.', 'Fermer', {duration: 3000});
       },
@@ -663,6 +776,7 @@ fetchCommandesPageablePrint(): void {
   ajouterMotifAnnulation(commande: any): void {
     console.log('Ajouter un motif d\'annulation:', commande);
     // Logic to add cancellation reason
+
     this.commandesService.getCommandeInfo(commande.id).subscribe({
       next: (data) => {
         const dialogRef = this.dialog.open(DetailCommandeDialogComponent, {
@@ -675,9 +789,42 @@ fetchCommandesPageablePrint(): void {
           console.log('Dialog closed', data);
           this.fetchCommandesPageable();
         });
+
       },
       error: (err) => {
-        console.error('Error fetching commandes:', err)
+
+        if (err.status === 401 || err.status === 403) {
+
+          this.authService.logout().subscribe({
+            next: (data) => {
+
+              localStorage.removeItem('token');
+              localStorage.setItem("lastLink", window.location.href);
+              window.location.href = '/sign-in';
+              this.snackBar.open('Déconnexion réussie.', '×', {
+                panelClass: 'success',
+                verticalPosition: 'top',
+                duration: 3000,
+              });
+            },
+            error: (err) => {
+
+              console.error('Error  subscription:', err);
+              if (err.status === 401 || err.status === 403) {
+                this.authService.logout();
+                localStorage.removeItem('token');
+                localStorage.setItem("lastLink", window.location.href);
+                ;
+                this.snackBar.open('Déconnexion, une erreur.', '×', {
+                  panelClass: 'success',
+                  verticalPosition: 'top',
+                  duration: 3000,
+                });
+                window.location.href = '/sign-in';
+              }
+            }
+          })
+        }
       }
     });
   }

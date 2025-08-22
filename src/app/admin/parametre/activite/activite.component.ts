@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, Component, OnInit} from '@angular/core';
 import {MatInputModule} from "@angular/material/input";
 import {MatFormFieldModule} from "@angular/material/form-field";
 import {MatSelectModule} from "@angular/material/select";
@@ -6,7 +6,7 @@ import {MatDatepickerModule} from "@angular/material/datepicker";
 import {MatButtonModule} from "@angular/material/button";
 import {MatCardModule} from "@angular/material/card";
 import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule} from "@angular/forms";
-import {MatNativeDateModule, MatOptionModule} from "@angular/material/core";
+import {MatNativeDateModule, MatOptionModule, provideNativeDateAdapter} from "@angular/material/core";
 import {CommonModule} from "@angular/common";
 import {VentesService} from "@services/ventes.service";
 import {AuthService} from "@services/auth.service";
@@ -50,6 +50,8 @@ import {FlexLayoutModule} from "@ngbracket/ngx-layout";
 import {MatStepperModule} from "@angular/material/stepper";
 import {MatRadioModule} from "@angular/material/radio";
 import {RapportCaisseDialogComponent} from "../../../dialog/rapport-caisse-dialog/rapport-caisse-dialog.component";
+import {AppService} from "@services/app.service";
+import {LoaderService} from "@services/loader.service";
 
 @Component({
   selector: 'app-activite',
@@ -101,6 +103,8 @@ import {RapportCaisseDialogComponent} from "../../../dialog/rapport-caisse-dialo
   ],
   templateUrl: './activite.component.html',
   standalone: true,
+  providers: [provideNativeDateAdapter()],
+  // changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './activite.component.scss'
 })
 export class ActiviteComponent implements OnInit {
@@ -133,9 +137,11 @@ export class ActiviteComponent implements OnInit {
 
   constructor(
     public dialog: MatDialog,
+     public loaderService: LoaderService,
     public authService: AuthService,
     public caisseService: CaisseService,
     public appSettings: SettingsService,
+    public appService: AppService,
     public snackBar: MatSnackBar,
     public ventesService: VentesService,
     public commandesService: CommandesService,
@@ -147,8 +153,8 @@ export class ActiviteComponent implements OnInit {
     this.rechercheForm = this.fb.group({
       nomEmploye: [''],
       categorie: ["caisse"],
-      dateDebut: [null],
-      dateFin: [null]
+      dateDebut: [new Date()],
+      dateFin: [new Date()]
     });
   }
 
@@ -190,82 +196,131 @@ export class ActiviteComponent implements OnInit {
   }
 
   fetchVentesPageable(): void {
-    this.ventesService.fetchVentesPageable(
+
+    this.ventesService.fetchVentesPageableRange(
       this.page - 1,
       this.count,
       null,
+      this.appService.formatDate(this.rechercheForm.get("dateDebut").value),
+      this.appService.formatDate(this.rechercheForm.get("dateFin").value),
       null,
       null,
       null,
       null,
       null,
-      null
+      null,
     ).subscribe({
       next: (data: any) => {
-        this.count = data.pageable.pageSize;
+        this.count = data.pageSize;
         this.totalItems = data.totalElements;
-        this.resultatsVente = data.content;
+        this.resultatsVente = data.content.content;
+
       },
       error: (err: any) => {
+
         console.error('Error fetching commandes:', err);
         if (err.status === 401 || err.status === 403) {
+
           this.authService.logout().subscribe({
-                  next: (data) => {
-                    localStorage.removeItem('token');
-                    localStorage.setItem("lastLink", window.location.href);
-                    window.location.href = '/sign-in';
-                    this.snackBar.open('Déconnexion réussie.', '×', {
-                      panelClass: 'success',
-                      verticalPosition: 'top',
-                      duration: 3000,
-                    });
-                  },
-                  error: (err) => {
-                    console.error('Error  subscription:', err);
-                    if (err.status === 401 || err.status === 403) {
-                      this.authService.logout();
-                      localStorage.removeItem('token');
-                      localStorage.setItem("lastLink", window.location.href);
-                      ;
-                      this.snackBar.open('Déconnexion, une erreur.', '×', {
-                        panelClass: 'success',
-                        verticalPosition: 'top',
-                        duration: 3000,
-                      });
-                      window.location.href = '/sign-in';
-                    }
-                  }
-                })
+            next: (data) => {
+
+              localStorage.removeItem('token');
+              localStorage.setItem("lastLink", window.location.href);
+              window.location.href = '/sign-in';
+              this.snackBar.open('Déconnexion réussie.', '×', {
+                panelClass: 'success',
+                verticalPosition: 'top',
+                duration: 3000,
+              });
+            },
+            error: (err) => {
+              console.error('Error  subscription:', err);
+
+              if (err.status === 401 || err.status === 403) {
+                this.authService.logout();
+                localStorage.removeItem('token');
+                localStorage.setItem("lastLink", window.location.href);
+                ;
+                this.snackBar.open('Déconnexion, une erreur.', '×', {
+                  panelClass: 'success',
+                  verticalPosition: 'top',
+                  duration: 3000,
+                });
+                window.location.href = '/sign-in';
+              }
+            }
+          })
         }
       }
     });
   }
 
   fetchCommandesPageable(): void {
+
     this.commandesService.fetchCommandesPageable(
       this.page - 1,
       this.count,
       null,
       null,
       null,
-      null,
-      null
+      this.appService.formatDate(this.rechercheForm.get("dateDebut").value),
+      this.appService.formatDate(this.rechercheForm.get("dateFin").value)
     ).subscribe({
       next: (data: any) => {
-        this.count = data.pageable.pageSize;
+        this.count = data.pageSize;
         this.totalItems = data.totalElements;
-        this.resultatsCommande = data.content;
+        this.resultatsCommande = data.content.content;
+
       },
       error: (err) => {
-        console.error('Error fetching commandes:', err);
+
+        if (err.status === 401 || err.status === 403) {
+
+          this.authService.logout().subscribe({
+            next: (data) => {
+
+              localStorage.removeItem('token');
+              localStorage.setItem("lastLink", window.location.href);
+              window.location.href = '/sign-in';
+              this.snackBar.open('Déconnexion réussie.', '×', {
+                panelClass: 'success',
+                verticalPosition: 'top',
+                duration: 3000,
+              });
+            },
+            error: (err) => {
+              console.error('Error  subscription:', err);
+
+              if (err.status === 401 || err.status === 403) {
+                this.authService.logout();
+                localStorage.removeItem('token');
+                localStorage.setItem("lastLink", window.location.href);
+                ;
+                this.snackBar.open('Déconnexion, une erreur.', '×', {
+                  panelClass: 'success',
+                  verticalPosition: 'top',
+                  duration: 3000,
+                });
+                window.location.href = '/sign-in';
+              }
+            }
+          })
+        }
       }
     });
   }
 
   loadDepenses(): void {
+
     this.depenseService.getAllDepenses().subscribe({
-      next: (data) => this.resultatsDepense = data,
-      error: () => this.snackBar.open('Failed to load depenses', '×', {panelClass: 'error', duration: 3000})
+      next: (data) => {
+        this.resultatsDepense = data
+
+      },
+      error: () => {
+
+        this.snackBar.open('Failed to load depenses', '×', {panelClass: 'error', duration: 3000})
+      }
     });
   }
 
@@ -287,6 +342,7 @@ export class ActiviteComponent implements OnInit {
   }
 
   viewDetails(commande: any): void {
+
     this.commandesService.getCommandeInfo(commande.id).subscribe({
       next: (data) => {
         const dialogRef = this.dialog.open(DetailCommandeDialogComponent, {
@@ -299,9 +355,42 @@ export class ActiviteComponent implements OnInit {
           console.log('Dialog closed', data);
           this.fetchCommandesPageable();
         });
+
       },
       error: (err) => {
-        console.error('Error fetching commandes:', err)
+
+        if (err.status === 401 || err.status === 403) {
+
+          this.authService.logout().subscribe({
+            next: (data) => {
+
+              localStorage.removeItem('token');
+              localStorage.setItem("lastLink", window.location.href);
+              window.location.href = '/sign-in';
+              this.snackBar.open('Déconnexion réussie.', '×', {
+                panelClass: 'success',
+                verticalPosition: 'top',
+                duration: 3000,
+              });
+            },
+            error: (err) => {
+
+              console.error('Error  subscription:', err);
+              if (err.status === 401 || err.status === 403) {
+                this.authService.logout();
+                localStorage.removeItem('token');
+                localStorage.setItem("lastLink", window.location.href);
+                ;
+                this.snackBar.open('Déconnexion, une erreur.', '×', {
+                  panelClass: 'success',
+                  verticalPosition: 'top',
+                  duration: 3000,
+                });
+                window.location.href = '/sign-in';
+              }
+            }
+          })
+        }
       }
     });
     console.log('Commande details:', commande);
@@ -310,14 +399,48 @@ export class ActiviteComponent implements OnInit {
   }
 
   loadCaisses(): void {
+
     this.caisseService.getAllCaisses(this.page - 1, this.count, 'id').subscribe({
       next: (data: any) => {
         this.count = data.pageable.pageSize;
         this.totalItems = data.totalElements;
         this.resultatsCaisse = data.content;
+
       },
       error: (err: any) => {
-        console.error('Error loading caisses:', err);
+
+        if (err.status === 401 || err.status === 403) {
+
+          this.authService.logout().subscribe({
+            next: (data) => {
+
+              localStorage.removeItem('token');
+              localStorage.setItem("lastLink", window.location.href);
+              window.location.href = '/sign-in';
+              this.snackBar.open('Déconnexion réussie.', '×', {
+                panelClass: 'success',
+                verticalPosition: 'top',
+                duration: 3000,
+              });
+            },
+            error: (err) => {
+              console.error('Error  subscription:', err);
+
+              if (err.status === 401 || err.status === 403) {
+                this.authService.logout();
+                localStorage.removeItem('token');
+                localStorage.setItem("lastLink", window.location.href);
+                ;
+                this.snackBar.open('Déconnexion, une erreur.', '×', {
+                  panelClass: 'success',
+                  verticalPosition: 'top',
+                  duration: 3000,
+                });
+                window.location.href = '/sign-in';
+              }
+            }
+          })
+        }
       }
     });
   }
@@ -347,6 +470,7 @@ export class ActiviteComponent implements OnInit {
   }
 
   showRapportCaisse(caisseId: number) {
+
     this.caisseService.getCaisseReport(caisseId).subscribe({
       next: (data) => {
         const dialogRef = this.dialog.open(RapportCaisseDialogComponent, {
@@ -358,9 +482,42 @@ export class ActiviteComponent implements OnInit {
         dialogRef.afterClosed().subscribe((data: any) => {
           console.log('Dialog closed', data);
         });
+
       },
       error: (err) => {
-        console.error('Error fetching commandes:', err)
+
+        if (err.status === 401 || err.status === 403) {
+
+          this.authService.logout().subscribe({
+            next: (data) => {
+
+              localStorage.removeItem('token');
+              localStorage.setItem("lastLink", window.location.href);
+              window.location.href = '/sign-in';
+              this.snackBar.open('Déconnexion réussie.', '×', {
+                panelClass: 'success',
+                verticalPosition: 'top',
+                duration: 3000,
+              });
+            },
+            error: (err) => {
+
+              console.error('Error  subscription:', err);
+              if (err.status === 401 || err.status === 403) {
+                this.authService.logout();
+                localStorage.removeItem('token');
+                localStorage.setItem("lastLink", window.location.href);
+                ;
+                this.snackBar.open('Déconnexion, une erreur.', '×', {
+                  panelClass: 'success',
+                  verticalPosition: 'top',
+                  duration: 3000,
+                });
+                window.location.href = '/sign-in';
+              }
+            }
+          })
+        }
       }
     });
   }

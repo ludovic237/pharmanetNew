@@ -24,6 +24,7 @@ import {subscribe} from "node:diagnostics_channel";
 import {AdminMenu} from "@models/admin-menu.model";
 import {ConfirmationDialogComponent} from "./vente/encaisser-vente/confirmation-dialog/confirmation-dialog.component";
 import {MatDialog} from "@angular/material/dialog";
+import {LoaderService} from "@services/loader.service";
 
 @Component({
   selector: 'app-admin',
@@ -55,6 +56,7 @@ export class AdminComponent implements OnInit {
   constructor(
     public dialog: MatDialog,
     private cdr: ChangeDetectorRef,
+     public loaderService: LoaderService,
     public authService: AuthService,
     public snackBar: MatSnackBar, public settingsService: SettingsService,
     public router: Router,

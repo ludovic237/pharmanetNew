@@ -1,17 +1,17 @@
-import { Component, inject, OnInit } from '@angular/core';
+import {Component, inject, OnInit} from '@angular/core';
 import {AuthService} from "@services/auth.service";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
-import { MatCardModule } from '@angular/material/card';
-import { ActivatedRoute } from '@angular/router';
-import { Category } from '@models/category';
-import { AppService } from '@services/app.service';
-import { InputFileModule } from '../../../theme/components/input-file/input-file.module';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { FlexLayoutModule } from '@ngbracket/ngx-layout';
+import {MatCardModule} from '@angular/material/card';
+import {ActivatedRoute} from '@angular/router';
+import {Category} from '@models/category';
+import {AppService} from '@services/app.service';
+import {InputFileModule} from '../../../theme/components/input-file/input-file.module';
+import {MatInputModule} from '@angular/material/input';
+import {MatSelectModule} from '@angular/material/select';
+import {MatButtonModule} from '@angular/material/button';
+import {MatIconModule} from '@angular/material/icon';
+import {FlexLayoutModule} from '@ngbracket/ngx-layout';
 import {CategorieService} from "@services/categories.service";
 import {MagasinService} from "@services/magasins.service";
 import {RayonService} from "@services/rayons.service";
@@ -21,24 +21,25 @@ import {CommonModule} from "@angular/common";
 import {ProductService} from "@services/products.service";
 import {EtageresService} from "@services/etageres.service";
 import {MatToolbarModule} from "@angular/material/toolbar";
+import {LoaderService} from "@services/loader.service";
 
 @Component({
-    selector: 'app-add-product',
-    imports: [
-        CommonModule,
-        FormsModule,
-        MatToolbarModule,
-        ReactiveFormsModule,
-        MatCardModule,
-        InputFileModule,
-        MatInputModule,
-        MatSelectModule,
-        MatButtonModule,
-        MatIconModule,
-        FlexLayoutModule
-    ],
-    templateUrl: './add-product.component.html',
-    styleUrl: './add-product.component.scss'
+  selector: 'app-add-product',
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatToolbarModule,
+    ReactiveFormsModule,
+    MatCardModule,
+    InputFileModule,
+    MatInputModule,
+    MatSelectModule,
+    MatButtonModule,
+    MatIconModule,
+    FlexLayoutModule
+  ],
+  templateUrl: './add-product.component.html',
+  styleUrl: './add-product.component.scss'
 })
 export class AddProductComponent implements OnInit {
   public form: FormGroup;
@@ -54,9 +55,10 @@ export class AddProductComponent implements OnInit {
   private sub: any;
   public id: any;
 
-   constructor(
+  constructor(
+    public loaderService: LoaderService,
     public authService: AuthService,
-    public snackBar:MatSnackBar,
+    public snackBar: MatSnackBar,
     public categorieService: CategorieService,
     public etageresService: EtageresService,
     public magasinService: MagasinService,
@@ -67,7 +69,8 @@ export class AddProductComponent implements OnInit {
     public appService: AppService,
     public formBuilder: FormBuilder,
     private activatedRoute: ActivatedRoute
-  ) {}
+  ) {
+  }
 
   ngOnInit(): void {
     this.form = this.formBuilder.group({
@@ -109,128 +112,146 @@ export class AddProductComponent implements OnInit {
   }
 
   public getCategories() {
+
     this.categorieService.getCategories().subscribe({
-      next: (data:any) => {
+      next: (data: any) => {
         this.categories = data;
+
       },
-        error: (err) => {
-           if (err.status === 401 || err.status === 403){
-             this.authService.logout();
-             this.snackBar.open('Déconnexion réussie.', '×', {
-               panelClass: 'success',
-               verticalPosition: 'top',
-               duration: 3000,
-             });
-             // Redirect to login page or clear session
-             window.location.href = '/sign-in';
-           }
-           console.error('Error fetching products:', err);
-         }
+      error: (err) => {
+
+        if (err.status === 401 || err.status === 403) {
+          this.authService.logout();
+          this.snackBar.open('Déconnexion réussie.', '×', {
+            panelClass: 'success',
+            verticalPosition: 'top',
+            duration: 3000,
+          });
+          // Redirect to login page or clear session
+          window.location.href = '/sign-in';
+        }
+        console.error('Error fetching products:', err);
+      }
     });
   }
 
   public getRayon() {
+
     this.rayonService.getRayons().subscribe({
-      next: (data:any) => {
+      next: (data: any) => {
         this.rayons = data;
+
       },
-        error: (err) => {
-           if (err.status === 401 || err.status === 403){
-             this.authService.logout();
-             this.snackBar.open('Déconnexion réussie.', '×', {
-               panelClass: 'success',
-               verticalPosition: 'top',
-               duration: 3000,
-             });
-             // Redirect to login page or clear session
-             window.location.href = '/sign-in';
-           }
-           console.error('Error fetching products:', err);
-         }
+      error: (err) => {
+
+        if (err.status === 401 || err.status === 403) {
+          this.authService.logout();
+          this.snackBar.open('Déconnexion réussie.', '×', {
+            panelClass: 'success',
+            verticalPosition: 'top',
+            duration: 3000,
+          });
+          // Redirect to login page or clear session
+          window.location.href = '/sign-in';
+        }
+        console.error('Error fetching products:', err);
+      }
     });
   }
 
   public getMagasin() {
+
     this.magasinService.getMagasins().subscribe({
-      next: (data:any) => {
+      next: (data: any) => {
         this.rayons = data;
+
       },
-        error: (err) => {
-           if (err.status === 401 || err.status === 403){
-             this.authService.logout();
-             this.snackBar.open('Déconnexion réussie.', '×', {
-               panelClass: 'success',
-               verticalPosition: 'top',
-               duration: 3000,
-             });
-             // Redirect to login page or clear session
-             window.location.href = '/sign-in';
-           }
-           console.error('Error fetching products:', err);
-         }
+      error: (err) => {
+
+        if (err.status === 401 || err.status === 403) {
+          this.authService.logout();
+          this.snackBar.open('Déconnexion réussie.', '×', {
+            panelClass: 'success',
+            verticalPosition: 'top',
+            duration: 3000,
+          });
+          // Redirect to login page or clear session
+          window.location.href = '/sign-in';
+        }
+        console.error('Error fetching products:', err);
+      }
     });
   }
 
   public getForme() {
+
     this.formeService.getFormes().subscribe({
-      next: (data:any) => {
+      next: (data: any) => {
+
         this.formes = data;
       },
-        error: (err) => {
-           if (err.status === 401 || err.status === 403){
-             this.authService.logout();
-             this.snackBar.open('Déconnexion réussie.', '×', {
-               panelClass: 'success',
-               verticalPosition: 'top',
-               duration: 3000,
-             });
-             // Redirect to login page or clear session
-             window.location.href = '/sign-in';
-           }
-           console.error('Error fetching products:', err);
-         }
+      error: (err) => {
+
+        if (err.status === 401 || err.status === 403) {
+          this.authService.logout();
+          this.snackBar.open('Déconnexion réussie.', '×', {
+            panelClass: 'success',
+            verticalPosition: 'top',
+            duration: 3000,
+          });
+          // Redirect to login page or clear session
+          window.location.href = '/sign-in';
+        }
+        console.error('Error fetching products:', err);
+      }
     });
   }
 
   public getFabriquants() {
+
     this.fabriquantService.getFabriquants().subscribe({
-      next: (data:any) => {
+      next: (data: any) => {
         this.formes = data;
+
       },
-        error: (err) => {
-           if (err.status === 401 || err.status === 403){
-             this.authService.logout();
-             this.snackBar.open('Déconnexion réussie.', '×', {
-               panelClass: 'success',
-               verticalPosition: 'top',
-               duration: 3000,
-             });
-             // Redirect to login page or clear session
-             window.location.href = '/sign-in';
-           }
-           console.error('Error fetching products:', err);
-         }
+      error: (err) => {
+
+        if (err.status === 401 || err.status === 403) {
+          this.authService.logout();
+          this.snackBar.open('Déconnexion réussie.', '×', {
+            panelClass: 'success',
+            verticalPosition: 'top',
+            duration: 3000,
+          });
+          // Redirect to login page or clear session
+          window.location.href = '/sign-in';
+        }
+        console.error('Error fetching products:', err);
+      }
     });
   }
 
   public getEtagere() {
+
     this.etageresService.getEtageress().subscribe({
-      next: (data:any) => {
+      next: (data: any) => {
         this.etagere = data;
+
       },
-        error: (err) => {
-           if (err.status === 401 || err.status === 403){
-             this.authService.logout();
-             this.snackBar.open('Déconnexion réussie.', '×', {
-               panelClass: 'success',
-               verticalPosition: 'top',
-               duration: 3000,
-             });
-             // Redirect to login page or clear session
-             window.location.href = '/sign-in';
-           }
-           console.error('Error fetching products:', err);
-         }
+      error: (err) => {
+
+        if (err.status === 401 || err.status === 403) {
+          this.authService.logout();
+          this.snackBar.open('Déconnexion réussie.', '×', {
+            panelClass: 'success',
+            verticalPosition: 'top',
+            duration: 3000,
+          });
+          // Redirect to login page or clear session
+          window.location.href = '/sign-in';
+        }
+        console.error('Error fetching products:', err);
+      }
     });
   }
 

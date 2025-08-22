@@ -1,50 +1,51 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { SwiperConfigInterface, SwiperDirective, SwiperModule } from '../../../theme/components/swiper/swiper.module';
-import { Product } from '@models/product';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { AppService } from '@services/app.service';
-import { ActivatedRoute } from '@angular/router';
-import { MatDialog } from '@angular/material/dialog';
-import { DomHandlerService } from '@services/dom-handler.service';
-import { emailValidator } from '../../../theme/utils/app-validators';
-import { ProductZoomComponent } from './product-zoom/product-zoom.component';
-import { FlexLayoutModule } from '@ngbracket/ngx-layout';
-import { MatCardModule } from '@angular/material/card';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { RatingComponent } from '@shared-components/rating/rating.component';
-import { ControlsComponent } from '@shared-components/controls/controls.component';
-import { MatTabsModule } from '@angular/material/tabs';
-import { MatListModule } from '@angular/material/list';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatInputModule } from '@angular/material/input';
-import { PipesModule } from '../../../theme/pipes/pipes.module';
-import { DecimalPipe } from '@angular/common';
+import {Component, OnInit, ViewChild} from '@angular/core';
+import {SwiperConfigInterface, SwiperDirective, SwiperModule} from '../../../theme/components/swiper/swiper.module';
+import {Product} from '@models/product';
+import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
+import {AppService} from '@services/app.service';
+import {ActivatedRoute} from '@angular/router';
+import {MatDialog} from '@angular/material/dialog';
+import {DomHandlerService} from '@services/dom-handler.service';
+import {emailValidator} from '../../../theme/utils/app-validators';
+import {ProductZoomComponent} from './product-zoom/product-zoom.component';
+import {FlexLayoutModule} from '@ngbracket/ngx-layout';
+import {MatCardModule} from '@angular/material/card';
+import {MatChipsModule} from '@angular/material/chips';
+import {MatButtonModule} from '@angular/material/button';
+import {MatIconModule} from '@angular/material/icon';
+import {RatingComponent} from '@shared-components/rating/rating.component';
+import {ControlsComponent} from '@shared-components/controls/controls.component';
+import {MatTabsModule} from '@angular/material/tabs';
+import {MatListModule} from '@angular/material/list';
+import {MatTooltipModule} from '@angular/material/tooltip';
+import {MatInputModule} from '@angular/material/input';
+import {PipesModule} from '../../../theme/pipes/pipes.module';
+import {DecimalPipe} from '@angular/common';
 import {AuthService} from "@services/auth.service";
 import {MatSnackBar} from "@angular/material/snack-bar";
+import {LoaderService} from "@services/loader.service";
 
 @Component({
-    selector: 'app-product-detail',
-    imports: [
-        ReactiveFormsModule,
-        FlexLayoutModule,
-        MatCardModule,
-        MatChipsModule,
-        MatButtonModule,
-        MatIconModule,
-        SwiperModule,
-        RatingComponent,
-        ControlsComponent,
-        MatTabsModule,
-        MatListModule,
-        MatTooltipModule,
-        MatInputModule,
-        PipesModule,
-        DecimalPipe
-    ],
-    templateUrl: './product-detail.component.html',
-    styleUrl: './product-detail.component.scss'
+  selector: 'app-product-detail',
+  imports: [
+    ReactiveFormsModule,
+    FlexLayoutModule,
+    MatCardModule,
+    MatChipsModule,
+    MatButtonModule,
+    MatIconModule,
+    SwiperModule,
+    RatingComponent,
+    ControlsComponent,
+    MatTabsModule,
+    MatListModule,
+    MatTooltipModule,
+    MatInputModule,
+    PipesModule,
+    DecimalPipe
+  ],
+  templateUrl: './product-detail.component.html',
+  styleUrl: './product-detail.component.scss'
 })
 export class ProductDetailComponent implements OnInit {
   @ViewChild('zoomViewer') zoomViewer: any;
@@ -56,21 +57,22 @@ export class ProductDetailComponent implements OnInit {
   private sub: any;
   public form: FormGroup;
 
-   constructor(
+  constructor(
+    public loaderService: LoaderService,
     public authService: AuthService,
-    public snackBar:MatSnackBar,public appService: AppService,
-              private activatedRoute: ActivatedRoute,
-              public dialog: MatDialog,
-              public formBuilder: FormBuilder,
-              public domHandlerService: DomHandlerService) { }
+    public snackBar: MatSnackBar, public appService: AppService,
+    private activatedRoute: ActivatedRoute,
+    public dialog: MatDialog,
+    public formBuilder: FormBuilder,
+    public domHandlerService: DomHandlerService) {
+  }
 
   ngOnInit(): void {
     this.getCategories();
     this.sub = this.activatedRoute.params.subscribe(params => {
       if (params['id']) {
         this.getProductById(params['id']);
-      }
-      else {
+      } else {
         this.getProductById(1);
       }
     });
@@ -164,9 +166,9 @@ export class ProductDetailComponent implements OnInit {
 
   public getCategories() {
     if (this.appService.Data.categories.length == 0) {
-      this.appService.getCategories().subscribe(data => {
-        this.appService.Data.categories = data;
-      });
+      // this.appService.getCategories().subscribe(data => {
+      //   this.appService.Data.categories = data;
+      // });
     }
   }
 

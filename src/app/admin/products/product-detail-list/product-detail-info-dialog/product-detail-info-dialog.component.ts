@@ -38,6 +38,7 @@ import {MatDatepickerModule} from "@angular/material/datepicker";
 import {MatNativeDateModule} from "@angular/material/core";
 import {MatStepperModule} from "@angular/material/stepper";
 import {MatRadioModule} from "@angular/material/radio";
+import {LoaderService} from "@services/loader.service";
 
 @Component({
   selector: 'app-product-detail-info-dialog',
@@ -116,6 +117,7 @@ export class ProductDetailInfoDialogComponent implements OnInit {
   public form: FormGroup;
 
   constructor(
+     public loaderService: LoaderService,
     public authService: AuthService,
     public dialogRef: MatDialogRef<ProductDetailInfoDialogComponent>,
     public productService: ProductService,
@@ -158,6 +160,7 @@ export class ProductDetailInfoDialogComponent implements OnInit {
   }
 
   openMedicamentDialog(med: any): void {
+
     this.productService.getProductById(med.id).subscribe({
       next: (data: any) => {
         console.log("openMedicamentDialog");
@@ -173,10 +176,12 @@ export class ProductDetailInfoDialogComponent implements OnInit {
           contenuDetail: data.contenuDetail,
           produitId: data.id,
         }];
+
       },
       error: (err: any) => {
         console.error('Failed to fetch products in stock:', err);
         alert('Une erreur est survenue lors de la récupération des produits en rayon.');
+
       },
     });
   }
@@ -194,6 +199,7 @@ export class ProductDetailInfoDialogComponent implements OnInit {
     console.log(this.data);
     if (this.form.valid) {
       if (this.data == null) {
+
         this.productDetailService.createProductDetail(result).subscribe({
           // this.productService.searchProducts(this.searchTerm, this.page, this.count).subscribe({
           next: (data: any) => {
@@ -203,8 +209,10 @@ export class ProductDetailInfoDialogComponent implements OnInit {
               duration: 3000
             });
             this.dialogRef.close(this.form.value);
+
           },
           error: (err) => {
+
             console.error('Error searching products:', err);
             this.snackBar.open('Failed to create product detail.', '×', {
               panelClass: 'error',
@@ -215,6 +223,7 @@ export class ProductDetailInfoDialogComponent implements OnInit {
         });
       } else {
         if (this.data.id) {
+
           this.productDetailService.updateProductDetail(this.data.id, result).subscribe({
             // this.productService.searchProducts(this.searchTerm, this.page, this.count).subscribe({
             next: (data: any) => {
@@ -225,8 +234,10 @@ export class ProductDetailInfoDialogComponent implements OnInit {
               });
               this.form.patchValue(result);
               this.parentList = result.data
+
             },
             error: (err) => {
+
               console.error('Error searching products:', err);
               this.snackBar.open('Failed to create product detail.', '×', {
                 panelClass: 'error',
@@ -236,6 +247,7 @@ export class ProductDetailInfoDialogComponent implements OnInit {
             }
           });
         } else {
+
           this.productDetailService.createProductDetail(result).subscribe({
             // this.productService.searchProducts(this.searchTerm, this.page, this.count).subscribe({
             next: (data: any) => {
@@ -245,8 +257,10 @@ export class ProductDetailInfoDialogComponent implements OnInit {
                 duration: 3000
               });
               this.dialogRef.close(this.form.value);
+
             },
             error: (err) => {
+
               console.error('Error searching products:', err);
               this.snackBar.open('Failed to create product detail.', '×', {
                 panelClass: 'error',
@@ -273,9 +287,11 @@ export class ProductDetailInfoDialogComponent implements OnInit {
         }));
         console.log("this.medOptions");
         console.log(this.medOptions);
+
       },
       error: (err) => {
         console.error('Error searching products:', err);
+
       }
     });
   }
@@ -289,17 +305,21 @@ export class ProductDetailInfoDialogComponent implements OnInit {
 
     this.productDetailService.removeParentDetail(element.id, this.data.id).subscribe({
       next: (data) => {
+
         this.productDetailService.getProduitDetailsInfo(this.data.id).subscribe({
           next: (data: any) => {
+
             this.form.patchValue(data);
             this.parentList = data.grossisteList
           },
           error: (err) => {
+
             console.error('Error fetching products:', err);
           }
         });
       },
       error: (err) => {
+
         if (err.status === 401 || err.status === 403) {
           this.authService.logout();
           localStorage.removeItem('token');

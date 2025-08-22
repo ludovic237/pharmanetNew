@@ -23,6 +23,7 @@ import {FlexLayoutModule} from "@ngbracket/ngx-layout";
 import {VentesService} from "@services/ventes.service";
 import {FournisseursService} from "@services/fournisseurs.service";
 import {CommandesService} from "@services/commandes.service";
+import {LoaderService} from "@services/loader.service";
 
 @Component({
   selector: 'app-simple-reapprovisionnement-commande-dialog',
@@ -66,6 +67,7 @@ export class SimpleReapprovisionnementCommandeDialogComponent implements OnInit 
   public settings: Settings;
 
   constructor(
+    public loaderService: LoaderService,
     public authService: AuthService,
     public fournisseursService: FournisseursService,
     public ventesService: VentesService,
@@ -108,41 +110,47 @@ export class SimpleReapprovisionnementCommandeDialogComponent implements OnInit 
           verticalPosition: 'top',
           duration: 3000
         });
+
       },
       error: (err: any) => {
+
         if (err.status === 401 || err.status === 403) {
+
           this.authService.logout().subscribe({
-                  next: (data) => {
-                    localStorage.removeItem('token');
-                    localStorage.setItem("lastLink", window.location.href);
-                    window.location.href = '/sign-in';
-                    this.snackBar.open('Déconnexion réussie.', '×', {
-                      panelClass: 'success',
-                      verticalPosition: 'top',
-                      duration: 3000,
-                    });
-                  },
-                  error: (err) => {
-                    console.error('Error  subscription:', err);
-                    if (err.status === 401 || err.status === 403) {
-                      this.authService.logout();
-                      localStorage.removeItem('token');
-                      localStorage.setItem("lastLink", window.location.href);
-                      ;
-                      this.snackBar.open('Déconnexion, une erreur.', '×', {
-                        panelClass: 'success',
-                        verticalPosition: 'top',
-                        duration: 3000,
-                      });
-                      window.location.href = '/sign-in';
-                    }
-                  }
-                })
+            next: (data) => {
+
+              localStorage.removeItem('token');
+              localStorage.setItem("lastLink", window.location.href);
+              window.location.href = '/sign-in';
+              this.snackBar.open('Déconnexion réussie.', '×', {
+                panelClass: 'success',
+                verticalPosition: 'top',
+                duration: 3000,
+              });
+            },
+            error: (err) => {
+
+              console.error('Error  subscription:', err);
+              if (err.status === 401 || err.status === 403) {
+                this.authService.logout();
+                localStorage.removeItem('token');
+                localStorage.setItem("lastLink", window.location.href);
+                ;
+                this.snackBar.open('Déconnexion, une erreur.', '×', {
+                  panelClass: 'success',
+                  verticalPosition: 'top',
+                  duration: 3000,
+                });
+                window.location.href = '/sign-in';
+              }
+            }
+          })
         }
         if (err.status === 500) {
           this.authService.logout();
-           localStorage.removeItem('token');
-          localStorage.setItem("lastLink",window.location.href);;
+          localStorage.removeItem('token');
+          localStorage.setItem("lastLink", window.location.href);
+          ;
           this.snackBar.open(err.message, '×', {
             panelClass: 'success',
             verticalPosition: 'top',
@@ -217,15 +225,18 @@ export class SimpleReapprovisionnementCommandeDialogComponent implements OnInit 
   }
 
   getDataVente() {
-    if (this.form.valid){
+    if (this.form.valid) {
+
       this.ventesService.listerVenteParNombreDeJourEtFournisseur(this.form.value.fournisseur, this.form.value.jour + "").subscribe({
         next: (data: any[]) => {
           console.log("getDataVente")
           console.log(data)
           this.enRayonList = data;
           this.total = 0;
+
         },
         error: (err: any) => {
+
           if (err.status === 401 || err.status === 403) {
             this.authService.logout();
             this.snackBar.open('Déconnexion réussie.', '×', {
@@ -243,13 +254,16 @@ export class SimpleReapprovisionnementCommandeDialogComponent implements OnInit 
   }
 
   public searchFournisseur(): void {
+
     this.fournisseursService.getFournisseurs().subscribe({
       // this.productService.searchProducts(this.searchTerm, this.page, this.count).subscribe({
       next: (data: any) => {
         this.fournisseurs = data;
+
       },
       error: (err) => {
         console.error('Error searching products:', err);
+
       }
     });
   }

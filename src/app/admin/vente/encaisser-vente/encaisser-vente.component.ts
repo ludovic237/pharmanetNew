@@ -50,6 +50,7 @@ import {ConfirmationDialogComponent} from "./confirmation-dialog/confirmation-di
 import {AuthService} from "@services/auth.service";
 import {GestionCaisseDialogComponent} from "./gestion-caisse-dialog/gestion-caisse-dialog.component";
 import {MatPaginatorModule, PageEvent} from "@angular/material/paginator";
+import {LoaderService} from "@services/loader.service";
 
 interface LigneHeader {
   netAPayer?: number;
@@ -163,6 +164,7 @@ export class EncaisserVenteComponent implements OnInit {
   cashierName: string = 'N/A';
 
   constructor(
+    public loaderService: LoaderService,
     public authService: AuthService,
     public snackBar: MatSnackBar, public appSettings: SettingsService,
     public enRayonService: EnrayonsService,
@@ -183,6 +185,7 @@ export class EncaisserVenteComponent implements OnInit {
   }
 
   checkCaisseStatus(): void {
+
     this.caisseService.isCaisseOuverte().subscribe({
       next: (response: any) => {
         if (response.status.toLowerCase() === 'active') {
@@ -213,34 +216,38 @@ export class EncaisserVenteComponent implements OnInit {
       },
       error: (err: any) => {
         console.error('Failed to check caisse status:', err);
+
         if (err.status === 401 || err.status === 403) {
+
           this.authService.logout().subscribe({
-                  next: (data) => {
-                    localStorage.removeItem('token');
-                    localStorage.setItem("lastLink", window.location.href);
-                    window.location.href = '/sign-in';
-                    this.snackBar.open('Déconnexion réussie.', '×', {
-                      panelClass: 'success',
-                      verticalPosition: 'top',
-                      duration: 3000,
-                    });
-                  },
-                  error: (err) => {
-                    console.error('Error  subscription:', err);
-                    if (err.status === 401 || err.status === 403) {
-                      this.authService.logout();
-                      localStorage.removeItem('token');
-                      localStorage.setItem("lastLink", window.location.href);
-                      ;
-                      this.snackBar.open('Déconnexion, une erreur.', '×', {
-                        panelClass: 'success',
-                        verticalPosition: 'top',
-                        duration: 3000,
-                      });
-                      window.location.href = '/sign-in';
-                    }
-                  }
-                })
+            next: (data) => {
+              localStorage.removeItem('token');
+              localStorage.setItem("lastLink", window.location.href);
+              window.location.href = '/sign-in';
+              this.snackBar.open('Déconnexion réussie.', '×', {
+                panelClass: 'success',
+                verticalPosition: 'top',
+                duration: 3000,
+              });
+
+            },
+            error: (err) => {
+
+              console.error('Error  subscription:', err);
+              if (err.status === 401 || err.status === 403) {
+                this.authService.logout();
+                localStorage.removeItem('token');
+                localStorage.setItem("lastLink", window.location.href);
+                ;
+                this.snackBar.open('Déconnexion, une erreur.', '×', {
+                  panelClass: 'success',
+                  verticalPosition: 'top',
+                  duration: 3000,
+                });
+                window.location.href = '/sign-in';
+              }
+            }
+          })
         } else {
           this.caisseStatus = CaisseStatus.CLOSE;
           this.cashierName = 'N/A';
@@ -266,6 +273,7 @@ export class EncaisserVenteComponent implements OnInit {
       dialogRef.afterClosed().subscribe((data: any) => {
         console.log('Dialog closed', data);
         if (data.type === 'open') {
+
           this.caisseService.ouvrirCaisse(parseFloat(data.data.fondCaisse), data.data.ouvertureCaisse).subscribe({
             next: () => {
               this.snackBar.open('Caisse clôturée avec succès.', '×', {
@@ -274,8 +282,10 @@ export class EncaisserVenteComponent implements OnInit {
                 duration: 3000,
               });
               this.checkCaisseStatus();
+
             },
             error: (err: any) => {
+
               console.error('Erreur lors de la clôture de la caisse:', err);
               if (err.status === 401 || err.status === 403) {
                 this.authService.logout().subscribe({
@@ -288,8 +298,10 @@ export class EncaisserVenteComponent implements OnInit {
                       verticalPosition: 'top',
                       duration: 3000,
                     });
+
                   },
                   error: (err) => {
+
                     console.error('Error  subscription:', err);
                     if (err.status === 401 || err.status === 403) {
                       this.authService.logout();
@@ -315,8 +327,7 @@ export class EncaisserVenteComponent implements OnInit {
           });
         }
       });
-    }
-    else if (this.caisseStatus === 'pending') {
+    } else if (this.caisseStatus === 'pending') {
       const dialogRef = this.dialog.open(GestionCaisseDialogComponent, {
         data: {
           type: "",
@@ -331,6 +342,7 @@ export class EncaisserVenteComponent implements OnInit {
       dialogRef.afterClosed().subscribe((data: any) => {
         console.log('Dialog closed', data);
         if (data.action === 'validate') {
+
           this.caisseService.cloturerCaisse(parseFloat(data.data.fondCaisse), data.data.fermetureCaisse).subscribe({
             next: () => {
               this.snackBar.open('Caisse clôturée avec succès.', '×', {
@@ -339,10 +351,13 @@ export class EncaisserVenteComponent implements OnInit {
                 duration: 3000,
               });
               this.checkCaisseStatus();
+
             },
             error: (err: any) => {
+
               console.error('Erreur lors de la clôture de la caisse:', err);
               if (err.status === 401 || err.status === 403) {
+
                 this.authService.logout().subscribe({
                   next: (data) => {
                     localStorage.removeItem('token');
@@ -353,9 +368,11 @@ export class EncaisserVenteComponent implements OnInit {
                       verticalPosition: 'top',
                       duration: 3000,
                     });
+
                   },
                   error: (err) => {
                     console.error('Error  subscription:', err);
+
                     if (err.status === 401 || err.status === 403) {
                       this.authService.logout();
                       localStorage.removeItem('token');
@@ -380,8 +397,8 @@ export class EncaisserVenteComponent implements OnInit {
           });
         }
       });
-    }
-    else if (this.caisseStatus === 'open') {
+    } else if (this.caisseStatus === 'open') {
+
       this.caisseService.isCaisseOuverte().subscribe({
         next: () => {
           this.snackBar.open("Caisse fermée avec succès.", '×', {
@@ -390,8 +407,10 @@ export class EncaisserVenteComponent implements OnInit {
             duration: 3000
           });
           this.checkCaisseStatus();
+
         },
         error: (err: any) => {
+
           console.error('Erreur lors de la fermeture de la caisse:', err);
           if (err.status === 401 || err.status === 403) {
             this.authService.logout();
@@ -410,8 +429,8 @@ export class EncaisserVenteComponent implements OnInit {
             });
         }
       });
-    }
-    else if (this.caisseStatus === 'closed') {
+    } else if (this.caisseStatus === 'closed') {
+
       this.caisseService.isCaisseOuverte().subscribe({
         next: () => {
           this.snackBar.open("Caisse ouverte avec succès.", '×', {
@@ -420,8 +439,10 @@ export class EncaisserVenteComponent implements OnInit {
             duration: 3000
           });
           this.checkCaisseStatus();
+
         },
         error: (err: any) => {
+
           console.error('Erreur lors de l\'ouverture de la caisse:', err);
           if (err.status === 401 || err.status === 403) {
             this.authService.logout();
@@ -440,8 +461,7 @@ export class EncaisserVenteComponent implements OnInit {
             });
         }
       });
-    }
-    else {
+    } else {
       this.snackBar.open('Statut de la caisse inconnu.', '×', {
         panelClass: 'error',
         verticalPosition: 'top',
@@ -464,6 +484,7 @@ export class EncaisserVenteComponent implements OnInit {
   chargerVente(venteId: number) {
     // recharger les données
     this.venteId = venteId;
+
     this.ventesService.chargerVentesEnCoursNonEncaisser(venteId).subscribe({
       next: (response: any) => {
         this.leftDataSource = response.produits;
@@ -473,36 +494,41 @@ export class EncaisserVenteComponent implements OnInit {
           verticalPosition: 'top',
           duration: 3000
         });
+
       },
       error: (err: any) => {
+
         if (err.status === 401 || err.status === 403) {
+
           this.authService.logout().subscribe({
-                  next: (data) => {
-                    localStorage.removeItem('token');
-                    localStorage.setItem("lastLink", window.location.href);
-                    window.location.href = '/sign-in';
-                    this.snackBar.open('Déconnexion réussie.', '×', {
-                      panelClass: 'success',
-                      verticalPosition: 'top',
-                      duration: 3000,
-                    });
-                  },
-                  error: (err) => {
-                    console.error('Error  subscription:', err);
-                    if (err.status === 401 || err.status === 403) {
-                      this.authService.logout();
-                      localStorage.removeItem('token');
-                      localStorage.setItem("lastLink", window.location.href);
-                      ;
-                      this.snackBar.open('Déconnexion, une erreur.', '×', {
-                        panelClass: 'success',
-                        verticalPosition: 'top',
-                        duration: 3000,
-                      });
-                      window.location.href = '/sign-in';
-                    }
-                  }
-                })
+            next: (data) => {
+              localStorage.removeItem('token');
+              localStorage.setItem("lastLink", window.location.href);
+              window.location.href = '/sign-in';
+              this.snackBar.open('Déconnexion réussie.', '×', {
+                panelClass: 'success',
+                verticalPosition: 'top',
+                duration: 3000,
+              });
+
+            },
+            error: (err) => {
+
+              console.error('Error  subscription:', err);
+              if (err.status === 401 || err.status === 403) {
+                this.authService.logout();
+                localStorage.removeItem('token');
+                localStorage.setItem("lastLink", window.location.href);
+                ;
+                this.snackBar.open('Déconnexion, une erreur.', '×', {
+                  panelClass: 'success',
+                  verticalPosition: 'top',
+                  duration: 3000,
+                });
+                window.location.href = '/sign-in';
+              }
+            }
+          })
         } else
           this.snackBar.open('Failed', '×', {
             panelClass: 'error',
@@ -524,6 +550,7 @@ export class EncaisserVenteComponent implements OnInit {
     });
     dialogRef.afterClosed().subscribe((data: boolean) => {
       if (data === true) {
+
         this.ventesService.supprimerVente(venteId).subscribe({
           next: (response: any) => {
             this.onRefresh();
@@ -532,36 +559,40 @@ export class EncaisserVenteComponent implements OnInit {
               verticalPosition: 'top',
               duration: 3000
             });
+
           },
           error: (err: any) => {
+
             if (err.status === 401 || err.status === 403) {
+
               this.authService.logout().subscribe({
-                  next: (data) => {
+                next: (data) => {
+                  localStorage.removeItem('token');
+                  localStorage.setItem("lastLink", window.location.href);
+                  window.location.href = '/sign-in';
+                  this.snackBar.open('Déconnexion réussie.', '×', {
+                    panelClass: 'success',
+                    verticalPosition: 'top',
+                    duration: 3000,
+                  });
+
+                },
+                error: (err) => {
+                  console.error('Error  subscription:', err);
+                  if (err.status === 401 || err.status === 403) {
+                    this.authService.logout();
                     localStorage.removeItem('token');
                     localStorage.setItem("lastLink", window.location.href);
-                    window.location.href = '/sign-in';
-                    this.snackBar.open('Déconnexion réussie.', '×', {
+                    ;
+                    this.snackBar.open('Déconnexion, une erreur.', '×', {
                       panelClass: 'success',
                       verticalPosition: 'top',
                       duration: 3000,
                     });
-                  },
-                  error: (err) => {
-                    console.error('Error  subscription:', err);
-                    if (err.status === 401 || err.status === 403) {
-                      this.authService.logout();
-                      localStorage.removeItem('token');
-                      localStorage.setItem("lastLink", window.location.href);
-                      ;
-                      this.snackBar.open('Déconnexion, une erreur.', '×', {
-                        panelClass: 'success',
-                        verticalPosition: 'top',
-                        duration: 3000,
-                      });
-                      window.location.href = '/sign-in';
-                    }
+                    window.location.href = '/sign-in';
                   }
-                })
+                }
+              })
             } else
               this.snackBar.open('Failed', '×', {
                 panelClass: 'error',
@@ -596,6 +627,7 @@ export class EncaisserVenteComponent implements OnInit {
 
   validateTicket(): void {
     if (this.numeroTicket && this.numeroTicket.length === 12) {
+
       this.bonCaisseService.getBonByCodebarreId(this.numeroTicket).subscribe({
         next: (data) => {
           if (data) {
@@ -606,8 +638,10 @@ export class EncaisserVenteComponent implements OnInit {
             this.montantTicket = 0;
             alert('Numéro de ticket invalide.');
           }
+
         },
         error: () => {
+
           this.montantTicket = 0;
           alert('Erreur lors de la validation du ticket.');
         }
@@ -619,6 +653,7 @@ export class EncaisserVenteComponent implements OnInit {
 
   validateTicketMixte(): void {
     if (this.numeroTicketMixte && this.numeroTicketMixte.length === 12) {
+
       this.bonCaisseService.getBonByCodebarreId(this.numeroTicketMixte).subscribe({
         next: (data) => {
           if (data) {
@@ -629,9 +664,11 @@ export class EncaisserVenteComponent implements OnInit {
             this.montantTicketMixte = 0;
             alert('Numéro de ticket invalide.');
           }
+
         },
         error: (err: any) => {
           this.montantTicketMixte = 0;
+
           if (err.status === 401 || err.status === 403) {
             this.authService.logout();
             this.snackBar.open('Déconnexion réussie.', '×', {
@@ -728,37 +765,42 @@ export class EncaisserVenteComponent implements OnInit {
           verticalPosition: 'top',
           duration: 3000
         });
+
       },
       error: (err: any) => {
+
         console.error('Failed to fetch BonCaisse list:', err);
         if (err.status === 401 || err.status === 403) {
+
           this.authService.logout().subscribe({
-                  next: (data) => {
-                    localStorage.removeItem('token');
-                    localStorage.setItem("lastLink", window.location.href);
-                    window.location.href = '/sign-in';
-                    this.snackBar.open('Déconnexion réussie.', '×', {
-                      panelClass: 'success',
-                      verticalPosition: 'top',
-                      duration: 3000,
-                    });
-                  },
-                  error: (err) => {
-                    console.error('Error  subscription:', err);
-                    if (err.status === 401 || err.status === 403) {
-                      this.authService.logout();
-                      localStorage.removeItem('token');
-                      localStorage.setItem("lastLink", window.location.href);
-                      ;
-                      this.snackBar.open('Déconnexion, une erreur.', '×', {
-                        panelClass: 'success',
-                        verticalPosition: 'top',
-                        duration: 3000,
-                      });
-                      window.location.href = '/sign-in';
-                    }
-                  }
-                })
+            next: (data) => {
+              localStorage.removeItem('token');
+              localStorage.setItem("lastLink", window.location.href);
+              window.location.href = '/sign-in';
+              this.snackBar.open('Déconnexion réussie.', '×', {
+                panelClass: 'success',
+                verticalPosition: 'top',
+                duration: 3000,
+              });
+
+            },
+            error: (err) => {
+
+              console.error('Error  subscription:', err);
+              if (err.status === 401 || err.status === 403) {
+                this.authService.logout();
+                localStorage.removeItem('token');
+                localStorage.setItem("lastLink", window.location.href);
+                ;
+                this.snackBar.open('Déconnexion, une erreur.', '×', {
+                  panelClass: 'success',
+                  verticalPosition: 'top',
+                  duration: 3000,
+                });
+                window.location.href = '/sign-in';
+              }
+            }
+          })
         } else
           this.snackBar.open('Erreur lors de la récupération des bons de caisse.', '×', {
             panelClass: 'error',
@@ -786,8 +828,10 @@ export class EncaisserVenteComponent implements OnInit {
   }
 
   showBonCaisse() {
+
     this.bonCaisseService.getAllBons().subscribe({
       next: (bons: any[]) => {
+
         const dialogRef = this.dialog.open(BonCaisseDialogComponent, {
           data: bons,
           width: "80%",
@@ -799,35 +843,39 @@ export class EncaisserVenteComponent implements OnInit {
         });
       },
       error: (err: any) => {
+
         console.error('Failed to fetch BonCaisse list:', err);
         if (err.status === 401 || err.status === 403) {
+
           this.authService.logout().subscribe({
-                  next: (data) => {
-                    localStorage.removeItem('token');
-                    localStorage.setItem("lastLink", window.location.href);
-                    window.location.href = '/sign-in';
-                    this.snackBar.open('Déconnexion réussie.', '×', {
-                      panelClass: 'success',
-                      verticalPosition: 'top',
-                      duration: 3000,
-                    });
-                  },
-                  error: (err) => {
-                    console.error('Error  subscription:', err);
-                    if (err.status === 401 || err.status === 403) {
-                      this.authService.logout();
-                      localStorage.removeItem('token');
-                      localStorage.setItem("lastLink", window.location.href);
-                      ;
-                      this.snackBar.open('Déconnexion, une erreur.', '×', {
-                        panelClass: 'success',
-                        verticalPosition: 'top',
-                        duration: 3000,
-                      });
-                      window.location.href = '/sign-in';
-                    }
-                  }
-                })
+            next: (data) => {
+              localStorage.removeItem('token');
+              localStorage.setItem("lastLink", window.location.href);
+              window.location.href = '/sign-in';
+              this.snackBar.open('Déconnexion réussie.', '×', {
+                panelClass: 'success',
+                verticalPosition: 'top',
+                duration: 3000,
+              });
+
+            },
+            error: (err) => {
+
+              console.error('Error  subscription:', err);
+              if (err.status === 401 || err.status === 403) {
+                this.authService.logout();
+                localStorage.removeItem('token');
+                localStorage.setItem("lastLink", window.location.href);
+                ;
+                this.snackBar.open('Déconnexion, une erreur.', '×', {
+                  panelClass: 'success',
+                  verticalPosition: 'top',
+                  duration: 3000,
+                });
+                window.location.href = '/sign-in';
+              }
+            }
+          })
         } else
           this.snackBar.open('Erreur lors de la récupération des bons de caisse.', '×', {
             panelClass: 'error',
@@ -839,6 +887,7 @@ export class EncaisserVenteComponent implements OnInit {
   }
 
   showDepense() {
+
     this.depenseService.getAllDepenses().subscribe({
       next: (depense: any[]) => {
         const dialogRef = this.dialog.open(DepenseDialogComponent, {
@@ -850,37 +899,42 @@ export class EncaisserVenteComponent implements OnInit {
         dialogRef.afterClosed().subscribe((data: any) => {
           console.log('Dialog closed', data);
         });
+
       },
       error: (err: any) => {
         console.error('Failed to fetch BonCaisse list:', err);
+
         if (err.status === 401 || err.status === 403) {
+
           this.authService.logout().subscribe({
-                  next: (data) => {
-                    localStorage.removeItem('token');
-                    localStorage.setItem("lastLink", window.location.href);
-                    window.location.href = '/sign-in';
-                    this.snackBar.open('Déconnexion réussie.', '×', {
-                      panelClass: 'success',
-                      verticalPosition: 'top',
-                      duration: 3000,
-                    });
-                  },
-                  error: (err) => {
-                    console.error('Error  subscription:', err);
-                    if (err.status === 401 || err.status === 403) {
-                      this.authService.logout();
-                      localStorage.removeItem('token');
-                      localStorage.setItem("lastLink", window.location.href);
-                      ;
-                      this.snackBar.open('Déconnexion, une erreur.', '×', {
-                        panelClass: 'success',
-                        verticalPosition: 'top',
-                        duration: 3000,
-                      });
-                      window.location.href = '/sign-in';
-                    }
-                  }
-                })
+            next: (data) => {
+              localStorage.removeItem('token');
+              localStorage.setItem("lastLink", window.location.href);
+              window.location.href = '/sign-in';
+              this.snackBar.open('Déconnexion réussie.', '×', {
+                panelClass: 'success',
+                verticalPosition: 'top',
+                duration: 3000,
+              });
+
+            },
+            error: (err) => {
+              console.error('Error  subscription:', err);
+
+              if (err.status === 401 || err.status === 403) {
+                this.authService.logout();
+                localStorage.removeItem('token');
+                localStorage.setItem("lastLink", window.location.href);
+                ;
+                this.snackBar.open('Déconnexion, une erreur.', '×', {
+                  panelClass: 'success',
+                  verticalPosition: 'top',
+                  duration: 3000,
+                });
+                window.location.href = '/sign-in';
+              }
+            }
+          })
         } else
           this.snackBar.open('Erreur lors de la récupération des bons de caisse.', '×', {
             panelClass: 'error',
@@ -905,6 +959,7 @@ export class EncaisserVenteComponent implements OnInit {
 
   fermerCaisse() {
     this.modalType = 'fermerCaisse';
+
     this.ventesService.listerVentesNonEncaissees(0, 10).subscribe({
       next: (ventes: any) => {
         if (ventes.content.length > 0) {
@@ -913,7 +968,8 @@ export class EncaisserVenteComponent implements OnInit {
             verticalPosition: 'top',
             duration: 3000,
           });
-        } else {
+        }
+        else {
           const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
             // width: '50%',
             data: {type: this.modalType, data: null},
@@ -932,37 +988,42 @@ export class EncaisserVenteComponent implements OnInit {
             }
           });
         }
+
       },
       error: (err: any) => {
+
         console.error('Failed to fetch unencashed sales:', err);
         if (err.status === 401 || err.status === 403) {
+
           this.authService.logout().subscribe({
-                  next: (data) => {
-                    localStorage.removeItem('token');
-                    localStorage.setItem("lastLink", window.location.href);
-                    window.location.href = '/sign-in';
-                    this.snackBar.open('Déconnexion réussie.', '×', {
-                      panelClass: 'success',
-                      verticalPosition: 'top',
-                      duration: 3000,
-                    });
-                  },
-                  error: (err) => {
-                    console.error('Error  subscription:', err);
-                    if (err.status === 401 || err.status === 403) {
-                      this.authService.logout();
-                      localStorage.removeItem('token');
-                      localStorage.setItem("lastLink", window.location.href);
-                      ;
-                      this.snackBar.open('Déconnexion, une erreur.', '×', {
-                        panelClass: 'success',
-                        verticalPosition: 'top',
-                        duration: 3000,
-                      });
-                      window.location.href = '/sign-in';
-                    }
-                  }
-                })
+            next: (data) => {
+              localStorage.removeItem('token');
+              localStorage.setItem("lastLink", window.location.href);
+              window.location.href = '/sign-in';
+              this.snackBar.open('Déconnexion réussie.', '×', {
+                panelClass: 'success',
+                verticalPosition: 'top',
+                duration: 3000,
+              });
+
+            },
+            error: (err) => {
+
+              console.error('Error  subscription:', err);
+              if (err.status === 401 || err.status === 403) {
+                this.authService.logout();
+                localStorage.removeItem('token');
+                localStorage.setItem("lastLink", window.location.href);
+                ;
+                this.snackBar.open('Déconnexion, une erreur.', '×', {
+                  panelClass: 'success',
+                  verticalPosition: 'top',
+                  duration: 3000,
+                });
+                window.location.href = '/sign-in';
+              }
+            }
+          })
         } else
           this.snackBar.open('Erreur lors de la vérification des ventes non encaissées.', '×', {
             panelClass: 'error',
@@ -997,6 +1058,7 @@ export class EncaisserVenteComponent implements OnInit {
   }
 
   putCaissePendingClosure(): void {
+
     this.caisseService.setCaisseToClosed().subscribe({
       next: () => {
         this.snackBar.open('La caisse est maintenant en attente de clôture.', '×', {
@@ -1005,37 +1067,42 @@ export class EncaisserVenteComponent implements OnInit {
           duration: 3000,
         });
         this.logoutUser();
+
       },
       error: (err: any) => {
+
         console.error('Erreur lors de la mise en attente de clôture de la caisse:', err);
         if (err.status === 401 || err.status === 403) {
+
           this.authService.logout().subscribe({
-                  next: (data) => {
-                    localStorage.removeItem('token');
-                    localStorage.setItem("lastLink", window.location.href);
-                    window.location.href = '/sign-in';
-                    this.snackBar.open('Déconnexion réussie.', '×', {
-                      panelClass: 'success',
-                      verticalPosition: 'top',
-                      duration: 3000,
-                    });
-                  },
-                  error: (err) => {
-                    console.error('Error  subscription:', err);
-                    if (err.status === 401 || err.status === 403) {
-                      this.authService.logout();
-                      localStorage.removeItem('token');
-                      localStorage.setItem("lastLink", window.location.href);
-                      ;
-                      this.snackBar.open('Déconnexion, une erreur.', '×', {
-                        panelClass: 'success',
-                        verticalPosition: 'top',
-                        duration: 3000,
-                      });
-                      window.location.href = '/sign-in';
-                    }
-                  }
-                })
+            next: (data) => {
+              localStorage.removeItem('token');
+              localStorage.setItem("lastLink", window.location.href);
+              window.location.href = '/sign-in';
+              this.snackBar.open('Déconnexion réussie.', '×', {
+                panelClass: 'success',
+                verticalPosition: 'top',
+                duration: 3000,
+              });
+
+            },
+            error: (err) => {
+
+              console.error('Error  subscription:', err);
+              if (err.status === 401 || err.status === 403) {
+                this.authService.logout();
+                localStorage.removeItem('token');
+                localStorage.setItem("lastLink", window.location.href);
+                ;
+                this.snackBar.open('Déconnexion, une erreur.', '×', {
+                  panelClass: 'success',
+                  verticalPosition: 'top',
+                  duration: 3000,
+                });
+                window.location.href = '/sign-in';
+              }
+            }
+          })
         } else
           this.snackBar.open('Erreur lors de la mise en attente de clôture de la caisse.', '×', {
             panelClass: 'error',
@@ -1084,10 +1151,12 @@ export class EncaisserVenteComponent implements OnInit {
   }
 
   logoutUser(): void {
+
     this.authService.logout().subscribe({
       next: () => {
-         localStorage.removeItem('token');
-          localStorage.setItem("lastLink",window.location.href);;
+        localStorage.removeItem('token');
+        localStorage.setItem("lastLink", window.location.href);
+        ;
         this.snackBar.open('Déconnexion réussie.', '×', {
           panelClass: 'success',
           verticalPosition: 'top',
@@ -1095,37 +1164,42 @@ export class EncaisserVenteComponent implements OnInit {
         });
         // Redirect to login page or clear session
         window.location.href = '/sign-in';
+
       },
       error: (err: any) => {
+
         console.error('Erreur lors de la déconnexion:', err);
         if (err.status === 401 || err.status === 403) {
+
           this.authService.logout().subscribe({
-                  next: (data) => {
-                    localStorage.removeItem('token');
-                    localStorage.setItem("lastLink", window.location.href);
-                    window.location.href = '/sign-in';
-                    this.snackBar.open('Déconnexion réussie.', '×', {
-                      panelClass: 'success',
-                      verticalPosition: 'top',
-                      duration: 3000,
-                    });
-                  },
-                  error: (err) => {
-                    console.error('Error  subscription:', err);
-                    if (err.status === 401 || err.status === 403) {
-                      this.authService.logout();
-                      localStorage.removeItem('token');
-                      localStorage.setItem("lastLink", window.location.href);
-                      ;
-                      this.snackBar.open('Déconnexion, une erreur.', '×', {
-                        panelClass: 'success',
-                        verticalPosition: 'top',
-                        duration: 3000,
-                      });
-                      window.location.href = '/sign-in';
-                    }
-                  }
-                })
+            next: (data) => {
+              localStorage.removeItem('token');
+              localStorage.setItem("lastLink", window.location.href);
+              window.location.href = '/sign-in';
+              this.snackBar.open('Déconnexion réussie.', '×', {
+                panelClass: 'success',
+                verticalPosition: 'top',
+                duration: 3000,
+              });
+
+            },
+            error: (err) => {
+              console.error('Error  subscription:', err);
+
+              if (err.status === 401 || err.status === 403) {
+                this.authService.logout();
+                localStorage.removeItem('token');
+                localStorage.setItem("lastLink", window.location.href);
+                ;
+                this.snackBar.open('Déconnexion, une erreur.', '×', {
+                  panelClass: 'success',
+                  verticalPosition: 'top',
+                  duration: 3000,
+                });
+                window.location.href = '/sign-in';
+              }
+            }
+          })
         } else
           this.snackBar.open('Erreur lors de la déconnexion.', '×', {
             panelClass: 'error',
@@ -1149,6 +1223,7 @@ export class EncaisserVenteComponent implements OnInit {
 
   onRefresh() {
     // recharger les données
+
     this.ventesService.listerVentesNonEncaissees(this.pageEnCours - 1, this.countEnCours).subscribe({
       next: (response: any) => {
         this.headerDataSource = response.content;
@@ -1162,34 +1237,38 @@ export class EncaisserVenteComponent implements OnInit {
         });
       },
       error: (err: any) => {
+
         if (err.status === 401 || err.status === 403) {
+
           this.authService.logout().subscribe({
-                  next: (data) => {
-                    localStorage.removeItem('token');
-                    localStorage.setItem("lastLink", window.location.href);
-                    window.location.href = '/sign-in';
-                    this.snackBar.open('Déconnexion réussie.', '×', {
-                      panelClass: 'success',
-                      verticalPosition: 'top',
-                      duration: 3000,
-                    });
-                  },
-                  error: (err) => {
-                    console.error('Error  subscription:', err);
-                    if (err.status === 401 || err.status === 403) {
-                      this.authService.logout();
-                      localStorage.removeItem('token');
-                      localStorage.setItem("lastLink", window.location.href);
-                      ;
-                      this.snackBar.open('Déconnexion, une erreur.', '×', {
-                        panelClass: 'success',
-                        verticalPosition: 'top',
-                        duration: 3000,
-                      });
-                      window.location.href = '/sign-in';
-                    }
-                  }
-                })
+            next: (data) => {
+              localStorage.removeItem('token');
+              localStorage.setItem("lastLink", window.location.href);
+              window.location.href = '/sign-in';
+              this.snackBar.open('Déconnexion réussie.', '×', {
+                panelClass: 'success',
+                verticalPosition: 'top',
+                duration: 3000,
+              });
+
+            },
+            error: (err) => {
+
+              console.error('Error  subscription:', err);
+              if (err.status === 401 || err.status === 403) {
+                this.authService.logout();
+                localStorage.removeItem('token');
+                localStorage.setItem("lastLink", window.location.href);
+                ;
+                this.snackBar.open('Déconnexion, une erreur.', '×', {
+                  panelClass: 'success',
+                  verticalPosition: 'top',
+                  duration: 3000,
+                });
+                window.location.href = '/sign-in';
+              }
+            }
+          })
         } else
           this.snackBar.open('Failed to refresh sale', '×', {
             panelClass: 'error',
@@ -1216,43 +1295,49 @@ export class EncaisserVenteComponent implements OnInit {
         this.countCredit = data.pageable.pageSize;
         this.totalItemsCredit = data.totalElements;
         this.bottomDataSource = data.content;
+
       },
       error: (err) => {
+
         console.error('Error fetching commandes:', err);
-        if (err.status === 401 || err.status === 403){
+        if (err.status === 401 || err.status === 403) {
+
           this.authService.logout().subscribe({
-                  next: (data) => {
-                    localStorage.removeItem('token');
-                    localStorage.setItem("lastLink", window.location.href);
-                    window.location.href = '/sign-in';
-                    this.snackBar.open('Déconnexion réussie.', '×', {
-                      panelClass: 'success',
-                      verticalPosition: 'top',
-                      duration: 3000,
-                    });
-                  },
-                  error: (err) => {
-                    console.error('Error  subscription:', err);
-                    if (err.status === 401 || err.status === 403) {
-                      this.authService.logout();
-                      localStorage.removeItem('token');
-                      localStorage.setItem("lastLink", window.location.href);
-                      ;
-                      this.snackBar.open('Déconnexion, une erreur.', '×', {
-                        panelClass: 'success',
-                        verticalPosition: 'top',
-                        duration: 3000,
-                      });
-                      window.location.href = '/sign-in';
-                    }
-                  }
-                })
+            next: (data) => {
+              localStorage.removeItem('token');
+              localStorage.setItem("lastLink", window.location.href);
+              window.location.href = '/sign-in';
+              this.snackBar.open('Déconnexion réussie.', '×', {
+                panelClass: 'success',
+                verticalPosition: 'top',
+                duration: 3000,
+              });
+
+            },
+            error: (err) => {
+
+              console.error('Error  subscription:', err);
+              if (err.status === 401 || err.status === 403) {
+                this.authService.logout();
+                localStorage.removeItem('token');
+                localStorage.setItem("lastLink", window.location.href);
+                ;
+                this.snackBar.open('Déconnexion, une erreur.', '×', {
+                  panelClass: 'success',
+                  verticalPosition: 'top',
+                  duration: 3000,
+                });
+                window.location.href = '/sign-in';
+              }
+            }
+          })
         }
       }
     });
   }
 
-  envoyerEnCaisse(venteId:any){
+  envoyerEnCaisse(venteId: any) {
+
     this.ventesService.envoyerVentreCreditEnCaisse(
       venteId
     ).subscribe({
@@ -1262,39 +1347,44 @@ export class EncaisserVenteComponent implements OnInit {
           verticalPosition: 'top',
           duration: 3000
         });
+
         this.fetchVentesCreditPageable();
         this.onRefresh();
       },
       error: (err) => {
         console.error('Error fetching commandes:', err);
-        if (err.status === 401 || err.status === 403){
+
+        if (err.status === 401 || err.status === 403) {
+
           this.authService.logout().subscribe({
-                  next: (data) => {
-                    localStorage.removeItem('token');
-                    localStorage.setItem("lastLink", window.location.href);
-                    window.location.href = '/sign-in';
-                    this.snackBar.open('Déconnexion réussie.', '×', {
-                      panelClass: 'success',
-                      verticalPosition: 'top',
-                      duration: 3000,
-                    });
-                  },
-                  error: (err) => {
-                    console.error('Error  subscription:', err);
-                    if (err.status === 401 || err.status === 403) {
-                      this.authService.logout();
-                      localStorage.removeItem('token');
-                      localStorage.setItem("lastLink", window.location.href);
-                      ;
-                      this.snackBar.open('Déconnexion, une erreur.', '×', {
-                        panelClass: 'success',
-                        verticalPosition: 'top',
-                        duration: 3000,
-                      });
-                      window.location.href = '/sign-in';
-                    }
-                  }
-                })
+            next: (data) => {
+              localStorage.removeItem('token');
+              localStorage.setItem("lastLink", window.location.href);
+              window.location.href = '/sign-in';
+              this.snackBar.open('Déconnexion réussie.', '×', {
+                panelClass: 'success',
+                verticalPosition: 'top',
+                duration: 3000,
+              });
+
+            },
+            error: (err) => {
+
+              console.error('Error  subscription:', err);
+              if (err.status === 401 || err.status === 403) {
+                this.authService.logout();
+                localStorage.removeItem('token');
+                localStorage.setItem("lastLink", window.location.href);
+                ;
+                this.snackBar.open('Déconnexion, une erreur.', '×', {
+                  panelClass: 'success',
+                  verticalPosition: 'top',
+                  duration: 3000,
+                });
+                window.location.href = '/sign-in';
+              }
+            }
+          })
         }
       }
     });

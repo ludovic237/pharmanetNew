@@ -29,6 +29,7 @@ import {MatPaginator, MatPaginatorModule, PageEvent} from "@angular/material/pag
 import {AuthService} from "@services/auth.service";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {AddProductDialogComponent} from "./add-product-dialog/add-product-dialog.component";
+import {LoaderService} from "@services/loader.service";
 
 @Component({
   selector: 'app-product-list',
@@ -76,6 +77,7 @@ export class ProductListComponent implements OnInit {
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
    constructor(
+     public loaderService: LoaderService,
     public authService: AuthService,
     public snackBar:MatSnackBar,
     public appService: AppService,
@@ -104,14 +106,17 @@ export class ProductListComponent implements OnInit {
         if (this.page > 0) {
           this.page = 0
         }
+
         this.productService.searchProducts(searchTerm, this.page - 1, this.count).subscribe({
           // this.productService.searchProducts(this.searchTerm, this.page, this.count).subscribe({
           next: (data: any) => {
             this.count = data.pageable.pageSize;
             this.totalItems = data.totalElements;
             this.products = data.content; // Les produits pour la page actuelle
+
           },
           error: (err) => {
+
             console.error('Error searching products:', err);
           }
         });
@@ -128,13 +133,16 @@ export class ProductListComponent implements OnInit {
   }
 
   public getAllProducts() {
+
     this.productService.getProducts(this.page - 1, this.count).subscribe({
       next: (data: any) => {
         this.count = data.pageable.pageSize;
         this.totalItems = data.totalElements;
         this.products = data.content; // Les produits pour la page actuelle
+
       },
         error: (err) => {
+
            if (err.status === 401 || err.status === 403){
              this.authService.logout();
              this.snackBar.open('Déconnexion réussie.', '×', {
@@ -152,15 +160,18 @@ export class ProductListComponent implements OnInit {
 
   public searchProducts(): void {
     console.log('Searching for products with term:', this.form.value);
+
     this.productService.searchProducts(this.searchText, this.page - 1, this.count).subscribe({
       // this.productService.searchProducts(this.searchTerm, this.page, this.count).subscribe({
       next: (data: any) => {
         this.count = data.pageable.pageSize;
         this.totalItems = data.totalElements;
         this.products = data.content; // Les produits pour la page actuelle
+
       },
       error: (err) => {
         console.error('Error searching products:', err);
+
       }
     });
   }
@@ -211,12 +222,15 @@ export class ProductListComponent implements OnInit {
   }
 
   public getCategories() {
+
     this.categorieService.getCategories().subscribe({
       next: (data) => {
         this.categories = data;
         this.getAllProducts();
+
       },
         error: (err) => {
+
            if (err.status === 401 || err.status === 403){
              this.authService.logout();
              this.snackBar.open('Déconnexion réussie.', '×', {
@@ -244,6 +258,7 @@ export class ProductListComponent implements OnInit {
   }
 
   getDetailProduit(product: any) {
+
     this.productService.getProduitDetails(product.id).subscribe({
       next: (data) => {
         // const dialogRef = this.dialog.open(DetailProduitDialogComponent, {
@@ -265,8 +280,10 @@ export class ProductListComponent implements OnInit {
             }
           }
         });
+
       },
         error: (err) => {
+
            if (err.status === 401 || err.status === 403){
              this.authService.logout();
              this.snackBar.open('Déconnexion réussie.', '×', {

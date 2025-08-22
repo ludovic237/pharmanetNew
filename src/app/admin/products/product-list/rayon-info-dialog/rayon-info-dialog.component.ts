@@ -40,6 +40,7 @@ import {AuthService} from "@services/auth.service";
 import {MatPaginatorModule} from "@angular/material/paginator";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {AppService} from "@services/app.service";
+import {LoaderService} from "@services/loader.service";
 
 @Component({
   selector: 'app-rayon-info-dialog',
@@ -150,6 +151,7 @@ export class RayonInfoDialogComponent {
   detailForm: FormGroup;
 
    constructor(
+     public loaderService: LoaderService,
     public authService: AuthService,
     public appService: AppService,
     public snackBar:MatSnackBar,
@@ -177,6 +179,7 @@ export class RayonInfoDialogComponent {
   onSave(): void {
     if (this.detailForm.valid) {
       this.detailForm.value.datePeremption =  this.appService.formatDate(this.detailForm.value.datePeremption+"")
+
       this.enRayonService.mettreAJourProduitEnRayon(this.detailForm.value).subscribe({
         next: () => {
           this.snackBar.open('Rayon mis a jour.', '×', {
@@ -185,8 +188,10 @@ export class RayonInfoDialogComponent {
             duration: 3000,
           });
           this.dialogRef.close(this.detailForm.value);
+
         },
         error: (err) => {
+
           this.snackBar.open('Mise a jour echoue', '×', {
             panelClass: 'error',
             verticalPosition: 'top',

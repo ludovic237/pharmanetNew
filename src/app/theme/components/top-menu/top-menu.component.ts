@@ -25,24 +25,25 @@ import {CommonModule} from "@angular/common";
   templateUrl: './top-menu.component.html'
 })
 export class TopMenuComponent implements OnInit {
-  username = localStorage.getItem('nom')
+  username: any = null;
   hasToken: boolean = false;
   public currencies = ['USD', 'EUR'];
   public currency: any;
 
   public settings: Settings;
 
-   constructor(
+  constructor(
     public authService: AuthService,
-    public snackBar:MatSnackBar,public settingsService: SettingsService,
-              public appService: AppService,
-              public translateService: TranslateService) {
+    public snackBar: MatSnackBar, public settingsService: SettingsService,
+    public appService: AppService,
+    public translateService: TranslateService) {
     this.settings = this.settingsService.settings;
   }
 
   ngOnInit() {
+    // this.username = !!localStorage.getItem('nom')
     this.currency = this.currencies[0];
-    this.hasToken = !!localStorage.getItem('token');
+    // this.hasToken = !!localStorage.getItem('token');
 
 
   }
@@ -72,8 +73,9 @@ export class TopMenuComponent implements OnInit {
   logoutUser(): void {
     this.authService.logout().subscribe({
       next: () => {
-         localStorage.removeItem('token');
-          localStorage.setItem("lastLink",window.location.href);;
+        localStorage.removeItem('token');
+        localStorage.setItem("lastLink", window.location.href);
+        ;
         this.snackBar.open('Déconnexion réussie.', '×', {
           panelClass: 'success',
           verticalPosition: 'top',

@@ -5,9 +5,8 @@ import {
   KpiDto, SalesMonthlyPoint, CategorySales, TopProduct,
   OrderRow, StockAlertRow
 } from './../../model/data';
-import { BehaviorSubject, Subject, combineLatest, switchMap, takeUntil } from 'rxjs';
+import {BehaviorSubject, Subject, combineLatest, switchMap, takeUntil} from 'rxjs';
 import {DashboardService} from "@services/dashboard.service";
-import {HttpClientModule} from "@angular/common/http";
 import {MatCardModule} from "@angular/material/card";
 import {MatFormFieldModule} from "@angular/material/form-field";
 import {MatInputModule} from "@angular/material/input";
@@ -40,19 +39,23 @@ import {MatRadioModule} from "@angular/material/radio";
 import {MatSnackBar, MatSnackBarModule} from "@angular/material/snack-bar";
 import {NgxPaginationModule} from "ngx-pagination";
 import {AuthService} from "@services/auth.service";
+import {LoaderService} from "@services/loader.service";
 
 function toIso(dt: Date, endOfDay = false): string {
   if (!dt) return '';
   const d = new Date(dt);
-  if (endOfDay) { d.setHours(23, 59, 59, 999); } else { d.setHours(0, 0, 0, 0); }
+  if (endOfDay) {
+    d.setHours(23, 59, 59, 999);
+  } else {
+    d.setHours(0, 0, 0, 0);
+  }
   // Format ISO local without timezone shift expected by backend DateTime ISO
-  return d.toISOString().slice(0,19);
+  return d.toISOString().slice(0, 19);
 }
 
 @Component({
   selector: 'app-dashboard-new',
   imports: [
-    HttpClientModule,
     ReactiveFormsModule,
     // Material
     MatCardModule, MatFormFieldModule, MatInputModule,
@@ -132,11 +135,11 @@ export class DashboardNewComponent implements OnInit, OnDestroy {
   stockAlerts: StockAlertRow[] = [];
 
   // tables
-  displayedColumnsOrders = ['id','ref','fournisseur','montantCmd','etat','dateCreation','actions'];
-  displayedColumnsStock = ['produit','quantiteRestante','datePeremption'];
+  displayedColumnsOrders = ['id', 'ref', 'fournisseur', 'montantCmd', 'etat', 'dateCreation', 'actions'];
+  displayedColumnsStock = ['produit', 'quantiteRestante', 'datePeremption'];
 
-  public lineChartData: ChartData<'line'> = { labels: [], datasets: [] };
-  public pieChartData: ChartData<'pie'> = { labels: [], datasets: [] };
+  public lineChartData: ChartData<'line'> = {labels: [], datasets: []};
+  public pieChartData: ChartData<'pie'> = {labels: [], datasets: []};
 
   // charts (ng2-charts)
   salesMonthlyLabels: string[] = [];
@@ -144,12 +147,13 @@ export class DashboardNewComponent implements OnInit, OnDestroy {
   catLabels: string[] = [];
   catRaw: { data: number[]; label: string }[] = [];
 
-  public barChartData: ChartData<'bar'> = { labels: [], datasets: [] };
+  public barChartData: ChartData<'bar'> = {labels: [], datasets: []};
 
 
   isPlatformBrowser: boolean;
 
   constructor(
+    public loaderService: LoaderService,
     public authService: AuthService,
     private fb: FormBuilder,
     private api: DashboardService,
@@ -160,40 +164,46 @@ export class DashboardNewComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     // charger les tables statiques
+
     this.api.ordersRecent(0, 8).subscribe({
       next: (r: any[]) => {
         this.ordersRecent = r
+
       },
       error: (err) => {
         console.error('Error fetching commandes:', err);
+
         if (err.status === 401 || err.status === 403) {
+
           this.authService.logout().subscribe({
-                  next: (data) => {
-                    localStorage.removeItem('token');
-                    localStorage.setItem("lastLink", window.location.href);
-                    window.location.href = '/sign-in';
-                    this.snackBar.open('Déconnexion réussie.', '×', {
-                      panelClass: 'success',
-                      verticalPosition: 'top',
-                      duration: 3000,
-                    });
-                  },
-                  error: (err) => {
-                    console.error('Error  subscription:', err);
-                    if (err.status === 401 || err.status === 403) {
-                      this.authService.logout();
-                      localStorage.removeItem('token');
-                      localStorage.setItem("lastLink", window.location.href);
-                      ;
-                      this.snackBar.open('Déconnexion, une erreur.', '×', {
-                        panelClass: 'success',
-                        verticalPosition: 'top',
-                        duration: 3000,
-                      });
-                      window.location.href = '/sign-in';
-                    }
-                  }
-                })
+            next: (data) => {
+
+              localStorage.removeItem('token');
+              localStorage.setItem("lastLink", window.location.href);
+              window.location.href = '/sign-in';
+              this.snackBar.open('Déconnexion réussie.', '×', {
+                panelClass: 'success',
+                verticalPosition: 'top',
+                duration: 3000,
+              });
+            },
+            error: (err) => {
+
+              console.error('Error  subscription:', err);
+              if (err.status === 401 || err.status === 403) {
+                this.authService.logout();
+                localStorage.removeItem('token');
+                localStorage.setItem("lastLink", window.location.href);
+                ;
+                this.snackBar.open('Déconnexion, une erreur.', '×', {
+                  panelClass: 'success',
+                  verticalPosition: 'top',
+                  duration: 3000,
+                });
+                window.location.href = '/sign-in';
+              }
+            }
+          })
         }
       }
     });
@@ -201,37 +211,42 @@ export class DashboardNewComponent implements OnInit, OnDestroy {
     this.api.stockAlerts(10, 30, 10).subscribe({
       next: (r: any[]) => {
         this.stockAlerts = r;
+
       },
       error: (err) => {
+
         console.error('Error fetching commandes:', err);
         if (err.status === 401 || err.status === 403) {
+
           this.authService.logout().subscribe({
-                  next: (data) => {
-                    localStorage.removeItem('token');
-                    localStorage.setItem("lastLink", window.location.href);
-                    window.location.href = '/sign-in';
-                    this.snackBar.open('Déconnexion réussie.', '×', {
-                      panelClass: 'success',
-                      verticalPosition: 'top',
-                      duration: 3000,
-                    });
-                  },
-                  error: (err) => {
-                    console.error('Error  subscription:', err);
-                    if (err.status === 401 || err.status === 403) {
-                      this.authService.logout();
-                      localStorage.removeItem('token');
-                      localStorage.setItem("lastLink", window.location.href);
-                      ;
-                      this.snackBar.open('Déconnexion, une erreur.', '×', {
-                        panelClass: 'success',
-                        verticalPosition: 'top',
-                        duration: 3000,
-                      });
-                      window.location.href = '/sign-in';
-                    }
-                  }
-                })
+            next: (data) => {
+
+              localStorage.removeItem('token');
+              localStorage.setItem("lastLink", window.location.href);
+              window.location.href = '/sign-in';
+              this.snackBar.open('Déconnexion réussie.', '×', {
+                panelClass: 'success',
+                verticalPosition: 'top',
+                duration: 3000,
+              });
+            },
+            error: (err) => {
+
+              console.error('Error  subscription:', err);
+              if (err.status === 401 || err.status === 403) {
+                this.authService.logout();
+                localStorage.removeItem('token');
+                localStorage.setItem("lastLink", window.location.href);
+                ;
+                this.snackBar.open('Déconnexion, une erreur.', '×', {
+                  panelClass: 'success',
+                  verticalPosition: 'top',
+                  duration: 3000,
+                });
+                window.location.href = '/sign-in';
+              }
+            }
+          })
         }
       }
     });
@@ -248,14 +263,14 @@ export class DashboardNewComponent implements OnInit, OnDestroy {
 
   formatMoney(n?: number | null): string {
     if (n == null) return '—';
-    return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'XAF' }).format(n);
+    return new Intl.NumberFormat('fr-FR', {style: 'currency', currency: 'XAF'}).format(n);
   }
 
   ngOnDestroy(): void {
     // this.destroy$.next(); this.destroy$.complete();
   }
 
-  fetchVentesPageable(){
+  fetchVentesPageable() {
     const formatDate = (date: string | null): string | null => {
       if (!date) return null;
       const parsedDate = new Date(date);
@@ -264,10 +279,10 @@ export class DashboardNewComponent implements OnInit, OnDestroy {
     // Rafraîchir tout à chaque changement de période
 
     combineLatest([
-      this.api.kpis(formatDate(this.startDateVente+""), formatDate(this.endDateVente+"")),
-      this.api.salesMonthly(formatDate(this.startDateVente+""), formatDate(this.endDateVente+"")),
-      this.api.salesByCategory(formatDate(this.startDateVente+""), formatDate(this.endDateVente+"")),
-      this.api.topProducts(10, formatDate(this.startDateVente+""), formatDate(this.endDateVente+"")),
+      this.api.kpis(formatDate(this.startDateVente + ""), formatDate(this.endDateVente + "")),
+      this.api.salesMonthly(formatDate(this.startDateVente + ""), formatDate(this.endDateVente + "")),
+      this.api.salesByCategory(formatDate(this.startDateVente + ""), formatDate(this.endDateVente + "")),
+      this.api.topProducts(10, formatDate(this.startDateVente + ""), formatDate(this.endDateVente + "")),
     ]).subscribe({
       next: ([kpi, monthly, byCat, top]) => {
         this.kpi = kpi;
@@ -281,7 +296,7 @@ export class DashboardNewComponent implements OnInit, OnDestroy {
         // this.catData = [{ data: byCat.map(x => x.total), label: 'Répartition' }];
 
         this.catLabels = byCat.map(c => c.categorie);
-        this.catRaw    = [{ data: byCat.map(c => c.total), label: 'Répartition' }];
+        this.catRaw = [{data: byCat.map(c => c.total), label: 'Répartition'}];
 
         this.pieChartData = {
           labels: this.catLabels,
@@ -289,7 +304,7 @@ export class DashboardNewComponent implements OnInit, OnDestroy {
         };
 
         this.salesMonthlyLabels = monthly.map(m => m.mois);
-        this.salesMonthlyRaw    = [{ data: monthly.map(m => m.total), label: 'Ventes' }];
+        this.salesMonthlyRaw = [{data: monthly.map(m => m.total), label: 'Ventes'}];
 
         // compose le ChartData complet
         this.lineChartData = {
@@ -303,41 +318,45 @@ export class DashboardNewComponent implements OnInit, OnDestroy {
         this.barChartData = {
           labels: top.map(p => p.nom),
           datasets: [
-            { data: top.map(p => p.qty), label: 'Quantité vendue' }
+            {data: top.map(p => p.qty), label: 'Quantité vendue'}
           ]
         };
 
       },
       error: (err) => {
+
         console.error('Error fetching commandes:', err);
         if (err.status === 401 || err.status === 403) {
+
           this.authService.logout().subscribe({
-                  next: (data) => {
-                    localStorage.removeItem('token');
-                    localStorage.setItem("lastLink", window.location.href);
-                    window.location.href = '/sign-in';
-                    this.snackBar.open('Déconnexion réussie.', '×', {
-                      panelClass: 'success',
-                      verticalPosition: 'top',
-                      duration: 3000,
-                    });
-                  },
-                  error: (err) => {
-                    console.error('Error  subscription:', err);
-                    if (err.status === 401 || err.status === 403) {
-                      this.authService.logout();
-                      localStorage.removeItem('token');
-                      localStorage.setItem("lastLink", window.location.href);
-                      ;
-                      this.snackBar.open('Déconnexion, une erreur.', '×', {
-                        panelClass: 'success',
-                        verticalPosition: 'top',
-                        duration: 3000,
-                      });
-                      window.location.href = '/sign-in';
-                    }
-                  }
-                })
+            next: (data) => {
+              localStorage.removeItem('token');
+              localStorage.setItem("lastLink", window.location.href);
+              window.location.href = '/sign-in';
+              this.snackBar.open('Déconnexion réussie.', '×', {
+                panelClass: 'success',
+                verticalPosition: 'top',
+                duration: 3000,
+              });
+
+            },
+            error: (err) => {
+              console.error('Error  subscription:', err);
+
+              if (err.status === 401 || err.status === 403) {
+                this.authService.logout();
+                localStorage.removeItem('token');
+                localStorage.setItem("lastLink", window.location.href);
+                ;
+                this.snackBar.open('Déconnexion, une erreur.', '×', {
+                  panelClass: 'success',
+                  verticalPosition: 'top',
+                  duration: 3000,
+                });
+                window.location.href = '/sign-in';
+              }
+            }
+          })
         }
       }
     });

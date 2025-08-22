@@ -1,28 +1,31 @@
-import { Component, ElementRef, Inject, ViewChild, ViewEncapsulation } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { MatIconModule } from '@angular/material/icon';
+import {Component, ElementRef, Inject, ViewChild, ViewEncapsulation} from '@angular/core';
+import {MatButtonModule} from '@angular/material/button';
+import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
+import {MatIconModule} from '@angular/material/icon';
 import {AuthService} from "@services/auth.service";
 import {MatSnackBar} from "@angular/material/snack-bar";
+import {LoaderService} from "@services/loader.service";
 
 @Component({
-    selector: 'app-product-zoom',
-    imports: [
-        MatButtonModule,
-        MatIconModule
-    ],
-    templateUrl: './product-zoom.component.html',
-    styleUrl: './product-zoom.component.scss',
-    encapsulation: ViewEncapsulation.None,
-    exportAs: 'admin-product-zoom'
+  selector: 'app-product-zoom',
+  imports: [
+    MatButtonModule,
+    MatIconModule
+  ],
+  templateUrl: './product-zoom.component.html',
+  styleUrl: './product-zoom.component.scss',
+  encapsulation: ViewEncapsulation.None,
+  exportAs: 'admin-product-zoom'
 })
 export class ProductZoomComponent {
-  @ViewChild('zoomImage', { static: true }) zoomImage: ElementRef;
+  @ViewChild('zoomImage', {static: true}) zoomImage: ElementRef;
 
-   constructor(
+  constructor(
+    public loaderService: LoaderService,
     public authService: AuthService,
-    public snackBar:MatSnackBar,public dialogRef: MatDialogRef<ProductZoomComponent>,
-              @Inject(MAT_DIALOG_DATA) public image: any) { }
+    public snackBar: MatSnackBar, public dialogRef: MatDialogRef<ProductZoomComponent>,
+    @Inject(MAT_DIALOG_DATA) public image: any) {
+  }
 
   public close(): void {
     this.dialogRef.close();
@@ -30,6 +33,7 @@ export class ProductZoomComponent {
 
   public count: number = 10;
   public maxWidth: number = 60;
+
   public zoomIn() {
     if (this.count < 60) {
       this.maxWidth = this.maxWidth + this.count;

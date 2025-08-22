@@ -17,7 +17,11 @@ export class AuthService {
   private loggedIn = new BehaviorSubject<boolean>(false);
 
   private getHeaders(): HttpHeaders {
-    const token = localStorage.getItem('token');
+    let token : string|null = null
+
+    if (typeof window !== 'undefined' && typeof localStorage!=='undefined'){
+      token = localStorage.getItem('token')
+    }
     return new HttpHeaders({
       'Authorization': `Bearer ${token}`
     });

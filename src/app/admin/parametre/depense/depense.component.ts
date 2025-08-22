@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import {Component} from '@angular/core';
 import {CommonModule} from "@angular/common";
 import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
 import {MatTabsModule} from "@angular/material/tabs";
@@ -20,6 +20,7 @@ import {MatSnackBar} from "@angular/material/snack-bar";
 import {MatDatepickerModule} from "@angular/material/datepicker";
 import {MatNativeDateModule} from "@angular/material/core";
 import {MatPaginatorModule, PageEvent} from "@angular/material/paginator";
+import {LoaderService} from "@services/loader.service";
 
 @Component({
   selector: 'app-depense',
@@ -59,6 +60,7 @@ export class DepenseComponent {
   public countDepense = 10;
 
   constructor(
+    public loaderService: LoaderService,
     public authService: AuthService,
     private fb: FormBuilder, private depenseService: DepenseService, private snackBar: MatSnackBar) {
     this.depenseForm = this.fb.group({
@@ -81,8 +83,9 @@ export class DepenseComponent {
   }
 
   loadDepenses(): void {
+
     this.depenseService.getAllDepensesPageable(this.pageDepense - 1, this.countDepense).subscribe({
-      next: (data:any) => {
+      next: (data: any) => {
         this.depenses = data.content
         this.countDepense = data.pageable.pageSize;
         this.totalItemsDepense = data.totalElements;
@@ -93,36 +96,40 @@ export class DepenseComponent {
           duration: 3000
         });
       },
-      error: (err:any) => {
+      error: (err: any) => {
+
         this.snackBar.open('Failed to load depenses', '×', {panelClass: 'error', duration: 3000})
         if (err.status === 401 || err.status === 403) {
+
           this.authService.logout().subscribe({
-                  next: (data) => {
-                    localStorage.removeItem('token');
-                    localStorage.setItem("lastLink", window.location.href);
-                    window.location.href = '/sign-in';
-                    this.snackBar.open('Déconnexion réussie.', '×', {
-                      panelClass: 'success',
-                      verticalPosition: 'top',
-                      duration: 3000,
-                    });
-                  },
-                  error: (err) => {
-                    console.error('Error  subscription:', err);
-                    if (err.status === 401 || err.status === 403) {
-                      this.authService.logout();
-                      localStorage.removeItem('token');
-                      localStorage.setItem("lastLink", window.location.href);
-                      ;
-                      this.snackBar.open('Déconnexion, une erreur.', '×', {
-                        panelClass: 'success',
-                        verticalPosition: 'top',
-                        duration: 3000,
-                      });
-                      window.location.href = '/sign-in';
-                    }
-                  }
-                })
+            next: (data) => {
+
+              localStorage.removeItem('token');
+              localStorage.setItem("lastLink", window.location.href);
+              window.location.href = '/sign-in';
+              this.snackBar.open('Déconnexion réussie.', '×', {
+                panelClass: 'success',
+                verticalPosition: 'top',
+                duration: 3000,
+              });
+            },
+            error: (err) => {
+
+              console.error('Error  subscription:', err);
+              if (err.status === 401 || err.status === 403) {
+                this.authService.logout();
+                localStorage.removeItem('token');
+                localStorage.setItem("lastLink", window.location.href);
+                ;
+                this.snackBar.open('Déconnexion, une erreur.', '×', {
+                  panelClass: 'success',
+                  verticalPosition: 'top',
+                  duration: 3000,
+                });
+                window.location.href = '/sign-in';
+              }
+            }
+          })
         }
       }
     });
@@ -131,6 +138,7 @@ export class DepenseComponent {
   createDepense(): void {
 
     if (this.depenseForm.valid) {
+
       this.depenseService.createDepense(this.depenseForm.value).subscribe({
         next: () => {
           this.snackBar.open('Depense created successfully', '×', {panelClass: 'success', duration: 3000});
@@ -139,9 +147,11 @@ export class DepenseComponent {
           this.depenseForm.markAsPristine();
           this.depenseForm.markAsUntouched();
           this.depenseForm.updateValueAndValidity();
+
           // this.depenseForm.;
         },
         error: (err) => {
+
           this.snackBar.open('Failed to create depense', '×', {panelClass: 'error', duration: 3000})
           if (err.status === 401 || err.status === 403) {
             this.authService.logout();
@@ -159,41 +169,47 @@ export class DepenseComponent {
   }
 
   deleteDepense(id: number): void {
+
     this.depenseService.deleteDepense(id).subscribe({
       next: () => {
         this.snackBar.open('Depense deleted successfully', '×', {panelClass: 'success', duration: 3000});
         this.loadDepenses();
+
       },
       error: (err) => {
+
         this.snackBar.open('Failed to delete depense', '×', {panelClass: 'error', duration: 3000})
         if (err.status === 401 || err.status === 403) {
+
           this.authService.logout().subscribe({
-                  next: (data) => {
-                    localStorage.removeItem('token');
-                    localStorage.setItem("lastLink", window.location.href);
-                    window.location.href = '/sign-in';
-                    this.snackBar.open('Déconnexion réussie.', '×', {
-                      panelClass: 'success',
-                      verticalPosition: 'top',
-                      duration: 3000,
-                    });
-                  },
-                  error: (err) => {
-                    console.error('Error  subscription:', err);
-                    if (err.status === 401 || err.status === 403) {
-                      this.authService.logout();
-                      localStorage.removeItem('token');
-                      localStorage.setItem("lastLink", window.location.href);
-                      ;
-                      this.snackBar.open('Déconnexion, une erreur.', '×', {
-                        panelClass: 'success',
-                        verticalPosition: 'top',
-                        duration: 3000,
-                      });
-                      window.location.href = '/sign-in';
-                    }
-                  }
-                })
+            next: (data) => {
+
+              localStorage.removeItem('token');
+              localStorage.setItem("lastLink", window.location.href);
+              window.location.href = '/sign-in';
+              this.snackBar.open('Déconnexion réussie.', '×', {
+                panelClass: 'success',
+                verticalPosition: 'top',
+                duration: 3000,
+              });
+            },
+            error: (err) => {
+              console.error('Error  subscription:', err);
+
+              if (err.status === 401 || err.status === 403) {
+                this.authService.logout();
+                localStorage.removeItem('token');
+                localStorage.setItem("lastLink", window.location.href);
+                ;
+                this.snackBar.open('Déconnexion, une erreur.', '×', {
+                  panelClass: 'success',
+                  verticalPosition: 'top',
+                  duration: 3000,
+                });
+                window.location.href = '/sign-in';
+              }
+            }
+          })
         }
       }
     });
