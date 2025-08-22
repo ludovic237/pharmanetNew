@@ -23,6 +23,8 @@ import {AuthService} from "@services/auth.service";
 import {jsPDF} from "jspdf";
 import QRCode from "qrcode";
 import {LoaderService} from "@services/loader.service";
+import {MatToolbarModule} from "@angular/material/toolbar";
+import {AppService} from "@services/app.service";
 
 @Component({
   selector: 'app-ajouter-commande-dialog',
@@ -40,7 +42,8 @@ import {LoaderService} from "@services/loader.service";
     MatButtonModule, MatDividerModule, MatIconModule,
     MatTableModule,
     MatAutocompleteModule,
-    FlexLayoutModule
+    FlexLayoutModule,
+    MatToolbarModule
   ],
   templateUrl: './ajouter-commande-dialog.component.html',
   styleUrl: './ajouter-commande-dialog.component.scss'
@@ -56,7 +59,7 @@ export class AjouterCommandeDialogComponent implements OnInit {
   codeFournisseur: string = "00";
   typeCommande: string = 'en_attente';
   fournisseurId: string = '';
-  fournisseur: any = {};
+  fournisseur: any = null;
   defaultDateDePeremption: string;
 
   constructor(
@@ -66,6 +69,7 @@ export class AjouterCommandeDialogComponent implements OnInit {
     @Inject(MAT_DIALOG_DATA) public data: any,
     public snackBar: MatSnackBar,
     private fb: FormBuilder,
+    private appService: AppService,
     private productService: ProductService,
     private fournisseursService: FournisseursService,
     private commandesService: CommandesService) {
@@ -78,6 +82,10 @@ export class AjouterCommandeDialogComponent implements OnInit {
   ngOnInit(): void {
     this.updateColumns();
     this.searchFournisseur();
+    console.log("this.typeCommande")
+    console.log(this.typeCommande)
+    console.log("this.fournisseurId")
+    console.log(this.fournisseurId)
   }
 
   /*  updateColumns(): void {
@@ -132,14 +140,16 @@ export class AjouterCommandeDialogComponent implements OnInit {
   }
 
   addProduct(product: any): void {
+    console.log("fournisseur")
+    console.log(this.fournisseur)
     const productGroup = this.fb.group({
       id: [product.id],
-      codebarre: [product.id + "" + this.fournisseurs.find(fournisseur => fournisseur.id === this.fournisseurId).code + "" + formatDate(new Date(), 'yyyyMMddHHmmss', 'en-US')],
+      codebarre: [product.id + "" + this.fournisseur.code + "" + formatDate(new Date(), 'yyyyMMddHHmmss', 'en-US')],
       reductionMax: [product.reductionMax],
       ean13: [product.ean13],
       nom: [product.nom],
       stock: [product.stock],
-      datePeremption: [product.datePeremption],
+      datePeremption: new Date(product.datePeremption),
       uniteGratuite: [product.uniteGratuite],
       prix: [product.prix],
       type: [product.type],
@@ -147,7 +157,7 @@ export class AjouterCommandeDialogComponent implements OnInit {
       prixVente: [product.prixVente, [Validators.required, Validators.min(0)]],
       quantite: [1, [Validators.required, Validators.min(1)]],
       quantiteRecu: [this.typeCommande === 'en_cours' ? 0 : null, [Validators.min(0)]],
-      dateDePeremption: [this.typeCommande === 'livree' || this.typeCommande === 'en_cours' ? product.datePeremption : null]
+      dateDePeremption: [this.typeCommande === 'livree' || this.typeCommande === 'en_cours' ? new Date(product.datePeremption) : null]
     });
     console.log("productGroup");
     console.log(productGroup);
@@ -163,7 +173,7 @@ export class AjouterCommandeDialogComponent implements OnInit {
       const payload = {
         clientId: 0,
         employeId: 1,
-        fournisseurId: this.fournisseurId,
+        fournisseurId: this.fournisseur.id,
         produits: this.selectedProducts.value.map((product: any) => ({
           id: product.id,
           codebarre: product.codebarre,
@@ -173,9 +183,12 @@ export class AjouterCommandeDialogComponent implements OnInit {
           quantiteRecu: product.quantiteRecu ?? 0,
           prixAchat: product.prixAchat,
           prixVente: product.prixVente,
+          // dateDePeremption: product.dateDePeremption
+          //   ? new Date(product.dateDePeremption).toISOString().replace('T', ' ').split('.')[0]
+          //   : new Date().toISOString().replace('T', ' ').split('.')[0],
           dateDePeremption: product.dateDePeremption
-            ? new Date(product.dateDePeremption).toISOString().replace('T', ' ').split('.')[0]
-            : new Date().toISOString().replace('T', ' ').split('.')[0],
+            ? this.appService.formatDate(new Date(product.dateDePeremption)+"")
+            : this.appService.formatDate(new Date()+"")
         })),
         type: this.typeCommande
       };
@@ -220,11 +233,15 @@ export class AjouterCommandeDialogComponent implements OnInit {
     console.log(this.fournisseurId)
     console.log(this.selectedProducts.value.length)
     return this.typeCommande.trim() !== '' &&
-      this.fournisseurId !== '' &&
+      this.fournisseur != null &&
       this.selectedProducts.value.length > 0;
   }
 
-  generatePDF(product: any): Promise<void> {
+  generatePDF(product: any):Promise<void> {
+    console.log("generatePDF")
+    console.log(product)
+    console.log(this.fournisseurId)
+    console.log(this.codeFournisseur)
     return new Promise((resolve) => {
 
       const qte = product.quantite + product.uniteGratuite;
@@ -249,7 +266,7 @@ export class AjouterCommandeDialogComponent implements OnInit {
           doc.cell(0, 0, 30, 20, ' ', 0, 'center');
           doc.addImage(qrCodeDataUrl, 'JPEG', -2, -2, 22, 22);
           doc.setFontSize(7).text(`${product.prixVente || ''} F`, 19, 6);
-          doc.setFontSize(5).text(`${this.codeFournisseur || ''}`, 19, 8);
+          doc.setFontSize(5).text(`${this.fournisseur.code || ''}`, 19, 8);
           doc.setFontSize(4)
             .text(new Date(product.datePeremption || '').toLocaleString('fr-FR', {
               year: 'numeric',

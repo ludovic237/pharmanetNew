@@ -195,6 +195,7 @@ export class ProductDetailListComponent implements OnInit {
   }
 
   public onPageChanged(event: PageEvent) {
+    this.count = event.pageSize;
     if (this.searchText === "" || this.searchText === undefined) {
       if (this.page == 0) {
         this.page = 1
@@ -207,7 +208,6 @@ export class ProductDetailListComponent implements OnInit {
 
     } else {
       this.page = event.pageIndex + 1;
-      this.count = event.pageSize;
       this.searchProduitDetail()
     }
 

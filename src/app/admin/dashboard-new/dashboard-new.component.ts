@@ -279,10 +279,10 @@ export class DashboardNewComponent implements OnInit, OnDestroy {
     // Rafraîchir tout à chaque changement de période
 
     combineLatest([
-      this.api.kpis(formatDate(this.startDateVente + ""), formatDate(this.endDateVente + "")),
-      this.api.salesMonthly(formatDate(this.startDateVente + ""), formatDate(this.endDateVente + "")),
-      this.api.salesByCategory(formatDate(this.startDateVente + ""), formatDate(this.endDateVente + "")),
-      this.api.topProducts(10, formatDate(this.startDateVente + ""), formatDate(this.endDateVente + "")),
+      this.api.kpis(formatDate(new Date(new Date(this.startDateVente).setHours(0,0,0,0))+""), formatDate(new Date(new Date(this.endDateVente).setHours(23,59,59,999))+"")),
+      this.api.salesMonthly(formatDate(new Date(new Date(this.startDateVente).setHours(0,0,0,0))+""), formatDate(new Date(new Date(this.endDateVente).setHours(23,59,59,999))+"")),
+      this.api.salesByCategory(formatDate(new Date(new Date(this.startDateVente).setHours(0,0,0,0))+""), formatDate(new Date(new Date(this.endDateVente).setHours(23,59,59,999))+"")),
+      this.api.topProducts(10, formatDate(new Date(new Date(this.startDateVente).setHours(0,0,0,0))+""), formatDate(new Date(new Date(this.endDateVente).setHours(23,59,59,999))+"")),
     ]).subscribe({
       next: ([kpi, monthly, byCat, top]) => {
         this.kpi = kpi;

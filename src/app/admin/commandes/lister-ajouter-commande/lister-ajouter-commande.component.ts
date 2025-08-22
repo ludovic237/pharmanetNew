@@ -249,10 +249,9 @@ export class ListerAjouterCommandeComponent implements OnInit {
       const parsedDate = new Date(date);
       return `${parsedDate.getFullYear()}-${String(parsedDate.getMonth() + 1).padStart(2, '0')}-${String(parsedDate.getDate()).padStart(2, '0')}T${String(parsedDate.getHours()).padStart(2, '0')}:${String(parsedDate.getMinutes()).padStart(2, '0')}:${String(parsedDate.getSeconds()).padStart(2, '0')}`;
     };
-
-    const formattedStartDate = formatDate(this.startDate + "");
-    const formattedEndDate = formatDate(this.endDate + "");
-
+    console.log("fetchCommandesPageable")
+    const formattedStartDate = formatDate((new Date(new Date(this.startDate).setHours(0,0,0,0))) + "");
+    const formattedEndDate = formatDate((new Date(new Date(this.endDate).setHours(23,59,59,999))) + "");
     this.commandesService.fetchCommandesPageable(
       this.page - 1,
       this.count,
@@ -318,8 +317,8 @@ export class ListerAjouterCommandeComponent implements OnInit {
       return `${parsedDate.getFullYear()}-${String(parsedDate.getMonth() + 1).padStart(2, '0')}-${String(parsedDate.getDate()).padStart(2, '0')}T${String(parsedDate.getHours()).padStart(2, '0')}:${String(parsedDate.getMinutes()).padStart(2, '0')}:${String(parsedDate.getSeconds()).padStart(2, '0')}`;
     };
 
-    const formattedStartDate = formatDate(this.startDate + "");
-    const formattedEndDate = formatDate(this.endDate + "");
+    const formattedStartDate = formatDate(new Date(new Date(this.startDate).setHours(0,0,0,0)) + "");
+    const formattedEndDate = formatDate(new Date(new Date(this.endDate).setHours(23,59,59,999)) + "");
 
     this.commandesService.fetchCommandesPageablePrint(
       this.page - 1,

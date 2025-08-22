@@ -3,7 +3,28 @@
   <mat-card>
     <div fxLayout="row wrap" fxLayoutAlign="space-between center" class="w-100 p-3">
       <h2>Sortie de stock</h2>
-      <button mat-raised-button color="primary"  (click)="showSortieProduit()">Ajouter sortie d'un produit</button>
+      <div fxLayout="row" fxLayoutGap="8px" >
+        <form [formGroup]="form">
+          <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Entrer date operation</mat-label>
+            <mat-date-range-input [rangePicker]="picker">
+              <input matStartDate placeholder="Start date" formControlName="startDateOperation">
+              <input matEndDate placeholder="End date" formControlName="endDateOperation">
+            </mat-date-range-input>
+            <!--            <mat-hint>MM/DD/YYYY - MM/DD/YYYY</mat-hint>-->
+            <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-date-range-picker #picker>
+              <mat-date-range-picker-actions>
+                <button mat-button matDateRangePickerCancel>Annuler</button>
+                <button mat-button matDateRangePickerApply (click)="fetchSortieProduitsEnRayon()">Apply</button>
+              </mat-date-range-picker-actions>
+            </mat-date-range-picker>
+          </mat-form-field>
+        </form>
+        <mat-divider vertical></mat-divider>
+        <button class="mt-2" mat-raised-button color="primary"  (click)="showSortieProduit()">Ajouter sortie d'un produit</button>
+      </div>
+
     </div>
   </mat-card>
 </div>

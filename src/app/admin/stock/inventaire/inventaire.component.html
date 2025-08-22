@@ -9,39 +9,39 @@
 
 <div class="filters">
   <mat-card>
-    <div fxLayout="row wrap" class="mt-3">
+    <form [formGroup]="form" fxLayout="row wrap" class="mt-3">
       <div fxFlex="100" fxFlex.gt-md="25" class="px-2">
         <mat-form-field appearance="fill">
           <mat-label>État</mat-label>
-          <mat-select [(ngModel)]="etat" (ngModelChange)="fetchInventaire()">
-            <mat-option [value]="null">Tous</mat-option>
+          <mat-select formControlName="etat">
+            <mat-option value="null">Tous</mat-option>
             <mat-option value="actif">Actif</mat-option>
             <mat-option value="inactif">Inactif</mat-option>
           </mat-select>
         </mat-form-field>
       </div>
       <div fxFlex="100" fxFlex.gt-md="25" class="px-2">
-        <mat-form-field appearance="fill">
-          <mat-label>Date Début</mat-label>
-          <input matInput [matDatepicker]="startDatePicker" [(ngModel)]="dateDebut" (ngModelChange)="fetchInventaire()"
-                 placeholder="Date de début">
-          <mat-datepicker-toggle matSuffix [for]="startDatePicker"></mat-datepicker-toggle>
-          <mat-datepicker #startDatePicker></mat-datepicker>
-        </mat-form-field>
-      </div>
-      <div fxFlex="100" fxFlex.gt-md="25" class="px-2">
-        <mat-form-field appearance="fill">
-          <mat-label>Date Fin</mat-label>
-          <input matInput [matDatepicker]="endDatePicker" [(ngModel)]="dateFin" (ngModelChange)="fetchInventaire()"
-                 placeholder="Date de fin">
-          <mat-datepicker-toggle matSuffix [for]="endDatePicker"></mat-datepicker-toggle>
-          <mat-datepicker #endDatePicker></mat-datepicker>
+
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Entrer date </mat-label>
+          <mat-date-range-input [rangePicker]="picker">
+            <input matStartDate placeholder="Start date" formControlName="startDate">
+            <input matEndDate placeholder="End date" formControlName="endDate">
+          </mat-date-range-input>
+          <!--            <mat-hint>MM/DD/YYYY - MM/DD/YYYY</mat-hint>-->
+          <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+          <mat-date-range-picker #picker>
+            <mat-date-range-picker-actions>
+              <button mat-button matDateRangePickerCancel>Annuler</button>
+              <button mat-button matDateRangePickerApply (click)="fetchInventaire()">Apply</button>
+            </mat-date-range-picker-actions>
+          </mat-date-range-picker>
         </mat-form-field>
       </div>
       <div fxFlex="100" fxFlex.gt-md="25" class="px-2">
         <button mat-raised-button color="warn" (click)="resetFilters()">Réinitialiser</button>
       </div>
-    </div>
+    </form>
 
   </mat-card>
 </div>

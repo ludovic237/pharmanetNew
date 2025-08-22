@@ -16,7 +16,7 @@ import {MatMenuModule} from "@angular/material/menu";
 import {MatListModule} from "@angular/material/list";
 import {MatChipsModule} from "@angular/material/chips";
 import {MatSlideToggleModule} from "@angular/material/slide-toggle";
-import {FormControl, FormsModule, ReactiveFormsModule} from "@angular/forms";
+import {FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {MatCheckboxModule} from "@angular/material/checkbox";
 import {MatFormFieldModule} from "@angular/material/form-field";
 import {MatInputModule} from "@angular/material/input";
@@ -50,6 +50,7 @@ import {
   SortieSimpleProductDetailRayonDialogComponent
 } from "./sortie-simplet-product-detail-rayon-dialog/sortie-simple-product-detail-rayon-dialog.component";
 import {LoaderService} from "@services/loader.service";
+import {AppService} from "@services/app.service";
 
 @Component({
   selector: 'app-sortie',
@@ -113,6 +114,9 @@ import {LoaderService} from "@services/loader.service";
 })
 export class SortieComponent implements OnInit {
 
+  startDateOperation: Date | null = new Date(new Date().getFullYear(), 0, 1);
+  endDateOperation: Date | null = new Date();
+
   public settings: Settings;
   produitDetailOptions: any[] = [];
   produitDetailSearchControl = new FormControl('');
@@ -133,6 +137,7 @@ export class SortieComponent implements OnInit {
   public totalItems = 0;  // Default to 10 if undefined
   public count = 10;
   public id: any;
+  public form: FormGroup;
 
   constructor(
     public loaderService: LoaderService,
@@ -146,11 +151,16 @@ export class SortieComponent implements OnInit {
     public productService: ProductService,
     public ventesService: VentesService,
     public usersService: UsersService,
+    public appService: AppService,
     public prescripteursService: PrescripteursService,
     public domHandlerService: DomHandlerService,
     private activatedRoute: ActivatedRoute,
+    public formBuilder: FormBuilder,
     public dialog: MatDialog) {
-
+    this.form = this.formBuilder.group({
+      startDateOperation: [this.startDateOperation],
+      endDateOperation: [this.endDateOperation],
+    })
   }
 
   ngOnInit(): void {
@@ -262,20 +272,24 @@ export class SortieComponent implements OnInit {
 
   fetchSortieProduitsEnRayon(): void {
 
-    this.sortiesService.getSortieStockPageable(
+    this.sortiesService.getSortieStockPageableProductRange(
       this.page - 1,
       this.count,
       'id',
       'asc',
       this.nomProduit,
+      null,
+      "0",
+      this.appService.formatDate(new Date(new Date(this.form.get('startDateOperation').value + "").setHours(0, 0, 0, 0)) + ""),
+      this.appService.formatDate(new Date(new Date(this.form.get('endDateOperation').value).setHours(23, 59, 59, 0)) + ""),
       this.typeSortie,
       this.enRayonId,
       this.produitDetailId
     ).subscribe({
       next: (data: any) => {
-        this.count = data.pageable.pageSize;
+        this.count = data.pageSize;
         this.totalItems = data.totalElements;
-        this.sorties = data.content;
+        this.sorties = data.content.content;
         this.snackBar.open('Products fetched successfully!', '×', {
           panelClass: 'success',
           verticalPosition: 'top',

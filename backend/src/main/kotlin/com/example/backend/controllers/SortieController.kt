@@ -26,6 +26,8 @@ class SortieController(private val sortieStockService: SortieStockService) {
     @RequestParam(required = false) nomProduit: String?,
     @RequestParam(required = false) typeSortie: String?,
     @RequestParam(required = false) enRayonId: String?,
+    @RequestParam(required = false) startDate: String?,
+    @RequestParam(required = false) endDate: String?,
     @RequestParam(required = false) produitDetailId: String?,
     @RequestParam(required = false) search: String?,
     @RequestParam(defaultValue = "0") page: Int,

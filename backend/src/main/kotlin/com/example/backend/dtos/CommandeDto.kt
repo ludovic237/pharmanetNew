@@ -52,8 +52,8 @@ data class ProduitCmdRequest(
   val quantite: Int? = 0,
   val quantiteRecu: Int? = 0,
   val uniteGratuite: Int? = 0,
-  @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-  val dateDePeremption: LocalDateTime?,
+//  @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+  val dateDePeremption: String?,
   val prixUnitaire: Double?,
   val prixVente: Double?,
   val prixAchat: Double?,

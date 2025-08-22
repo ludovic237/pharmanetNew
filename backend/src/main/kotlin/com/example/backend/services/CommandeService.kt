@@ -181,6 +181,7 @@ class CommandeService(
       produitRequest.productId = produitRequest.id?.toLong()
 
       savedCommande.qtiteCmd = request.produits.sumOf { it.quantite!! }
+      savedCommande = commandeRepository.save(savedCommande)
       if (request.type.lowercase() === Commande.COMMANDE_LIVREE.lowercase()) {
         savedCommande.qtiteRecu = request.produits.sumOf { it.quantite!! }
         savedCommande = commandeRepository.save(savedCommande)
@@ -399,7 +400,7 @@ class CommandeService(
         this.reduction = 0
         this.fournisseur = commande.fournisseur
         this.dateLivraison = commande.dateLivraison ?: LocalDateTime.now()
-        this.datePeremption = produitCmd.dateDePeremption ?: LocalDateTime.now().plusDays(30)
+        this.datePeremption = LocalDateTime.parse(produitCmd.dateDePeremption!!) ?: LocalDateTime.now().plusDays(30)
 //        this.datePeremption = produitCmd.datePeremption?.plusDays(30) ?: LocalDateTime.now().plusDays(30)
         this.prixAchat = produitCmd.prixAchat?.toInt() ?: 0
         this.prixVente = produitCmd.prixVente?.toInt() ?: 0

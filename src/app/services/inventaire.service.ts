@@ -20,11 +20,11 @@ export class InventaireService {
     });
   }
 
-  getInventaire(page: number, size: number, etat: string | null, dateDebut: Date | null, dateFin: Date | null): Observable<any> {
+  getInventaire(page: number, size: number, etat: string | null, dateDebut: string | null, dateFin: string | null): Observable<any> {
     const params: any = {};
     if (etat) params.etat = etat;
-    if (dateDebut) params.dateDebut = dateDebut.toISOString();
-    if (dateFin) params.dateFin = dateFin.toISOString();
+    if (dateDebut) params.dateDebut = dateDebut;
+    if (dateFin) params.dateFin = dateFin;
 
     return this.http.get<any>(`${this.apiUrl}/list?page=${page}&size=${size}`, {params, headers: this.getHeaders()});
   }

@@ -4,7 +4,7 @@ import {MatMenuModule} from "@angular/material/menu";
 import {MatListModule} from "@angular/material/list";
 import {MatChipsModule} from "@angular/material/chips";
 import {MatSlideToggleModule} from "@angular/material/slide-toggle";
-import {FormsModule, ReactiveFormsModule} from "@angular/forms";
+import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {MatCheckboxModule} from "@angular/material/checkbox";
 import {MatFormFieldModule} from "@angular/material/form-field";
 import {MatInputModule} from "@angular/material/input";
@@ -40,6 +40,7 @@ import {
 import {InventaireValdationDialogComponent} from "./inventaire-valdation-dialog/inventaire-valdation-dialog.component";
 import {AuthService} from "@services/auth.service";
 import {LoaderService} from "@services/loader.service";
+import {AppService} from "@services/app.service";
 
 @Component({
   selector: 'app-inventaire',
@@ -93,6 +94,9 @@ import {LoaderService} from "@services/loader.service";
   styleUrl: './inventaire.component.scss'
 })
 export class InventaireComponent implements OnInit {
+  public form: FormGroup;
+  startDate: Date | null = new Date(new Date().getFullYear(), 0, 1);
+  endDate: Date | null = new Date();
 
   inventaire: any[] = [];
   displayedColumns: string[] = ['id', 'dateDebut', 'dateFin', 'etat', 'totalProduitsManquant', 'totalProduitsExcedent', 'totalProduitsEcart', 'actions'];
@@ -106,19 +110,35 @@ export class InventaireComponent implements OnInit {
   public count = 10;
 
   constructor(
+    public formBuilder: FormBuilder,
     public loaderService: LoaderService,
+    public appService: AppService,
     public authService: AuthService,
     public snackBar: MatSnackBar, private inventaireService: InventaireService,
     public dialog: MatDialog) {
+    this.form = this.formBuilder.group({
+      etat: ["null"],
+      startDate: [this.startDate],
+      endDate: [this.endDate],
+    })
   }
 
   ngOnInit(): void {
     this.fetchInventaire();
+    this.form.get('etat').valueChanges.subscribe(nomProduit => {
+      this.page = 1
+      this.fetchInventaire();
+    });
   }
 
   fetchInventaire(): void {
 
-    this.inventaireService.getInventaire(this.page - 1, this.count, this.etat, this.dateDebut, this.dateFin).subscribe({
+    this.inventaireService.getInventaire(
+      this.page - 1, this.count,
+      this.form.get('etat').value,
+      this.appService.formatDate(new Date(new Date(this.form.get('startDate').value).setHours(0,0,0,0))+""),
+      this.appService.formatDate(new Date(new Date(this.form.get('endDate').value).setHours(23,59,59,999))+""),
+    ).subscribe({
       next: (data: any) => {
         this.count = data.pageable.pageSize;
         this.totalItems = data.totalElements;

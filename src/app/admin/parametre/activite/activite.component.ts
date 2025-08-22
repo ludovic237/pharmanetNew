@@ -201,8 +201,8 @@ export class ActiviteComponent implements OnInit {
       this.page - 1,
       this.count,
       null,
-      this.appService.formatDate(this.rechercheForm.get("dateDebut").value),
-      this.appService.formatDate(this.rechercheForm.get("dateFin").value),
+      this.appService.formatDate(new Date(new Date(this.rechercheForm.get("dateDebut").value).setHours(0,0,0,0))+""),
+      this.appService.formatDate(new Date(new Date(this.rechercheForm.get("dateFin").value).setHours(23,59,59,999))+""),
       null,
       null,
       null,
@@ -263,8 +263,8 @@ export class ActiviteComponent implements OnInit {
       null,
       null,
       null,
-      this.appService.formatDate(this.rechercheForm.get("dateDebut").value),
-      this.appService.formatDate(this.rechercheForm.get("dateFin").value)
+      this.appService.formatDate(new Date(new Date(this.rechercheForm.get("dateDebut").value).setHours(0,0,0,0))+""),
+      this.appService.formatDate(new Date(new Date(this.rechercheForm.get("dateFin").value).setHours(23,59,59,999))+"")
     ).subscribe({
       next: (data: any) => {
         this.count = data.pageSize;

@@ -43,6 +43,10 @@ interface EnRayonRepository : JpaRepository<EnRayon, String>, JpaSpecificationEx
     produit: Int
   ): EnRayon
 
+  fun findTopByProduitIdOrderByDateLivraisonDesc(
+    produit: Int
+  ): EnRayon
+
   fun findAllByProduitIdAndSupprimer(produit: Int, supprimer: Int = 0): List<EnRayon>
   fun findAllByProduitIdInAndSupprimer(produitIdList: List<Int?>, supprimer: Int = 0): List<EnRayon>
   fun findAllByProduitIdAndSupprimerAndQuantiteRestanteGreaterThan(

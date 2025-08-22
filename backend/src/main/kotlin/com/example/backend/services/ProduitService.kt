@@ -265,7 +265,7 @@ class ProduitService(
     val produits = if (query.isNullOrBlank()) {
       produitRepository.findAll(pageable)
         .map {
-          val enRayon = enRayonRepository.findTopByProduitIdOrderByIdDesc(
+          val enRayon = enRayonRepository.findTopByProduitIdOrderByDateLivraisonDesc(
             it.id!!
           )
           mapOf(
@@ -287,7 +287,7 @@ class ProduitService(
     } else {
       produitRepository.findByNomContainingIgnoreCase(query, pageable)
         .map {
-          val enRayon = enRayonRepository.findTopByProduitIdOrderByIdDesc(
+          val enRayon = enRayonRepository.findTopByProduitIdOrderByDateLivraisonDesc(
             it.id!!
           )
           mapOf(
