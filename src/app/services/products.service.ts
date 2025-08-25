@@ -54,8 +54,13 @@ export class ProductService {
   }
 
   // Create a new product
-  createProduct(product: Product): Observable<Product> {
-    return this.http.post<Product>(`${this.baseUrl}`, product, {headers: this.getHeaders()});
+  createProduct(product: any): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}`, product, {headers: this.getHeaders()});
+  }
+
+  // Create a new product
+  createProducNewt(product: any): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/new`, product, {headers: this.getHeaders()});
   }
 
   // Update an existing product
@@ -126,5 +131,12 @@ export class ProductService {
   //   return this.http.delete<void>(`${this.baseUrl}/${productId}`, { headers: this.getHeaders() });
   // }
 
+  ajouterTousLesProduitsManquantEnRayon(): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/ajouter_tous_produits_manquant_en_rayon`, {headers: this.getHeaders()});
+  }
+
+  ajouterUnProduitManquantEnRayon(id: number): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/ajouter_produit_manquant_en_rayon?produitId=${id}`, {headers: this.getHeaders()});
+  }
 
 }

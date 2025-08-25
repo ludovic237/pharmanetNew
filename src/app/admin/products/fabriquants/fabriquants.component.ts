@@ -18,6 +18,7 @@ import {MatButtonModule} from '@angular/material/button';
 import {FabriquantService} from "@services/fabriquants.service";
 import {Fabriquant} from "@models/product";
 import {LoaderService} from "@services/loader.service";
+import {MatPaginatorModule, PageEvent} from "@angular/material/paginator";
 
 @Component({
   selector: 'app-fabriquants',
@@ -28,7 +29,8 @@ import {LoaderService} from "@services/loader.service";
     MatIconModule,
     MatDividerModule,
     PipesModule,
-    NgxPaginationModule
+    NgxPaginationModule,
+    MatPaginatorModule
   ],
   templateUrl: './fabriquants.component.html',
   styleUrl: './fabriquants.component.scss'
@@ -36,14 +38,14 @@ import {LoaderService} from "@services/loader.service";
 export class FabriquantsComponent implements OnInit {
   public fabriquants: any[] = [];
   // public fabriquants: Fabriquant[] = [];
-  public page: any;
+  public page: number = 1;
   public totalItems = 0;
-  public count = 6;
+  public count = 10;
   domHandlerService = inject(DomHandlerService);
   public settings: Settings;
 
   constructor(
-     public loaderService: LoaderService,
+    public loaderService: LoaderService,
     public authService: AuthService,
     public snackBar: MatSnackBar, public appService: AppService,
     public fabriquantService: FabriquantService, public dialog: MatDialog, public settingsService: SettingsService) {
@@ -56,11 +58,11 @@ export class FabriquantsComponent implements OnInit {
 
   public getFabriquants() {
 
-    this.fabriquantService.getFabriquants().subscribe({
-      next: (data) => {
-        this.fabriquants = data;
-        // this.count = this.fabriquants.length;
-        this.totalItems = data.length;
+    this.fabriquantService.getFabriquantsPage(this.page - 1, this.count).subscribe({
+      next: (data: any) => {
+        this.fabriquants = data.content;
+        this.count = data.pageable.pageSize;
+        this.totalItems = data.totalElements;
 
       },
       error: (err) => {
@@ -102,9 +104,11 @@ export class FabriquantsComponent implements OnInit {
     });
   }
 
-  public onPageChanged(event: any) {
-    this.page = event;
+  public onPageChanged(event: PageEvent) {
+    this.page = event.pageIndex+1;
+    this.count = event.pageSize;
     this.domHandlerService.winScroll(0, 0);
+    this.getFabriquants()
   }
 
   public openCategoryDialog(data: any) {

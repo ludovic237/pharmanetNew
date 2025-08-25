@@ -129,6 +129,49 @@ class ProduitService(
     return mapToProduitResponseDto(savedProduit)
   }
 
+  @Transactional
+  fun createProduitNew(request: ProduitResponseNewDto): Produit {
+    request.codeUbipharm?.let {
+      if (produitRepository.findByCodeUbipharmAndSupprimer(it).isPresent) {
+        throw ValidationException("Un produit avec le code-barres '${it}' existe déjà.")
+      }
+    }
+
+    var categorie = categorieRepository.findById(request.categorieId!!.toInt()).getOrNull()
+    var fabriquant = fabriquantRepository.findById(request.fabriquantId!!.toInt()).getOrNull()
+    var forme = formeRepository.findById(request.formeId!!.toInt()).getOrNull()
+    var magasin = magasinRepository.findById(request.magasinId!!.toInt()).getOrNull()
+    var rayon = rayonRepository.findById(request.rayonId!!.toInt()).getOrNull()
+
+
+    val produit = Produit().apply {
+      this.ean13 = request.ean13
+      this.codeLaborex = request.codeLaborex
+      this.codeUbipharm = request.codeUbipharm
+      this.reference = request.reference
+      this.nom = request.nom
+      this.stock = request.stock ?: 0
+      this.stockMax = request.stockMax ?: 0
+      this.stockMin = request.stockMin ?: 0
+      this.contenuDetail = request.contenuDetail
+      this.prixDetail = request.prixDetail.toString()
+      this.etat = request.etat
+//      this.createdAt = LocalDateTime.now()
+      this.reductionMax = request.reductionMax ?: 0
+//      this.grossisteId = request.grossisteId
+//      this.detailId = request.detailId
+      this.categorie = categorie
+      this.forme = forme
+      this.fabriquant = fabriquant
+      this.rayon = rayon
+      this.magasin = magasin
+      this.supprimer = 0
+    }
+    val savedProduit = produitRepository.save(produit)
+
+    return savedProduit
+  }
+
   fun getProduitById(id: Int): ProduitResponseDto {
     val produit = produitRepository.findById(id)
       .filter { it.supprimer == 0 }
@@ -264,56 +307,66 @@ class ProduitService(
     val pageable = PageRequest.of(page, size)
     val produits = if (query.isNullOrBlank()) {
       produitRepository.findAll(pageable)
-        .map {
+        .map { produit ->
           val enRayon = enRayonRepository.findTopByProduitIdOrderByDateLivraisonDesc(
-            it.id!!
+            produit.id!!
           )
-          mapOf(
-            "id" to it.id,
-            "reductionMax" to it.reductionMax,
-            "ean13" to it.ean13,
-            "nom" to it.nom,
-            "stock" to it.stock,
-            "prixAchat" to enRayon.prixAchat,
-            "prixVente" to enRayon.prixVente,
-            "datePeremption" to enRayon.datePeremption,
-            "quantite" to 1,
-            "uniteGratuite" to 0,
-            "stock" to it.stock,
-            "prix" to 0,
-            "type" to "produit"
-          )
+          enRayon.let {
+            mapOf(
+              "id" to produit.id,
+              "reductionMax" to produit.reductionMax,
+              "codebarre" to produit.codeUbipharm,
+              "ean13" to produit.ean13,
+              "nom" to produit.nom,
+              "categorieNom" to produit.categorie!!.nom,
+              "uniteMesure" to produit.forme!!.nom,
+              "stock" to produit.stock,
+              "prixAchatInitial" to (enRayon?.prixAchat ?: 0),
+              "prixVenteActuel" to (enRayon?.prixVente ?: 0),
+              "datePeremption" to (enRayon?.datePeremption ?: 0),
+              "quantite" to 1,
+              "uniteGratuite" to 0,
+              "quantiteTotaleEnStock" to produit.stock,
+              "prix" to 0,
+              "type" to "produit"
+            )
+          }
+
         }
     } else {
       produitRepository.findByNomContainingIgnoreCase(query, pageable)
-        .map {
+        .map { produit ->
           val enRayon = enRayonRepository.findTopByProduitIdOrderByDateLivraisonDesc(
-            it.id!!
+            produit.id!!
           )
-          mapOf(
-            "id" to it.id,
-            "reductionMax" to it.reductionMax,
-            "ean13" to it.ean13,
-            "nom" to it.nom,
-            "stock" to it.stock,
-            "prixAchat" to enRayon.prixAchat,
-            "prixVente" to enRayon.prixVente,
-            "datePeremption" to enRayon.datePeremption,
-            "quantite" to 1,
-            "uniteGratuite" to 0,
-            "stock" to it.stock,
-            "prix" to 0,
-            "type" to "produit"
-          )
+          enRayon.let {
+            mapOf(
+              "id" to produit.id,
+              "reductionMax" to produit.reductionMax,
+              "codebarre" to produit.codeUbipharm,
+              "ean13" to produit.ean13,
+              "nom" to produit.nom,
+              "categorieNom" to produit.categorie!!.nom,
+              "uniteMesure" to produit.forme!!.nom,
+              "stock" to produit.stock,
+              "prixAchatInitial" to (enRayon?.prixAchat ?: 0),
+              "prixVenteActuel" to (enRayon?.prixVente ?: 0),
+              "datePeremption" to (enRayon?.datePeremption ?: 0),
+              "quantite" to 1,
+              "uniteGratuite" to 0,
+              "quantiteTotaleEnStock" to produit.stock,
+              "prix" to 0,
+              "type" to "produit"
+            )
+          }
+
         }
     }
-
     val produitsMapped = produits
-    val mergedList = (produitsMapped)
-      .sortedBy { it["nom"]?.toString() }
+    val mergedList = (produitsMapped).toList()
     val paginatedList = mergedList
     val totalElements = produitsMapped.totalElements
-    return PageImpl(paginatedList, PageRequest.of(page, size), totalElements.toLong())
+    return PageImpl(mergedList as List<Map<String, Any?>>, PageRequest.of(page, size), totalElements.toLong())
   }
 
 
@@ -390,7 +443,7 @@ class ProduitService(
 
   @Transactional
   fun addOrUpdateProduitNew(id: Int, request: ProduitRequestNewDto): ProduitResponseDto {
-    if (id==0 || id==null){
+    if (id == 0 || id == null) {
       val produit = Produit()
       produit.ean13 = request.ean13
 //    produit.updatedAt = LocalDateTime.now()
@@ -417,8 +470,7 @@ class ProduitService(
 
       val savedProduit = produitRepository.save(produit)
       return mapToProduitResponseDto(savedProduit)
-    }
-    else {
+    } else {
       val produit = produitRepository.findById(id)
         .filter { it.supprimer == 0 }
         .orElseThrow { NotFoundException("Produit non trouvé avec ID: $id") }

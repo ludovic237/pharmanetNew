@@ -34,7 +34,13 @@
         <div fxLayout="row wrap">
             <div fxFlex="100">
                 <mat-card class="p-0 text-center">
-                    <pagination-controls class="product-pagination" [autoHide]="true" [maxSize]="5" (pageChange)="onPageChanged($event)"></pagination-controls>
+                  <mat-paginator
+                    [length]="totalItems"
+                    [pageSize]="count"
+                    (page)="onPageChanged($event)"
+                    [pageSizeOptions]="[5, 10, 25, 100]">
+
+                  </mat-paginator>
                 </mat-card>
             </div>
         </div>

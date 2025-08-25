@@ -312,10 +312,11 @@ export class ActiviteComponent implements OnInit {
 
   loadDepenses(): void {
 
-    this.depenseService.getAllDepenses().subscribe({
-      next: (data) => {
-        this.resultatsDepense = data
-
+    this.depenseService.getAllDepensesPageable(this.page - 1, this.count).subscribe({
+      next: (data:any) => {
+        this.resultatsDepense = data.content;
+        this.count = data.pageable.pageSize;
+        this.totalItems = data.totalElements;
       },
       error: () => {
 

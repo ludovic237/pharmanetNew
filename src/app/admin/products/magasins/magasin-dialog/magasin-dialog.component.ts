@@ -46,14 +46,15 @@ export class MagasinDialogComponent implements OnInit {
     this.form = this.fb.group({
       id: null,
       nom: [null, Validators.required],
+      code: [null, Validators.required],
     });
     if (this.data.type == "add") {
       this.title = "Ajouter une magasin"
     } else if (this.data.type == "update") {
       this.title = "Modifier magasin"
     }
-    if (this.data.magasin) {
-      this.form.patchValue(this.data.magasin);
+    if (this.data.category) {
+      this.form.patchValue(this.data.category);
     }
     ;
   }

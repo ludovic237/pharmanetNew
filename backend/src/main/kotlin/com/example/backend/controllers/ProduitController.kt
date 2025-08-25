@@ -38,6 +38,22 @@ class ProduitController(
 
   @CrossOrigin(origins = ["http://localhost:4200"])
   @PreAuthorize("isAuthenticated()")
+  @PostMapping("/new")
+  fun createProduitNew(@RequestBody request: ProduitResponseNewDto): ResponseEntity<Any> {
+    return try {
+      ResponseEntity.status(HttpStatus.CREATED).body(produitService.createProduitNew(request))
+    } catch (e: ValidationException) {
+      ResponseEntity.badRequest().body(mapOf("error" to e.message))
+    } catch (e: NotFoundException) {
+      ResponseEntity.status(HttpStatus.NOT_FOUND).body(mapOf("error" to e.message))
+    } catch (e: Exception) {
+      ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .body(mapOf("error" to "Erreur interne: ${e.localizedMessage}"))
+    }
+  }
+
+  @CrossOrigin(origins = ["http://localhost:4200"])
+  @PreAuthorize("isAuthenticated()")
   @GetMapping("/{id}")
   fun getProduitById(@PathVariable id: Int): ResponseEntity<Any> {
     return try {

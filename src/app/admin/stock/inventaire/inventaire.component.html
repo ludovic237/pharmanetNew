@@ -1,8 +1,8 @@
 <mat-toolbar color="primary" layou>
   <div fxLayout="row wrap" fxLayoutAlign="space-between center" class="w-100 p-3">
     <h2>Inventaire</h2>
-    <button mat-icon-button (click)="addItem()" aria-label="Add Inventaire">
-      <mat-icon>add</mat-icon>
+    <button mat-raised-button color="accent" (click)="addItem()" aria-label="Add Inventaire">
+      Nouvelle inventaire
     </button>
   </div>
 </mat-toolbar>
@@ -11,7 +11,7 @@
   <mat-card>
     <form [formGroup]="form" fxLayout="row wrap" class="mt-3">
       <div fxFlex="100" fxFlex.gt-md="25" class="px-2">
-        <mat-form-field appearance="fill">
+        <mat-form-field appearance="outline" class="w-100">
           <mat-label>État</mat-label>
           <mat-select formControlName="etat">
             <mat-option value="null">Tous</mat-option>
@@ -38,7 +38,7 @@
           </mat-date-range-picker>
         </mat-form-field>
       </div>
-      <div fxFlex="100" fxFlex.gt-md="25" class="px-2">
+      <div fxFlex="100" fxFlex.gt-md="25" class="px-2 mt-2">
         <button mat-raised-button color="warn" (click)="resetFilters()">Réinitialiser</button>
       </div>
     </form>

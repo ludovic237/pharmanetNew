@@ -62,6 +62,8 @@ export class AjouterCommandeDialogComponent implements OnInit {
   fournisseur: any = null;
   defaultDateDePeremption: string;
 
+  total: number = 0
+
   constructor(
     public loaderService: LoaderService,
     public authService: AuthService,
@@ -162,10 +164,12 @@ export class AjouterCommandeDialogComponent implements OnInit {
     console.log("productGroup");
     console.log(productGroup);
     this.selectedProducts.push(productGroup);
+    this.updateTotal()
   }
 
   removeProduct(index: number): void {
     this.selectedProducts.removeAt(index);
+    this.updateTotal()
   }
 
   createCommande(): void {
@@ -218,12 +222,14 @@ export class AjouterCommandeDialogComponent implements OnInit {
   increment(item: any, field: 'quantite' | 'quantiteRecu' | 'prixVente' | 'prixAchat' | 'uniteGratuite') {
     item[field]++;
     // this.selectedProducts.value = this.enRayonList.filter(item => item.quantiteRestante > 0);
+    this.updateTotal()
   }
 
   decrement(item: any, field: 'quantite' | 'quantiteRecu' | 'prixVente' | 'prixAchat' | 'uniteGratuite') {
     if (item[field] > 0) {
       item[field]--;
     }
+    this.updateTotal()
     // this.selectedProducts.value = this.enRayonList.filter(item => item.quantiteRestante > 0);
   }
 
@@ -289,4 +295,10 @@ export class AjouterCommandeDialogComponent implements OnInit {
     });
   }
 
+  updateTotal() {
+    this.total = 0
+    this.selectedProducts.value.forEach((product: any) => {
+      this.total = this.total + (product.quantite * product.prixAchat)
+    })
+  }
 }

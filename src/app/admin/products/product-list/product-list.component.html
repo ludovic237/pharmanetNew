@@ -1,6 +1,9 @@
 <form [formGroup]="form" fxLayout="row" fxLayoutAlign="space-between center" class="px-2 py-1">
   <div fxLayout="row">
     <mat-button-toggle-group #controls="matButtonToggleGroup" appearance="legacy" hideSingleSelectionIndicator="true">
+      <mat-button-toggle disabled  (click)="ajouterTousLesProduitsManquantEnRayon()">
+        <mat-icon>refresh</mat-icon>
+      </mat-button-toggle>
       <mat-button-toggle value="add" (click)="openUserDialog(null)">
         <mat-icon>person_add</mat-icon>
       </mat-button-toggle>
@@ -48,15 +51,16 @@
           <img [src]="product.image" alt="">
           <h4 class="category text-muted">{{ (categories | filterById : product.categorieNom)?.name }}</h4>
           <div class="title text-truncate">
-<!--            {{ $index }} -->
-            {{ product.nom }} ({{product.quantiteTotaleEnStock}})</div>
+            <!--            {{ $index }} -->
+            {{ product.nom }} ({{ product.quantiteTotaleEnStock }})
+          </div>
           <div fxLayout="row" fxLayoutAlign="space-between center" class="prices">
             <div fxLayout="column" fxLayoutAlign="center start">
-<!--              <p class="old-price text-muted">-->
-<!--                @if (product.prixAchatInitial) {-->
-<!--                  <span>FCFA {{ product.prixAchatInitial | number : '1.2-2' }}</span>-->
-<!--                }-->
-<!--              </p>-->
+              <!--              <p class="old-price text-muted">-->
+              <!--                @if (product.prixAchatInitial) {-->
+              <!--                  <span>FCFA {{ product.prixAchatInitial | number : '1.2-2' }}</span>-->
+              <!--                }-->
+              <!--              </p>-->
               <p class="new-price">{{ product.categorieNom }}</p>
             </div>
             <!--            <app-rating [ratingsCount]="product.ratingsCount" [ratingsValue]="product.ratingsValue" [direction]="'column'"></app-rating>-->
@@ -66,6 +70,10 @@
             {{ product.uniteMesure }}
           </div>
           <div class="icons">
+            <a (click)="creerEnRayon(product.id)" *ngIf="product.prixAchatInitial==0 && product.prixVenteActuel==0 && product.datePeremption==0"
+               mat-mini-fab color="basic" matTooltip="Detail">
+              <mat-icon>refresh</mat-icon>
+            </a>
             <a (click)="getDetailProduit(product)" mat-mini-fab color="basic" matTooltip="Detail">
               <mat-icon>info</mat-icon>
             </a>
@@ -143,6 +151,10 @@
       <mat-cell *matCellDef="let product">
         <a (click)="getDetailProduit(product)" mat-mini-fab color="basic" matTooltip="Detail">
           <mat-icon>info</mat-icon>
+        </a>
+        <a (click)="creerEnRayon(product.id)" *ngIf="product.prixAchatInitial==0 && product.prixVenteActuel==0 && product.datePeremption==0" mat-mini-fab
+           color="basic" matTooltip="Detail">
+          <mat-icon>refresh</mat-icon>
         </a>
         <a (click)="updateProduit(product)" mat-mini-fab color="accent" matTooltip="Edit">
           <mat-icon>edit</mat-icon>

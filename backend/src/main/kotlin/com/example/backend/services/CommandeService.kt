@@ -671,14 +671,43 @@ class CommandeService(
     return commandeRepository.save(commande)
   }
 
-  fun cloturerCommande(commandeId: Long): Commande {
-    val commande = commandeRepository.findById(commandeId)
+  fun cloturerCommande(commandeId: Long): Map<String, Any?> {
+    var commande = commandeRepository.findById(commandeId)
       .orElseThrow { IllegalArgumentException("Commande non trouvée avec l'ID fourni.") }
     if (commande.etat != Commande.COMMANDE_LIVREE && commande.etat != Commande.COMMANDE_EN_COURS) {
       throw IllegalStateException("Clôture non autorisée pour les commandes avec l'état: ${commande.etat}")
     }
     commande.etat = Commande.COMMANDE_CLOTUREE
-    return commandeRepository.save(commande)
+    commande = commandeRepository.save(commande)
+
+    val produits = produitCmdRepository.findByCommandeId(commandeId).map { produitCmd ->
+      mapOf(
+        "produit" to (produitCmd.produit),
+        "prixAchat" to (produitCmd.puCmd ?: 0),
+        "prixVente" to (produitCmd.prixPublic ?: 0),
+        "qtiteRecu" to (produitCmd.qtiteRecu ?: 0),
+        "uniteGratuite" to (produitCmd.uniteGratuite ?: 0),
+        "qtiteCmd" to (produitCmd.qtiteCmd ?: 0),
+        "prixUnitaire" to (produitCmd.puRecept ?: 0.0)
+      )
+
+    }
+
+    return mapOf(
+      "id" to commande.id,
+      "dateCreation" to commande.dateCreation.toString(),
+      "dateLivraison" to commande.dateLivraison?.toString(),
+      "fournisseur" to commande.fournisseur,
+      "produits" to produits,
+      "reference" to commande.ref,
+      "etat" to commande.etat,
+      "montantTotal" to commande.montantCmd,
+      "qtiteRecu" to commande.qtiteRecu,
+      "qtiteCmd" to commande.qtiteCmd,
+      "uniteGratuite" to commande.uniteGratuite,
+      "etat" to commande.etat,
+      "note" to commande.note
+    )
   }
 
   fun ajouterMotifAnnulation(commandeId: Long, motif: String): Commande {

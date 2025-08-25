@@ -17,10 +17,12 @@ import {MatDividerModule} from '@angular/material/divider';
 import {MatButtonModule} from '@angular/material/button';
 import {CategorieService} from "@services/categories.service";
 import {LoaderService} from "@services/loader.service";
+import {MatPaginatorModule, PageEvent} from "@angular/material/paginator";
 
 @Component({
   selector: 'app-categories',
   imports: [
+    MatPaginatorModule,
     FlexLayoutModule,
     MatCardModule,
     MatButtonModule,
@@ -36,8 +38,8 @@ export class CategoriesComponent implements OnInit {
   public categories: any[] = [];
   public totalItems = 0;  // Default to 10 if undefined
   // public categories: Category[] = [];
-  public page: any;
-  public count = 6;
+  public page: number = 1;
+  public count = 10;
   domHandlerService = inject(DomHandlerService);
   public settings: Settings;
 
@@ -54,12 +56,15 @@ export class CategoriesComponent implements OnInit {
 
   public getCategories() {
 
-    this.categorieService.getCategories().subscribe({
-      next: (data) => {
-        this.categories = data;
-        this.totalItems = data.length;
+    this.categorieService.getCategoriesPage(this.page-1,this.count).subscribe({
+      next: (data:any) => {
+        this.categories = data.content;
+        this.count = data.pageable.pageSize;
+        this.totalItems = data.totalElements;
         // this.count = this.categories.length
-
+        console.log(this.categories)
+        console.log(this.count)
+        console.log(this.totalItems)
       },
       error: (err) => {
         console.error('Error  subscription:', err);
@@ -100,9 +105,11 @@ export class CategoriesComponent implements OnInit {
     });
   }
 
-  public onPageChanged(event: any) {
-    this.page = event;
+  public onPageChanged(event: PageEvent) {
+    this.page = event.pageIndex+1;
+    this.count = event.pageSize;
     this.domHandlerService.winScroll(0, 0);
+    this.getCategories()
   }
 
   public openCategoryDialog(data: any) {

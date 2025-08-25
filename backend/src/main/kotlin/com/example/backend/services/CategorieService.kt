@@ -2,6 +2,8 @@ package com.example.backend.services
 
 import com.example.backend.models.Categorie
 import com.example.backend.repositories.CategorieRepository
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 
 @Service
@@ -10,6 +12,10 @@ class CategorieService(private val categorieRepository: CategorieRepository) {
   fun createCategorie(categorie: Categorie): Categorie = categorieRepository.save(categorie)
 
   fun getAllCategories(): List<Categorie> = categorieRepository.findAllBySupprimer(0)
+
+  fun getAllCategoriesPage(pageable:Pageable): Page<Categorie> {
+    return categorieRepository.findAll(pageable)
+  }
 
   fun updateCategorie(id: Int, updatedCategorie: Categorie): Categorie {
     val existingCategorie = categorieRepository.findById(id).orElseThrow { Exception("Categorie not found") }

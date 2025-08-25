@@ -17,10 +17,12 @@ import {MatDividerModule} from '@angular/material/divider';
 import {MatButtonModule} from '@angular/material/button';
 import {MagasinService} from "@services/magasins.service";
 import {LoaderService} from "@services/loader.service";
+import {MatPaginatorModule, PageEvent} from "@angular/material/paginator";
 
 @Component({
   selector: 'app-magasins',
   imports: [
+    MatPaginatorModule,
     FlexLayoutModule,
     MatCardModule,
     MatButtonModule,
@@ -35,8 +37,10 @@ import {LoaderService} from "@services/loader.service";
 export class MagasinsComponent implements OnInit {
   // public magasins: Magasin[] = [];
   public magasins: any[] = [];
-  public page: any;
-  public count = 6;
+  public totalItems = 0;  // Default to 10 if undefined
+  // public categories: Category[] = [];
+  public page: number = 1;
+  public count = 10;
   domHandlerService = inject(DomHandlerService);
   public settings: Settings;
 
@@ -55,10 +59,11 @@ export class MagasinsComponent implements OnInit {
 
   public getMagasins() {
 
-    this.magasinsService.getMagasins().subscribe({
+    this.magasinsService.getMagasinsPage(this.page-1,this.count).subscribe({
       next: (data) => {
-        this.magasins = data;
-        this.count = this.magasins.length
+        this.magasins = data.content;
+        this.count = data.pageable.pageSize;
+        this.totalItems = data.totalElements;
 
       },
       error: (err) => {
@@ -100,9 +105,11 @@ export class MagasinsComponent implements OnInit {
     });
   }
 
-  public onPageChanged(event: any) {
-    this.page = event;
+  public onPageChanged(event: PageEvent) {
+    this.page = event.pageIndex+1;
+    this.count = event.pageSize;
     this.domHandlerService.winScroll(0, 0);
+    this.getMagasins()
   }
 
   public openMagasinDialog(data: any) {

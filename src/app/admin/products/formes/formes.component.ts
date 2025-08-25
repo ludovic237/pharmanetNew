@@ -17,10 +17,12 @@ import {FormeService} from "@services/formes.service";
 import {AuthService} from "@services/auth.service";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {LoaderService} from "@services/loader.service";
+import {MatPaginatorModule} from "@angular/material/paginator";
 
 @Component({
   selector: 'app-formes',
   imports: [
+    MatPaginatorModule,
     FlexLayoutModule,
     MatCardModule,
     MatButtonModule,
@@ -34,6 +36,7 @@ import {LoaderService} from "@services/loader.service";
 })
 export class FormesComponent implements OnInit {
   public formes: any[] = [];
+  public totalItems = 0;
   // public formes: Category[] = [];
   public page: any;
   public count = 6;
@@ -53,10 +56,11 @@ export class FormesComponent implements OnInit {
 
   public getFormes() {
 
-    this.formeService.getFormes().subscribe({
-      next: (data) => {
-        this.formes = data;
-        this.count = this.formes.length
+    this.formeService.getFormesPage(this.page-1,this.count).subscribe({
+      next: (data:any) => {
+        this.formes = data.content;
+        this.count = data.pageable.pageSize;
+        this.totalItems = data.totalElements;
 
       },
       error: (err) => {
@@ -99,8 +103,10 @@ export class FormesComponent implements OnInit {
   }
 
   public onPageChanged(event: any) {
-    this.page = event;
+    this.page = event.pageIndex+1;
+    this.count = event.pageSize;
     this.domHandlerService.winScroll(0, 0);
+    this.getFormes()
   }
 
   public openCategoryDialog(data: any) {

@@ -3,8 +3,8 @@
 </mat-toolbar>
 <div class="p-2">
   <mat-card>
-    <div fxLayout="row wrap" fxLayoutAlign="space-between center" class="w-100 p-3">
-      <div fxFlex="100" fxFlex.gt-sm="50" >
+    <div fxLayout="row" fxLayoutAlign="space-between center" class="w-100 p-3">
+      <div fxFlex="100" fxFlex.gt-sm="50"  class="px-1" >
         <mat-form-field appearance="outline" class="w-100">
           <mat-label>Type de Commande</mat-label>
           <mat-select [(ngModel)]="typeCommande" (ngModelChange)="updateColumns()" name="typeCommande" required>
@@ -14,7 +14,7 @@
           </mat-select>
         </mat-form-field>
       </div>
-      <div fxFlex="100" fxFlex.gt-sm="50" >
+      <div fxFlex="100" fxFlex.gt-sm="50"  class="px-1">
         <mat-form-field appearance="outline" class="w-100">
           <mat-label>Fournisseur</mat-label>
           <mat-select [(ngModel)]="fournisseur" name="fournisseurId" required>
@@ -36,7 +36,7 @@
                  placeholder="Nom du produit">
           <mat-autocomplete #auto="matAutocomplete">
             <mat-option *ngFor="let option of products" [value]="option.nom">
-              {{ option.nom }} - {{ option.prixAchat | currency }}
+              {{ option.nom }} - {{ option.prixAchat  | currency:'XAF' }}
               <button mat-button color="primary" (click)="addProduct(option)">Ajouter</button>
             </mat-option>
           </mat-autocomplete>
@@ -207,6 +207,9 @@
               [disabled]="!canCreateCommande">
         Créer la Commande
       </button>
+      <div>
+        <h3><strong>Total :</strong> {{ total }} FCFA</h3>
+      </div>
     </div>
   </mat-toolbar>
 </mat-dialog-actions>

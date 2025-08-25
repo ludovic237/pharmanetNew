@@ -11,7 +11,7 @@ class Magasin {
   @Column(name = "id", nullable = false)
   var id: Int? = null
 
-  @Column(name = "code", nullable = false, length = 16)
+  @Column(name = "code", nullable = true, length = 16)
   var code: String? = null
 
   @Column(name = "nom", nullable = false, length = 32)

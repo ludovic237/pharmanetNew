@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.domain.Specification
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor
+import org.springframework.data.jpa.repository.Query
 import java.util.*
 
 interface ProduitRepository : JpaRepository<Produit, Int>, JpaSpecificationExecutor<Produit> {
@@ -19,6 +20,8 @@ interface ProduitRepository : JpaRepository<Produit, Int>, JpaSpecificationExecu
   fun findByIdAndDetailId(productId: Int, productDetailId: Int): Produit
   fun findByNomContainingIgnoreCase(nom: String, pageable: Pageable): Page<Produit>
 
+  @Query("SELECT p from Produit p where p.id not in (select e.produit.id from EnRayon e)")
+  fun findProduitsNonEnRayon():List<Produit>
 
   object ProduitSpecification {
     fun withFilters(

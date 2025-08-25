@@ -21,7 +21,7 @@ import {ProductService} from "@services/products.service";
 import {EtageresService} from "@services/etageres.service";
 import {MatToolbarModule} from "@angular/material/toolbar";
 import {InputFileModule} from "../../../../theme/components/input-file/input-file.module";
-import {MAT_DIALOG_DATA, MatDialogModule} from "@angular/material/dialog";
+import {MAT_DIALOG_DATA, MatDialogModule, MatDialogRef} from "@angular/material/dialog";
 import {BehaviorSubject, Subject, combineLatest, switchMap, takeUntil} from 'rxjs';
 import {MatMenuModule} from "@angular/material/menu";
 import {MatListModule} from "@angular/material/list";
@@ -118,12 +118,13 @@ export class AddProductDialogComponent implements OnInit {
   public etagere: any[];
   private sub: any;
   public id: any;
-  title:string=""
+  title: string = ""
 
   info: boolean = false;
 
   constructor(
-     public loaderService: LoaderService,
+    public dialogRef: MatDialogRef<AddProductDialogComponent>,
+    public loaderService: LoaderService,
     public authService: AuthService,
     public snackBar: MatSnackBar,
     public categorieService: CategorieService,
@@ -192,7 +193,7 @@ export class AddProductDialogComponent implements OnInit {
         // console.log()
 
       },
-      error:(err)=>{
+      error: (err) => {
         console.log("error");
         console.log(err);
 
@@ -203,7 +204,7 @@ export class AddProductDialogComponent implements OnInit {
             verticalPosition: 'top',
             duration: 3000,
           });
-            localStorage.removeItem('token');
+          localStorage.removeItem('token');
           window.location.href = '/sign-in';
         }
       }
@@ -218,30 +219,62 @@ export class AddProductDialogComponent implements OnInit {
   }
 
   public onSubmit() {
-    if (this.form.valid){
+    if (this.form.valid) {
       console.log("this.form.value");
       console.log(this.form.value);
-
-      this.productService.updateProductNew(this.data.id, this.form.value).subscribe({
-        next: (data: any) => {
-          this.form.patchValue(data);
-
-        },
-        error: (err) => {
-
-          if (err.status === 401 || err.status === 403){
-            this.authService.logout();
-            this.snackBar.open('Déconnexion réussie.', '×', {
+      if (this.data.type == "create") {
+        this.productService.createProducNewt(this.form.value).subscribe({
+          next: (data: any) => {
+            this.form.patchValue(data);
+            this.snackBar.open('Creation d un nouveau produit réussie.', '×', {
               panelClass: 'success',
               verticalPosition: 'top',
               duration: 3000,
             });
-            // Redirect to login page or clear session
-            window.location.href = '/sign-in';
+            this.dialogRef.close()
+          },
+          error: (err) => {
+
+            if (err.status === 401 || err.status === 403) {
+              this.authService.logout();
+              this.snackBar.open('Déconnexion réussie.', '×', {
+                panelClass: 'success',
+                verticalPosition: 'top',
+                duration: 3000,
+              });
+              // Redirect to login page or clear session
+              window.location.href = '/sign-in';
+            }
+            console.error('Error fetching products:', err);
           }
-          console.error('Error fetching products:', err);
-        }
-      });
+        });
+      } else {
+        this.productService.updateProductNew(this.data.id, this.form.value).subscribe({
+          next: (data: any) => {
+            this.form.patchValue(data);
+            this.snackBar.open('Mise a jour d un  produit réussie.', '×', {
+              panelClass: 'success',
+              verticalPosition: 'top',
+              duration: 3000,
+            });
+          },
+          error: (err) => {
+
+            if (err.status === 401 || err.status === 403) {
+              this.authService.logout();
+              this.snackBar.open('Déconnexion réussie.', '×', {
+                panelClass: 'success',
+                verticalPosition: 'top',
+                duration: 3000,
+              });
+              // Redirect to login page or clear session
+              window.location.href = '/sign-in';
+            }
+            console.error('Error fetching products:', err);
+          }
+        });
+      }
+
     }
   }
 

@@ -291,7 +291,7 @@ export class DetailCommandeDialogComponent implements OnInit {
   submitCloture(): void {
 
     this.commandesService.cloturerCommande(this.commande.id).subscribe({
-      next: (response) => {
+      next: (response:any) => {
         this.snackBar.open('Cloturation enregistrée avec succès', '×', {
           panelClass: 'success',
           verticalPosition: 'top',

@@ -187,7 +187,8 @@ class AuthController(
   @PostMapping("/logout")
   fun logout(): ResponseEntity<*> {
     var user = userUtils.getCurrentEmploye()
-    val getCurrentEmploye = employeRepository.findById(userUtils.getCurrentEmployeId()!!.toInt()).getOrNull()
+    if (user==null)  return ResponseEntity.ok(mapOf("message" to "Not user connected"))
+    val getCurrentEmploye = employeRepository.findById(user!!.id!!.toInt()).getOrNull()
     val currentUser = userUtils.getCurrentEmployeId()
     val activeCaisse = caisseService.getCaisseActive()
     val appSetting = appSettingRepository.findByKeyName("vente_mode")

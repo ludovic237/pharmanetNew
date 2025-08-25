@@ -186,7 +186,7 @@ export class SignInComponent implements OnInit {
               // Redirect after 3000 ms
               setTimeout(() => {
                 this.router.navigate(['/admin']);
-              }, 10000);
+              }, 3000);
             },
             error: (err: any) => {
               if (err.status === 401 || err.status === 403) {

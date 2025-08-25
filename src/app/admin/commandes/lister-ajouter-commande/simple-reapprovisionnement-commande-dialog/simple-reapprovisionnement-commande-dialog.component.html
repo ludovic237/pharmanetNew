@@ -9,9 +9,10 @@
   </div>
 </mat-toolbar>
 <mat-card>
-  <form [formGroup]="form"  (ngSubmit)="getDataVente()" fxLayout="row" fxLayoutGap="8px" class="p-2">
+  <form [formGroup]="form"  (ngSubmit)="getDataVente()" fxLayout="row" class="mt-2">
 
-    <mat-form-field  appearance="outline">
+    <div fxFlex="100" fxFlex.gt-sm="40" class="px-1">
+    <mat-form-field  appearance="outline" class="w-100">
       <mat-label>Filtrer par  Fournisseur</mat-label>
       <mat-select formControlName="fournisseur"  >
         <mat-option  [value]="null" >
@@ -22,13 +23,16 @@
         </mat-option>
       </mat-select>
     </mat-form-field>
+    </div>
 
     <!-- Filter by Date Range -->
-    <mat-form-field  appearance="outline">
+    <div fxFlex="100" fxFlex.gt-sm="40" class="px-1"  >
+    <mat-form-field  appearance="outline" class="w-100">
       <mat-label>Jour</mat-label>
       <input formControlName="jour" matInput  [max]="14" [value]="jour">
     </mat-form-field>
-    <button mat-raised-button color="primary"
+    </div>
+    <button class="mt-2" mat-raised-button color="primary"
             type="submit">
       chargerr
     </button>

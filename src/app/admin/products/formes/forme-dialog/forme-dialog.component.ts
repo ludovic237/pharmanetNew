@@ -54,8 +54,8 @@ export class FormeDialogComponent implements OnInit {
       this.title = "Modifier forme"
     }
 
-    if (this.data.forme) {
-      this.form.patchValue(this.data.forme);
+    if (this.data.form) {
+      this.form.patchValue(this.data.form);
     }
     ;
 

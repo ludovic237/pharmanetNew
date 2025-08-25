@@ -50,10 +50,18 @@
 <mat-divider></mat-divider>
 <mat-card>
   <mat-card-content>
-    <div class="actions">
-      <button mat-raised-button color="primary" (click)="fetchEnRayonsPageable()">Filtrer</button>
-      <button mat-raised-button color="warn" (click)="resetFilters()">Réinitialiser</button>
+    <div fxLayout="row" fxLayoutAlign="space-between center" class="w-100 p-3">
+      <div fxLayout="row" fxLayoutGap="8px">
+        <div>Total : <h2>{{total  | currency:'XAF' }}</h2></div>
+        <mat-divider vertical></mat-divider>
+        <div>Qunatite : <h2>{{quantite}}</h2></div>
+      </div>
+      <div fxLayout="row" fxLayoutGap="8px">
+        <button mat-raised-button color="primary" (click)="fetchEnRayonsPageable()">Filtrer</button>
+        <button mat-raised-button color="warn" (click)="resetFilters()">Réinitialiser</button>
+      </div>
     </div>
+
   </mat-card-content>
 </mat-card>
 
@@ -87,13 +95,13 @@
     <!-- Prix Achat Column -->
     <ng-container matColumnDef="prixAchat">
       <th mat-header-cell *matHeaderCellDef> Prix Achat</th>
-      <td mat-cell *matCellDef="let element"> {{ element.prixAchat | currency }}</td>
+      <td mat-cell *matCellDef="let element"> {{ element.prixAchat  | currency:'XAF' }}</td>
     </ng-container>
 
     <!-- Prix Vente Column -->
     <ng-container matColumnDef="prixVente">
       <th mat-header-cell *matHeaderCellDef> Prix Vente</th>
-      <td mat-cell *matCellDef="let element"> {{ element.prixVente | currency }}</td>
+      <td mat-cell *matCellDef="let element"> {{ element.prixVente  | currency:'XAF' }}</td>
     </ng-container>
 
     <!-- Date Péremption Column -->

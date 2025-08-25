@@ -42,7 +42,9 @@
     </mat-form-field>
   </mat-card>
 </div>
-
+<div fxLayout="row wrap" fxLayoutAlign="space-between center" class="w-100 p-3">
+  <div> Qte total : <h1>{{ totalQte }}</h1></div>
+</div>
 <div class="p-2">
   <div class="table-wrapper">
     <table mat-table [dataSource]="sorties" class="data-table">
@@ -52,7 +54,7 @@
       <ng-container matColumnDef="nom">
         <th mat-header-cell *matHeaderCellDef class="header-cell">Nom</th>
         <td mat-cell *matCellDef="let element" class="data-cell nom-cell">
-          {{element.nomProduit}}
+          {{element.nom}}
         </td>
       </ng-container>
 
@@ -117,19 +119,19 @@
       <ng-container matColumnDef="actions">
         <th mat-header-cell *matHeaderCellDef class="header-cell">Actions</th>
         <td mat-cell *matCellDef="let element" class="data-cell actions-cell">
-          <button mat-icon-button
+          <button mat-icon-button disabled
                   color="primary"
                   (click)="onView(element)"
                   matTooltip="Voir">
             <mat-icon>visibility</mat-icon>
           </button>
-          <button mat-icon-button
+          <button mat-icon-button disabled
                   color="accent"
                   (click)="onEdit(element)"
                   matTooltip="Modifier">
             <mat-icon>edit</mat-icon>
           </button>
-          <button mat-icon-button
+          <button mat-icon-button disabled
                   color="warn"
                   (click)="onDelete(element)"
                   matTooltip="Supprimer">

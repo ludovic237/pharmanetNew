@@ -2,6 +2,8 @@ package com.example.backend.services
 
 import com.example.backend.models.Fabriquant
 import com.example.backend.repositories.FabriquantRepository
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import kotlin.jvm.optionals.getOrNull
 
@@ -11,6 +13,8 @@ class FabriquantService(private val fabriquantRepository: FabriquantRepository) 
     fun createFabriquant(fabriquant: Fabriquant): Fabriquant = fabriquantRepository.save(fabriquant)
 
     fun getAllFabriquants(): List<Fabriquant> = fabriquantRepository.findAll()
+
+    fun getAllFabriquantsPage(pageable: Pageable): Page<Fabriquant> = fabriquantRepository.findAll(pageable)
 
     fun updateFabriquant(id: Int, updatedFabriquant: Fabriquant): Fabriquant {
         val existingFabriquant = fabriquantRepository.findById(id).orElseThrow { Exception("Fabriquant not found") }

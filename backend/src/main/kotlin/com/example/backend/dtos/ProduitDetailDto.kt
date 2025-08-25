@@ -78,6 +78,30 @@ data class ProduitResponseDto(
   var stockDetails: List<StockDetailDto>?
 )
 
+data class ProduitResponseNewDto(
+  val nom: String? = null,
+  val ean13: String? = null,
+  val codeLaborex: String? = null,
+  val codeUbipharm: String? = null,
+  val reference: String? = null,
+  val stock: Int? = 0,
+val stockMax: Int? = 0,
+val stockMin: Int? = 0,
+val contenuDetail: String? = null,
+val prixDetail: String? = null,
+val etat: String? = null,
+val id: String? = null,
+val reductionMax: Int? = 0,
+val detailId: String? = null,
+val categorieId: Int? = 0,
+val formeId: Int? = 0,
+val fabriquantId: Int? = 0,
+val rayonId: Int? = 0,
+val produitDetail: String? = null,
+val etagere: String? = null,
+val magasinId: Int? = 0,
+)
+
 data class StockDetailDto(
   val enRayonId: Long?,
   val productNom: String?,
@@ -108,19 +132,19 @@ data class DepotDto(val id: Int?, val nom: String, val adresse: String?)
 data class RayonDto(val id: Int?, val nom: String?, val code: String?)
 
 
-data class ProduitDetailDto (
+data class ProduitDetailDto(
   val nom: String? = null,
   val reference: String? = null,
-  val stock:Int? = 0,
-  val stockMax:Int? = 0,
-  val stockMin:Int? = 0,
+  val stock: Int? = 0,
+  val stockMax: Int? = 0,
+  val stockMin: Int? = 0,
   val prix: String? = null,
-  val reductionMax:Int? = 0,
+  val reductionMax: Int? = 0,
   val magasinId: Long? = null,
   val data: List<DataDto>? = null,
 )
 
-data class DataDto (
+data class DataDto(
   val nom: String? = null,
   val contenuDetail: String? = null,
   val produitId: Long? = null

@@ -20,10 +20,12 @@ import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {AuthService} from "@services/auth.service";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {LoaderService} from "@services/loader.service";
+import {MatPaginatorModule, PageEvent} from "@angular/material/paginator";
 
 @Component({
   selector: 'app-rayons',
   imports: [
+    MatPaginatorModule,
     CommonModule,
     ReactiveFormsModule,
     FormsModule,
@@ -41,8 +43,9 @@ import {LoaderService} from "@services/loader.service";
 export class RayonsComponent implements OnInit {
   public rayons: Rayon[] = [];
   // public rayons: any[] = [];
-  public page: any;
-  public count = 6;
+  public page: number = 1;
+  public totalItems: number = 0;
+  public count = 10;
   domHandlerService = inject(DomHandlerService);
   public settings: Settings;
 
@@ -62,11 +65,11 @@ export class RayonsComponent implements OnInit {
 
   public getRayons() {
 
-    this.rayonService.getRayons().subscribe({
-      next: (data) => {
-        this.rayons = data;
-        this.count = this.rayons.length
-
+    this.rayonService.getRayonsPage(this.page-1,this.count).subscribe({
+      next: (data:any) => {
+        this.rayons = data.content;
+        this.count = data.pageable.pageSize;
+        this.totalItems = data.totalElements;
       },
       error: (err) => {
         console.error('Error  subscription:', err);
@@ -107,9 +110,11 @@ export class RayonsComponent implements OnInit {
     });
   }
 
-  public onPageChanged(event: any) {
-    this.page = event;
+  public onPageChanged(event: PageEvent) {
+    this.page = event.pageIndex+1;
+    this.count = event.pageSize;
     this.domHandlerService.winScroll(0, 0);
+    this.getRayons()
   }
 
   public openRayonDialog(data: any) {

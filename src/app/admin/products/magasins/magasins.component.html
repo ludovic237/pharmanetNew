@@ -2,17 +2,19 @@
     <mat-card>
         <div fxLayout="row wrap" fxLayoutAlign="space-between center" class="w-100 p-3">
             <h2>Magasin List</h2>
-            <button mat-raised-button color="primary" (click)="openMagasinDialog(null)">Add Magasin</button>
+            <button mat-raised-button color="primary" (click)="openMagasinDialog(null)">Ajouter Magasin</button>
         </div>
         <mat-divider></mat-divider>
         <div class="mat-mdc-table admin-table">
             <div class="mat-mdc-header-row">
-                <div class="mat-mdc-header-cell">Name</div>
+                <div class="mat-mdc-header-cell">Nom</div>
+                <div class="mat-mdc-header-cell">Code</div>
                 <div class="mat-mdc-header-cell"></div>
             </div>
-            @for (cat of magasins | paginate: { itemsPerPage: count, currentPage: page }; track cat.id) {
+            @for (cat of magasins ; track cat.id) {
                 <div class="mat-mdc-row">
                     <div class="mat-mdc-cell">{{cat.nom}}</div>
+                    <div class="mat-mdc-cell">{{cat.code}}</div>
                     <div class="mat-mdc-cell">
                         <div class="p-2 actions">
                             <button mat-mini-fab color="primary" matTooltip="Edit" (click)="openMagasinDialog(cat)">
@@ -32,7 +34,12 @@
         <div fxLayout="row wrap">
             <div fxFlex="100">
                 <mat-card class="p-0 text-center">
-                    <pagination-controls class="product-pagination" [autoHide]="true" [maxSize]="5" (pageChange)="onPageChanged($event)"></pagination-controls>
+                  <mat-paginator
+                    [length]="totalItems"
+                    [pageSize]="count"
+                    (page)="onPageChanged($event)"
+                    [pageSizeOptions]="[5, 10, 25, 100]">
+                  </mat-paginator>
                 </mat-card>
             </div>
         </div>

@@ -103,7 +103,8 @@ import {LoaderService} from "@services/loader.service";
 })
 export class EntreeComponent implements OnInit {
   public form: FormGroup;
-
+  total = 0;
+  quantite = 0;
   nomProduit: string | null = null;
   bientotPerimee: boolean | null = null;
   joursAvantPeremption: number | null = null;
@@ -133,7 +134,7 @@ export class EntreeComponent implements OnInit {
   endDateLivraison: Date | null = new Date();
 
   constructor(
-     public loaderService: LoaderService,
+    public loaderService: LoaderService,
     public authService: AuthService,
     public appService: AppService,
     public appSettings: SettingsService,
@@ -187,8 +188,8 @@ export class EntreeComponent implements OnInit {
       this.page - 1,
       this.count,
       this.nomProduit,
-      this.appService.formatDate( new Date(new Date(this.form.get('startDateLivraison').value).setHours(0,0,0,0))+""),
-      this.appService.formatDate( new Date(new Date(this.form.get('endDateLivraison').value).setHours(23,59,59,999))+""),
+      this.appService.formatDate(new Date(new Date(this.form.get('startDateLivraison').value).setHours(0, 0, 0, 0)) + ""),
+      this.appService.formatDate(new Date(new Date(this.form.get('endDateLivraison').value).setHours(23, 59, 59, 999)) + ""),
       this.bientotPerimee,
       null,
       this.enStock,
@@ -197,6 +198,8 @@ export class EntreeComponent implements OnInit {
         this.count = data.pageSize;
         this.totalItems = data.totalElements;
         this.entrees = data.content.content;
+        this.total = data.totalAmountEnRayon;
+        this.quantite = data.totalQte;
 
       },
       error: (err: any) => {

@@ -131,13 +131,13 @@
                 <!-- Purchase Price Column -->
                 <ng-container matColumnDef="prixAchat">
                   <th mat-header-cell *matHeaderCellDef>Prix d'Achat</th>
-                  <td mat-cell *matCellDef="let produit">{{ produit.prixAchat | currency }}</td>
+                  <td mat-cell *matCellDef="let produit">{{ produit.prixAchat  | currency:'XAF' }}</td>
                 </ng-container>
 
                 <!-- Sale Price Column -->
                 <ng-container matColumnDef="prixVente">
                   <th mat-header-cell *matHeaderCellDef>Prix de Vente</th>
-                  <td mat-cell *matCellDef="let produit">{{ produit.prixVente | currency }}</td>
+                  <td mat-cell *matCellDef="let produit">{{ produit.prixVente  | currency:'XAF' }}</td>
                 </ng-container>
 
                 <!-- Quantity Ordered Column -->

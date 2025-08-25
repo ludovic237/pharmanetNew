@@ -62,7 +62,7 @@ export class ProductListComponent implements OnInit {
 
   public searchText: string;
 
-  public products: Array<ProductNew> = [];
+  public products: Array<any> = [];
   public categories: Array<any> = [];
   public viewCol: number = 25;
   public page = 1; // Default to 0 if undefined
@@ -76,10 +76,10 @@ export class ProductListComponent implements OnInit {
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
-   constructor(
-     public loaderService: LoaderService,
+  constructor(
+    public loaderService: LoaderService,
     public authService: AuthService,
-    public snackBar:MatSnackBar,
+    public snackBar: MatSnackBar,
     public appService: AppService,
     public productService: ProductService,
     public categorieService: CategorieService,
@@ -125,7 +125,8 @@ export class ProductListComponent implements OnInit {
 
     if (this.domHandlerService.window?.innerWidth < 1280) {
       this.viewCol = 33.3;
-    };
+    }
+    ;
 
     this.getCategories();
     if (!this.form.get('searchForm')?.value) {
@@ -141,20 +142,20 @@ export class ProductListComponent implements OnInit {
         this.products = data.content; // Les produits pour la page actuelle
 
       },
-        error: (err) => {
+      error: (err) => {
 
-           if (err.status === 401 || err.status === 403){
-             this.authService.logout();
-             this.snackBar.open('Déconnexion réussie.', '×', {
-               panelClass: 'success',
-               verticalPosition: 'top',
-               duration: 3000,
-             });
-             // Redirect to login page or clear session
-             window.location.href = '/sign-in';
-           }
-           console.error('Error fetching products:', err);
-         }
+        if (err.status === 401 || err.status === 403) {
+          this.authService.logout();
+          this.snackBar.open('Déconnexion réussie.', '×', {
+            panelClass: 'success',
+            verticalPosition: 'top',
+            duration: 3000,
+          });
+          // Redirect to login page or clear session
+          window.location.href = '/sign-in';
+        }
+        console.error('Error fetching products:', err);
+      }
     });
   }
 
@@ -181,12 +182,11 @@ export class ProductListComponent implements OnInit {
     console.log(event)
     this.count = event.pageSize;
     if (this.searchText === "" || this.searchText === undefined) {
-      if (this.page == 0){
+      if (this.page == 0) {
         this.page = 1
         this.paginator.firstPage(); // Ensure the paginator UI resets
         this.getAllProducts();
-      }
-      else {
+      } else {
         this.page = event.pageIndex + 1;
         this.getAllProducts();
       }
@@ -231,32 +231,39 @@ export class ProductListComponent implements OnInit {
         this.getAllProducts();
 
       },
-        error: (err) => {
+      error: (err) => {
 
-           if (err.status === 401 || err.status === 403){
-             this.authService.logout();
-             this.snackBar.open('Déconnexion réussie.', '×', {
-               panelClass: 'success',
-               verticalPosition: 'top',
-               duration: 3000,
-             });
-             // Redirect to login page or clear session
-             window.location.href = '/sign-in';
-           }
-           console.error('Error fetching products:', err);
-         }
+        if (err.status === 401 || err.status === 403) {
+          this.authService.logout();
+          this.snackBar.open('Déconnexion réussie.', '×', {
+            panelClass: 'success',
+            verticalPosition: 'top',
+            duration: 3000,
+          });
+          // Redirect to login page or clear session
+          window.location.href = '/sign-in';
+        }
+        console.error('Error fetching products:', err);
+      }
     });
   }
 
   public openUserDialog(user: User) {
-    /*    let dialogRef = this.dialog.open(UserDialogComponent, {
-          data: user
+        let dialogRef = this.dialog.open(AddProductDialogComponent, {
+          data: {
+            id: null,
+            type: "create",
+            title: "Creation d'un nouveau produit : ",
+          },
+          width: "80%",
+          panelClass: ['theme-dialog'],
+          autoFocus: false,
         });
         dialogRef.afterClosed().subscribe((user: User) => {
           if (user) {
             // (user.id) ? this.updateUser(user) : this.addUser(user);
           }
-        });*/
+        });
   }
 
   getDetailProduit(product: any) {
@@ -266,9 +273,9 @@ export class ProductListComponent implements OnInit {
         // const dialogRef = this.dialog.open(DetailProduitDialogComponent, {
         const dialogRef = this.dialog.open(DetailProduitDialogComponent, {
           data: {
-            data:data,
-            product:product,
-            produitId:product.id,
+            data: data,
+            product: product,
+            produitId: product.id,
           },
           width: "80%",
           panelClass: ['theme-dialog'],
@@ -284,29 +291,29 @@ export class ProductListComponent implements OnInit {
         });
 
       },
-        error: (err) => {
+      error: (err) => {
 
-           if (err.status === 401 || err.status === 403){
-             this.authService.logout();
-             this.snackBar.open('Déconnexion réussie.', '×', {
-               panelClass: 'success',
-               verticalPosition: 'top',
-               duration: 3000,
-             });
-             // Redirect to login page or clear session
-             window.location.href = '/sign-in';
-           }
-           console.error('Error fetching products:', err);
-         }
+        if (err.status === 401 || err.status === 403) {
+          this.authService.logout();
+          this.snackBar.open('Déconnexion réussie.', '×', {
+            panelClass: 'success',
+            verticalPosition: 'top',
+            duration: 3000,
+          });
+          // Redirect to login page or clear session
+          window.location.href = '/sign-in';
+        }
+        console.error('Error fetching products:', err);
+      }
     });
   }
 
   getInfoProduit(product: any) {
     const dialogRefInfo = this.dialog.open(AddProductDialogComponent, {
       data: {
-        id:product.id,
-        type:"info",
-        title:"Info produit : "+product.nom,
+        id: product.id,
+        type: "info",
+        title: "Info produit : " + product.nom,
       },
       width: "80%",
       panelClass: ['theme-dialog'],
@@ -322,9 +329,9 @@ export class ProductListComponent implements OnInit {
   updateProduit(product: any) {
     const dialogRefUpdate = this.dialog.open(AddProductDialogComponent, {
       data: {
-        id:product.id,
-        type:"update",
-        title:"Mettre a jour produit : "+product.nom,
+        id: product.id,
+        type: "update",
+        title: "Mettre a jour produit : " + product.nom,
       },
       width: "80%",
       panelClass: ['theme-dialog'],
@@ -337,4 +344,64 @@ export class ProductListComponent implements OnInit {
     });
   }
 
+  creerEnRayon(product: any) {
+
+    this.productService.ajouterUnProduitManquantEnRayon(product.id).subscribe({
+      next: (data: any) => {
+        this.snackBar.open(data.messge, '×', {
+          panelClass: data.type,
+          verticalPosition: 'top',
+          duration: 3000,
+        });
+      },
+      error: (err) => {
+        this.snackBar.open(err.messge, '×', {
+          panelClass: err.type,
+          verticalPosition: 'top',
+          duration: 3000,
+        });
+        if (err.status === 401 || err.status === 403) {
+          this.authService.logout();
+          this.snackBar.open('Déconnexion réussie.', '×', {
+            panelClass: 'success',
+            verticalPosition: 'top',
+            duration: 3000,
+          });
+          // Redirect to login page or clear session
+          window.location.href = '/sign-in';
+        }
+        console.error('Error fetching products:', err);
+      }
+    });
+  }
+
+  ajouterTousLesProduitsManquantEnRayon() {
+    this.productService.ajouterTousLesProduitsManquantEnRayon().subscribe({
+      next: (data: any) => {
+        this.snackBar.open(data.messge, '×', {
+          panelClass: data.type,
+          verticalPosition: 'top',
+          duration: 3000,
+        });
+      },
+      error: (err) => {
+        this.snackBar.open(err.messge, '×', {
+          panelClass: err.type,
+          verticalPosition: 'top',
+          duration: 3000,
+        });
+        if (err.status === 401 || err.status === 403) {
+          this.authService.logout();
+          this.snackBar.open('Déconnexion réussie.', '×', {
+            panelClass: 'success',
+            verticalPosition: 'top',
+            duration: 3000,
+          });
+          // Redirect to login page or clear session
+          window.location.href = '/sign-in';
+        }
+        console.error('Error fetching products:', err);
+      }
+    });
+  }
 }

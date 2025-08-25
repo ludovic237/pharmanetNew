@@ -25,6 +25,10 @@ export class MagasinService {
     return this.http.get<Magasin[]>(this.url, {headers: this.getHeaders()});
   }
 
+  getMagasinsPage(page: number, size: number): Observable<any> {
+    return this.http.get<any>(this.url+`/pageable?page=${page}&size=${size}`, {headers: this.getHeaders()});
+  }
+
   addMagasin(magasin: Magasin): Observable<Magasin> {
     return this.http.post<Magasin>(this.url, magasin, {headers: this.getHeaders()});
   }

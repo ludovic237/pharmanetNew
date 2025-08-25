@@ -63,7 +63,8 @@ class CommandeController(
     val pageNumber = page.toIntOrNull()?.coerceAtLeast(0) ?: 0
     val pageSize = size.toIntOrNull()?.coerceAtLeast(1) ?: 10
     val pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.DESC, "dateCreation"))
-    val commandes = commandeService.getAllCommandesMappedPageable(pageable, etat, fournisseurId, typeFournisseur, startDate, endDate)
+    val commandes =
+      commandeService.getAllCommandesMappedPageable(pageable, etat, fournisseurId, typeFournisseur, startDate, endDate)
     return ResponseEntity.ok(commandes)
   }
 
@@ -167,7 +168,7 @@ class CommandeController(
   @CrossOrigin(origins = ["http://localhost:4200"])
   @PreAuthorize("isAuthenticated()")
   @PostMapping("/{id}/cloturer")
-  fun cloturerCommande(@PathVariable id: Long): ResponseEntity<Commande> {
+  fun cloturerCommande(@PathVariable id: Long): ResponseEntity<Map<String, Any?>> {
     val commande = commandeService.cloturerCommande(id)
     return ResponseEntity.ok(commande)
   }
@@ -233,18 +234,19 @@ class CommandeController(
   @PreAuthorize("isAuthenticated()")
   @PostMapping("/product-commande/update")
   fun updateCommandeSimple(
-      @RequestParam(required = false) commandeId: String?,
-      @RequestParam(required = false) produitCmdId: String?,
-      @RequestParam(required = false) qteRecu: String?,
-      @RequestParam(required = false) prixAchat: String?,
-      @RequestParam(required = false) prixVente: String?,
+    @RequestParam(required = false) commandeId: String?,
+    @RequestParam(required = false) produitCmdId: String?,
+    @RequestParam(required = false) qteRecu: String?,
+    @RequestParam(required = false) prixAchat: String?,
+    @RequestParam(required = false) prixVente: String?,
   ): ResponseEntity<Commande> {
-   val commandes = commandeService.updateCommandeSimple(
-     commandeId,
-     produitCmdId,
-     qteRecu,
-     prixAchat,
-     prixVente)
+    val commandes = commandeService.updateCommandeSimple(
+      commandeId,
+      produitCmdId,
+      qteRecu,
+      prixAchat,
+      prixVente
+    )
     return ResponseEntity.ok(commandes)
   }
 }

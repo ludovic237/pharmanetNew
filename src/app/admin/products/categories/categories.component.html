@@ -2,7 +2,7 @@
     <mat-card>
         <div fxLayout="row wrap" fxLayoutAlign="space-between center" class="w-100 p-3">
             <h2>Category List</h2>
-            <button mat-raised-button color="primary" (click)="openCategoryDialog(null)">Add Category</button>
+            <button mat-raised-button color="primary" (click)="openCategoryDialog(null)">Ajouter une categorie</button>
         </div>
         <mat-divider></mat-divider>
         <div class="mat-mdc-table admin-table">
@@ -12,7 +12,7 @@
 <!--                <div class="mat-mdc-header-cell">Parent Category</div> -->
                 <div class="mat-mdc-header-cell"></div>
             </div>
-            @for (cat of categories | paginate: { itemsPerPage: count, currentPage: page }; track cat.id) {
+            @for (cat of categories; track cat.id) {
                 <div class="mat-mdc-row">
                     <div class="mat-mdc-cell">{{cat.nom}}</div>
 <!--                    <div class="mat-mdc-cell">-->
@@ -40,7 +40,14 @@
         <div fxLayout="row wrap">
             <div fxFlex="100">
                 <mat-card class="p-0 text-center">
-                    <pagination-controls class="product-pagination" [autoHide]="true" [maxSize]="5" (pageChange)="onPageChanged($event)"></pagination-controls>
+                  <mat-paginator
+                    [length]="totalItems"
+                    [pageSize]="count"
+                    (page)="onPageChanged($event)"
+                    [pageSizeOptions]="[5, 10, 25, 100]">
+
+                  </mat-paginator>
+
                 </mat-card>
             </div>
         </div>

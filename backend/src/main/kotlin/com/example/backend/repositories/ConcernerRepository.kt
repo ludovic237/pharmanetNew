@@ -23,7 +23,8 @@ interface ConcernerRepository : JpaRepository<Concerner, Int> {
     SELECT p.nom AS nom,
            COALESCE(SUM(con.quantite),0) AS qty
     FROM concerner con
-    JOIN produit p ON p.id = con.produit_id
+    JOIN en_rayon r ON r.id = con.en_rayon_id
+    JOIN produit p ON p.id = r.produit_id
     JOIN vente   v ON v.id = con.vente_id
     WHERE v.supprimer=0
       AND v.date_vente BETWEEN :from AND :to
@@ -45,7 +46,8 @@ interface ConcernerRepository : JpaRepository<Concerner, Int> {
            COALESCE(SUM(con.prix_unit * con.quantite),0) AS total
     FROM concerner con
     JOIN vente v      ON v.id      = con.vente_id
-    JOIN produit p    ON p.id      = con.produit_id
+        JOIN en_rayon r ON r.id = con.en_rayon_id
+    JOIN produit p    ON p.id      = r.produit_id
     JOIN categorie c  ON c.id      = p.categorie_id
     WHERE v.supprimer=0
       AND v.date_vente BETWEEN :from AND :to

@@ -13,6 +13,15 @@
           }
         </mat-form-field>
       </div>
+      <div fxFlex="100">
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Code</mat-label>
+          <input matInput formControlName="code" required>
+          @if (form.controls.code.errors?.required) {
+            <mat-error>Name is required</mat-error>
+          }
+        </mat-form-field>
+      </div>
     </div>
   </div>
   <div mat-dialog-actions>

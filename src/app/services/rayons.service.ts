@@ -25,6 +25,10 @@ export class RayonService {
     return this.http.get<Rayon[]>(this.url, {headers: this.getHeaders()});
   }
 
+  getRayonsPage(page: number, size: number): Observable<any> {
+    return this.http.get<any>(this.url+`/pageable?page=${page}&size=${size}`, {headers: this.getHeaders()});
+  }
+
   addRayon(rayon: Rayon): Observable<Rayon> {
     return this.http.post<Rayon>(this.url, rayon, {headers: this.getHeaders()});
   }

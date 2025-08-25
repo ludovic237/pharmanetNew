@@ -261,4 +261,20 @@ class EnRayonController(private val enRayonService: EnRayonService) {
     return ResponseEntity.noContent().build()
   }
 
+  @CrossOrigin(origins = ["http://localhost:4200"])
+  @PreAuthorize("isAuthenticated()")
+  @GetMapping("/ajouter_tous_produits_manquant_en_rayon")
+  fun ajouterTousLesProduitsManquantEnRayon(): ResponseEntity<Map<String, Any?>> {
+    return ResponseEntity.ok(enRayonService.ajouterTousLesProduitsManquantEnRayon())
+  }
+
+  @CrossOrigin(origins = ["http://localhost:4200"])
+  @PreAuthorize("isAuthenticated()")
+  @GetMapping("/ajouter_produit_manquant_en_rayon")
+  fun ajouterUnProduitManquantEnRayon(
+    @RequestParam(required = false) produitId: String?,
+  ): ResponseEntity<Map<String, Any?>> {
+    return ResponseEntity.ok(enRayonService.ajouterUnProduitManquantEnRayon(produitId!!.toInt()))
+  }
+
 }

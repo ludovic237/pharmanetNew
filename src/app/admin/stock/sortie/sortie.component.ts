@@ -131,6 +131,8 @@ export class SortieComponent implements OnInit {
   sorties: any[] = []
   private sub: any;
 
+  public totalQte: number = 0;
+
   public viewCol: number = 25;
   public page: number = 1; // Default to 0 if undefined
   public size = 100;  // Default to 10 if undefined
@@ -290,6 +292,7 @@ export class SortieComponent implements OnInit {
         this.count = data.pageSize;
         this.totalItems = data.totalElements;
         this.sorties = data.content.content;
+        this.totalQte = data.totalQteRecu;
         this.snackBar.open('Products fetched successfully!', '×', {
           panelClass: 'success',
           verticalPosition: 'top',

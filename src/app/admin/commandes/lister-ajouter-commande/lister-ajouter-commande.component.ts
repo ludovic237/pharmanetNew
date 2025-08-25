@@ -705,7 +705,7 @@ export class ListerAjouterCommandeComponent implements OnInit {
   cloturerManuellement(commande: any): void {
 
     this.commandesService.cloturerCommande(commande.id).subscribe({
-      next: () => {
+      next: (data:any) => {
 
         this.snackBar.open('Commande clôturée avec succès.', 'Fermer', {duration: 3000});
         this.fetchCommandesPageable();

@@ -375,7 +375,14 @@ class EnRayonService(
     enStock: Boolean?,
     pageable: Pageable
   ): EnRayonPageableCustomDto {
-    val specification = EnRayonRepository.filterEnRayonRange(nomProduit, startDate, endDate, bientotPerimee, joursAvantPeremption, enStock)
+    val specification = EnRayonRepository.filterEnRayonRange(
+      nomProduit,
+      startDate,
+      endDate,
+      bientotPerimee,
+      joursAvantPeremption,
+      enStock
+    )
     val enRayons = enRayonRepository.findAll(specification, pageable)
       .map { enRayon: EnRayon? ->
         val produit = produitRepository.findById(enRayon?.produitId!!.toInt()).get()
@@ -440,7 +447,7 @@ class EnRayonService(
     pageable: Pageable
   ): EnRayonPageableCustomDto {
     val specification =
-      EnRayonRepository.filterEnRayonRangeWithProduitId(produitId,supprimer, startDate, endDate, null, null, null)
+      EnRayonRepository.filterEnRayonRangeWithProduitId(produitId, supprimer, startDate, endDate, null, null, null)
     val enRayons = enRayonRepository.findAll(specification, pageable)
       .map { enRayon: EnRayon? ->
         val produit = produitRepository.findById(produitId!!.toInt()).get()
@@ -501,8 +508,74 @@ class EnRayonService(
     }
 //    userRepository.deleteById(id.toInt())
     var enRayon = enRayonRepository.findById(id.toString()).get()
-    enRayon.supprimer=1
+    enRayon.supprimer = 1
     enRayonRepository.save(enRayon)
+  }
+
+  fun ajouterUnProduitManquantEnRayon(produitId: Int): Map<String, Any?> {
+    val enRayonList = enRayonRepository.findByProduitIdAndSupprimer(produitId, 0)
+    if (enRayonList.isEmpty()) {
+      var produit = produitRepository.findById(produitId).get()
+      var enRayon = EnRayon().apply {
+        this.produit = produit
+        this.produitId = produitId
+        this.fournisseur = null
+        this.commande = null
+        this.dateLivraison = LocalDateTime.now()
+        this.datePeremption = null
+        this.prixAchat = 0
+        this.prixVente = 0
+        this.reduction = 0
+        this.quantite = 0
+        this.quantiteRestante = 0
+        this.supprimer = 0
+      }
+      enRayonRepository.save(enRayon)
+      return mapOf(
+        "message" to "Produit ajouter en rayon",
+        "type" to "success",
+      )
+    } else {
+      return mapOf(
+        "message" to "Produit existe deja en rayon",
+        "type" to "error"
+      )
+    }
+  }
+
+  @Transactional
+  fun ajouterTousLesProduitsManquantEnRayon(): Map<String,Any?> {
+    val produitsManquants = produitRepository.findProduitsNonEnRayon()
+    if (produitsManquants.isNotEmpty()) {
+      var nouveaux = produitsManquants.map { produitManquant ->
+        var produit = produitRepository.findById(produitManquant.id!!).get()
+        EnRayon().apply {
+          this.produit = produit
+          this.produitId = produitId
+          this.fournisseur = null
+          this.commande = null
+          this.dateLivraison = LocalDateTime.now()
+          this.datePeremption = null
+          this.prixAchat = 0
+          this.prixVente = 0
+          this.reduction = 0
+          this.quantite = 0
+          this.quantiteRestante = 0
+          this.supprimer = 0
+        }
+      }
+      nouveaux = enRayonRepository.saveAll(nouveaux)
+      return mapOf(
+        "message" to "Vous avez ajouter ${nouveaux.size} produits en rayon",
+        "type" to "success",
+      )
+    }
+    else {
+      return mapOf(
+        "message" to "Produit existe deja en rayon",
+        "type" to "error"
+      )
+    }
   }
 
 }

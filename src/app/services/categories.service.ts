@@ -24,6 +24,11 @@ export class CategorieService {
     return this.http.get<any[]>(this.url, {headers: this.getHeaders()});
   }
 
+
+  getCategoriesPage(page: number, size: number): Observable<any> {
+    return this.http.get<any>(this.url+`/pageable?page=${page}&size=${size}`, {headers: this.getHeaders()});
+  }
+
   addCategorie(categorie: any): Observable<Categorie> {
     return this.http.post<Categorie>(this.url, categorie, {headers: this.getHeaders()});
   }
