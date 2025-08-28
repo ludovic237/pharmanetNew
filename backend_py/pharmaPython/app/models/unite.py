@@ -1,0 +1,10 @@
+from sqlalchemy import Column, Integer, String
+from app.core.db import Base
+
+class Unite(Base):
+  __tablename__ = "unite"
+
+  id = Column(Integer, primary_key=True, autoincrement=True)
+  nom = Column(String(16))
+  libelle = Column(String(32))
+  supprimer = Column(Integer, default=0)

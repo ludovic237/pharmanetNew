@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from typing import Sequence
-from app.domain.product import Product
+from app.models.product import Product
 from app.repositories.base import BaseRepository
 
 class ProductRepository(BaseRepository[Product]):

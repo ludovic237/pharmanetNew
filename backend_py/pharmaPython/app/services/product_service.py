@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from app.core.pagination import Page, PageParams
 from app.core.exceptions import NotFoundError
-from app.domain.product import Product
+from app.models.product import Product
 from app.schemas.product import ProductIn, ProductOut
 from app.repositories.product_repo import ProductRepository
 
