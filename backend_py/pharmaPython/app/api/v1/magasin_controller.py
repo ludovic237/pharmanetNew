@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from typing import List
 
 from app.api.deps import get_db
-from app.models.magasin import Magasin
+from app.models.magasin import Magasin, MagasinSchema, MagasinIn
 from app.services.magasin_service import MagasinService
 
 router = APIRouter(
@@ -11,11 +11,11 @@ router = APIRouter(
   tags=["Magasins"],
 )
 
-@router.post("/", response_model=Magasin, status_code=201)
-def create_magasin(magasin: Magasin, db: Session = Depends(get_db)):
+@router.post("/", response_model=MagasinSchema, status_code=201)
+def create_magasin(magasin: MagasinIn, db: Session = Depends(get_db)):
   return MagasinService(db).create_magasin(magasin)
 
-@router.get("/", response_model=List[Magasin])
+@router.get("/", response_model=List[MagasinSchema])
 def get_all_magasins(db: Session = Depends(get_db)):
   return MagasinService(db).get_all_magasins()
 
@@ -26,8 +26,8 @@ def get_all_magasins_pageable(
 ):
   return MagasinService(db).get_all_magasins_page(page, size, sortBy)
 
-@router.put("/{id}", response_model=Magasin)
-def update_magasin(id: int, magasin: Magasin, db: Session = Depends(get_db)):
+@router.put("/{id}", response_model=MagasinSchema)
+def update_magasin(id: int, magasin: MagasinIn, db: Session = Depends(get_db)):
   updated = MagasinService(db).update_magasin(id, magasin)
   if not updated:
     raise HTTPException(status_code=404, detail="Magasin non trouvé")

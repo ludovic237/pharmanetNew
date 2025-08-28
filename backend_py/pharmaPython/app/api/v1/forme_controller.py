@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from typing import List, Dict, Any, Tuple
 
 from app.api.deps import get_db
-from app.models.forme import Forme
+from app.models.forme import Forme, FormeIn, FormeSchema
 from app.services.forme_service import FormeService
 
 router = APIRouter(
@@ -12,11 +12,16 @@ router = APIRouter(
   # dependencies=[Depends(jwt_authentication)],
 )
 
-@router.post("/", response_model=Forme, status_code=201)
-def create_forme(forme: Forme, db: Session = Depends(get_db)):
-  return FormeService(db).create_forme(forme)
+@router.post("/", response_model=FormeSchema, status_code=201)
+def create_forme(body: FormeIn, db: Session = Depends(get_db)):
+  ent = Forme(
+    code=body.code,
+    nom=body.nom,
+    supprimer=0,
+  )
+  return FormeService(db).create_forme(ent)
 
-@router.get("/", response_model=List[Forme])
+@router.get("/", response_model=List[FormeSchema])
 def get_all_formes(db: Session = Depends(get_db)):
   return FormeService(db).get_all_formes()
 
@@ -44,8 +49,8 @@ def get_all_formes_pageable(
     "sortDir": "DESC",
   }
 
-@router.put("/{id}", response_model=Forme)
-def update_forme(id: int, forme: Forme, db: Session = Depends(get_db)):
+@router.put("/{id}", response_model=FormeSchema)
+def update_forme(id: int, forme: FormeIn, db: Session = Depends(get_db)):
   updated = FormeService(db).update_forme(id, forme)
   if not updated:
     raise HTTPException(status_code=404, detail="Forme non trouvée")

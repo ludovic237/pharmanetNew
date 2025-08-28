@@ -3,18 +3,18 @@ from sqlalchemy.orm import Session
 from typing import List
 
 from app.api.deps import get_db
-from app.models.rayon import Rayon
+from app.models.rayon import Rayon, RayonSchema, RayonIn
 from app.services.rayon_service import RayonService
 
 router = APIRouter(prefix="/api/rayons", tags=["Rayons"])
 
 
-@router.post("/", status_code=201, response_model=Rayon)
-def create_rayon(rayon: Rayon, db: Session = Depends(get_db)):
+@router.post("/", status_code=201, response_model=RayonSchema)
+def create_rayon(rayon: RayonIn, db: Session = Depends(get_db)):
   return RayonService(db, ...).create_rayon(rayon)
 
 
-@router.get("/", response_model=List[Rayon])
+@router.get("/", response_model=List[RayonSchema])
 def get_all_rayons(db: Session = Depends(get_db)):
   return RayonService(db, ...).get_all_rayons()
 
@@ -29,8 +29,8 @@ def get_all_rayons_pageable(
   return RayonService(db, ...).get_all_rayons_page(page, size, sortBy)
 
 
-@router.put("/{id}", response_model=Rayon)
-def update_rayon(id: int, rayon: Rayon, db: Session = Depends(get_db)):
+@router.put("/{id}", response_model=RayonSchema)
+def update_rayon(id: int, rayon: RayonIn, db: Session = Depends(get_db)):
   return RayonService(db, ...).update_rayon(id, rayon)
 
 

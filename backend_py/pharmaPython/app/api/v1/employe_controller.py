@@ -2,30 +2,19 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List, Dict, Any
 
-from services.user_service import UserService
-from schemas.employe import EmployeNewDto, Employe
-from schemas.user import RegisterRequest  # équivalent de ton DTO d’inscription
 
 from app.api.deps import get_db
+from app.models.employe import Employe, EmployeSchema
+from app.schemas.auth_dto import RegisterRequest
+from app.schemas.employe_dto import EmployeNewDto, UserEmployeeRequest
 from app.services.employe_service import EmployeService
+from app.services.user_service import UserService
 
 router = APIRouter(
   prefix="/api/admin/users-employees",
   tags=["Users & Employees"],
   # dependencies=[Depends(jwt_authentication)]  # équivalent de @PreAuthorize("isAuthenticated()")
 )
-
-# ----------------------------
-# DTOs Python pour la requête combinée
-# ----------------------------
-from pydantic import BaseModel
-
-class EmployeDto(BaseModel):
-  identifiant: str
-
-class UserEmployeeRequest(BaseModel):
-  registerRequest: RegisterRequest
-  employee: EmployeDto
 
 
 # ----------------------------
@@ -45,7 +34,7 @@ def create_user_and_employee(request: UserEmployeeRequest, db: Session = Depends
 # ----------------------------
 # Récupérer tous les employés
 # ----------------------------
-@router.get("/", response_model=List[Employe])
+@router.get("/", response_model=List[EmployeSchema])
 def get_all_employees(db: Session = Depends(get_db)):
   employee_service = EmployeService(db)
   return employee_service.get_all_employees()
@@ -54,7 +43,7 @@ def get_all_employees(db: Session = Depends(get_db)):
 # ----------------------------
 # Récupérer un employé par ID
 # ----------------------------
-@router.get("/{id}", response_model=Employe)
+@router.get("/{id}", response_model=EmployeSchema)
 def get_employee_by_id(id: int, db: Session = Depends(get_db)):
   employee_service = EmployeService(db)
   emp = employee_service.get_employee_by_id(id)
@@ -66,7 +55,7 @@ def get_employee_by_id(id: int, db: Session = Depends(get_db)):
 # ----------------------------
 # Mettre à jour un employé
 # ----------------------------
-@router.put("/{id}", response_model=Employe)
+@router.put("/{id}", response_model=EmployeSchema)
 def update_employee(id: int, updated_user: EmployeNewDto, db: Session = Depends(get_db)):
   employee_service = EmployeService(db)
   try:

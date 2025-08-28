@@ -1,9 +1,12 @@
-from sqlalchemy import Column, Integer, String, ForeignKey
-from sqlalchemy.orm import relationship
-from app.core.db import Base
+from sqlalchemy import Column, Integer, String, Boolean, ForeignKey
+from sqlalchemy.orm import declarative_base, relationship
+
+Base = declarative_base()
+
 
 class Produit(Base):
   __tablename__ = "produit"
+  __table_args__ = {"extend_existing": True}
 
   id = Column(Integer, primary_key=True)
   ean13 = Column(String(16))

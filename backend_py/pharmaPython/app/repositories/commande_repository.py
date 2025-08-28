@@ -4,7 +4,7 @@ from sqlalchemy import func
 from sqlalchemy.orm import Session
 from typing import Optional, List, Tuple
 
-from app.models.commande import Commande
+from app.models.commandeout import Commande
 from app.models.user import User
 
 

@@ -2,8 +2,10 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import desc, asc
 from typing import List, Tuple, Optional
-from models import Fabriquant
 from fastapi import HTTPException
+
+from app.models.fabriquant import Fabriquant
+
 
 class FabriquantService:
   def __init__(self, db: Session):

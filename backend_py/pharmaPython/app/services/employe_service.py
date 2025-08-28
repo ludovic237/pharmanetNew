@@ -8,7 +8,7 @@ from app.models.user import User
 from app.repositories.employe_repository import EmployeRepository
 from app.repositories.user_repository import UserRepository
 from app.schemas.auth_dto import RegisterRequest
-from app.schemas.employe_dto import EmployeNewDto
+from app.schemas.employe_dto import EmployeNewDto, EmployeDto
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 

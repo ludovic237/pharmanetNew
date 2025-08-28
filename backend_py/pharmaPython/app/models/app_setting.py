@@ -1,10 +1,12 @@
-from sqlalchemy import Column, Integer, String, Text
-from app.core.db import Base
+from pydantic import BaseModel
 
-class AppSetting(Base):
-  __tablename__ = "application_settings"
 
-  id = Column(Integer, primary_key=True, index=True)
-  key_name = Column(String(255), nullable=True)
-  value = Column(Text, nullable=True)
-  type = Column(String(50), default="0")
+class AppSettingSchema(BaseModel):
+  id: int
+  key_name: str | None
+  value: str | None
+  type: str
+
+  # Pydantic v2
+  model_config = {"from_attributes": True}
+  # (en v1: class Config: orm_mode = True)

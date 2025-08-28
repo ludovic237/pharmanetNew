@@ -7,10 +7,11 @@ from sqlalchemy.orm import Session
 
 from app.api.deps import get_db
 from app.schemas.vente_dto import VenteRequestDto, EncaissementDirectDto, VentePageableCustomlDto, EncaissementDto
+from app.services.produit_service import ProduitService
 from app.services.vente_service import VenteService
 
 router = APIRouter(
-  prefix="/api/ventes",
+  prefix="/ventes",
   tags=["Ventes"],
   # dependencies=[Depends(jwt_authentication)],
 )
@@ -99,8 +100,47 @@ def lister_ventes_non_encaissees(
 # GET /lister (liste de maps)
 # -----------------------------
 @router.get("/lister")
-def lister_ventes(db: Session = Depends(get_db)):
-  return VenteService(db).lister_ventes()
+def lister_ventes(
+  db: Session = Depends(get_db),
+  enrayon_repo=Depends(),
+  caisse_service=Depends(),
+  concerner_repo=Depends(),
+  prescripteur_repo=Depends(),
+  bon_caisse_repo=Depends(),
+  user_repo=Depends(),
+  vente_repo=Depends(),
+  caisse_repo=Depends(),
+  produit_repo=Depends(),
+  facturation_repo=Depends(),
+  facture_espece_repo=Depends(),
+  facture_electronique_repo=Depends(),
+  facture_ticket_repo=Depends(),
+  employe_repo=Depends(),
+  user_utils=Depends(),
+  rayon_repo=Depends(),
+  produit_detail_repo=Depends(),
+):
+  service = VenteService(
+    db=db,
+    enrayon_repo=enrayon_repo,
+    caisse_service=caisse_service,
+    concerner_repo=concerner_repo,
+    prescripteur_repo=prescripteur_repo,
+    bon_caisse_repo=bon_caisse_repo,
+    user_repo=user_repo,
+    vente_repo=vente_repo,
+    caisse_repo=caisse_repo,
+    produit_repo=produit_repo,
+    facturation_repo=facturation_repo,
+    facture_espece_repo=facture_espece_repo,
+    facture_electronique_repo=facture_electronique_repo,
+    facture_ticket_repo=facture_ticket_repo,
+    employe_repo=employe_repo,
+    user_utils=user_utils,
+    rayon_repo=rayon_repo,
+    produit_detail_repo=produit_detail_repo,
+  )
+  return service.lister_ventes()
 
 
 # -----------------------------

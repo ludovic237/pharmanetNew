@@ -5,7 +5,7 @@ from typing import Any, Dict, List
 
 
 from app.api.deps import get_db
-from app.models.depense import Depense
+from app.models.depense import Depense, DepenseIn
 from app.services.depense_service import DepenseService
 
 router = APIRouter(
@@ -14,7 +14,7 @@ router = APIRouter(
   # dependencies=[Depends(jwt_authentication)]  # équivalent de @PreAuthorize("isAuthenticated()")
 )
 
-@router.get("/", response_model=List[Depense])
+@router.get("/", response_model=List[DepenseIn])
 def list_depenses(db: Session = Depends(get_db)):
   return DepenseService.get_all_depenses(db)
 
@@ -47,7 +47,7 @@ def list_depenses_pageable(
   }
 
 
-@router.post("/", response_model=Depense)
+@router.post("/", response_model=DepenseIn)
 def create(depenseData: Dict[str, Any], db: Session = Depends(get_db)):
   """
   Kotlin: si la map contient > 3 champs → createDepenseMap, sinon createDepense(designation, prixUnitaire)
@@ -66,7 +66,7 @@ def create(depenseData: Dict[str, Any], db: Session = Depends(get_db)):
     return DepenseService.create_depense(db, designation, prix_unitaire)
 
 
-@router.put("/{id}", response_model=Depense)
+@router.put("/{id}", response_model=DepenseIn)
 def update(id: int, depenseData: Dict[str, Any], db: Session = Depends(get_db)):
   designation = depenseData.get("designation")
   prix_unitaire = depenseData.get("prixUnitaire")

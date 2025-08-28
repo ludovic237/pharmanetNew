@@ -22,8 +22,8 @@ class Vente(Base):
   caisse_id = Column(Integer, ForeignKey("caisse.id"))
   supprimer = Column(Integer, default=0)
 
-  malade = relationship("Malade")
-  user = relationship("User")
-  prescripteur = relationship("Prescripteur")
-  employe = relationship("Employe")
-  caisse = relationship("Caisse")
+  # malade = relationship("Malade")
+  # user = relationship("User")
+  # prescripteur = relationship("Prescripteur")
+  # employe = relationship("Employe")
+  # caisse = relationship("Caisse")

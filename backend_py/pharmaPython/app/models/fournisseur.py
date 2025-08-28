@@ -1,3 +1,4 @@
+from pydantic import BaseModel
 from sqlalchemy import Column, Integer, String
 from app.core.db import Base
 
@@ -13,3 +14,27 @@ class Fournisseur(Base):
   telephone = Column(String(32))
   email = Column(String(32))
   supprimer = Column(Integer, default=0)
+
+
+class FournisseurSchema(BaseModel):
+
+  id : int
+  code : str
+  nom : str
+  statut : str
+  codepostal : str
+  adresse : str
+  telephone : str
+  email : str
+  supprimer : int=0
+
+
+class FournisseurIn(BaseModel):
+
+  code : str
+  nom : str
+  statut : str
+  codepostal : str
+  adresse : str
+  telephone : str
+  email : str

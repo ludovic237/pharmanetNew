@@ -1,6 +1,11 @@
+from datetime import datetime
+from typing import Optional
+
+from pydantic import BaseModel
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 from app.core.db import Base
+
 
 class ProduitInventaire(Base):
   __tablename__ = "produit_inventaire"
@@ -20,3 +25,32 @@ class ProduitInventaire(Base):
   inventaire = relationship("Inventaire")
   employe = relationship("Employe")
   en_rayon = relationship("EnRayon")
+
+
+class ProduitInventaireSchema(BaseModel):
+  id: int
+  inventaire_id: int
+  employe_id: int
+  en_rayon_id: int
+  stock_avant: int
+  stock_valide: int
+  date_debut: Optional[datetime] = None
+  date_fin: Optional[datetime] = None
+  type: Optional[str] = None
+  statut: Optional[str] = None
+  supprimer: int = 0
+
+  # Pydantic v2 (remplace orm_mode=True)
+  model_config = {"from_attributes": True}
+
+
+class ProduitInventaireIn(BaseModel):
+  inventaire_id: int
+  employe_id: int
+  en_rayon_id: int
+  stock_avant: int
+  stock_valide: int
+  date_debut: Optional[datetime] = None
+  date_fin: Optional[datetime] = None
+  type: Optional[str] = None
+  statut: Optional[str] = None

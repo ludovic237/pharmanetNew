@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from typing import Dict, Any, Optional
 
 from app.api.deps import get_db
-from app.models.type_sortie import TypeSortie
+from app.models.type_sortie import TypeSortie, TypeSortieSchema
 from app.schemas.type_sortie_dto import TypeSortieDto
 from app.services.type_sortie_service import TypeSortieService
 
@@ -39,7 +39,7 @@ def get_type_sortie_pageable(
     "direction": direction.upper(),
   }
 
-@router.post("/save", response_model=TypeSortie)
+@router.post("/save", response_model=TypeSortieSchema)
 def save_type_sortie(sortie: TypeSortieDto, db: Session = Depends(get_db)):
   """
   Équivalent de addTypeSortiel(sortie) Kotlin.

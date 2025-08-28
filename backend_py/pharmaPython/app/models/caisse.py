@@ -4,9 +4,10 @@ from app.core.db import Base
 
 class Caisse(Base):
   __tablename__ = "caisse"
+  __table_args__ = {"extend_existing": True}
 
   id = Column(Integer, primary_key=True, index=True)
-  user_id = Column(Integer, ForeignKey("employe.id"))
+  user_id = Column(Integer, ForeignKey("employe.id"), nullable=False)
   user = relationship("Employe", lazy="joined")
   ouverture_caisse = Column(String)
   fermeture_caisse = Column(String)

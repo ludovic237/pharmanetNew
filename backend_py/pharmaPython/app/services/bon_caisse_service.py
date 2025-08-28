@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session
 from datetime import datetime
 
 from app.models.bon_caisse import BonCaisse
+from app.schemas.bon_caisse_dto import BonCaisseData
 
 
 class BonCaisseService:

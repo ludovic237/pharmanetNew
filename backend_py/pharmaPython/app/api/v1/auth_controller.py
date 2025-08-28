@@ -13,7 +13,7 @@ from app.services.caisse_service import CaisseService
 from app.services.jwt_service import create_access_token
 from app.utility.user_utils import UserUtils
 
-router = APIRouter(prefix="/api/auth", tags=["Auth"])
+router = APIRouter(prefix="/auth", tags=["Auth"])
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 SECRET_KEY = "your-secret"
@@ -42,11 +42,9 @@ def check_session(request: Request):
 def login_codebarre(codebarre: str, db: Session = Depends(get_db)):
   if not codebarre:
     raise HTTPException(status_code=400, detail="Codebarre obligatoire")
-
   employe = EmployeRepository(db).find_by_codebarre_id(codebarre)
   if not employe:
     raise HTTPException(status_code=404, detail="Employé non trouvé")
-
   token = create_access_token({"sub": employe.identifiant})
 
   active_caisse = CaisseService.get_caisse_active(db)

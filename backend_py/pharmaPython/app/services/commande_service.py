@@ -3,13 +3,14 @@ from fastapi import HTTPException
 from datetime import datetime
 from typing import List, Dict, Any, Optional
 
-from app.models.commande import Commande
+from app.models.commandeout import Commande
 from app.models.produit_cmd import ProduitCmd
 from app.repositories.commande_repository import CommandeRepository
 from app.repositories.employe_repository import EmployeRepository
 from app.repositories.en_rayon_repository import EnRayonRepository
 from app.repositories.fournisseur_repository import FournisseurRepository
 from app.repositories.produit_cmd_repository import ProduitCmdRepository
+from app.repositories.produit_repository import ProduitRepository
 from app.repositories.user_repository import UserRepository
 from app.schemas.commande_dto import CommandeRequest, CommandePageableCustomlDto, CommandeNewDTO, ProduitCmdRequest
 from app.utility.user_utils import UserUtils

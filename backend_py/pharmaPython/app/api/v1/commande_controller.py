@@ -3,7 +3,8 @@ from sqlalchemy.orm import Session
 from typing import List, Optional, Dict, Any
 
 from app.api.deps import get_db
-from app.models.commande import Commande
+
+from app.models.commandeout import CommandeSchema
 from app.schemas.commande_dto import ProduitCmdRequest, CommandeNewDTO, CommandePageableCustomlDto, CommandeRequest
 from app.services.commande_service import CommandeService
 
@@ -15,7 +16,7 @@ router = APIRouter(
 # ----------------------------
 # Créer une commande
 # ----------------------------
-@router.post("/", response_model=Commande)
+@router.post("/", response_model=CommandeSchema)
 def creer_commande(commande_dto: CommandeRequest, db: Session = Depends(get_db)):
   service = CommandeService(db)
   return service.create_commande(commande_dto)
@@ -24,7 +25,7 @@ def creer_commande(commande_dto: CommandeRequest, db: Session = Depends(get_db))
 # ----------------------------
 # Réceptionner une commande
 # ----------------------------
-@router.post("/{id}/reception", response_model=Commande)
+@router.post("/{id}/reception", response_model=CommandeSchema)
 def receptionner_commande(
   id: int,
   receptionType: str,
@@ -74,7 +75,7 @@ def obtenir_commande(id: int, db: Session = Depends(get_db)):
 # ----------------------------
 # Modifier lignes d'une commande
 # ----------------------------
-@router.post("/{id}/modifier-lignes", response_model=Commande)
+@router.post("/{id}/modifier-lignes", response_model=CommandeSchema)
 def modifier_lignes(id: int, produits: List[ProduitCmdRequest], db: Session = Depends(get_db)):
   service = CommandeService(db)
   return service.modifier_lignes_commande(id, produits)
@@ -83,7 +84,7 @@ def modifier_lignes(id: int, produits: List[ProduitCmdRequest], db: Session = De
 # ----------------------------
 # Créer une commande fournisseur
 # ----------------------------
-@router.post("/commande_par_fournisseur", response_model=Commande)
+@router.post("/commande_par_fournisseur", response_model=CommandeSchema)
 def commande_by_fournisseur(
   fournisseurId: Optional[str],
   totalAmount: str,
@@ -107,7 +108,7 @@ def supprimer_commande(id: int, db: Session = Depends(get_db)):
 # ----------------------------
 # Ajouter fournisseur à une commande
 # ----------------------------
-@router.post("/{id}/ajouter-fournisseur", response_model=Commande)
+@router.post("/{id}/ajouter-fournisseur", response_model=CommandeSchema)
 def ajouter_fournisseur(id: int, fournisseurId: int, db: Session = Depends(get_db)):
   service = CommandeService(db)
   return service.ajouter_fournisseur(id, fournisseurId)
@@ -116,7 +117,7 @@ def ajouter_fournisseur(id: int, fournisseurId: int, db: Session = Depends(get_d
 # ----------------------------
 # Annuler une commande
 # ----------------------------
-@router.post("/{id}/annuler", response_model=Commande)
+@router.post("/{id}/annuler", response_model=CommandeSchema)
 def annuler_commande(id: int, db: Session = Depends(get_db)):
   service = CommandeService(db)
   return service.annuler_commande(id)
@@ -138,7 +139,7 @@ def imprimer_bon_pdf(id: int, db: Session = Depends(get_db)):
 # ----------------------------
 # Réception complémentaire
 # ----------------------------
-@router.post("/{id}/reception-complementaire", response_model=Commande)
+@router.post("/{id}/reception-complementaire", response_model=CommandeSchema)
 def reception_complementaire(id: int, produits: List[ProduitCmdRequest], db: Session = Depends(get_db)):
   service = CommandeService(db)
   return service.reception_complementaire(id, produits)
@@ -147,7 +148,7 @@ def reception_complementaire(id: int, produits: List[ProduitCmdRequest], db: Ses
 # ----------------------------
 # Ajouter justificatif
 # ----------------------------
-@router.post("/{id}/ajouter-justificatif", response_model=Commande)
+@router.post("/{id}/ajouter-justificatif", response_model=CommandeSchema)
 def ajouter_justificatif(id: int, justificatif: str, db: Session = Depends(get_db)):
   service = CommandeService(db)
   return service.ajouter_justificatif(id, justificatif)
@@ -174,7 +175,7 @@ def cloturer_commande(id: int, db: Session = Depends(get_db)):
 # ----------------------------
 # Ajouter facture
 # ----------------------------
-@router.post("/{id}/ajouter-facture", response_model=Commande)
+@router.post("/{id}/ajouter-facture", response_model=CommandeSchema)
 def ajouter_facture(id: int, facture: str, db: Session = Depends(get_db)):
   service = CommandeService(db)
   return service.ajouter_facture(id, facture)
@@ -228,7 +229,7 @@ def get_commande_info_by_product(
 # ----------------------------
 # Update commande simple (produit)
 # ----------------------------
-@router.post("/product-commande/update", response_model=Commande)
+@router.post("/product-commande/update", response_model=CommandeSchema)
 def update_commande_simple(
   commandeId: Optional[str] = None,
   produitCmdId: Optional[str] = None,

@@ -40,11 +40,11 @@ class CaisseService:
   def get_last_caisse(self):
     return self.db.query(Caisse).order_by(Caisse.id.desc()).first()
 
-  def get_caisse_active(self):
-    return self.db.query(Caisse).filter(Caisse.etat == "Ouvert", Caisse.supprimer == 0).first()
+  def get_caisse_active(db: Session):
+    return db.query(Caisse).filter(Caisse.etat == "Ouvert", Caisse.supprimer == 0).first()
 
-  def get_caisse_fermer(self):
-    return self.db.query(Caisse).filter(Caisse.etat == "Clot", Caisse.supprimer == 0).first()
+  def get_caisse_fermer(db: Session):
+    return db.query(Caisse).filter(Caisse.etat == "Clot", Caisse.supprimer == 0).first()
 
   def get_caisse_en_cours(self):
     return self.db.query(Caisse).filter(Caisse.etat == "En cours", Caisse.supprimer == 0).first()

@@ -5,7 +5,7 @@ from datetime import datetime
 
 
 from app.api.deps import get_db
-from app.models.en_rayon import EnRayon
+from app.models.en_rayon import EnRayon, EnRayonIn
 from app.models.rayon import Rayon
 from app.schemas.enrayon_dto import ProduitEnRayonDto, ProduitDetailIncrementEnRayonDto, EnRayonDto, \
   EnRayonPageableCustomDto
@@ -20,7 +20,7 @@ router = APIRouter(
 # ---------------------------
 # Ajouter produits en rayon
 # ---------------------------
-@router.post("/ajouter", response_model=List[EnRayon])
+@router.post("/ajouter", response_model=List[EnRayonIn])
 def ajouter_produits(produits: List[ProduitEnRayonDto], db: Session = Depends(get_db)):
   service = EnRayonService(db)
   return service.ajouter_produits_en_rayon(produits)
@@ -28,7 +28,7 @@ def ajouter_produits(produits: List[ProduitEnRayonDto], db: Session = Depends(ge
 # ---------------------------
 # Mettre à jour produits en rayon
 # ---------------------------
-@router.put("/mettre-a-jour", response_model=List[EnRayon])
+@router.put("/mettre-a-jour", response_model=List[EnRayonIn])
 def mettre_a_jour_produits(produits: List[ProduitEnRayonDto], db: Session = Depends(get_db)):
   service = EnRayonService(db)
   return service.mettre_a_jour_produits_en_rayon(produits)
@@ -44,7 +44,7 @@ def decrementer_stock(data: ProduitDetailIncrementEnRayonDto, db: Session = Depe
 # ---------------------------
 # Recherches par nom produit / produit / rayon / fournisseur
 # ---------------------------
-@router.get("/par-nom-produit", response_model=List[EnRayon])
+@router.get("/par-nom-produit", response_model=List[EnRayonIn])
 def get_par_nom_produit(nomProduit: str, db: Session = Depends(get_db)):
   return EnRayonService(db).get_produits_par_nom_produit(nomProduit)
 
@@ -56,41 +56,41 @@ def get_par_produit(produitId: int, db: Session = Depends(get_db)):
 def get_par_produit_all(produitId: int, produitType: str, db: Session = Depends(get_db)):
   return EnRayonService(db).get_produits_par_produit(produitId)
 
-@router.get("/par-nom-rayon", response_model=List[Rayon])
+@router.get("/par-nom-rayon", response_model=List[EnRayonIn])
 def get_par_nom_rayon(nomRayon: str, db: Session = Depends(get_db)):
   return EnRayonService(db).get_produits_par_nom_rayon(nomRayon)
 
-@router.get("/par-fournisseur", response_model=List[EnRayon])
+@router.get("/par-fournisseur", response_model=List[EnRayonIn])
 def get_par_fournisseur(nomFournisseur: str, db: Session = Depends(get_db)):
   return EnRayonService(db).get_produits_par_fournisseur(nomFournisseur)
 
-@router.get("/par-commande", response_model=List[EnRayon])
+@router.get("/par-commande", response_model=List[EnRayonIn])
 def get_par_commande(commandeId: int, db: Session = Depends(get_db)):
   return EnRayonService(db).get_produits_par_commande(commandeId)
 
 # ---------------------------
 # Recherches par intervalle (dates & prix)
 # ---------------------------
-@router.get("/par-date-livraison", response_model=List[EnRayon])
+@router.get("/par-date-livraison", response_model=List[EnRayonIn])
 def get_par_date_livraison(startDate: datetime, endDate: datetime, db: Session = Depends(get_db)):
   return EnRayonService(db).get_produits_par_intervalle_livraison(startDate, endDate)
 
-@router.get("/par-date-peremption", response_model=List[EnRayon])
+@router.get("/par-date-peremption", response_model=List[EnRayonIn])
 def get_par_date_peremption(startDate: datetime, endDate: datetime, db: Session = Depends(get_db)):
   return EnRayonService(db).get_produits_par_intervalle_peremption(startDate, endDate)
 
-@router.get("/par-prix-achat", response_model=List[EnRayon])
+@router.get("/par-prix-achat", response_model=List[EnRayonIn])
 def get_par_prix_achat(minPrix: float, maxPrix: float, db: Session = Depends(get_db)):
   return EnRayonService(db).get_produits_par_intervalle_prix_achat(minPrix, maxPrix)
 
-@router.get("/par-prix-vente", response_model=List[EnRayon])
+@router.get("/par-prix-vente", response_model=List[EnRayonIn])
 def get_par_prix_vente(minPrix: float, maxPrix: float, db: Session = Depends(get_db)):
   return EnRayonService(db).get_produits_par_intervalle_prix_vente(minPrix, maxPrix)
 
 # ---------------------------
 # Mise à jour simple (save)
 # ---------------------------
-@router.post("/save", response_model=EnRayon)
+@router.post("/save", response_model=EnRayonIn)
 def mettre_a_jour_produit(rayonDto: EnRayonDto, db: Session = Depends(get_db)):
   return EnRayonService(db).mettre_a_jour_produit(rayonDto)
 
