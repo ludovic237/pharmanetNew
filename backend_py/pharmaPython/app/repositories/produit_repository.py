@@ -1,11 +1,10 @@
 # repositories/produit_repository.py
+from __future__ import annotations
 from typing import List, Optional, Tuple
 from sqlalchemy.orm import Session
-from sqlalchemy import func, not_
-
-from app.models.en_rayon import EnRayon
+from sqlalchemy import func
 from app.models.produit import Produit
-
+from app.models.en_rayon import EnRayon
 
 class ProduitRepository:
   def __init__(self, db: Session):
@@ -51,44 +50,55 @@ class ProduitRepository:
   def find_by_nom_containing_ignore_case_pageable(
     self, nom: str, page: int, size: int
   ) -> Tuple[List[Produit], int]:
-    query = self.db.query(Produit).filter(func.lower(Produit.nom).like(f"%{nom.lower()}%"))
-    total = query.count()
-    rows = query.offset(page * size).limit(size).all()
+    q = self.db.query(Produit).filter(func.lower(Produit.nom).like(f"%{nom.lower()}%"))
+    total = q.count()
+    rows = q.offset(page * size).limit(size).all()
     return rows, total
 
   def find_produits_non_en_rayon(self) -> List[Produit]:
     subq = self.db.query(EnRayon.produit_id).subquery()
     return self.db.query(Produit).filter(~Produit.id.in_(subq)).all()
 
-  # Équivalent de ProduitSpecification.withFilters(...)
+  # ---- "Specification" Kotlin: withFilters(...) ----
   def filter_with_spec(
     self,
     query: Optional[str],
-    rayon_id: Optional[int],
-    fabriquant_id: Optional[int],
-    etagere_id: Optional[int],
-    forme_id: Optional[int],
-    magasin_id: Optional[int],
-    categorie_id: Optional[int],
+    rayon_id: Optional[str],
+    fabriquant_id: Optional[str],
+    etagere_id: Optional[str],
+    forme_id: Optional[str],
+    magasin_id: Optional[str],
+    categorie_id: Optional[str],
     page: int,
     size: int,
+    sort_by: str = "id",
+    direction: str = "DESC",
   ) -> Tuple[List[Produit], int]:
     q = self.db.query(Produit)
+
     if query:
       q = q.filter(func.lower(Produit.nom).like(f"%{query.lower()}%"))
-    if rayon_id:
-      q = q.filter(Produit.rayon_id == rayon_id)
-    if fabriquant_id:
-      q = q.filter(Produit.fabriquant_id == fabriquant_id)
-    if etagere_id:
-      q = q.filter(Produit.etagere_id == etagere_id)
-    if forme_id:
-      q = q.filter(Produit.forme_id == forme_id)
-    if magasin_id:
-      q = q.filter(Produit.magasin_id == magasin_id)
-    if categorie_id:
-      q = q.filter(Produit.categorie_id == categorie_id)
+    if rayon_id and rayon_id != "null":
+      q = q.filter(Produit.rayon_id == int(rayon_id))
+    if fabriquant_id and fabriquant_id != "null":
+      q = q.filter(Produit.fabriquant_id == int(fabriquant_id))
+    if etagere_id and etagere_id != "null":
+      q = q.filter(Produit.etagere_id == int(etagere_id))
+    if forme_id and forme_id != "null":
+      q = q.filter(Produit.forme_id == int(forme_id))
+    if magasin_id and magasin_id != "null":
+      q = q.filter(Produit.magasin_id == int(magasin_id))
+    if categorie_id and categorie_id != "null":
+      q = q.filter(Produit.categorie_id == int(categorie_id))
 
     total = q.count()
-    rows = q.offset(page * size).limit(size).all()
+    col = getattr(Produit, sort_by, Produit.id)
+    col = col.desc() if direction.upper() == "DESC" else col.asc()
+    rows = q.order_by(col).offset(page * size).limit(size).all()
     return rows, total
+
+  # helpers
+  def find_by_id(self, id_: int) -> Optional[Produit]:
+    return self.db.query(Produit).get(id_)
+  def save(self, entity: Produit) -> Produit:
+    self.db.add(entity); self.db.commit(); self.db.refresh(entity); return entity

@@ -9,7 +9,7 @@ from app.models.depense import Depense, DepenseIn
 from app.services.depense_service import DepenseService
 
 router = APIRouter(
-  prefix="/api/depenses",
+  prefix="/depenses",
   tags=["Depenses"],
   # dependencies=[Depends(jwt_authentication)]  # équivalent de @PreAuthorize("isAuthenticated()")
 )

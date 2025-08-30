@@ -18,7 +18,7 @@ class BonCaisseData(BaseModel):
 
 
 router = APIRouter(
-  prefix="/api/admin/bons",
+  prefix="/admin/bons",
   tags=["BonCaisse"]
 )
 

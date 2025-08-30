@@ -31,8 +31,8 @@ class Produit(Base):
   magasin_id = Column(Integer, ForeignKey("magasin.id"))
   supprimer = Column(Integer, default=0)
 
-  categorie = relationship("Categorie")
-  forme = relationship("Forme")
-  fabriquant = relationship("Fabriquant")
-  rayon = relationship("Rayon")
-  magasin = relationship("Magasin")
+  # categorie = relationship("Categorie")
+  # forme = relationship("Forme")
+  # fabriquant = relationship("Fabriquant")
+  # rayon = relationship("Rayon")
+  # magasin = relationship("Magasin")

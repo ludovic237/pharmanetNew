@@ -9,6 +9,14 @@ from sqlalchemy.orm import Session
 from app.models.en_rayon import EnRayon
 from app.models.rayon import Rayon
 from app.models.sortie_stock import SortieStock
+from app.repositories.en_rayon_repository import EnRayonRepository
+from app.repositories.forme_repository import FormeRepository
+from app.repositories.fournisseur_repository import FournisseurRepository
+from app.repositories.produit_detail_repository import ProduitDetailRepository
+from app.repositories.produit_repository import ProduitRepository
+from app.repositories.rayon_repository import RayonRepository
+from app.repositories.sortie_stock_repository import SortieStockRepository
+from app.repositories.type_sortie_repository import TypeSortieRepository
 from app.schemas.enrayon_dto import ProduitEnRayonDto, EnRayonDto, EnRayonPageableCustomDto
 
 
@@ -34,26 +42,17 @@ def _parse_iso_dt(s: Optional[str]) -> Optional[datetime]:
 class EnRayonService:
   def __init__(
     self,
-    db: Session,
-    *,
-    forme_repo,
-    sortie_stock_repo,
-    type_sortie_repo,
-    produit_repo,
-    fournisseur_repo,
-    enrayon_repo,
-    rayon_repo,
-    produit_detail_repo,
+    db: Session
   ):
     self.db = db
-    self.forme_repo = forme_repo
-    self.sortie_stock_repo = sortie_stock_repo
-    self.type_sortie_repo = type_sortie_repo
-    self.produit_repo = produit_repo
-    self.fournisseur_repo = fournisseur_repo
-    self.enrayon_repo = enrayon_repo
-    self.rayon_repo = rayon_repo
-    self.produit_detail_repo = produit_detail_repo
+    self.forme_repo = FormeRepository(db)
+    self.sortie_stock_repo = SortieStockRepository(db)
+    self.type_sortie_repo = TypeSortieRepository(db)
+    self.produit_repo = ProduitRepository(db)
+    self.fournisseur_repo = FournisseurRepository(db)
+    self.enrayon_repo = EnRayonRepository(db)
+    self.rayon_repo = RayonRepository(db)
+    self.produit_detail_repo = ProduitDetailRepository(db)
 
   # ---------------------------------------------------------------------
   # decrementerStock(enRayonId, produitDetailId)

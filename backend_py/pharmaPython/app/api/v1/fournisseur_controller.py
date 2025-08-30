@@ -7,7 +7,7 @@ from app.models.fournisseur import Fournisseur, FournisseurSchema, FournisseurIn
 from app.services.fournisseur_service import FournisseurService
 
 router = APIRouter(
-  prefix="/api/fournisseurs",
+  prefix="/fournisseurs",
   tags=["Fournisseurs"],
   # dependencies=[Depends(jwt_authentication)],
 )

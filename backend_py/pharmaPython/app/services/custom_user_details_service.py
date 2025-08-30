@@ -3,11 +3,13 @@
 from fastapi import Depends, HTTPException
 from sqlalchemy.orm import Session
 from passlib.context import CryptContext
-from models import Employe
 
 from typing import List
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
+
+from app.api.deps import get_db
+from app.models.employe import Employe
 
 # Exemple de configuration
 SECRET_KEY = "your-secret-key"

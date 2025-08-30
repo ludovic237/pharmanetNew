@@ -3,19 +3,21 @@ from sqlalchemy.orm import Session
 from typing import Any, Dict
 from fastapi import HTTPException
 
+from app.repositories.en_rayon_repository import EnRayonRepository
+from app.repositories.produit_detail_repository import ProduitDetailRepository
+from app.repositories.produit_repository import ProduitRepository
+from app.repositories.produit_retour_repository import ProduitRetourRepository
+from app.repositories.retour_produit_repository import RetourProduitRepository
+
+
 class RetourProduitService:
-  def __init__(self, db: Session,
-               retour_produit_repo,
-               produit_retour_repo,
-               produit_repo,
-               produit_detail_repo,
-               enrayon_repo):
+  def __init__(self, db: Session):
     self.db = db
-    self.retour_produit_repo = retour_produit_repo
-    self.produit_retour_repo = produit_retour_repo
-    self.produit_repo = produit_repo
-    self.produit_detail_repo = produit_detail_repo
-    self.enrayon_repo = enrayon_repo
+    self.retour_produit_repo = RetourProduitRepository(db)
+    self.produit_retour_repo = ProduitRetourRepository(db)
+    self.produit_repo = ProduitRepository(db)
+    self.produit_detail_repo = ProduitDetailRepository(db)
+    self.enrayon_repo = EnRayonRepository(db)
 
   def lister_retour_produits_avec_details(self, page: int, size: int):
     rows, total = self.retour_produit_repo.find_all(page, size)

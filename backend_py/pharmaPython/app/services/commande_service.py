@@ -19,25 +19,17 @@ from app.utility.user_utils import UserUtils
 class CommandeService:
   def __init__(
     self,
-    db: Session,
-    employe_repo: EmployeRepository,
-    produit_cmd_repo: ProduitCmdRepository,
-    fournisseur_repo: FournisseurRepository,
-    commande_repo: CommandeRepository,
-    produit_repo: ProduitRepository,
-    enrayon_repo: EnRayonRepository,
-    user_repo: UserRepository,
-    user_utils: UserUtils
+    db: Session
   ):
     self.db = db
-    self.employe_repo = employe_repo
-    self.produit_cmd_repo = produit_cmd_repo
-    self.fournisseur_repo = fournisseur_repo
-    self.commande_repo = commande_repo
-    self.produit_repo = produit_repo
-    self.enrayon_repo = enrayon_repo
-    self.user_repo = user_repo
-    self.user_utils = user_utils
+    self.employe_repo = EmployeRepository(db)
+    self.produit_cmd_repo = ProduitCmdRepository(db)
+    self.fournisseur_repo = FournisseurRepository(db)
+    self.commande_repo = CommandeRepository(db)
+    self.produit_repo = ProduitRepository(db)
+    self.enrayon_repo = EnRayonRepository(db)
+    self.user_repo = UserRepository(db)
+    self.user_utils = UserUtils
 
   # ----------------------------
   # Créer une commande simple

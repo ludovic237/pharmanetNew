@@ -6,7 +6,7 @@ from app.api.deps import get_db
 from app.models.rayon import Rayon, RayonSchema, RayonIn
 from app.services.rayon_service import RayonService
 
-router = APIRouter(prefix="/api/rayons", tags=["Rayons"])
+router = APIRouter(prefix="/rayons", tags=["Rayons"])
 
 
 @router.post("/", status_code=201, response_model=RayonSchema)

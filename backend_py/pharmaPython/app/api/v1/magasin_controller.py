@@ -7,7 +7,7 @@ from app.models.magasin import Magasin, MagasinSchema, MagasinIn
 from app.services.magasin_service import MagasinService
 
 router = APIRouter(
-  prefix="/api/magasins",
+  prefix="/magasins",
   tags=["Magasins"],
 )
 

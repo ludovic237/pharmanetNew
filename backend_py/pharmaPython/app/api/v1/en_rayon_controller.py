@@ -12,7 +12,7 @@ from app.schemas.enrayon_dto import ProduitEnRayonDto, ProduitDetailIncrementEnR
 from app.services.en_rayon_service import EnRayonService
 
 router = APIRouter(
-  prefix="/api/en-rayon",
+  prefix="/en-rayon",
   tags=["EnRayon"],
   # dependencies=[Depends(jwt_authentication)]  # équivalent @PreAuthorize
 )

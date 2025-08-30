@@ -23,7 +23,7 @@ class Vente(Base):
   supprimer = Column(Integer, default=0)
 
   # malade = relationship("Malade")
-  # user = relationship("User")
+  user = relationship("User")
   # prescripteur = relationship("Prescripteur")
-  # employe = relationship("Employe")
+  employe = relationship("Employe")
   # caisse = relationship("Caisse")

@@ -10,7 +10,7 @@ from app.schemas.inventaire_dto import InventaireRequestDto, InventaireNewCreate
 from app.services.inventaire_service import InventaireService
 
 router = APIRouter(
-  prefix="/api/admin/inventaire",
+  prefix="/admin/inventaire",
   tags=["Inventaire"],
   # dependencies=[Depends(jwt_authentication)],
 )

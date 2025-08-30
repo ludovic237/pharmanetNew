@@ -8,7 +8,7 @@ from app.schemas.type_sortie_dto import TypeSortieDto
 from app.services.type_sortie_service import TypeSortieService
 
 router = APIRouter(
-  prefix="/api/type-sortie",
+  prefix="/type-sortie",
   tags=["TypeSortie"],
   # dependencies=[Depends(jwt_authentication)],
 )

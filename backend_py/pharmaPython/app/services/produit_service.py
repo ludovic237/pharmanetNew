@@ -8,6 +8,27 @@ from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from decimal import Decimal, ROUND_HALF_UP
 
+from app.repositories.caisse_repository import CaisseRepository
+from app.repositories.categorie_repository import CategorieRepository
+from app.repositories.commande_repository import CommandeRepository
+from app.repositories.concerner_repository import ConcernerRepository
+from app.repositories.employe_repository import EmployeRepository
+from app.repositories.en_rayon_repository import EnRayonRepository
+from app.repositories.fabriquant_repository import FabriquantRepository
+from app.repositories.forme_repository import FormeRepository
+from app.repositories.fournisseur_repository import FournisseurRepository
+from app.repositories.magasin_repository import MagasinRepository
+from app.repositories.produit_cmd_repository import ProduitCmdRepository
+from app.repositories.produit_detail_repository import ProduitDetailRepository
+from app.repositories.produit_repository import ProduitRepository
+from app.repositories.produit_retour_repository import ProduitRetourRepository
+from app.repositories.rayon_repository import RayonRepository
+from app.repositories.retour_produit_repository import RetourProduitRepository
+from app.repositories.sortie_stock_repository import SortieStockRepository
+from app.repositories.vente_repository import VenteRepository
+from app.services.caisse_service import CaisseService
+from app.utility.user_utils import UserUtils
+
 
 # --- Helpers -----------------------------------------------------------------
 
@@ -38,50 +59,29 @@ class ProduitService:
 
   def __init__(
     self,
-    db: Session,
-    *,
-    user_utils,
-    retour_produit_repo,
-    produit_retour_repo,
-    produit_cmd_repo,
-    produit_detail_repo,
-    employe_repo,
-    concerner_repo,
-    vente_repo,
-    produit_repo,
-    categorie_repo,
-    fournisseur_repo,
-    rayon_repo,
-    enrayon_repo,
-    forme_repo,
-    magasin_repo,
-    fabriquant_repo,
-    caisse_repo,
-    commande_repo,
-    caisse_service,
-    sortie_stock_repo,
+    db: Session
   ):
     self.db = db
-    self.user_utils = user_utils
-    self.retour_produit_repo = retour_produit_repo
-    self.produit_retour_repo = produit_retour_repo
-    self.produit_cmd_repo = produit_cmd_repo
-    self.produit_detail_repo = produit_detail_repo
-    self.employe_repo = employe_repo
-    self.concerner_repo = concerner_repo
-    self.vente_repo = vente_repo
-    self.produit_repo = produit_repo
-    self.categorie_repo = categorie_repo
-    self.fournisseur_repo = fournisseur_repo
-    self.rayon_repo = rayon_repo
-    self.enrayon_repo = enrayon_repo
-    self.forme_repo = forme_repo
-    self.magasin_repo = magasin_repo
-    self.fabriquant_repo = fabriquant_repo
-    self.caisse_repo = caisse_repo
-    self.commande_repo = commande_repo
-    self.caisse_service = caisse_service
-    self.sortie_stock_repo = sortie_stock_repo
+    self.user_utils = UserUtils
+    self.retour_produit_repo = RetourProduitRepository(db)
+    self.produit_retour_repo = ProduitRetourRepository(db)
+    self.produit_cmd_repo = ProduitCmdRepository(db)
+    self.produit_detail_repo = ProduitDetailRepository(db)
+    self.employe_repo = EmployeRepository(db)
+    self.concerner_repo = ConcernerRepository(db)
+    self.vente_repo = VenteRepository(db)
+    self.produit_repo = ProduitRepository(db)
+    self.categorie_repo = CategorieRepository(db)
+    self.fournisseur_repo = FournisseurRepository(db)
+    self.rayon_repo = RayonRepository(db)
+    self.enrayon_repo = EnRayonRepository(db)
+    self.forme_repo = FormeRepository(db)
+    self.magasin_repo = MagasinRepository(db)
+    self.fabriquant_repo = FabriquantRepository(db)
+    self.caisse_repo = CaisseRepository(db)
+    self.commande_repo = CommandeRepository(db)
+    self.caisse_service = CaisseService
+    self.sortie_stock_repo = SortieStockRepository(db)
 
   # ----------------------------------------------------------------------
   # createProduit(request)

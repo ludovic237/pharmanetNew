@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, Request
+from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from datetime import datetime, time
 from passlib.context import CryptContext
@@ -9,8 +10,10 @@ from app.models.user import User
 from app.repositories.caisse_repository import CaisseRepository
 from app.repositories.employe_repository import EmployeRepository
 from app.repositories.user_repository import UserRepository
+from app.schemas.auth_dto import CodebarreRequest
 from app.services.caisse_service import CaisseService
 from app.services.jwt_service import create_access_token
+from app.utility.jwt_util import JwtUtil
 from app.utility.user_utils import UserUtils
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
@@ -39,15 +42,16 @@ def check_session(request: Request):
 # Login avec identifiant/codebarre
 # ---------------------------
 @router.post("/login/codebarre")
-def login_codebarre(codebarre: str, db: Session = Depends(get_db)):
-  if not codebarre:
+def login_codebarre(data: CodebarreRequest, db: Session = Depends(get_db)):
+  if not data.codebarre:
     raise HTTPException(status_code=400, detail="Codebarre obligatoire")
-  employe = EmployeRepository(db).find_by_codebarre_id(codebarre)
+  employe = EmployeRepository(db).find_by_codebarre_id(data.codebarre)
   if not employe:
     raise HTTPException(status_code=404, detail="Employé non trouvé")
-  token = create_access_token({"sub": employe.identifiant})
+  # token = create_access_token({"sub": employe.identifiant})
+  token = JwtUtil.generate_token("",employe.identifiant)
 
-  active_caisse = CaisseService.get_caisse_active(db)
+  active_caisse = CaisseService.get_caisse_active_db(db)
   caisse_en_cours = CaisseRepository(db).find_by_user_and_etat(employe, "En cours")
   caisse_fermer = CaisseService.get_caisse_fermer(db)
 
@@ -171,3 +175,6 @@ def generer_session_id() -> str:
     return "soir"
   else:
     return "soir"
+
+class CodebarreRequest(BaseModel):
+  codebarre: str

@@ -11,7 +11,7 @@ from app.services.employe_service import EmployeService
 from app.services.user_service import UserService
 
 router = APIRouter(
-  prefix="/api/admin/users-employees",
+  prefix="/admin/users-employees",
   tags=["Users & Employees"],
   # dependencies=[Depends(jwt_authentication)]  # équivalent de @PreAuthorize("isAuthenticated()")
 )

@@ -7,7 +7,7 @@ from app.models.prescripteur import Prescripteur, PrescripteurSchema, Prescripte
 from app.services.prescripteur_service import PrescripteurService
 
 router = APIRouter(
-  prefix="/api/prescripteurs",
+  prefix="/prescripteurs",
   tags=["Prescripteurs"],
 )
 

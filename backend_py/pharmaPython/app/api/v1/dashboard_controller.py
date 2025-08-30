@@ -7,14 +7,15 @@ from typing import List
 from app.api.deps import get_db
 from app.schemas.dashboard_dto import OrderRow, TopProduct, StockAlertRow, SalesMonthlyPoint, CategorySales, KpiDto
 from app.services.dashboard_service import DashboardService
+from app.utility.jwt_authentication import jwt_authentication
 
 # Si tu as une dépendance d'authentification JWT, dé-commente:
 # from security.jwt_authentication import jwt_authentication
 
 router = APIRouter(
-  prefix="/api/dashboard",
+  prefix="/dashboard",
   tags=["Dashboard"],
-  # dependencies=[Depends(jwt_authentication)]  # équiv. @PreAuthorize("isAuthenticated()")
+  dependencies=[Depends(jwt_authentication)]  # équiv. @PreAuthorize("isAuthenticated()")
 )
 
 

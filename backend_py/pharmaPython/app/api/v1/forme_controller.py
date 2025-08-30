@@ -7,7 +7,7 @@ from app.models.forme import Forme, FormeIn, FormeSchema
 from app.services.forme_service import FormeService
 
 router = APIRouter(
-  prefix="/api/formes",
+  prefix="/formes",
   tags=["Formes"],
   # dependencies=[Depends(jwt_authentication)],
 )

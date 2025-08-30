@@ -8,7 +8,7 @@ from app.services.caisse_service import CaisseService
 from app.utility.user_utils import UserUtils
 
 router = APIRouter(
-  prefix="/api/caisses",
+  prefix="/caisses",
   tags=["Caisse"]
 )
 

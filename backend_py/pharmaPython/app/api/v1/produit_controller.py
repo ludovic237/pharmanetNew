@@ -8,7 +8,7 @@ from app.schemas.produit_detail_dto import ProduitRequestDto, ProduitResponseNew
   ProduitStockUpdateRequestDto
 from app.services.produit_service import ProduitService
 
-router = APIRouter(prefix="/api/produits", tags=["Produits"])
+router = APIRouter(prefix="/produits", tags=["Produits"])
 
 @router.post("/", status_code=201)
 def create_produit(request: ProduitRequestDto, db: Session = Depends(get_db)):

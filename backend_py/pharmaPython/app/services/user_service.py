@@ -1,10 +1,13 @@
 # services/user_service.py
 from sqlalchemy.orm import Session
 
+from app.repositories.user_repository import UserRepository
+
+
 class UserService:
-  def __init__(self, db: Session, user_repo):
+  def __init__(self, db: Session):
     self.db = db
-    self.user_repo = user_repo
+    self.user_repo = UserRepository(db)
 
   def get_all_users(self):
     return self.user_repo.find_all()

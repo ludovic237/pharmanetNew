@@ -4,6 +4,25 @@ from typing import Any, Dict, List, Optional, Tuple
 from sqlalchemy.orm import Session
 from fastapi import HTTPException
 
+from app.repositories.caisse_repository import CaisseRepository
+from app.repositories.categorie_repository import CategorieRepository
+from app.repositories.concerner_repository import ConcernerRepository
+from app.repositories.employe_repository import EmployeRepository
+from app.repositories.en_rayon_repository import EnRayonRepository
+from app.repositories.fabriquant_repository import FabriquantRepository
+from app.repositories.forme_repository import FormeRepository
+from app.repositories.fournisseur_repository import FournisseurRepository
+from app.repositories.magasin_repository import MagasinRepository
+from app.repositories.produit_cmd_repository import ProduitCmdRepository
+from app.repositories.produit_detail_repository import ProduitDetailRepository
+from app.repositories.produit_repository import ProduitRepository
+from app.repositories.produit_retour_repository import ProduitRetourRepository
+from app.repositories.rayon_repository import RayonRepository
+from app.repositories.retour_produit_repository import RetourProduitRepository
+from app.repositories.vente_repository import VenteRepository
+from app.utility.user_utils import UserUtils
+
+
 # Exemple : from schemas.produit_detail_dto import ProduitDetailDto
 # Adapte les imports ci-dessus à tes propres DTO Pydantic.
 
@@ -22,43 +41,25 @@ class ProduitDetailService:
   def __init__(
     self,
     db: Session,
-    *,
-    user_utils,
-    produit_detail_repo,
-    retour_produit_repo,
-    produit_retour_repo,
-    produit_cmd_repo,
-    employe_repo,
-    concerner_repo,
-    vente_repo,
-    produit_repo,
-    categorie_repo,
-    fournisseur_repo,
-    rayon_repo,
-    enrayon_repo,
-    forme_repo,
-    magasin_repo,
-    fabriquant_repo,
-    caisse_repo,
   ):
     self.db = db
-    self.user_utils = user_utils
-    self.produit_detail_repo = produit_detail_repo
-    self.retour_produit_repo = retour_produit_repo
-    self.produit_retour_repo = produit_retour_repo
-    self.produit_cmd_repo = produit_cmd_repo
-    self.employe_repo = employe_repo
-    self.concerner_repo = concerner_repo
-    self.vente_repo = vente_repo
-    self.produit_repo = produit_repo
-    self.categorie_repo = categorie_repo
-    self.fournisseur_repo = fournisseur_repo
-    self.rayon_repo = rayon_repo
-    self.enrayon_repo = enrayon_repo
-    self.forme_repo = forme_repo
-    self.magasin_repo = magasin_repo
-    self.fabriquant_repo = fabriquant_repo
-    self.caisse_repo = caisse_repo
+    self.user_utils = UserUtils
+    self.produit_detail_repo = ProduitDetailRepository(db)
+    self.retour_produit_repo = RetourProduitRepository(db)
+    self.produit_retour_repo = ProduitRetourRepository(db)
+    self.produit_cmd_repo = ProduitCmdRepository(db)
+    self.employe_repo = EmployeRepository(db)
+    self.concerner_repo = ConcernerRepository(db)
+    self.vente_repo = VenteRepository(db)
+    self.produit_repo = ProduitRepository(db)
+    self.categorie_repo = CategorieRepository(db)
+    self.fournisseur_repo = FournisseurRepository(db)
+    self.rayon_repo = RayonRepository(db)
+    self.enrayon_repo = EnRayonRepository(db)
+    self.forme_repo = FormeRepository(db)
+    self.magasin_repo = MagasinRepository(db)
+    self.fabriquant_repo = FabriquantRepository(db)
+    self.caisse_repo = CaisseRepository(db)
 
   # ---------------------------------------------------------------------
   # getProduitDetailsByName(nom): List<Map<String,Any?>>

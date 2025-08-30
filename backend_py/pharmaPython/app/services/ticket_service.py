@@ -2,11 +2,13 @@
 from sqlalchemy.orm import Session
 from datetime import datetime, date
 
+from app.repositories.ticket_caisse_repository import TicketCaisseRepository
+
 
 class TicketService:
-  def __init__(self, db: Session, ticket_repo):
+  def __init__(self, db: Session):
     self.db = db
-    self.ticket_repo = ticket_repo
+    self.ticket_repo = TicketCaisseRepository(db)
 
   def get_all_tickets(self):
     return self.ticket_repo.find_all()

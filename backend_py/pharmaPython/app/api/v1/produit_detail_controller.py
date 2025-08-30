@@ -6,7 +6,7 @@ from app.api.deps import get_db
 from app.schemas.produit_detail_dto import ProduitDetailDto
 from app.services.produit_detail_service import ProduitDetailService
 
-router = APIRouter(prefix="/api/produits-detail", tags=["Produits detail"])
+router = APIRouter(prefix="/produits-detail", tags=["Produits detail"])
 
 @router.get("/info/{produitId}")
 def get_produit_details_info(produitId: str, db: Session = Depends(get_db)):

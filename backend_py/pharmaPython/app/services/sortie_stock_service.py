@@ -2,19 +2,21 @@
 from sqlalchemy.orm import Session
 from datetime import datetime
 
+from app.repositories.en_rayon_repository import EnRayonRepository
+from app.repositories.produit_detail_repository import ProduitDetailRepository
+from app.repositories.produit_repository import ProduitRepository
+from app.repositories.sortie_stock_repository import SortieStockRepository
+from app.repositories.type_sortie_repository import TypeSortieRepository
+
+
 class SortieStockService:
-  def __init__(self, db: Session,
-               produit_detail_repo,
-               sortie_stock_repo,
-               enrayon_repo,
-               type_sortie_repo,
-               produit_repo):
+  def __init__(self, db: Session):
     self.db = db
-    self.produit_detail_repo = produit_detail_repo
-    self.sortie_stock_repo = sortie_stock_repo
-    self.enrayon_repo = enrayon_repo
-    self.type_sortie_repo = type_sortie_repo
-    self.produit_repo = produit_repo
+    self.produit_detail_repo = ProduitDetailRepository(db)
+    self.sortie_stock_repo = SortieStockRepository(db)
+    self.enrayon_repo = EnRayonRepository(db)
+    self.type_sortie_repo = TypeSortieRepository(db)
+    self.produit_repo = ProduitRepository(db)
 
   def get_sortie_stock_pageable(self, nomProduit, typeSortie, enRayonId, produitDetailId, page, size):
     rows, total = self.sortie_stock_repo.filter_sortie_stock(

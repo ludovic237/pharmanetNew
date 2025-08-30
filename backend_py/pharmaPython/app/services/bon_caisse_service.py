@@ -2,14 +2,16 @@ from sqlalchemy.orm import Session
 from datetime import datetime
 
 from app.models.bon_caisse import BonCaisse
+from app.repositories.bon_caisse_repository import BonCaisseRepository
 from app.schemas.bon_caisse_dto import BonCaisseData
+from app.services.caisse_service import CaisseService
 
 
 class BonCaisseService:
-  def __init__(self, db: Session, caisse_service, bon_caisse_repository):
+  def __init__(self, db: Session):
     self.db = db
-    self.caisse_service = caisse_service
-    self.bon_caisse_repository = bon_caisse_repository
+    self.caisse_service = CaisseService
+    self.bon_caisse_repository = BonCaisseRepository(db)
 
   def get_all_bons(self) -> list[BonCaisse]:
     return self.bon_caisse_repository.find_all(self.db)

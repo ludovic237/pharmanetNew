@@ -1,11 +1,14 @@
 # services/app_setting_service.py
 from __future__ import annotations
 from typing import Optional, List
+from sqlalchemy.orm import Session
+from app.repositories.app_setting_repository import AppSettingRepository
+
 
 class AppSettingService:
 
-  def __init__(self, *, app_setting_repo):
-    self.app_setting_repo = app_setting_repo
+  def __init__(self, db:Session):
+    self.app_setting_repo = AppSettingRepository(db)
 
   # getParam(key:String): String?
   def get_param(self, key: str) -> Optional[str]:

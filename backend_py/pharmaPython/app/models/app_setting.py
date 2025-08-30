@@ -1,4 +1,17 @@
 from pydantic import BaseModel
+from sqlalchemy import Column, String, Integer
+
+from app.core.db import Base
+
+
+class AppSetting(Base):
+  __tablename__ = "application_settings"
+  __table_args__ = {"extend_existing": True}
+
+  id = Column(Integer, primary_key=True, autoincrement=True, nullable=False)
+  key_name = Column(String, nullable=True, index=True)
+  value = Column(String, nullable=True)
+  type = Column(String, nullable=True)
 
 
 class AppSettingSchema(BaseModel):

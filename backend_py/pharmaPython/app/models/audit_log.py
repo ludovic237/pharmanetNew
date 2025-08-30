@@ -4,6 +4,7 @@ from app.core.db import Base
 
 class AuditLog(Base):
     __tablename__ = "audit_logs"
+    __table_args__ = {"extend_existing": True}
 
     id = Column(Integer, primary_key=True, autoincrement=True, nullable=False)
     user_id = Column(Integer, nullable=True, index=True)

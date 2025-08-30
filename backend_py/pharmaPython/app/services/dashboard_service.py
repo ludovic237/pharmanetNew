@@ -2,29 +2,29 @@ from datetime import datetime
 from sqlalchemy.orm import Session
 from typing import List
 
+from app.repositories.caisse_repository import CaisseRepository
+from app.repositories.commande_repository import CommandeRepository
+from app.repositories.concerner_repository import ConcernerRepository
+from app.repositories.depense_repository import DepenseRepository
+from app.repositories.en_rayon_repository import EnRayonRepository
+from app.repositories.produit_vendu_repository import ProduitVenduRepository
+from app.repositories.retour_produit_repository import RetourProduitRepository
+from app.repositories.vente_repository import VenteRepository
 from app.schemas.dashboard_dto import SessionsDto, AlertsDto, KpiDto, CategorySales, SalesMonthlyPoint, TopProduct, \
   OrderRow, StockAlertRow
 
 
 class DashboardService:
-  def __init__(self, db: Session,
-               depense_repo,
-               caisse_repo,
-               concerner_repo,
-               commande_repo,
-               retour_repo,
-               produit_vendu_repo,
-               enrayon_repo,
-               vente_repo):
+  def __init__(self, db: Session):
     self.db = db
-    self.depense_repo = depense_repo
-    self.caisse_repo = caisse_repo
-    self.concerner_repo = concerner_repo
-    self.commande_repo = commande_repo
-    self.retour_repo = retour_repo
-    self.produit_vendu_repo = produit_vendu_repo
-    self.enrayon_repo = enrayon_repo
-    self.vente_repo = vente_repo
+    self.depense_repo = DepenseRepository(db)
+    self.caisse_repo = CaisseRepository(db)
+    self.concerner_repo = ConcernerRepository(db)
+    self.commande_repo = CommandeRepository(db)
+    self.retour_repo = RetourProduitRepository(db)
+    self.produit_vendu_repo = ProduitVenduRepository(db)
+    self.enrayon_repo = EnRayonRepository(db)
+    self.vente_repo = VenteRepository(db)
 
   # ----------------------------
   # KPIs principaux
@@ -46,7 +46,7 @@ class DashboardService:
     )
 
     # Sparkline brute : série de CA par mois
-    series = [row.total for row in self.vente_repo.sales_monthly(from_dt, to_dt)]
+    series = [row["total"] for row in self.vente_repo.sales_monthly(from_dt, to_dt)]
 
     return KpiDto(
       ca=ca,
@@ -64,15 +64,17 @@ class DashboardService:
   # ----------------------------
   def get_sales_monthly(self, from_dt: datetime, to_dt: datetime) -> List[SalesMonthlyPoint]:
     rows = self.vente_repo.sales_monthly(from_dt, to_dt)
-    return [SalesMonthlyPoint(mois=row.mois, total=row.total) for row in rows]
+    return [SalesMonthlyPoint(mois=row["mois"], total=row["total"]) for row in rows]
 
   # ----------------------------
   # Ventes par catégorie
   # ----------------------------
   def get_sales_by_category(self, from_dt: datetime, to_dt: datetime) -> List[CategorySales]:
     rows = self.concerner_repo.sales_by_category(from_dt, to_dt)
+    print("rows")
+    print(rows)
     return [
-      CategorySales(categorie=row.categorie or "Sans catégorie", total=row.total)
+      CategorySales(categorie=(row["categorie"] or "Sans catégorie"), total=row["total"])
       for row in rows
     ]
 
@@ -81,7 +83,7 @@ class DashboardService:
   # ----------------------------
   def get_top_products(self, limit: int, from_dt: datetime, to_dt: datetime) -> List[TopProduct]:
     rows = self.concerner_repo.top_products(limit, from_dt, to_dt)
-    return [TopProduct(nom=row.nom, qty=row.qty) for row in rows]
+    return [TopProduct(nom=row["nom"], qty=row["qty"]) for row in rows]
 
   # ----------------------------
   # Commandes récentes
@@ -91,14 +93,14 @@ class DashboardService:
     rows = self.commande_repo.orders_recent(size, offset)
     return [
       OrderRow(
-        id=row.id,
-        ref=row.ref,
-        fournisseur=row.fournisseur,
-        montantCmd=row.montantCmd,
-        montantRecu=row.montantRecu,
-        etat=row.etat,
-        dateCreation=row.dateCreation,
-        dateLivraison=row.dateLivraison
+        id=row["id"],
+        ref=row["ref"],
+        fournisseur=row["fournisseur"],
+        montantCmd=row["montantCmd"],
+        montantRecu=row["montantRecu"],
+        etat=row["etat"],
+        dateCreation=row["dateCreation"],
+        dateLivraison=row["dateLivraison"]
       )
       for row in rows
     ]
@@ -110,9 +112,9 @@ class DashboardService:
     rows = self.enrayon_repo.stock_alerts(low, days, limit)
     return [
       StockAlertRow(
-        produit=row.produit,
-        quantiteRestante=row.quantiteRestante,
-        datePeremption=row.datePeremption
+        produit=row["produit"],
+        quantiteRestante=row["quantiteRestante"],
+        datePeremption=row["datePeremption"]
       )
       for row in rows
     ]

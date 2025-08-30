@@ -7,7 +7,7 @@ from app.api.deps import get_db
 from app.models.fabriquant import Fabriquant, FabriquantSchema, FabriquantIn
 from app.services.fabriquant_service import FabriquantService
 
-router = APIRouter(prefix="/api/fabriquants", tags=["Fabriquants"])
+router = APIRouter(prefix="/fabriquants", tags=["Fabriquants"])
 
 
 @router.post("/", response_model=FabriquantSchema, status_code=201)

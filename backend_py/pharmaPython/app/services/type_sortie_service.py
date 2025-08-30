@@ -1,10 +1,13 @@
 # services/type_sortie_service.py
 from sqlalchemy.orm import Session
 
+from app.repositories.type_sortie_repository import TypeSortieRepository
+
+
 class TypeSortieService:
-  def __init__(self, db: Session, type_sortie_repo):
+  def __init__(self, db: Session):
     self.db = db
-    self.type_sortie_repo = type_sortie_repo
+    self.type_sortie_repo = TypeSortieRepository(db)
 
   def get_type_sortie_pageable(self, nom: str, page: int, size: int):
     rows, total = self.type_sortie_repo.filter_type_sortie(nom, page, size)

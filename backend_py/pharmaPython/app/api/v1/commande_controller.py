@@ -9,7 +9,7 @@ from app.schemas.commande_dto import ProduitCmdRequest, CommandeNewDTO, Commande
 from app.services.commande_service import CommandeService
 
 router = APIRouter(
-  prefix="/api/commandes",
+  prefix="/commandes",
   tags=["Commandes"]
 )
 

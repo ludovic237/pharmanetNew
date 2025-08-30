@@ -8,30 +8,46 @@ from fastapi import HTTPException
 
 from app.core.pagination import Page
 from app.models.caisse import Caisse
+from app.repositories.bon_caisse_repository import BonCaisseRepository
+from app.repositories.caisse_repository import CaisseRepository
+from app.repositories.concerner_repository import ConcernerRepository
+from app.repositories.depense_repository import DepenseRepository
+from app.repositories.employe_repository import EmployeRepository
+from app.repositories.en_rayon_repository import EnRayonRepository
+from app.repositories.facturation_repository import FacturationRepository
+from app.repositories.facture_electronique_repository import FactureElectroniqueRepository
+from app.repositories.facture_espece_repository import FactureEspeceRepository
+from app.repositories.facture_ticket_repository import FactureTicketRepository
+from app.repositories.produit_detail_repository import ProduitDetailRepository
+from app.repositories.produit_repository import ProduitRepository
+from app.repositories.produit_retour_repository import ProduitRetourRepository
+from app.repositories.retour_produit_repository import RetourProduitRepository
+from app.repositories.vente_repository import VenteRepository
 from app.schemas.caisse_dto import CaisseOuvertureRequestDto, CaisseDto
+from app.utility.user_utils import UserUtils
 
 
 class CaisseService:
 
-  def __init__(self, db: Session, user_utils, repos):
+  def __init__(self, db: Session,):
     self.db = db
-    self.user_utils = user_utils
+    self.user_utils = UserUtils
     # repos est un dict contenant tous les repositories
-    self.caisse_repo = repos["caisse"]
-    self.boncaisse_repo = repos["boncaisse"]
-    self.retour_repo = repos["retour_produit"]
-    self.depense_repo = repos["depense"]
-    self.vente_repo = repos["vente"]
-    self.employe_repo = repos["employe"]
-    self.produit_retour_repo = repos["produit_retour"]
-    self.concerner_repo = repos["concerner"]
-    self.facturation_repo = repos["facturation"]
-    self.facture_espece_repo = repos["facture_espece"]
-    self.facture_ticket_repo = repos["facture_ticket"]
-    self.facture_elec_repo = repos["facture_electronique"]
-    self.enrayon_repo = repos["enrayon"]
-    self.produit_repo = repos["produit"]
-    self.produit_detail_repo = repos["produit_detail"]
+    self.caisse_repo = CaisseRepository(db)
+    self.boncaisse_repo = BonCaisseRepository(db)
+    self.retour_repo = RetourProduitRepository(db)
+    self.depense_repo = DepenseRepository(db)
+    self.vente_repo = VenteRepository(db)
+    self.employe_repo = EmployeRepository(db)
+    self.produit_retour_repo = ProduitRetourRepository(db)
+    self.concerner_repo = ConcernerRepository(db)
+    self.facturation_repo = FacturationRepository(db)
+    self.facture_espece_repo = FactureEspeceRepository(db)
+    self.facture_ticket_repo = FactureTicketRepository(db)
+    self.facture_elec_repo = FactureElectroniqueRepository(db)
+    self.enrayon_repo = EnRayonRepository(db)
+    self.produit_repo = ProduitRepository(db)
+    self.produit_detail_repo = ProduitDetailRepository(db)
 
   # === Vérifications d'état ===
   def is_caisse_ouverte(self) -> bool:
@@ -40,7 +56,10 @@ class CaisseService:
   def get_last_caisse(self):
     return self.db.query(Caisse).order_by(Caisse.id.desc()).first()
 
-  def get_caisse_active(db: Session):
+  def get_caisse_active(self):
+    return self.db.query(Caisse).filter(Caisse.etat == "Ouvert", Caisse.supprimer == 0).first()
+
+  def get_caisse_active_db(db:Session):
     return db.query(Caisse).filter(Caisse.etat == "Ouvert", Caisse.supprimer == 0).first()
 
   def get_caisse_fermer(db: Session):

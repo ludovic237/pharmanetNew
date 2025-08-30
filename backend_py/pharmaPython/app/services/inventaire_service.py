@@ -9,8 +9,19 @@ from sqlalchemy import asc, desc
 
 from app.models.inventaire import Inventaire
 from app.models.produit_inventaire import ProduitInventaire
+from app.repositories.categorie_repository import CategorieRepository
+from app.repositories.employe_repository import EmployeRepository
+from app.repositories.en_rayon_repository import EnRayonRepository
+from app.repositories.fabriquant_repository import FabriquantRepository
+from app.repositories.forme_repository import FormeRepository
+from app.repositories.fournisseur_repository import FournisseurRepository
+from app.repositories.inventaire_repository import InventaireRepository
+from app.repositories.produit_inventaire_repository import ProduitInventaireRepository
+from app.repositories.produit_repository import ProduitRepository
+from app.repositories.rayon_repository import RayonRepository
 from app.schemas.inventaire_dto import InventaireRequestDto, InventaireUpdateRequestDto, InventaireNewCreatetDto, \
   InventaireOneProductUpdateRequestDto
+from app.utility.user_utils import UserUtils
 
 
 # Hypothèses de modèles SQLAlchemy (adapte à ton schéma réel)
@@ -43,31 +54,19 @@ class InventaireService:
   def __init__(
     self,
     db: Session,
-    *,
-    user_utils,                 # doit exposer get_current_employe()
-    enrayon_repo,               # expose find_by_id(str) / find_all_by_produit_id_in_and_supprimer(...)
-    employe_repo,
-    inventaire_repo,
-    produit_inventorie_repo,    # (ProduitInventaire)
-    produit_repo,
-    rayon_repo,
-    categorie_repo,
-    fabriquant_repo,
-    forme_repo,
-    fournisseur_repo,
   ):
     self.db = db
-    self.user_utils = user_utils
-    self.enrayon_repo = enrayon_repo
-    self.employe_repo = employe_repo
-    self.inventaire_repo = inventaire_repo
-    self.produit_inventorie_repo = produit_inventorie_repo
-    self.produit_repo = produit_repo
-    self.rayon_repo = rayon_repo
-    self.categorie_repo = categorie_repo
-    self.fabriquant_repo = fabriquant_repo
-    self.forme_repo = forme_repo
-    self.fournisseur_repo = fournisseur_repo
+    self.user_utils = UserUtils
+    self.enrayon_repo = EnRayonRepository(db)
+    self.employe_repo = EmployeRepository(db)
+    self.inventaire_repo = InventaireRepository(db)
+    self.produit_inventorie_repo = ProduitInventaireRepository(db)
+    self.produit_repo = ProduitRepository(db)
+    self.rayon_repo = RayonRepository(db)
+    self.categorie_repo = CategorieRepository(db)
+    self.fabriquant_repo = FabriquantRepository(db)
+    self.forme_repo = FormeRepository(db)
+    self.fournisseur_repo = FournisseurRepository(db)
 
     # Constantes d'état (utilisées par le Kotlin sur l'entité Inventaire)
     # Utilise celles de ton modèle si elles existent déjà.

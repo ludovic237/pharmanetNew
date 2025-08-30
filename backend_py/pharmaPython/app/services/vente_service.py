@@ -17,8 +17,25 @@ from app.models.facture_ticket import FactureTicket
 from app.models.prescripteur import Prescripteur
 from app.models.user import User
 from app.models.vente import Vente
+from app.repositories.bon_caisse_repository import BonCaisseRepository
+from app.repositories.caisse_repository import CaisseRepository
+from app.repositories.concerner_repository import ConcernerRepository
+from app.repositories.employe_repository import EmployeRepository
+from app.repositories.en_rayon_repository import EnRayonRepository
+from app.repositories.facturation_repository import FacturationRepository
+from app.repositories.facture_electronique_repository import FactureElectroniqueRepository
+from app.repositories.facture_espece_repository import FactureEspeceRepository
+from app.repositories.facture_ticket_repository import FactureTicketRepository
+from app.repositories.prescripteur_repository import PrescripteurRepository
+from app.repositories.produit_detail_repository import ProduitDetailRepository
+from app.repositories.produit_repository import ProduitRepository
+from app.repositories.rayon_repository import RayonRepository
+from app.repositories.user_repository import UserRepository
+from app.repositories.vente_repository import VenteRepository
 from app.schemas.vente_dto import VenteRequestDto, EncaissementDirectDto, EncaissementDto, VentePageableCustomlDto, \
   EncaissementRequestDto
+from app.services.caisse_service import CaisseService
+from app.utility.user_utils import UserUtils
 
 
 def _now() -> datetime:
@@ -57,44 +74,25 @@ class VenteService:
 
   def __init__(
     self,
-    db: Session,
-    *,
-    enrayon_repo,
-    caisse_service,
-    concerner_repo,
-    prescripteur_repo,
-    bon_caisse_repo,
-    user_repo,
-    vente_repo,
-    caisse_repo,
-    produit_repo,
-    facturation_repo,
-    facture_espece_repo,
-    facture_electronique_repo,
-    facture_ticket_repo,
-    employe_repo,
-    user_utils,
-    rayon_repo,
-    produit_detail_repo,
-  ):
+    db: Session):
     self.db = db
-    self.enrayon_repo = enrayon_repo
-    self.caisse_service = caisse_service
-    self.concerner_repo = concerner_repo
-    self.prescripteur_repo = prescripteur_repo
-    self.bon_caisse_repo = bon_caisse_repo
-    self.user_repo = user_repo
-    self.vente_repo = vente_repo
-    self.caisse_repo = caisse_repo
-    self.produit_repo = produit_repo
-    self.facturation_repo = facturation_repo
-    self.facture_espece_repo = facture_espece_repo
-    self.facture_electronique_repo = facture_electronique_repo
-    self.facture_ticket_repo = facture_ticket_repo
-    self.employe_repo = employe_repo
-    self.user_utils = user_utils
-    self.rayon_repo = rayon_repo
-    self.produit_detail_repo = produit_detail_repo
+    self.enrayon_repo = EnRayonRepository(db)
+    self.caisse_service = CaisseService
+    self.concerner_repo = ConcernerRepository(db)
+    self.prescripteur_repo = PrescripteurRepository(db)
+    self.bon_caisse_repo = BonCaisseRepository(db)
+    self.user_repo = UserRepository(db)
+    self.vente_repo = VenteRepository(db)
+    self.caisse_repo = CaisseRepository(db)
+    self.produit_repo = ProduitRepository(db)
+    self.facturation_repo = FacturationRepository(db)
+    self.facture_espece_repo = FactureEspeceRepository(db)
+    self.facture_electronique_repo = FactureElectroniqueRepository(db)
+    self.facture_ticket_repo = FactureTicketRepository(db)
+    self.employe_repo = EmployeRepository(db)
+    self.user_utils = UserUtils
+    self.rayon_repo = RayonRepository(db)
+    self.produit_detail_repo = ProduitDetailRepository(db)
 
   # ---------------------------------------------------------------------
   # creerVenteSansEncaissement(venteRequestDto)
@@ -553,7 +551,7 @@ class VenteService:
     out = []
     for v in self.vente_repo.find_all():
       out.append({
-        "netAPayer": v.prixTotal,
+        "netAPayer": v.prix_total,
         "reduction": v.reduction,
         "reference": v.reference,
         "infoClients": f"{v.user.nom} ({v.user.telephone})" if v.user else "Aucun client",
@@ -567,7 +565,8 @@ class VenteService:
   # ---------------------------------------------------------------------
   # listerVenteParNombreDeJourEtFournisseur(fournisseurId, jour)
   # ---------------------------------------------------------------------
-  def lister_vente_par_nombre_de_jour_et_fournisseur(self, fournisseur_id: Optional[str], jour: int) -> List[Dict[str, Any]]:
+  def lister_vente_par_nombre_de_jour_et_fournisseur(self, fournisseur_id: Optional[str], jour: int) -> List[
+    Dict[str, Any]]:
     date_debut = _now() - timedelta(days=jour)
     date_fin = _now()
     ventes = self.vente_repo.find_by_date_vente_between_and_supprimer(date_debut, date_fin)
@@ -614,7 +613,8 @@ class VenteService:
   # ---------------------------------------------------------------------
   # listerVentesNonEncaissees(pageable) -> Page<Map>
   # ---------------------------------------------------------------------
-  def lister_ventes_non_encaissees(self, page: int, size: int, sort: str, direction: str, search: Optional[str]) -> Dict[str, Any]:
+  def lister_ventes_non_encaissees(self, page: int, size: int, sort: str, direction: str, search: Optional[str]) -> \
+    Dict[str, Any]:
     page, size = _page_sizing(page, size)
     caisse = self.caisse_service.get_caisse_active()
     if not caisse:
@@ -639,7 +639,8 @@ class VenteService:
   # ---------------------------------------------------------------------
   # listerVentesEncaissees(pageable) -> Page<Map>
   # ---------------------------------------------------------------------
-  def lister_ventes_encaissees(self, page: int, size: int, sort: str, direction: str, search: Optional[str]) -> Dict[str, Any]:
+  def lister_ventes_encaissees(self, page: int, size: int, sort: str, direction: str, search: Optional[str]) -> Dict[
+    str, Any]:
     page, size = _page_sizing(page, size)
     caisse = self.caisse_service.get_caisse_active()
     spec = self.vente_repo.spec_filter(caisse=caisse, price_percu_mode=0, encaisse_mode=1,
@@ -663,7 +664,8 @@ class VenteService:
   # ---------------------------------------------------------------------
   # listerVentesCreditNonEncaissees(pageable)
   # ---------------------------------------------------------------------
-  def lister_ventes_credit_non_encaissees(self, page: int, size: int, sort: str, direction: str, search: Optional[str]) -> Dict[str, Any]:
+  def lister_ventes_credit_non_encaissees(self, page: int, size: int, sort: str, direction: str,
+                                          search: Optional[str]) -> Dict[str, Any]:
     page, size = _page_sizing(page, size)
     spec = self.vente_repo.spec_filter(caisse=None, price_percu_mode=0, encaisse_mode=0,
                                        etat="CREDIT", dateVente="null", dateEncaissement="null",
@@ -724,8 +726,10 @@ class VenteService:
     facturation = self.facturation_repo.find_by_vente(vente)
     t = _remove_accents_lower(getattr(facturation, "typePaiement", "") or "")
 
-    montant_espece = self.facture_espece_repo.find_by_facturation_id(facturation.id).montant if t in ("espece", "mixte") else 0
-    el = self.facture_electronique_repo.find_by_facturation_id(facturation.id) if t in ("electronique", "mixte") else None
+    montant_espece = self.facture_espece_repo.find_by_facturation_id(facturation.id).montant if t in (
+      "espece", "mixte") else 0
+    el = self.facture_electronique_repo.find_by_facturation_id(facturation.id) if t in (
+      "electronique", "mixte") else None
     montant_electronique = getattr(el, "montant", 0)
     tk = self.facture_ticket_repo.find_by_facturation_id(facturation.id) if t in ("ticket", "mixte") else None
     montant_ticket = getattr(tk, "montant", 0)
@@ -810,7 +814,12 @@ class VenteService:
   # listerVentesPageableDetail(pageable,...)
   # ---------------------------------------------------------------------
   def lister_ventes_pageable_detail(
-    self, *, page: int, size: int, sort: str, direction: str,
+    self,
+    *,
+    page: int,
+    size: int,
+    sort: str = "dateVente",
+    direction: str = "DESC",
     etat: Optional[str] = None,
     startDateVente: Optional[str] = None, endDateVente: Optional[str] = None,
     startDateEncaissement: Optional[str] = None, endDateEncaissement: Optional[str] = None,
@@ -818,41 +827,51 @@ class VenteService:
     prescripteurId: Optional[str] = None, caisseId: Optional[str] = None,
     search: Optional[str] = None,
   ) -> VentePageableCustomlDto:
-    active_caisse = self.caisse_service.get_caisse_active()
+
+    active_caisse = CaisseService.get_caisse_active(self)
     if caisseId == "non":
       active_caisse = None
 
-    spec = self.vente_repo.spec_filter_range(
-      caisse=active_caisse, price_percu_mode=0, encaisse_mode=1, etat=etat,
-      startDateVente=startDateVente, endDateVente=endDateVente,
-      startDateEncaissement=startDateEncaissement, endDateEncaissement=endDateEncaissement,
-      userId=userId, employeId=employeId, prescripteurId=prescripteurId, caisseId=caisseId,
-      search=search,
+    spec = self.vente_repo.filter_ventes_range(
+      supprimer=0,
+      active_caisse=active_caisse, prix_percu=0, etat=etat,
+      start_date_vente=startDateVente, end_date_vente=endDateVente,
+      start_date_encaissement=startDateEncaissement, end_date_encaissement=endDateEncaissement,
+      user_id=userId, employe_id=employeId, prescripteur_id=prescripteurId, caisse_id=caisseId,
     )
-    rows, total = self.vente_repo.find_all(spec, page, size, sort="dateVente", direction="DESC")
+    # rows, total = self.vente_repo.find_all(spec, page, size, sort="dateVente", direction="DESC")
+    rows, total = self.vente_repo.find_all(
+      spec=spec,
+      page=page, size=size,
+      sort="dateVente", direction="DESC",
+    )
 
     def _map(v: Vente) -> Dict[str, Any]:
       produits = []
+      print("v")
+      print(v)
       for c in self.concerner_repo.find_by_vente_id(int(v.id)):
         if c.type == "detail":
-          pd = self.produit_detail_repo.find_by_id(int(c.enRayonId))
+          pd = self.produit_detail_repo.find_by_id(int(getattr(c, "en_rayon_id", 0)))
           nom, pid = pd.nom, pd.id
         else:
-          er = self.enrayon_repo.find_by_id(str(c.enRayonId))
-          p = self.produit_repo.find_by_id(int(er.produitId)) if er else None
+          er = self.enrayon_repo.find_by_id(int(getattr(c, "en_rayon_id", 0)))
+          p = self.produit_repo.find_by_id(int(er.produit_id)) if er else None
           nom, pid = getattr(p, "nom", None), getattr(p, "id", None)
-        produits.append({
-          "id": c.id, "nom": nom, "produitId": pid, "quantite": c.quantite,
-          "prixUnitaire": c.prixUnit, "reduction": c.reduction,
-          "prixTotal": _parse_int(c.prixUnit) * _parse_int(c.quantite),
-        })
+          prix_unit = getattr(c, "prix_unit",
+                              getattr(c, "prixUnit", 0))  # tolérance si le champ n’a pas encore été renommé
+          produits.append({
+            "id": c.id, "nom": nom, "produitId": pid, "quantite": c.quantite,
+            "prixUnitaire": prix_unit, "reduction": c.reduction,
+            "prixTotal": _parse_int(prix_unit) * _parse_int(c.quantite),
+          })
       return {
-        "id": v.id, "prixPercu": v.prixPercu, "netAPayer": v.prixTotal, "reduction": v.reduction,
+        "id": v.id, "prixPercu": v.prix_percu, "netAPayer": v.prix_total, "reduction": v.reduction,
         "reference": v.reference,
         "infoClients": f"{v.user.nom} ({v.user.telephone})" if v.user else "Aucun client",
         "vendeur": getattr(getattr(v.employe, "user", None), "nom", "Inconnu"),
-        "commentaire": v.commentaire, "etat": v.etat, "dateVente": v.dateVente,
-        "dateEncaissement": v.dateEncaissement, "produits": produits, "actions": "edit,delete",
+        "commentaire": v.commentaire, "etat": v.etat, "dateVente": v.date_vente,
+        "dateEncaissement": v.date_encaissement, "produits": produits, "actions": "edit,delete",
       }
 
     content = [_map(v) for v in rows]
@@ -860,7 +879,7 @@ class VenteService:
     total_amount = 0.0
     if total > 0:
       all_rows, _ = self.vente_repo.find_all(spec, page=0, size=total, sort="dateVente", direction="DESC")
-      total_amount = sum((r.prixTotal or 0.0) for r in all_rows)
+      total_amount = sum((r.prix_total or 0.0) for r in all_rows)
 
     return VentePageableCustomlDto(
       content=content,
@@ -908,7 +927,8 @@ class VenteService:
       c.setFont("Helvetica", 8)
       headers = ["Id", "reference", "montant", "montant percu", "client", "vendeur",
                  "date encaissement", "date de vente", "etat", "employe"]
-      c.drawString(15 * mm, y, " | ".join(headers)); y -= 6 * mm
+      c.drawString(15 * mm, y, " | ".join(headers));
+      y -= 6 * mm
 
       # on recharge toutes les lignes pour le print
       # (page=0, size=totalElements)

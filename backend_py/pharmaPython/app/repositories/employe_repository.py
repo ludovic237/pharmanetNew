@@ -1,12 +1,10 @@
-from sqlalchemy.orm import Session
+# repositories/employe_repository.py
 from typing import List, Optional
-
+from sqlalchemy.orm import Session
 from app.models.employe import Employe
 from app.models.user import User
 
-
 class EmployeRepository:
-
   def __init__(self, db: Session):
     self.db = db
 

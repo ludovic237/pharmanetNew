@@ -4,10 +4,12 @@ from typing import Any, Dict, List
 from app.api.deps import get_db
 from app.models.app_setting import AppSettingSchema
 from app.services.app_setting_service import AppSettingService
+from app.utility.jwt_authentication import jwt_authentication
 
 router = APIRouter(
-  prefix="/api/admin/setting",
-  # tags=["AppSetting"]
+  prefix="/admin/setting",
+  tags=["AppSetting"],
+  dependencies=[Depends(jwt_authentication)],
 )
 
 
@@ -26,7 +28,7 @@ def set_param(key: str, value: str, db: Session = Depends(get_db)):
   return service.update_param(key, value)
 
 
-@router.get("/", response_model=List[AppSettingSchema])
+@router.get("", response_model=List[AppSettingSchema])
 def get_all(db: Session = Depends(get_db)):
   service = AppSettingService(db)
   return service.get_all()

@@ -8,7 +8,7 @@ from app.schemas.user_dto import UserNewDto
 from app.services.user_service import UserService
 
 router = APIRouter(
-  prefix="/api/admin/users",
+  prefix="/admin/users",
   tags=["Users"],
   # dependencies=[Depends(jwt_authentication)],
 )

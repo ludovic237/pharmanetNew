@@ -9,12 +9,14 @@ from app.api.deps import get_db
 from app.schemas.vente_dto import VenteRequestDto, EncaissementDirectDto, VentePageableCustomlDto, EncaissementDto
 from app.services.produit_service import ProduitService
 from app.services.vente_service import VenteService
+from app.utility.jwt_authentication import jwt_authentication
 
 router = APIRouter(
   prefix="/ventes",
   tags=["Ventes"],
-  # dependencies=[Depends(jwt_authentication)],
+  dependencies=[Depends(jwt_authentication)],
 )
+
 
 # -----------------------------
 # Helpers
@@ -102,43 +104,9 @@ def lister_ventes_non_encaissees(
 @router.get("/lister")
 def lister_ventes(
   db: Session = Depends(get_db),
-  enrayon_repo=Depends(),
-  caisse_service=Depends(),
-  concerner_repo=Depends(),
-  prescripteur_repo=Depends(),
-  bon_caisse_repo=Depends(),
-  user_repo=Depends(),
-  vente_repo=Depends(),
-  caisse_repo=Depends(),
-  produit_repo=Depends(),
-  facturation_repo=Depends(),
-  facture_espece_repo=Depends(),
-  facture_electronique_repo=Depends(),
-  facture_ticket_repo=Depends(),
-  employe_repo=Depends(),
-  user_utils=Depends(),
-  rayon_repo=Depends(),
-  produit_detail_repo=Depends(),
 ):
   service = VenteService(
     db=db,
-    enrayon_repo=enrayon_repo,
-    caisse_service=caisse_service,
-    concerner_repo=concerner_repo,
-    prescripteur_repo=prescripteur_repo,
-    bon_caisse_repo=bon_caisse_repo,
-    user_repo=user_repo,
-    vente_repo=vente_repo,
-    caisse_repo=caisse_repo,
-    produit_repo=produit_repo,
-    facturation_repo=facturation_repo,
-    facture_espece_repo=facture_espece_repo,
-    facture_electronique_repo=facture_electronique_repo,
-    facture_ticket_repo=facture_ticket_repo,
-    employe_repo=employe_repo,
-    user_utils=user_utils,
-    rayon_repo=rayon_repo,
-    produit_detail_repo=produit_detail_repo,
   )
   return service.lister_ventes()
 
@@ -150,7 +118,8 @@ def lister_ventes(
 def lister_pageable_ventes(
   page: str = "0",
   size: str = "10",
-  sortBy: str = "id",
+  sortBy: str = "dateVente",
+  direction: str = "DESC",
   search: Optional[str] = None,
   etat: Optional[str] = None,
   startDateVente: Optional[str] = None,
@@ -163,9 +132,13 @@ def lister_pageable_ventes(
   caisseId: Optional[str] = None,
   db: Session = Depends(get_db),
 ):
-  p, s = _page_size(page, size)
-  return VenteService(db).lister_ventes_pageable_detail(
-    page=p, size=s, sort="dateVente", direction="DESC",
+  p = int(page) if page.isdigit() and int(page) >= 0 else 0
+  s = int(size) if size.isdigit() and int(size) > 0 else 10
+
+  service = VenteService(db)  # ✅ plus simple : le service crée ses repos
+
+  return service.lister_ventes_pageable_detail(
+    page=p, size=s, sort=sortBy, direction=direction,
     etat=etat,
     startDateVente=startDateVente, endDateVente=endDateVente,
     startDateEncaissement=startDateEncaissement, endDateEncaissement=endDateEncaissement,
@@ -237,10 +210,12 @@ def lister_pageable_ventes_print(
     search=search,
     output_path=output_path,
   )
+
   # renvoie le PDF en streaming et supprime le fichier temporaire côté service
   def _iterfile():
     with open(output_path, "rb") as f:
       yield from f
+
   headers = {"Content-Disposition": f'attachment; filename="{output_path}"'}
   return StreamingResponse(_iterfile(), media_type="application/pdf", headers=headers)
 

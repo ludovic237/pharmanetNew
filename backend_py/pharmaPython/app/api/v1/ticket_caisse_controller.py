@@ -6,7 +6,7 @@ from app.api.deps import get_db
 from app.models.ticket_caisse import TicketCaisse, TicketCaisseSchema, TicketCaisseIn
 from app.services.ticket_service import TicketService
 
-router = APIRouter(prefix="/api/admin/tickets", tags=["Tickets"])
+router = APIRouter(prefix="/admin/tickets", tags=["Tickets"])
 
 @router.get("/", response_model=List[TicketCaisseSchema])
 def get_all_tickets(db: Session = Depends(get_db)):

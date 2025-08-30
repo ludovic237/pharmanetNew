@@ -4,6 +4,9 @@ from typing import Dict, Any, Tuple, List
 from sqlalchemy.orm import Session
 from fastapi import HTTPException
 
+from app.repositories.rayon_repository import RayonRepository
+
+
 def _page_norm(page: int, size: int) -> Tuple[int, int]:
   return (max(0, int(page)), max(1, int(size)))
 
@@ -12,9 +15,9 @@ class RayonService:
   Port Python de RayonService.kt.
   Les accès DB Spring Data sont remplacés par un repository/DAO SQLAlchemy injecté.
   """
-  def __init__(self, db: Session, *, rayon_repo):
+  def __init__(self, db: Session):
     self.db = db
-    self.rayon_repo = rayon_repo
+    self.rayon_repo = RayonRepository(db)
 
   # createRayon(rayon)
   def create_rayon(self, rayon) -> Any:
