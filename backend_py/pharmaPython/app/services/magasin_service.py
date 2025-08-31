@@ -1,16 +1,22 @@
 # services/magasin_service.py
 from __future__ import annotations
-from typing import List, Tuple, Optional
+from typing import List, Tuple, Optional, Dict, Any
 from sqlalchemy.orm import Session
 from sqlalchemy import desc, asc
 from fastapi import HTTPException
 
 from app.models.magasin import Magasin
+from app.repositories.magasin_repository import MagasinRepository
+
+
+def _page_tuple(page: int, size: int) -> Tuple[int, int]:
+  return (max(0, int(page)), max(1, int(size)))
 
 
 class MagasinService:
   def __init__(self, db: Session):
     self.db = db
+    self.magasin_repo = MagasinRepository(db)
 
   # createMagasin
   def create_magasin(self, magasin: Magasin) -> Magasin:
@@ -33,18 +39,22 @@ class MagasinService:
     size: int,
     sort_by: str = "id",
     direction: str = "DESC",
-  ) -> Tuple[List[Magasin], int]:
-    q = self.db.query(Magasin).filter(
-      (Magasin.supprimer == 0) | (Magasin.supprimer.is_(None))
-    )
-
-    total = q.count()
-
-    order_col = getattr(Magasin, sort_by, Magasin.id)
-    q = q.order_by(desc(order_col) if direction.upper() == "DESC" else asc(order_col))
-
-    items = q.offset(page * size).limit(size).all()
-    return items, total
+  )  -> Dict[str, Any]:
+    page, size = _page_tuple(page, size)
+    rows, total = self.magasin_repo.find_all_pageable(
+      page=page,
+      size=size)
+    content = rows
+    return {
+      "content": content,
+      "totalElements": total,
+      "totalPages": (total + size - 1) // size if size else 1,
+      "pageSize": size,
+      "pageable": {
+        "pageSize": size,
+      },
+      "pageNumber": page,
+    }
 
   # updateMagasin(id, updatedMagasin)
   def update_magasin(self, id_: int, updated: Magasin) -> Magasin:

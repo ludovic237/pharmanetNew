@@ -48,11 +48,11 @@ def get_all_produits(
   sortBy: str = Query("id"),
   db: Session = Depends(get_db)
 ):
-  return ProduitService(db, ...).get_all_produits(page, size)
+  return ProduitService(db).get_all_produits(page, size)
 
 @router.get("/products/search")
 def search_products(query: str, page: int = 0, size: int = 10, db: Session = Depends(get_db)):
-  return ProduitService(db, ...).search_products(query, page, size)
+  return ProduitService(db).search_products(query, page, size)
 
 @router.get("/products/search/param")
 def search_products_param(

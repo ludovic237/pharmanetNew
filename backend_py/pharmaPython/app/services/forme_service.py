@@ -1,15 +1,20 @@
 # services/forme_service.py
 from sqlalchemy.orm import Session
 from sqlalchemy import desc, asc
-from typing import List, Tuple, Optional
+from typing import List, Tuple, Optional, Dict, Any
 from fastapi import HTTPException
 
 from app.models.forme import Forme
+from app.repositories.forme_repository import FormeRepository
+
+def _page_tuple(page: int, size: int) -> Tuple[int, int]:
+  return (max(0, int(page)), max(1, int(size)))
 
 
 class FormeService:
   def __init__(self, db: Session):
     self.db = db
+    self.forme_repo = FormeRepository(db)
 
   def create_forme(self, f: Forme) -> Forme:
     self.db.add(f);
@@ -20,13 +25,22 @@ class FormeService:
   def get_all_formes(self) -> List[Forme]:
     return self.db.query(Forme).all()
 
-  def get_all_formes_page(self, skip: int, limit: int, sort_by: str = "id", direction: str = "DESC") -> Tuple[
-    List[Forme], int]:
-    q = self.db.query(Forme)
-    total = q.count()
-    col = getattr(Forme, sort_by, Forme.id)
-    q = q.order_by(desc(col) if direction.upper() == "DESC" else asc(col))
-    return q.offset(skip).limit(limit).all(), total
+  def get_all_formes_page(self, page: int, size: int, sort_by: str = "id", direction: str = "DESC") -> Dict[str, Any]:
+    page, size = _page_tuple(page, size)
+    rows, total = self.forme_repo.find_all_pageable(
+      page=page,
+      size=size)
+    content = rows
+    return {
+      "content": content,
+      "totalElements": total,
+      "totalPages": (total + size - 1) // size if size else 1,
+      "pageSize": size,
+      "pageable":{
+        "pageSize":size,
+      },
+      "pageNumber": page,
+    }
 
   def update_forme(self, id_: int, data: Forme) -> Optional[Forme]:
     f = self.db.query(Forme).filter(Forme.id == id_).first()

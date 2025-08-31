@@ -1,5 +1,5 @@
 # repositories/user_repository.py
-from typing import Optional
+from typing import Optional, Type
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from app.models.user import User  # adapte le chemin
@@ -8,6 +8,9 @@ from app.models.user import User  # adapte le chemin
 class UserRepository:
   def __init__(self, db: Session):
     self.db = db
+
+  def find_all(self) -> list[Type[User]]:
+     return self.db.query(User).all()
 
   def find_by_email(self, email: str) -> Optional[User]:
     return (

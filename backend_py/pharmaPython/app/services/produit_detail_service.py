@@ -88,13 +88,20 @@ class ProduitDetailService:
   # getProduitDetailsByNamePageable(nom, pageable): Page<Map<...>>
   # ---------------------------------------------------------------------
   def get_produit_details_by_name_pageable(self, nom: Optional[str], page: int, size: int) -> Dict[str, Any]:
-    if nom is None or not nom.strip():
-      # Kotlin retourne Page.empty(pageable) → ici, page vide
-      return {"content": [], **_page_meta(0, page, size)}
-
+    # if nom is None or not nom.strip():
+    #   # Kotlin retourne Page.empty(pageable) → ici, page vide
+    #   return {"content": [], **_page_meta(0, page, size)}
+    print(nom)
+    if nom=="undefined":
+      print("ici")
+      nom="null"
     # Kotlin: findByNomContainingIgnoreCaseAndSupprimer(nom, 0, pageable)
-    rows, total = self.produit_detail_repo.find_by_nom_contains_and_supprimer_pageable(nom, 0, page, size)
+    rows, total = self.produit_detail_repo.find_by_nom_containing_ignore_case_and_supprimer_is_pageable(nom, 0, page, size)
 
+    print("rows")
+    print(rows)
+    print("total")
+    print(total)
     def _map_row(pd) -> Dict[str, Any]:
       # Kotlin : produitRepository.findByDetailId(pd.id)
       produits = self.produit_repo.find_by_detail_id(pd.id) if pd.id is not None else []
@@ -105,21 +112,31 @@ class ProduitDetailService:
         "reference": pd.reference,
         "stock": pd.stock,
         "prix": pd.prix,
-        "reductionMax": pd.reductionMax,
+        "reductionMax": pd.reduction_max,
         "grossisteList": produit_grossiste,
-        "stockMin": pd.stockMin,
-        "stockMax": pd.stockMax,
+        "stockMin": pd.stock_min,
+        "stockMax": pd.stock_max,
       }
 
     content = [_map_row(pd) for pd in rows]
-    return {"content": content, **_page_meta(total, page, size)}
+    # return {"content": content, **_page_meta(total, page, size)}
+    return {
+      "content": content,
+      "totalElements": total,
+      "totalPages": (total + size - 1) // size if size else 1,
+      "pageSize": size,
+      "pageable":{
+        "pageSize":size,
+      },
+      "pageNumber": page,
+    }
 
   # ---------------------------------------------------------------------
   # getProduitDetailsPageable(pageable): Page<Map<...>>
   # ---------------------------------------------------------------------
   def get_produit_details_pageable(self, page: int, size: int) -> Dict[str, Any]:
     # Kotlin: ProduitDetailRepository.filterProduitDetail(0) + findAll(spec,pageable)
-    rows, total = self.produit_detail_repo.find_all_filtered_supprimer(0, page, size)
+    rows, total = self.produit_detail_repo.find_all_filtered_supprimer_pageable(0, page, size)
 
     def _map_row(pd) -> Dict[str, Any]:
       produits = self.produit_repo.find_by_detail_id(pd.id) if pd.id is not None else []
@@ -130,10 +147,10 @@ class ProduitDetailService:
         "reference": pd.reference,
         "stock": pd.stock,
         "prix": pd.prix,
-        "reductionMax": pd.reductionMax,
+        "reductionMax": pd.reduction_max,
         "grossisteList": produit_grossiste,
-        "stockMin": pd.stockMin,
-        "stockMax": pd.stockMax,
+        "stockMin": pd.stock_min,
+        "stockMax": pd.stock_max,
       }
 
     content = [_map_row(pd) for pd in rows]

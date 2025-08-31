@@ -37,13 +37,16 @@ def _require(obj, msg: str):
     raise HTTPException(status_code=404, detail=msg)
   return obj
 
+
 def _bd(v) -> Decimal:
   if v is None:
     return Decimal("0")
   return Decimal(str(v))
 
+
 def _round2(x: Decimal) -> Decimal:
   return x.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+
 
 def _page_tuple(page: int, size: int) -> Tuple[int, int]:
   return (max(0, int(page)), max(1, int(size)))
@@ -94,8 +97,8 @@ class ProduitService:
 
     # Prix conseillé (marge & TVA)
     prix_achat = _bd(getattr(request, "prixAchat", 0))
-    marge = _bd(getattr(request, "margeBeneficiaire", 0))        # ex: 0.20
-    tva = _bd(getattr(request, "tva", 0))                        # ex: 0.20
+    marge = _bd(getattr(request, "margeBeneficiaire", 0))  # ex: 0.20
+    tva = _bd(getattr(request, "tva", 0))  # ex: 0.20
     pvc_ht = prix_achat * (Decimal("1") + marge)
     pvc_ttc = _round2(pvc_ht * (Decimal("1") + tva))
 
@@ -245,13 +248,24 @@ class ProduitService:
   # ----------------------------------------------------------------------
   def get_all_produits(self, page: int, size: int) -> Dict[str, Any]:
     page, size = _page_tuple(page, size)
-    rows, total = self.produit_repo.find_all(page, size)
+    rows, total = self.produit_repo.filter_with_spec(
+      query="a",
+      rayon_id="null",
+      fabriquant_id="null",
+      etagere_id="null",
+      forme_id="null",
+      magasin_id="null",
+      categorie_id="null",
+      page=page, size=size)
     content = [self._to_response_dto(it) for it in rows]
     return {
       "content": content,
       "totalElements": total,
       "totalPages": (total + size - 1) // size if size else 1,
       "pageSize": size,
+      "pageable":{
+        "pageSize":size,
+      },
       "pageNumber": page,
     }
 
@@ -260,9 +274,9 @@ class ProduitService:
       "id": p.id,
       "nom": p.nom or "",
       "description": "",
-      "codebarre": p.codeUbipharm or "",
+      "codebarre": p.code_ubipharm or "",
       "image": "",
-      "seuil": p.stockMin or 0,
+      "seuil": p.stock_min or 0,
       "categorieNom": getattr(getattr(p, "categorie", None), "nom", "") or "",
       "tva": Decimal("0.00"),
       "prixAchatInitial": Decimal("0.00"),
@@ -281,14 +295,22 @@ class ProduitService:
   # ----------------------------------------------------------------------
   def search_products(self, query: Optional[str], page: int, size: int) -> Dict[str, Any]:
     page, size = _page_tuple(page, size)
-    rows, total = self.produit_repo.search_by_nom(query, page, size)
+    rows, total = self.produit_repo.filter_with_spec(
+      query=query,
+      rayon_id="null",
+      fabriquant_id="null",
+      etagere_id="null",
+      forme_id="null",
+      magasin_id="null",
+      categorie_id="null",
+      page=page, size=size)
     content = []
     for produit in rows:
       enrayon = self.enrayon_repo.find_top_by_produit_id_order_by_date_livraison_desc(produit.id)
       content.append({
         "id": produit.id,
-        "reductionMax": produit.reductionMax,
-        "codebarre": produit.codeUbipharm,
+        "reductionMax": produit.reduction_max,
+        "codebarre": produit.code_ubipharm,
         "ean13": produit.ean13,
         "nom": produit.nom,
         "categorieNom": getattr(produit.categorie, "nom", None),
@@ -308,6 +330,9 @@ class ProduitService:
       "totalElements": total,
       "totalPages": (total + size - 1) // size if size else 1,
       "pageSize": size,
+      "pageable":{
+        "pageSize":size,
+      },
       "pageNumber": page,
     }
 
@@ -445,7 +470,8 @@ class ProduitService:
   def create_categorie(self, dto) -> Dict[str, Any]:
     if self.categorie_repo.find_by_nom(dto.nom):
       raise HTTPException(422, detail=f"Une catégorie avec le nom '{dto.nom}' existe déjà.")
-    c = self.categorie_repo.model(); c.nom = dto.nom
+    c = self.categorie_repo.model();
+    c.nom = dto.nom
     c = self.categorie_repo.save(c)
     return {"id": c.id, "nom": c.nom}
 
@@ -555,7 +581,8 @@ class ProduitService:
       lambda t: (Decimal(str(t[0].prixUnit or 0)) * Decimal(str(t[0].quantite or 0))) - _bd(t[0].reduction or 0),
     )
 
-    ventes_mois_summary = [{"nom": "Vente du Mois", "quantite": total_q_mois, "reduction": total_red_mois, "vente": total_vente_mois}]
+    ventes_mois_summary = [
+      {"nom": "Vente du Mois", "quantite": total_q_mois, "reduction": total_red_mois, "vente": total_vente_mois}]
 
     total_q = sum(int(c.quantite or 0) for c in toutes)
     total_red = _sum_decimal(toutes, lambda c: c.reduction or 0)
@@ -598,7 +625,8 @@ class ProduitService:
       return total
 
     total_q_cmd_mois = sum(int(getattr(c, "qtiteCmd", 0) or 0) for c in commandes_du_mois)
-    total_cout_mois = sum((_bd(getattr(c, "prixPublic", 0)) * _bd(getattr(c, "qtiteCmd", 0))) for c in commandes_du_mois)
+    total_cout_mois = sum(
+      (_bd(getattr(c, "prixPublic", 0)) * _bd(getattr(c, "qtiteCmd", 0))) for c in commandes_du_mois)
 
     commandes_mois_summary = [{"nom": "Commande du Mois", "quantite": total_q_cmd_mois, "cout": total_cout_mois}]
 
@@ -792,5 +820,3 @@ class ProduitService:
       "reductionMax": p.reductionMax or 0,
       "stockDetails": stock_details,
     }
-
-

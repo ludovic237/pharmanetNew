@@ -12,13 +12,13 @@ class ProduitAssocieDto(BaseModel):
 class ClientInfo(BaseModel):
   id: Optional[int] = None
   type: Optional[str] = None
-  name: Optional[str] = None
+  nom: Optional[str] = None
   phone: Optional[str] = None
 
 class PrescripteurInfo(BaseModel):
   id: Optional[int] = None
   type: Optional[str] = None
-  name: Optional[str] = None
+  nom: Optional[str] = None
 
 class ElectroniqueRequestDto(BaseModel):
   numeroTelephone: str

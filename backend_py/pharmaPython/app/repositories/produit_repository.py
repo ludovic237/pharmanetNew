@@ -38,12 +38,12 @@ class ProduitRepository:
     return self.db.query(Produit).filter(Produit.nom.like(f"%{nom}%")).all()
 
   def find_by_detail_id(self, detail_id: int) -> List[Produit]:
-    return self.db.query(Produit).filter(Produit.detailId == detail_id).all()
+    return self.db.query(Produit).filter(Produit.detail_id == detail_id).all()
 
   def find_by_id_and_detail_id(self, product_id: int, product_detail_id: int) -> Optional[Produit]:
     return (
       self.db.query(Produit)
-      .filter(Produit.id == product_id, Produit.detailId == product_detail_id)
+      .filter(Produit.id == product_id, Produit.detail_id == product_detail_id)
       .first()
     )
 

@@ -34,7 +34,7 @@ def create_user_and_employee(request: UserEmployeeRequest, db: Session = Depends
 # ----------------------------
 # Récupérer tous les employés
 # ----------------------------
-@router.get("/", response_model=List[EmployeSchema])
+@router.get("/")
 def get_all_employees(db: Session = Depends(get_db)):
   employee_service = EmployeService(db)
   return employee_service.get_all_employees()

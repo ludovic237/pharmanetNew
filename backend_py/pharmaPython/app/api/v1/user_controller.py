@@ -13,9 +13,9 @@ router = APIRouter(
   # dependencies=[Depends(jwt_authentication)],
 )
 
-@router.get("/", response_model=List[UserSchema])
+@router.get("/")
 def get_all_users(db: Session = Depends(get_db)):
-  return UserService(db, user_repo=... ).get_all_users()
+  return UserService(db).get_all_users()
 
 @router.get("/{id}", response_model=UserSchema)
 def get_user_by_id(id: int = Path(..., ge=1), db: Session = Depends(get_db)):

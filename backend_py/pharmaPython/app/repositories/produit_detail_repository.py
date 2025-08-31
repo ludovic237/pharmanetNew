@@ -1,5 +1,7 @@
 # repositories/produit_detail_repository.py
 from __future__ import annotations
+
+from encodings import undefined
 from typing import List, Optional, Tuple
 from sqlalchemy.orm import Session
 from sqlalchemy import func
@@ -23,17 +25,20 @@ class ProduitDetailRepository:
 
   # pageable
   def find_by_nom_containing_ignore_case_and_supprimer_is_pageable(
-    self, nom: str, supprimer: int, page: int, size: int
+    self, nom: str, supprimer: int, page: int, size: int,
+    sort_by: str = "id",
+    direction: str = "DESC",
   ) -> Tuple[List[ProduitDetail], int]:
-    q = (
-      self.db.query(ProduitDetail)
-      .filter(
-        func.lower(ProduitDetail.nom).like(f"%{nom.lower()}%"),
-        ProduitDetail.supprimer == supprimer,
-        )
-    )
+    q = self.db.query(ProduitDetail)
+    if nom and nom != "null":
+      q = q.filter(func.lower(ProduitDetail.nom).like(f"%{nom.lower()}%"))
+
+    q = q.filter(ProduitDetail.supprimer == supprimer)
+
     total = q.count()
-    rows = q.offset(page * size).limit(size).all()
+    col = getattr(ProduitDetail, sort_by, ProduitDetail.id)
+    col = col.desc() if direction.upper() == "DESC" else col.asc()
+    rows = q.order_by(col).offset(page * size).limit(size).all()
     return rows, total
 
   # doublon “Contains/Containing” dans le Kotlin → on fournit une seule variante

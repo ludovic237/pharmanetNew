@@ -16,7 +16,7 @@ def create_rayon(rayon: RayonIn, db: Session = Depends(get_db)):
 
 @router.get("/", response_model=List[RayonSchema])
 def get_all_rayons(db: Session = Depends(get_db)):
-  return RayonService(db, ...).get_all_rayons()
+  return RayonService(db).get_all_rayons()
 
 
 @router.get("/pageable")
@@ -26,7 +26,7 @@ def get_all_rayons_pageable(
   sortBy: str = Query("id"),
   db: Session = Depends(get_db)
 ):
-  return RayonService(db, ...).get_all_rayons_page(page, size, sortBy)
+  return RayonService(db).get_all_rayons_page(page, size, sortBy)
 
 
 @router.put("/{id}", response_model=RayonSchema)

@@ -24,7 +24,7 @@ def search_produit_details_by_name_pageable(
   sortBy: str = Query("id"),
   db: Session = Depends(get_db),
 ):
-  return ProduitDetailService(db, ...).get_produit_details_by_name_pageable(nom, page, size, sortBy)
+  return ProduitDetailService(db).get_produit_details_by_name_pageable(nom, page, size)
 
 @router.get("/list/pageable")
 def get_produit_details_list(
@@ -34,7 +34,7 @@ def get_produit_details_list(
   sortBy: str = Query("id"),
   db: Session = Depends(get_db),
 ):
-  return ProduitDetailService(db, ...).get_produit_details_pageable(query, page, size, sortBy)
+  return ProduitDetailService(db).get_produit_details_by_name_pageable(query, page+1, size)
 
 @router.post("/add")
 def create_produit_detail(produit: ProduitDetailDto, db: Session = Depends(get_db)):

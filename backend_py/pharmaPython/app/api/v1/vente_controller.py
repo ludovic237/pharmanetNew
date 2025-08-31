@@ -114,7 +114,7 @@ def lister_ventes(
 # -----------------------------
 # GET /pageable/lister (dto custom)
 # -----------------------------
-@router.get("/pageable/lister", response_model=VentePageableCustomlDto)
+@router.get("/pageable/lister")
 def lister_pageable_ventes(
   page: str = "0",
   size: str = "10",

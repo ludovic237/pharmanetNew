@@ -1,8 +1,9 @@
 # repositories/rayon_repository.py
-from typing import List, Optional
+from typing import List, Optional, Tuple
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from app.models.rayon import Rayon  # adapte le chemin
+
 
 class RayonRepository:
   def __init__(self, db: Session):
@@ -14,6 +15,12 @@ class RayonRepository:
       .filter(func.lower(Rayon.nom) == nom.lower(), Rayon.supprimer == supprimer)
       .first()
     )
+
+  def find_all_pageable(self, page: int, size: int) -> Tuple[List[Rayon], int]:
+    q = self.db.query(Rayon)
+    total = q.count()
+    rows = q.offset(page * size).limit(size).all()
+    return rows, total
 
   def find_by_nom(self, nom: str) -> bool:
     return (
@@ -38,7 +45,11 @@ class RayonRepository:
     return self.db.query(Rayon).get(id_)
 
   def save(self, entity: Rayon) -> Rayon:
-    self.db.add(entity); self.db.commit(); self.db.refresh(entity); return entity
+    self.db.add(entity);
+    self.db.commit();
+    self.db.refresh(entity);
+    return entity
 
   def delete(self, entity: Rayon) -> None:
-    self.db.delete(entity); self.db.commit()
+    self.db.delete(entity);
+    self.db.commit()

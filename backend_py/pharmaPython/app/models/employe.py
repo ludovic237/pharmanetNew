@@ -4,6 +4,8 @@ from pydantic import BaseModel
 from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
 from app.core.db import Base
+from app.models.user import User
+
 
 class Employe(Base):
   __tablename__ = "employe"

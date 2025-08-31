@@ -1,8 +1,6 @@
 from sqlalchemy import Column, Integer, String, Boolean, ForeignKey
 from sqlalchemy.orm import declarative_base, relationship
-
-Base = declarative_base()
-
+from app.core.db import Base
 
 class Produit(Base):
   __tablename__ = "produit"
@@ -31,8 +29,8 @@ class Produit(Base):
   magasin_id = Column(Integer, ForeignKey("magasin.id"))
   supprimer = Column(Integer, default=0)
 
-  # categorie = relationship("Categorie")
-  # forme = relationship("Forme")
+  categorie = relationship("Categorie", lazy="joined")
+  forme = relationship("Forme", lazy="joined")
   # fabriquant = relationship("Fabriquant")
   # rayon = relationship("Rayon")
   # magasin = relationship("Magasin")

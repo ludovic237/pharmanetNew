@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 
 class ProductIn(BaseModel):
-  name: str
+  nom: str
 
 class ProductOut(ProductIn):
   id: int

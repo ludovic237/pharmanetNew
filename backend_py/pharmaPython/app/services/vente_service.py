@@ -706,21 +706,21 @@ class VenteService:
   # ---------------------------------------------------------------------
   def charger_ventes_encaisser(self, vente_id: int) -> Dict[str, Any]:
     vente = _require(self.vente_repo.find_by_id(int(vente_id)), "Vente introuvable")
-    if vente.prixPercu is None or vente.prixPercu <= 0:
+    if vente.prix_percu is None or vente.prix_percu <= 0:
       # NB: le code Kotlin a une condition inversée / message ambigu
       raise HTTPException(status_code=400, detail="La vente n'est pas encore encaissée.")
     produits = []
     for c in self.concerner_repo.find_by_vente_id(int(vente.id)):
       if c.type == "detail":
-        pd = self.produit_detail_repo.find_by_id(int(c.enRayonId))
+        pd = self.produit_detail_repo.find_by_id(int(c.en_rayon_id))
         nom = pd.nom
       else:
-        er = self.enrayon_repo.find_by_id(str(c.enRayonId))
-        p = self.produit_repo.find_by_id(int(er.produitId)) if er else None
+        er = self.enrayon_repo.find_by_id(str(c.en_rayon_id))
+        p = self.produit_repo.find_by_id(int(er.produit_id)) if er else None
         nom = getattr(p, "nom", None)
       produits.append({
-        "id": c.id, "nom": nom, "prixUnitaire": c.prixUnit, "quantite": c.quantite,
-        "prixTotal": _parse_int(c.prixUnit) * _parse_int(c.quantite), "reduction": c.reduction,
+        "id": c.id, "nom": nom, "prixUnitaire": c.prix_unit, "quantite": c.quantite,
+        "prixTotal": _parse_int(c.prix_unit) * _parse_int(c.quantite), "reduction": c.reduction,
       })
 
     facturation = self.facturation_repo.find_by_vente(vente)
@@ -762,11 +762,11 @@ class VenteService:
     produits = []
     for c in filter(lambda x: _parse_int(x.quantite) > 0, self.concerner_repo.find_by_vente_id(int(vente.id))):
       if c.type == "detail":
-        pd = self.produit_detail_repo.find_by_id(int(c.enRayonId))
+        pd = self.produit_detail_repo.find_by_id(int(c.en_rayon_id))
         nom, pid = pd.nom, pd.id
       else:
-        er = self.enrayon_repo.find_by_id(str(c.enRayonId))
-        p = self.produit_repo.find_by_id(int(er.produitId)) if er else None
+        er = self.enrayon_repo.find_by_id(str(c.en_rayon_id))
+        p = self.produit_repo.find_by_id(int(er.produit_id)) if er else None
         nom, pid = getattr(p, "nom", None), getattr(p, "id", None)
       produits.append({
         "id": c.id, "nom": nom, "produitId": pid, "rayonId": c.enRayonId,
@@ -787,11 +787,11 @@ class VenteService:
         pd = self.produit_detail_repo.find_by_id(int(c.enRayonId))
         nom, pid = pd.nom, pd.id
       else:
-        er = self.enrayon_repo.find_by_id(str(c.enRayonId))
-        p = self.produit_repo.find_by_id(int(er.produitId)) if er else None
+        er = self.enrayon_repo.find_by_id(str(c.en_rayon_id))
+        p = self.produit_repo.find_by_id(int(er.produit_id)) if er else None
         nom, pid = getattr(p, "nom", None), getattr(p, "id", None)
       produits.append({
-        "id": c.id, "nom": nom, "produitId": pid, "rayonId": c.enRayonId,
+        "id": c.id, "nom": nom, "produitId": pid, "rayonId": c.en_rayon_id,
         "quantite": c.quantite, "prixUnitaire": c.prixUnit, "reduction": c.reduction,
         "prixTotal": _parse_int(c.prixUnit) * _parse_int(c.quantite),
       })
@@ -826,7 +826,7 @@ class VenteService:
     userId: Optional[str] = None, employeId: Optional[str] = None,
     prescripteurId: Optional[str] = None, caisseId: Optional[str] = None,
     search: Optional[str] = None,
-  ) -> VentePageableCustomlDto:
+  ) -> Dict[str, Any]:
 
     active_caisse = CaisseService.get_caisse_active(self)
     if caisseId == "non":
@@ -875,21 +875,39 @@ class VenteService:
       }
 
     content = [_map(v) for v in rows]
+
+    print("content")
+    print(content)
     # totalAmount global (requête complète non paginée)
     total_amount = 0.0
     if total > 0:
       all_rows, _ = self.vente_repo.find_all(spec, page=0, size=total, sort="dateVente", direction="DESC")
       total_amount = sum((r.prix_total or 0.0) for r in all_rows)
 
-    return VentePageableCustomlDto(
-      content=content,
-      totalElements=total,
-      totalPages=(total + size - 1) // size if size else 1,
-      pageSize=size,
-      pageNumber=page,
-      totalAmount=total_amount,
-      data={},
-    )
+    # return VentePageableCustomlDto(
+    #   content=content,
+    #   totalElements=total,
+    #   totalPages=(total + size - 1) // size if size else 1,
+    #   pageSize=size,
+    #   pageNumber=page,
+    #   totalAmount=total_amount,
+    #   data={},
+    # )
+    return {
+      "content": {
+        "content": content,
+        "totalElements": total,
+        "totalPages": (total + size - 1) // size if size else 1,
+        "pageSize": size,
+        "totalAmount":total_amount,
+        "pageNumber": page,
+      },
+      "totalElements": total,
+      "totalPages": (total + size - 1) // size if size else 1,
+      "pageSize": size,
+      "totalAmount":total_amount,
+      "pageNumber": page,
+    }
 
   # ---------------------------------------------------------------------
   # listerVentesPageableDetailPrint(..., output_path)
@@ -932,7 +950,7 @@ class VenteService:
 
       # on recharge toutes les lignes pour le print
       # (page=0, size=totalElements)
-      content = res.content
+      content = res["content"]["content"]
       for v in content:
         client = v.get("infoClients") or "N/A"
         vendeur = v.get("vendeur") or "N/A"
@@ -959,7 +977,7 @@ class VenteService:
       # fallback très simple (texte)
       with open(output_path, "w", encoding="utf-8") as f:
         f.write("Liste des ventes\n")
-        for v in res.content:
+        for v in res["content"]["content"]:
           f.write(str(v) + "\n")
 
   # ---------------------------------------------------------------------

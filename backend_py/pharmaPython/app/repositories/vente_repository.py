@@ -18,6 +18,9 @@ class VenteRepository:
   def __init__(self, db: Session):
     self.db = db
 
+  def find_by_id(self, id_: int) -> Optional[Vente]:
+    return self.db.query(Vente).get(id_)
+
   # --- méthodes "simples" ---
   def find_by_caisse_id(self, caisse_id: int) -> List[Vente]:
     return self.db.query(Vente).filter(Vente.caisse_id == caisse_id).all()
