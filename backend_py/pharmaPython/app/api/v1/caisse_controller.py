@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from typing import Optional, Dict, Any, List
 
 from app.api.deps import get_db
+from app.models.employe import Employe
 from app.schemas.caisse_dto import CaisseClotureRequestDto, CaisseOuvertureRequestDto
 from app.services.caisse_service import CaisseService
 from app.utility.user_utils import UserUtils
@@ -11,6 +12,7 @@ router = APIRouter(
   prefix="/caisses",
   tags=["Caisse"]
 )
+
 
 # ----------------------------
 # Détails de la caisse active
@@ -35,12 +37,12 @@ def get_active_caisse_details(db: Session = Depends(get_db)):
 # Vérifier si une caisse est ouverte
 # ----------------------------
 @router.get("/ouverte")
-def is_caisse_ouverte(db: Session = Depends(get_db)):
+def is_caisse_ouverte(db: Session = Depends(get_db), employe: Employe = Depends(UserUtils.get_current_employe)):
   service = CaisseService(db)
   caisse_active = service.get_caisse_active()
   caisse_en_cours = service.get_caisse_en_cours()
   last_caisse = service.get_last_caisse()
-  employe_current_id = service.user_utils.get_current_employe().id
+  employe_current_id = employe.id
 
   # ⚠️ Ici la logique détaillée Kotlin est très longue → à mapper selon besoin
   if last_caisse and last_caisse.etat == "Clot":
@@ -58,10 +60,11 @@ def is_caisse_ouverte(db: Session = Depends(get_db)):
 # Mettre la caisse en attente de clôture
 # ----------------------------
 @router.put("/active/attente-cloture")
-def set_caisse_to_pending_closure(db: Session = Depends(get_db)):
+def set_caisse_to_pending_closure(db: Session = Depends(get_db),
+                                  employe: Employe = Depends(UserUtils.get_current_employe)):
   service = CaisseService(db)
   try:
-    updated_caisse = service.set_caisse_to_pending_closure()
+    updated_caisse = service.set_caisse_to_pending_closure(employe)
     return {"message": "La caisse a été mise en attente de clôture.", "caisse": updated_caisse}
   except Exception as e:
     raise HTTPException(status_code=409, detail=str(e))
@@ -71,10 +74,11 @@ def set_caisse_to_pending_closure(db: Session = Depends(get_db)):
 # Clôturer une caisse
 # ----------------------------
 @router.post("/cloturer")
-def cloturer_caisse(request: CaisseClotureRequestDto, db: Session = Depends(get_db)):
+def cloturer_caisse(request: CaisseClotureRequestDto, db: Session = Depends(get_db),
+                    employe: Employe = Depends(UserUtils.get_current_employe)):
   service = CaisseService(db)
   try:
-    caisse_dto = service.cloturer_caisse(request.fond_caisse_ferme, request.fermeture_caisse)
+    caisse_dto = service.cloturer_caisse(request.fond_caisse_ferme, request.fermeture_caisse, employe)
     return caisse_dto
   except Exception as e:
     raise HTTPException(status_code=409, detail=str(e))
@@ -84,10 +88,10 @@ def cloturer_caisse(request: CaisseClotureRequestDto, db: Session = Depends(get_
 # Mettre une caisse en attente (en cours)
 # ----------------------------
 @router.get("/en_cours")
-def mettre_caisse_en_attente(db: Session = Depends(get_db)):
+def mettre_caisse_en_attente(db: Session = Depends(get_db), employe: Employe = Depends(UserUtils.get_current_employe)):
   service = CaisseService(db)
   try:
-    caisse_dto = service.mettre_caisse_en_attente()
+    caisse_dto = service.mettre_caisse_en_attente(employe)
     return caisse_dto
   except Exception as e:
     raise HTTPException(status_code=409, detail=str(e))
@@ -97,10 +101,11 @@ def mettre_caisse_en_attente(db: Session = Depends(get_db)):
 # Ouvrir une nouvelle caisse
 # ----------------------------
 @router.post("/ouvrir")
-def ouvrir_nouvelle_caisse(request: CaisseOuvertureRequestDto, db: Session = Depends(get_db)):
+def ouvrir_nouvelle_caisse(request: CaisseOuvertureRequestDto, db: Session = Depends(get_db),
+                           employe: Employe = Depends(UserUtils.get_current_employe)):
   service = CaisseService(db)
   try:
-    caisse_dto = service.ouvrir_nouvelle_caisse(request)
+    caisse_dto = service.ouvrir_nouvelle_caisse(request, employe)
     return caisse_dto
   except Exception as e:
     raise HTTPException(status_code=409, detail=str(e))

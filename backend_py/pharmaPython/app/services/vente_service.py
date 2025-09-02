@@ -10,6 +10,7 @@ from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
 from app.models.concerner import Concerner
+from app.models.employe import Employe
 from app.models.facturation import Facturation
 from app.models.facture_electronique import FactureElectronique
 from app.models.facture_espece import FactureEspece
@@ -97,8 +98,8 @@ class VenteService:
   # ---------------------------------------------------------------------
   # creerVenteSansEncaissement(venteRequestDto)
   # ---------------------------------------------------------------------
-  def creer_vente_sans_encaissement(self, dto: VenteRequestDto) -> Vente:
-    employe = self.user_utils.get_current_employe()
+  def creer_vente_sans_encaissement(self, dto: VenteRequestDto, currentEmploye : Employe) -> Vente:
+    employe = currentEmploye
     _require(employe, "Impossible de récupérer l'utilisateur connecté.")
 
     if dto.etat not in ("COMPTANT", "ASSURANCE", "CREDIT"):
@@ -216,8 +217,8 @@ class VenteService:
   # ---------------------------------------------------------------------
   # encaisserVenteDirect(encaissementDirectDto)
   # ---------------------------------------------------------------------
-  def encaisser_vente_direct(self, dto: EncaissementDirectDto) -> Vente:
-    employe = self.user_utils.get_current_employe()
+  def encaisser_vente_direct(self, dto: EncaissementDirectDto, currentEmploye: Employe) -> Vente:
+    employe = currentEmploye
     _require(employe, "Impossible de récupérer l'utilisateur connecté.")
 
     vdto = dto.venteRequestDto

@@ -8,6 +8,7 @@ from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from decimal import Decimal, ROUND_HALF_UP
 
+from app.models.employe import Employe
 from app.models.produit import Produit
 from app.repositories.caisse_repository import CaisseRepository
 from app.repositories.categorie_repository import CategorieRepository
@@ -264,8 +265,8 @@ class ProduitService:
       "totalElements": total,
       "totalPages": (total + size - 1) // size if size else 1,
       "pageSize": size,
-      "pageable":{
-        "pageSize":size,
+      "pageable": {
+        "pageSize": size,
       },
       "pageNumber": page,
     }
@@ -331,8 +332,8 @@ class ProduitService:
       "totalElements": total,
       "totalPages": (total + size - 1) // size if size else 1,
       "pageSize": size,
-      "pageable":{
-        "pageSize":size,
+      "pageable": {
+        "pageSize": size,
       },
       "pageNumber": page,
     }
@@ -505,12 +506,13 @@ class ProduitService:
   # ----------------------------------------------------------------------
   # retournerProduitsVendusEtEnRayon(venteId, produitsRetour)
   # ----------------------------------------------------------------------
-  def retourner_produits_vendus_et_en_rayon(self, vente_id: int, produits_retour: List[Dict[str, Any]]):
+  def retourner_produits_vendus_et_en_rayon(self, vente_id: int, produits_retour: List[Dict[str, Any]],
+                                            currentEmploye: Employe):
     if not produits_retour:
       raise HTTPException(400, detail="La liste des produits à retourner ne peut pas être vide.")
 
     vente = _require(self.vente_repo.find_by_id(int(vente_id)), f"Vente non trouvée avec l'ID: {vente_id}")
-    employe = self.user_utils.get_current_employe()
+    employe = currentEmploye
     caisse = self.caisse_service.get_caisse_active()
 
     rp = self.retour_produit_repo.model()

@@ -8,6 +8,7 @@ from fastapi import HTTPException
 
 from app.core.pagination import Page
 from app.models.caisse import Caisse
+from app.models.employe import Employe
 from app.repositories.bon_caisse_repository import BonCaisseRepository
 from app.repositories.caisse_repository import CaisseRepository
 from app.repositories.concerner_repository import ConcernerRepository
@@ -77,8 +78,8 @@ class CaisseService:
     return self.db.query(Caisse).filter(Caisse.etat == "En cours1", Caisse.supprimer == 0).first()
 
   # === Ouvrir une caisse ===
-  def ouvrir_caisse(self, request: CaisseOuvertureRequestDto) -> CaisseDto:
-    employe = self.user_utils.get_current_employe()
+  def ouvrir_caisse(self, request: CaisseOuvertureRequestDto, currentEmploye: Employe) -> CaisseDto:
+    employe = currentEmploye
     if not employe:
       raise HTTPException(status_code=400, detail="Impossible de récupérer l’utilisateur connecté")
 
@@ -101,8 +102,8 @@ class CaisseService:
     return self.map_to_dto(caisse)
 
   # === Fermer une caisse ===
-  def cloturer_caisse(self, fond_caisse_ferme: float, fermeture_caisse: str) -> CaisseDto:
-    employe_id = self.user_utils.get_current_employe_id()
+  def cloturer_caisse(self, fond_caisse_ferme: float, fermeture_caisse: str, currentEmploye:Employe) -> CaisseDto:
+    employe_id = currentEmploye.id
     caisse = self.get_caisse_en_cours()
     if not caisse or caisse.user_id != employe_id:
       raise HTTPException(status_code=403, detail="Non autorisé à fermer cette caisse")
@@ -117,8 +118,8 @@ class CaisseService:
     return self.map_to_dto(caisse)
 
   # === Mettre caisse en attente ===
-  def mettre_caisse_en_attente(self) -> CaisseDto:
-    employe_id = self.user_utils.get_current_employe_id()
+  def mettre_caisse_en_attente(self, currentEmploye: Employe) -> CaisseDto:
+    employe_id = currentEmploye.id
     caisse = self.get_caisse_active()
     if caisse and caisse.user_id == employe_id:
       caisse.etat = "En cours"
@@ -128,8 +129,8 @@ class CaisseService:
     raise HTTPException(status_code=403, detail="Non autorisé ou aucune caisse trouvée")
 
   # === Ouvrir une nouvelle caisse ===
-  def ouvrir_nouvelle_caisse(self, request: CaisseOuvertureRequestDto) -> CaisseDto:
-    employe = self.user_utils.get_current_employe()
+  def ouvrir_nouvelle_caisse(self, request: CaisseOuvertureRequestDto, currentEmploye: Employe) -> CaisseDto:
+    employe = currentEmploye
     active = self.get_caisse_active()
     en_cours = self.db.query(Caisse).filter(
       Caisse.user_id == employe.id, Caisse.etat == "En cours", Caisse.supprimer == 0
@@ -239,8 +240,8 @@ class CaisseService:
     return paginate(query.all())
 
   def set_caisse_to_pending_closure(
-    self):
-    employe_id = self.user_utils.get_current_employe_id()
+    self, currentEmploye: Employe):
+    employe_id = currentEmploye.id
     caisse = self.get_caisse_active()
 
     if not caisse:

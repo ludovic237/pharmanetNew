@@ -7,6 +7,7 @@ from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import asc, desc
 
+from app.models.employe import Employe
 from app.models.inventaire import Inventaire
 from app.models.produit_inventaire import ProduitInventaire
 from app.repositories.categorie_repository import CategorieRepository
@@ -79,8 +80,8 @@ class InventaireService:
   # ------------------------------------------------------------------
   # creerInventaire(data)
   # ------------------------------------------------------------------
-  def creer_inventaire(self, data: InventaireRequestDto) -> Inventaire:
-    employe = self.user_utils.get_current_employe()
+  def creer_inventaire(self, data: InventaireRequestDto, currentEmploye:Employe) -> Inventaire:
+    employe = currentEmploye
     inv = Inventaire(
       date_debut=_now(),
       etat=self.INVENTAIRE_EN_COURS,
@@ -108,8 +109,8 @@ class InventaireService:
   # ------------------------------------------------------------------
   # creerInventaireNew(data)
   # ------------------------------------------------------------------
-  def creer_inventaire_new(self, data: InventaireNewCreatetDto) -> Inventaire:
-    employe = self.user_utils.get_current_employe()
+  def creer_inventaire_new(self, data: InventaireNewCreatetDto, currentEmploye : Employe) -> Inventaire:
+    employe = currentEmploye
 
     rayon = self.rayon_repo.find_by_id(int(data.rayonId)) if data.rayonId else None
     categorie = self.categorie_repo.find_by_id(int(data.categorieId)) if data.categorieId else None
@@ -149,11 +150,11 @@ class InventaireService:
   # ------------------------------------------------------------------
   # mettreAJourInventaire(data)
   # ------------------------------------------------------------------
-  def mettre_a_jour_inventaire(self, data: InventaireUpdateRequestDto) -> Inventaire:
+  def mettre_a_jour_inventaire(self, data: InventaireUpdateRequestDto, currentEmploye : Employe) -> Inventaire:
     inv = self.inventaire_repo.find_by_id(int(data.id))
     if not inv:
       raise HTTPException(status_code=404, detail=f"Inventaire introuvable: {data.id}")
-    employe = self.user_utils.get_current_employe()
+    employe = currentEmploye
 
     for p in data.produitList:
       en_rayon = self.enrayon_repo.find_by_id(str(p.rayonId))
@@ -185,11 +186,11 @@ class InventaireService:
   # ------------------------------------------------------------------
   # valideProductToInventory(data)
   # ------------------------------------------------------------------
-  def valide_product_to_inventory(self, data: InventaireOneProductUpdateRequestDto) -> ProduitInventaire:
+  def valide_product_to_inventory(self, data: InventaireOneProductUpdateRequestDto, currentEmploye: Employe) -> ProduitInventaire:
     inv = self.inventaire_repo.find_by_id(int(data.id))
     if not inv:
       raise HTTPException(status_code=404, detail=f"Inventaire introuvable: {data.id}")
-    employe = self.user_utils.get_current_employe()
+    employe = currentEmploye
     en_rayon = self.enrayon_repo.find_by_id(str(data.rayonId))
     if not en_rayon:
       raise HTTPException(status_code=404, detail=f"EnRayon introuvable: {data.rayonId}")

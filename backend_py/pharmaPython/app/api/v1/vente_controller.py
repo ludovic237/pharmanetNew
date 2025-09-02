@@ -6,10 +6,12 @@ from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_db
+from app.models.employe import Employe
 from app.schemas.vente_dto import VenteRequestDto, EncaissementDirectDto, VentePageableCustomlDto, EncaissementDto
 from app.services.produit_service import ProduitService
 from app.services.vente_service import VenteService
 from app.utility.jwt_authentication import jwt_authentication
+from app.utility.user_utils import UserUtils
 
 router = APIRouter(
   prefix="/ventes",
@@ -32,10 +34,11 @@ def _page_size(page: str = "0", size: str = "10") -> tuple[int, int]:
 # -----------------------------
 @router.post("/creer-sans-encaissement")
 def creer_vente_sans_encaissement(
-  venteRequestDto: VenteRequestDto, db: Session = Depends(get_db)
+  venteRequestDto: VenteRequestDto, db: Session = Depends(get_db),
+  employe: Employe = Depends(UserUtils.get_current_employe)
 ):
   service = VenteService(db)
-  return service.creer_vente_sans_encaissement(venteRequestDto)
+  return service.creer_vente_sans_encaissement(venteRequestDto, employe)
 
 
 # -----------------------------
@@ -57,9 +60,10 @@ def encaisser_vente(
 # -----------------------------
 @router.post("/encaisser_direct")
 def encaisser_vente_direct(
-  encaissementDirectDto: EncaissementDirectDto, db: Session = Depends(get_db)
+  encaissementDirectDto: EncaissementDirectDto, db: Session = Depends(get_db),
+  employe: Employe = Depends(UserUtils.get_current_employe)
 ):
-  return VenteService(db).encaisser_vente_direct(encaissementDirectDto)
+  return VenteService(db).encaisser_vente_direct(encaissementDirectDto, employe)
 
 
 # -----------------------------
@@ -260,10 +264,10 @@ def envoyer_vente_credit_en_caisse(venteId: str, db: Session = Depends(get_db)):
 def retourner_produits_vendus_et_en_rayon(
   venteId: int,
   produitsRetour: List[Dict[str, Any]],
-  db: Session = Depends(get_db),
+  db: Session = Depends(get_db), employe: Employe = Depends(UserUtils.get_current_employe)
 ):
   try:
-    return ProduitService(db).retourner_produits_vendus_et_en_rayon(venteId, produitsRetour)
+    return ProduitService(db).retourner_produits_vendus_et_en_rayon(venteId, produitsRetour, employe)
   except ValueError as e:
     raise HTTPException(status_code=400, detail=str(e))
   except Exception:
