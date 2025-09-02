@@ -5,10 +5,12 @@ from typing import List
 from app.api.deps import get_db
 from app.models.prescripteur import Prescripteur, PrescripteurSchema, PrescripteurIn
 from app.services.prescripteur_service import PrescripteurService
+from app.utility.jwt_authentication import jwt_authentication
 
 router = APIRouter(
   prefix="/prescripteurs",
   tags=["Prescripteurs"],
+  dependencies=[Depends(jwt_authentication)],
 )
 
 @router.post("/", response_model=PrescripteurSchema, status_code=201)

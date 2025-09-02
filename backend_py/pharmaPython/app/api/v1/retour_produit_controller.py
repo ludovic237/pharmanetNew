@@ -6,8 +6,9 @@ from app.api.deps import get_db
 from app.schemas.produit_retour import ProduitRetourRequestDto
 from app.services.produit_service import ProduitService
 from app.services.retour_produit_service import RetourProduitService
+from app.utility.jwt_authentication import jwt_authentication
 
-router = APIRouter(prefix="/retour-produits", tags=["Retour produits"])
+router = APIRouter(prefix="/retour-produits", tags=["Retour produits"],  dependencies=[Depends(jwt_authentication)],)
 
 # POST /retour/{venteId}
 @router.post("/retour/{venteId}")

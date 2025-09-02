@@ -5,13 +5,14 @@ from typing import List
 from app.api.deps import get_db
 from app.models.rayon import Rayon, RayonSchema, RayonIn
 from app.services.rayon_service import RayonService
+from app.utility.jwt_authentication import jwt_authentication
 
-router = APIRouter(prefix="/rayons", tags=["Rayons"])
+router = APIRouter(prefix="/rayons", tags=["Rayons"], dependencies=[Depends(jwt_authentication)], )
 
 
 @router.post("/", status_code=201, response_model=RayonSchema)
 def create_rayon(rayon: RayonIn, db: Session = Depends(get_db)):
-  return RayonService(db, ...).create_rayon(rayon)
+  return RayonService(db).create_rayon(rayon)
 
 
 @router.get("/", response_model=List[RayonSchema])
@@ -31,10 +32,10 @@ def get_all_rayons_pageable(
 
 @router.put("/{id}", response_model=RayonSchema)
 def update_rayon(id: int, rayon: RayonIn, db: Session = Depends(get_db)):
-  return RayonService(db, ...).update_rayon(id, rayon)
+  return RayonService(db).update_rayon(id, rayon)
 
 
 @router.delete("/{id}", status_code=204)
 def delete_rayon(id: int, db: Session = Depends(get_db)):
-  RayonService(db, ...).delete_rayon(id)
+  RayonService(db).delete_rayon(id)
   return {"message": "deleted"}

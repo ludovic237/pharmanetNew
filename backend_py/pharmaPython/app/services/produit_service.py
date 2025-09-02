@@ -28,6 +28,7 @@ from app.repositories.rayon_repository import RayonRepository
 from app.repositories.retour_produit_repository import RetourProduitRepository
 from app.repositories.sortie_stock_repository import SortieStockRepository
 from app.repositories.vente_repository import VenteRepository
+from app.services.IA.search_index import semantic_search
 from app.services.caisse_service import CaisseService
 from app.utility.user_utils import UserUtils
 
@@ -823,3 +824,11 @@ class ProduitService:
       "reductionMax": p.reductionMax or 0,
       "stockDetails": stock_details,
     }
+
+  def search(self, query: str, k: int = 10):
+    ids = semantic_search(query, top_k=k)
+    if not ids:
+      return []
+    return (self.db.query(Produit)
+            .filter(Produit.id.in_(ids))
+            .all())

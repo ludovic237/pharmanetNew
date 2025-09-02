@@ -4,26 +4,17 @@ from sqlalchemy.orm import Session
 from typing import List
 
 from app.api.deps import get_db
-from app.models.fabriquant import Fabriquant, FabriquantSchema, FabriquantIn
+from app.models.fabriquant import FabriquantCreateSchema, FabriquantSchema, FabriquantBaseSchema
 from app.services.fabriquant_service import FabriquantService
+from app.utility.jwt_authentication import jwt_authentication
 
-router = APIRouter(prefix="/fabriquants", tags=["Fabriquants"])
+router = APIRouter(prefix="/fabriquants", tags=["Fabriquants"],   dependencies=[Depends(jwt_authentication)],)
 
 
 @router.post("/", response_model=FabriquantSchema, status_code=201)
-def create_fabriquant(body: FabriquantIn, db: Session = Depends(get_db)):
+def create_fabriquant(body: FabriquantCreateSchema, db: Session = Depends(get_db)):
   service = FabriquantService(db)
-  # construire l'entité ORM à partir du schéma d'entrée
-  ent = Fabriquant(
-    code=body.code,
-    nom=body.nom,
-    adresse=body.adresse,
-    telephone=body.telephone,
-    email=body.email,
-    codepostal=body.codepostal,
-    supprimer=0,
-  )
-  return service.create_fabriquant(ent)
+  return service.create_fabriquant(body)
 
 
 
@@ -57,7 +48,7 @@ def get_all_fabriquants_pageable(
 
 
 @router.put("/{id}", response_model=FabriquantSchema)
-def update_fabriquant(id: int, body: FabriquantIn, db: Session = Depends(get_db)):
+def update_fabriquant(id: int, body: FabriquantBaseSchema, db: Session = Depends(get_db)):
   service = FabriquantService(db)
   updated = service.update_fabriquant(id, body)  # laisse le service faire le mapping
   if not updated:

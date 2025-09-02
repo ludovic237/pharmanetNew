@@ -7,11 +7,14 @@ from app.api.deps import get_db
 from app.models.commandeout import CommandeSchema
 from app.schemas.commande_dto import ProduitCmdRequest, CommandeNewDTO, CommandePageableCustomlDto, CommandeRequest
 from app.services.commande_service import CommandeService
+from app.utility.jwt_authentication import jwt_authentication
 
 router = APIRouter(
   prefix="/commandes",
-  tags=["Commandes"]
+  tags=["Commandes"],
+  dependencies=[Depends(jwt_authentication)],
 )
+
 
 # ----------------------------
 # Créer une commande

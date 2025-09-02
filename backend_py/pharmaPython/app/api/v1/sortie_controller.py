@@ -5,8 +5,9 @@ from typing import Any, Dict, Optional
 from app.api.deps import get_db
 from app.schemas.sortie_dto import SortieDetailDto
 from app.services.sortie_stock_service import SortieStockService
+from app.utility.jwt_authentication import jwt_authentication
 
-router = APIRouter(prefix="/sortie-stock", tags=["Sorties de stock"])
+router = APIRouter(prefix="/sortie-stock", tags=["Sorties de stock"],  dependencies=[Depends(jwt_authentication)],)
 
 # GET /
 @router.get("/")

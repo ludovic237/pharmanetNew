@@ -2,21 +2,27 @@ from sqlalchemy.orm import Session
 from fastapi import HTTPException
 from typing import List, Optional
 
-from app.models.categorie import Categorie
+from app.models.categorie import Categorie, CategorieCreateSchema, CategorieSchema
+from app.repositories.categorie_repository import CategorieRepository
 
 
 class CategorieService:
   def __init__(self, db: Session):
     self.db = db
+    self.categorie_repo = CategorieRepository(db)
 
   # ----------------------------
   # Créer une catégorie
   # ----------------------------
-  def create_categorie(self, categorie: Categorie) -> Categorie:
-    self.db.add(categorie)
-    self.db.commit()
-    self.db.refresh(categorie)
-    return categorie
+  def create_categorie(self, payload: CategorieCreateSchema) -> CategorieSchema:
+    # 1) Pydantic -> SQLAlchemy
+    entity = Categorie(**payload.model_dump())
+
+    # 2) Persister
+    entity = self.categorie_repo.save(entity)
+
+    # 3) Retourner un schéma (Pydantic v2)
+    return CategorieSchema.model_validate(entity)
 
   # ----------------------------
   # Récupérer toutes les catégories non supprimées

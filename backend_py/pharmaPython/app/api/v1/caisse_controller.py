@@ -6,11 +6,13 @@ from app.api.deps import get_db
 from app.models.employe import Employe
 from app.schemas.caisse_dto import CaisseClotureRequestDto, CaisseOuvertureRequestDto
 from app.services.caisse_service import CaisseService
+from app.utility.jwt_authentication import jwt_authentication
 from app.utility.user_utils import UserUtils
 
 router = APIRouter(
   prefix="/caisses",
-  tags=["Caisse"]
+  tags=["Caisse"],
+  dependencies=[Depends(jwt_authentication)],
 )
 
 

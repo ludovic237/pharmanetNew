@@ -5,10 +5,12 @@ from typing import List
 from app.api.deps import get_db
 from app.models.magasin import Magasin, MagasinSchema, MagasinIn
 from app.services.magasin_service import MagasinService
+from app.utility.jwt_authentication import jwt_authentication
 
 router = APIRouter(
   prefix="/magasins",
   tags=["Magasins"],
+  dependencies=[Depends(jwt_authentication)],
 )
 
 @router.post("/", response_model=MagasinSchema, status_code=201)

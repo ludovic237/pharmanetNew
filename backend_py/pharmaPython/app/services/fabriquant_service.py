@@ -4,18 +4,20 @@ from sqlalchemy import desc, asc
 from typing import List, Tuple, Optional
 from fastapi import HTTPException
 
-from app.models.fabriquant import Fabriquant
+from app.models.fabriquant import Fabriquant, FabriquantCreateSchema, FabriquantSchema, FabriquantBaseSchema
+from app.repositories.fabriquant_repository import FabriquantRepository
 
 
 class FabriquantService:
   def __init__(self, db: Session):
     self.db = db
+    self.fabriquant_repo = FabriquantRepository(db)
 
-  def create_fabriquant(self, f: Fabriquant) -> Fabriquant:
-    self.db.add(f)
-    self.db.commit()
-    self.db.refresh(f)
-    return f
+  def create_fabriquant(self, f: FabriquantCreateSchema) -> FabriquantSchema:
+    entity = Fabriquant(**f.model_dump())
+    # entity.code = 'FOR'+str(int(self.db.query(Fabriquant).count() + 2))
+    entity = self.fabriquant_repo.save(entity)
+    return FabriquantSchema.model_validate(entity)
 
   def get_all_fabriquants(self) -> List[Fabriquant]:
     return self.db.query(Fabriquant).all()
@@ -28,7 +30,7 @@ class FabriquantService:
     rows = q.offset(skip).limit(limit).all()
     return rows, total
 
-  def update_fabriquant(self, id_: int, data: Fabriquant) -> Optional[Fabriquant]:
+  def update_fabriquant(self, id_: int, data: FabriquantBaseSchema) -> Optional[Fabriquant]:
     f = self.db.query(Fabriquant).filter(Fabriquant.id == id_).first()
     if not f:
       return None

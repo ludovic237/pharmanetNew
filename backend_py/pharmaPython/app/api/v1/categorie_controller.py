@@ -9,10 +9,12 @@ from app.api.deps import get_db
 from app.models.categorie import Categorie, CategorieSchema, CategorieCreateSchema
 from app.schemas.page_custom import PageCustom
 from app.services.categorie_service import CategorieService
+from app.utility.jwt_authentication import jwt_authentication
 
 router = APIRouter(
   prefix="/categories",
-  tags=["Categorie"]
+  tags=["Categorie"],
+  dependencies=[Depends(jwt_authentication)],
 )
 
 

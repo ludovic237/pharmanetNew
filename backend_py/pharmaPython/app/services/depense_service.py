@@ -8,6 +8,7 @@ from fastapi import HTTPException
 
 from app.models.depense import Depense
 from app.repositories.depense_repository import DepenseRepository
+from app.services.caisse_service import CaisseService
 
 
 def _parse_iso_to_naive_dt(value: Optional[str]) -> Optional[datetime]:
@@ -72,7 +73,6 @@ class DepenseService:
       })
     return mapped
 
-
   # ---------------------------
   # Création simple (designation + prixUnitaire)
   # ---------------------------
@@ -97,10 +97,11 @@ class DepenseService:
   # ---------------------------
   # Création à partir d'une "map" (dict)
   # ---------------------------
-  def create_depense_map(self, data: Dict[str, Any]) -> Depense:
-    if not self.caisse_service:
+  def create_depense_map(self, db: Session, data: Dict[str, Any]) -> Depense:
+    caisseService = CaisseService(db)
+    if not caisseService:
       raise HTTPException(status_code=500, detail="CaisseService non injecté")
-    caisse = self.caisse_service.get_caisse_active()
+    caisse = caisseService.get_caisse_active()
     caisse_id = str(getattr(caisse, "id", "")) if caisse else None
 
     designation = data.get("designation")

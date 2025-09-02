@@ -7,6 +7,7 @@ from pydantic import BaseModel
 from app.api.deps import get_db
 from app.models.bon_caisse import BonCaisse, BonCaisseSchema
 from app.services.bon_caisse_service import BonCaisseService
+from app.utility.jwt_authentication import jwt_authentication
 
 
 # ----------------------------
@@ -19,7 +20,8 @@ class BonCaisseData(BaseModel):
 
 router = APIRouter(
   prefix="/admin/bons",
-  tags=["BonCaisse"]
+  tags=["BonCaisse"],
+  dependencies=[Depends(jwt_authentication)],
 )
 
 

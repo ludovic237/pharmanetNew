@@ -7,11 +7,12 @@ from typing import Any, Dict, List
 from app.api.deps import get_db
 from app.models.depense import Depense, DepenseIn
 from app.services.depense_service import DepenseService
+from app.utility.jwt_authentication import jwt_authentication
 
 router = APIRouter(
   prefix="/depenses",
   tags=["Depenses"],
-  # dependencies=[Depends(jwt_authentication)]  # équivalent de @PreAuthorize("isAuthenticated()")
+  dependencies=[Depends(jwt_authentication)]  # équivalent de @PreAuthorize("isAuthenticated()")
 )
 
 @router.get("/", response_model=List[DepenseIn])
@@ -61,7 +62,7 @@ def create(depenseData: Dict[str, Any], db: Session = Depends(get_db)):
     raise HTTPException(status_code=422, detail="Missing or invalid 'prixUnitaire'")
 
   if len(depenseData) > 3:
-    return DepenseService(db).create_depense_map(depenseData)
+    return DepenseService(db).create_depense_map(db,depenseData)
   else:
     return DepenseService(db).create_depense(designation, prix_unitaire)
 

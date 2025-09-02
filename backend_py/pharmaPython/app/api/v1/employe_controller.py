@@ -9,11 +9,12 @@ from app.schemas.auth_dto import RegisterRequest
 from app.schemas.employe_dto import EmployeNewDto, UserEmployeeRequest
 from app.services.employe_service import EmployeService
 from app.services.user_service import UserService
+from app.utility.jwt_authentication import jwt_authentication
 
 router = APIRouter(
   prefix="/admin/users-employees",
   tags=["Users & Employees"],
-  # dependencies=[Depends(jwt_authentication)]  # équivalent de @PreAuthorize("isAuthenticated()")
+  dependencies=[Depends(jwt_authentication)]  # équivalent de @PreAuthorize("isAuthenticated()")
 )
 
 

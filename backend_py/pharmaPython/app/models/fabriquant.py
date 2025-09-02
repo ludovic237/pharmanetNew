@@ -1,4 +1,6 @@
 # app/models/fabriquant.py
+from typing import Optional
+
 from pydantic import BaseModel
 from sqlalchemy import Column, Integer, String
 from app.core.db import Base
@@ -19,7 +21,23 @@ class Fabriquant(Base):
 
 
 # -------- Pydantic V2 --------
-class FabriquantSchema(BaseModel):
+class FabriquantBaseSchema(BaseModel):
+  # code: Optional[str]
+  nom: str
+  # nom: Optional[str]
+  # adresse: Optional[str]
+  # telephone: Optional[str]
+  # email: Optional[str]
+  # codepostal: Optional[str]
+  # supprimer: Optional[int]
+
+  # v2 : remplace orm_mode = True
+  model_config = {"from_attributes": True}
+
+class FabriquantCreateSchema(FabriquantBaseSchema):
+  pass
+
+class FabriquantSchema(FabriquantBaseSchema):
   id: int
   code: str
   nom: str
@@ -31,7 +49,6 @@ class FabriquantSchema(BaseModel):
 
   # v2 : remplace orm_mode = True
   model_config = {"from_attributes": True}
-
 
 # Schéma d'ENTRÉE (pour les bodies POST/PUT)
 class FabriquantIn(BaseModel):

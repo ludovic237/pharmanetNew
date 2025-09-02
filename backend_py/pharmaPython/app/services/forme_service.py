@@ -4,7 +4,7 @@ from sqlalchemy import desc, asc
 from typing import List, Tuple, Optional, Dict, Any
 from fastapi import HTTPException
 
-from app.models.forme import Forme
+from app.models.forme import Forme, FormeSchema, FormeIn, FormCreateSchema, FormeBaseSchema
 from app.repositories.forme_repository import FormeRepository
 
 def _page_tuple(page: int, size: int) -> Tuple[int, int]:
@@ -16,11 +16,11 @@ class FormeService:
     self.db = db
     self.forme_repo = FormeRepository(db)
 
-  def create_forme(self, f: Forme) -> Forme:
-    self.db.add(f);
-    self.db.commit();
-    self.db.refresh(f);
-    return f
+  def create_forme(self, f: FormCreateSchema) -> FormeSchema:
+    entity = Forme(**f.model_dump())
+    entity.code = 'FOR'+str(int(self.db.query(Forme).count() + 2))
+    entity = self.forme_repo.save(entity)
+    return FormeSchema.model_validate(entity)
 
   def get_all_formes(self) -> List[Forme]:
     return self.db.query(Forme).all()
@@ -42,8 +42,10 @@ class FormeService:
       "pageNumber": page,
     }
 
-  def update_forme(self, id_: int, data: Forme) -> Optional[Forme]:
+  def update_forme(self, id_: int, data: FormeBaseSchema) -> Optional[Forme]:
     f = self.db.query(Forme).filter(Forme.id == id_).first()
+    print("f")
+    print(f)
     if not f: return None
     # mets à jour ici les champs nécessaires de Forme (ex.: nom, code)
     for attr in ["nom", "code"]:

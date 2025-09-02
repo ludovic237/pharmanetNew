@@ -20,10 +20,15 @@ class MagasinService:
 
   # createMagasin
   def create_magasin(self, magasin: Magasin) -> Magasin:
-    self.db.add(magasin)
+    print("magasin")
+    print(magasin)
+    mag = Magasin()
+    mag.nom = magasin.nom
+    mag.code = magasin.code
+    self.db.add(mag)
     self.db.commit()
-    self.db.refresh(magasin)
-    return magasin
+    self.db.refresh(mag)
+    return mag
 
   # getAllMagasins
   def get_all_magasins(self) -> List[Magasin]:

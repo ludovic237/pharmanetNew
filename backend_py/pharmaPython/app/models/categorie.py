@@ -2,23 +2,29 @@
 from typing import Optional
 from pydantic import BaseModel
 from sqlalchemy import Column, Integer, String
+from sqlalchemy.orm import Mapped, mapped_column
+
 from app.core.db import Base
+# app/models/categorie_schema.py (Pydantic)
+from pydantic import BaseModel, ConfigDict
+
 
 class Categorie(Base):
   __tablename__ = "categorie"
-  __table_args__ = {"extend_existing": True}
 
-  id = Column(Integer, primary_key=True)
-  nom = Column(String)              # <-- évite default=0.0 (mauvais type)
-  supprimer = Column(Integer, default=0)
+  id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+  nom: Mapped[str]
+  supprimer: Mapped[int] = mapped_column(default=0)
 
-class CategorieCreateSchema(BaseModel):
+
+class CategorieBaseSchema(BaseModel):
   nom: str
-  supprimer: Optional[int] = 0
-  model_config = {"from_attributes": True}
 
-class CategorieSchema(BaseModel):
+class CategorieCreateSchema(CategorieBaseSchema):
+  pass
+
+class CategorieSchema(CategorieBaseSchema):
   id: int
-  nom: str
-  supprimer: int | None = 0
-  model_config = {"from_attributes": True}
+  supprimer: int = 0
+
+  model_config = ConfigDict(from_attributes=True)  # Pydantic v2
