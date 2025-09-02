@@ -37,9 +37,7 @@ def lister_retour_produits_avec_details(
   renvoie {content, totalElements, totalPages, pageSize, pageNumber}
   """
   res = RetourProduitService(
-    db,
-    retour_produit_repo=..., produit_retour_repo=..., produit_repo=..., produit_detail_repo=..., enrayon_repo=...,
-  ).lister_retour_produits_avec_details(page=page, size=size)
+    db).lister_retour_produits_avec_details(page=page, size=size)
 
   total = res.get("totalElements", 0)
   res.update({
