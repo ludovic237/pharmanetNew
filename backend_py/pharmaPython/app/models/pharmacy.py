@@ -4,6 +4,7 @@ from app.core.db import Base
 
 class Pharmacy(Base):
   __tablename__ = "pharmacy"
+  __table_args__ = {"extend_existing": True}
 
   id = Column(Integer, primary_key=True)
   nom = Column(String(64))

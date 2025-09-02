@@ -4,6 +4,7 @@ from app.core.db import Base
 
 class SortieStock(Base):
   __tablename__ = "sortie_stock"
+  __table_args__ = {"extend_existing": True}
 
   id = Column(Integer, primary_key=True, autoincrement=True)
   en_rayon_id = Column(Integer, ForeignKey("en_rayon.id"))

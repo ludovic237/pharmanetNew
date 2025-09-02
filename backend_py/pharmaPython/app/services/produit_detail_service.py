@@ -69,7 +69,7 @@ class ProduitDetailService:
       return []
 
     # Kotlin: findByNomContainingIgnoreCaseAndSupprimerIs(nom, 0)
-    rows = self.produit_detail_repo.find_by_nom_contains_and_supprimer(nom, 0)
+    rows = self.produit_detail_repo.find_by_nom_containing_ignore_case_and_supprimer_is(nom, 0)
     out: List[Dict[str, Any]] = []
     for pd in rows:
       out.append({
@@ -78,9 +78,9 @@ class ProduitDetailService:
         "reference": pd.reference,
         "stock": pd.stock,
         "prix": pd.prix,
-        "grossisteList": pd.grossisteList,
-        "stockMin": pd.stockMin,
-        "stockMax": pd.stockMax,
+        "grossisteList": pd.grossiste_list,
+        "stockMin": pd.stock_min,
+        "stockMax": pd.stock_max,
       })
     return out
 
@@ -200,7 +200,7 @@ class ProduitDetailService:
       "id": p.id,
       "nom": p.nom,
       "stock": p.stock,
-      "contenuDetail": p.contenuDetail,
+      "contenuDetail": p.contenu_detail,
     } for p in produits]
 
     return {
@@ -209,10 +209,10 @@ class ProduitDetailService:
       "reference": pd.reference,
       "stock": pd.stock,
       "prix": pd.prix,
-      "reductionMax": pd.reductionMax,
+      "reductionMax": pd.reduction_max,
       "grossisteList": produit_grossiste,
-      "stockMin": pd.stockMin,
-      "stockMax": pd.stockMax,
+      "stockMin": pd.stock_min,
+      "stockMax": pd.stock_max,
     }
 
   # ---------------------------------------------------------------------
@@ -255,11 +255,11 @@ class ProduitDetailService:
     pd.nom = produit_dto.nom
     pd.reference = produit_dto.reference
     pd.stock = produit_dto.stock
-    pd.stockMax = produit_dto.stockMax
-    pd.stockMin = produit_dto.stockMin
+    pd.stock_max = produit_dto.stockMax
+    pd.stock_min = produit_dto.stockMin
     pd.prix = int(produit_dto.prix or 0)
-    pd.reductionMax = produit_dto.reductionMax
-    pd.grossisteList = str(produit_dto.magasinId) if getattr(produit_dto, "magasinId", None) is not None else None
+    pd.reduction_max = produit_dto.reductionMax
+    pd.grossiste_list = str(produit_dto.magasinId) if getattr(produit_dto, "magasinId", None) is not None else None
 
     pd = self.produit_detail_repo.save(pd)
 
@@ -268,8 +268,8 @@ class ProduitDetailService:
       p = self.produit_repo.find_by_id(int(item.produitId))
       if not p:
         raise HTTPException(404, detail=f"Produit introuvable: {item.produitId}")
-      p.detailId = pd.id
-      p.contenuDetail = str(produit_dto.stock) if produit_dto.stock is not None else None
+      p.detail_id = pd.id
+      p.contenu_detail = str(produit_dto.stock) if produit_dto.stock is not None else None
       self.produit_repo.save(p)
 
     return pd

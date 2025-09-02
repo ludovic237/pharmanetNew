@@ -4,6 +4,7 @@ from app.core.db import Base
 
 class LigneCaisse(Base):
   __tablename__ = "ligne_caisse"
+  __table_args__ = {"extend_existing": True}
 
   id = Column(Integer, primary_key=True)
   caisse_id = Column(Integer, ForeignKey("caisse.id"))

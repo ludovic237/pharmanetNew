@@ -8,6 +8,7 @@ from app.core.db import Base
 
 class Depense(Base):
   __tablename__ = "depense"
+  __table_args__ = {"extend_existing": True}
 
   id = Column(Integer, primary_key=True, index=True)
   caisse_id = Column(String(10))

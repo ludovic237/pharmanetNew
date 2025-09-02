@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from datetime import datetime, time
 from passlib.context import CryptContext
 from app.api.deps import get_db
+from app.core.security import jwt_util
 from app.models.caisse import Caisse
 from app.models.employe import Employe
 from app.models.user import User
@@ -32,7 +33,7 @@ def check_session(request: Request):
   if not auth_header or not auth_header.startswith("Bearer "):
     raise HTTPException(status_code=401, detail="Token manquant")
   token = auth_header.replace("Bearer ", "")
-  if UserUtils.validate_token(token):
+  if jwt_util.validate_token(token):
     return {"message": "Token is valid"}
   else:
     raise HTTPException(status_code=401, detail="EXPIRED")
@@ -49,7 +50,7 @@ def login_codebarre(data: CodebarreRequest, db: Session = Depends(get_db)):
   if not employe:
     raise HTTPException(status_code=404, detail="Employé non trouvé")
   # token = create_access_token({"sub": employe.identifiant})
-  token = JwtUtil.generate_token("",employe.identifiant)
+  token = JwtUtil.generate_token("", employe.identifiant)
 
   active_caisse = CaisseService.get_caisse_active_db(db)
   caisse_en_cours = CaisseRepository(db).find_by_user_and_etat(employe, "En cours")
@@ -116,12 +117,14 @@ def login(username: str, password: str, db: Session = Depends(get_db)):
 # Logout
 # ---------------------------
 @router.post("/logout")
-def logout(db: Session = Depends(get_db)):
-  employe = UserUtils.get_current_employe()
+def logout(db: Session = Depends(get_db), employe: Employe = Depends(UserUtils.get_current_employe)):
+  employe = employe
+  print("employe")
+  print(employe)
   if not employe:
     return {"message": "Not user connected"}
 
-  active_caisse = CaisseService.get_caisse_active(db)
+  active_caisse = CaisseService.get_caisse_active_db(db)
   if active_caisse and active_caisse.user.id == employe.id:
     active_caisse.date_ferme = datetime.now()
     active_caisse.etat = "Clot"
@@ -134,7 +137,8 @@ def logout(db: Session = Depends(get_db)):
 # Register
 # ---------------------------
 @router.post("/register")
-def register(first_name: str, last_name: str, role: str, phone: str, email: str, password: str, db: Session = Depends(get_db)):
+def register(first_name: str, last_name: str, role: str, phone: str, email: str, password: str,
+             db: Session = Depends(get_db)):
   user_repo = UserRepository(db)
   if user_repo.exists_by_email(email):
     raise HTTPException(status_code=400, detail="Email déjà utilisé")
@@ -175,6 +179,7 @@ def generer_session_id() -> str:
     return "soir"
   else:
     return "soir"
+
 
 class CodebarreRequest(BaseModel):
   codebarre: str

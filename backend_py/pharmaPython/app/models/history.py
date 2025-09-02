@@ -4,6 +4,7 @@ from app.core.db import Base
 
 class History(Base):
   __tablename__ = "history"
+  __table_args__ = {"extend_existing": True}
 
   id = Column(Integer, primary_key=True)
   produit_id = Column(Integer, ForeignKey("produit.id"))

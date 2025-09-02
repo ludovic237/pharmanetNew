@@ -5,18 +5,19 @@ from typing import List
 from app.api.deps import get_db
 from app.models.fournisseur import Fournisseur, FournisseurSchema, FournisseurIn
 from app.services.fournisseur_service import FournisseurService
+from app.utility.jwt_authentication import jwt_authentication
 
 router = APIRouter(
   prefix="/fournisseurs",
   tags=["Fournisseurs"],
-  # dependencies=[Depends(jwt_authentication)],
+  dependencies=[Depends(jwt_authentication)],
 )
 
 @router.post("/", response_model=FournisseurSchema, status_code=201)
 def create_fournisseur(fournisseur: FournisseurIn, db: Session = Depends(get_db)):
   return FournisseurService(db).create_fournisseur(fournisseur)
 
-@router.get("/", response_model=List[FournisseurSchema])
+@router.get("/")
 def get_all_fournisseurs(db: Session = Depends(get_db)):
   return FournisseurService(db).get_all_fournisseurs()
 

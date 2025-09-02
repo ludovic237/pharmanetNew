@@ -3,6 +3,7 @@ from app.core.db import Base
 
 class ProduitDetail(Base):
   __tablename__ = "produit_detail"
+  __table_args__ = {"extend_existing": True}
 
   id = Column(Integer, primary_key=True, autoincrement=True)
   reference = Column(String(32))

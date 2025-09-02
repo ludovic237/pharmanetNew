@@ -9,6 +9,7 @@ from app.core.db import Base
 
 class ProduitInventaire(Base):
   __tablename__ = "produit_inventaire"
+  __table_args__ = {"extend_existing": True}
 
   id = Column(Integer, primary_key=True, autoincrement=True)
   inventaire_id = Column(Integer, ForeignKey("inventaire.id"))
@@ -16,10 +17,6 @@ class ProduitInventaire(Base):
   en_rayon_id = Column(Integer, ForeignKey("en_rayon.id"))
   stock_avant = Column(Integer)
   stock_valide = Column(Integer)
-  date_debut = Column(DateTime)
-  date_fin = Column(DateTime)
-  type = Column(String(100))
-  statut = Column(String(100))
   supprimer = Column(Integer, default=0, nullable=False)
 
   inventaire = relationship("Inventaire")
@@ -34,10 +31,6 @@ class ProduitInventaireSchema(BaseModel):
   en_rayon_id: int
   stock_avant: int
   stock_valide: int
-  date_debut: Optional[datetime] = None
-  date_fin: Optional[datetime] = None
-  type: Optional[str] = None
-  statut: Optional[str] = None
   supprimer: int = 0
 
   # Pydantic v2 (remplace orm_mode=True)
@@ -50,7 +43,3 @@ class ProduitInventaireIn(BaseModel):
   en_rayon_id: int
   stock_avant: int
   stock_valide: int
-  date_debut: Optional[datetime] = None
-  date_fin: Optional[datetime] = None
-  type: Optional[str] = None
-  statut: Optional[str] = None

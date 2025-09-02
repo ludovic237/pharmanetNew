@@ -4,6 +4,7 @@ from app.core.db import Base
 
 class ProduitVendu(Base):
   __tablename__ = "produit_vendu"
+  __table_args__ = {"extend_existing": True}
 
   id = Column(Integer, primary_key=True, index=True)
   qtite_vendu = Column(Integer, nullable=True)

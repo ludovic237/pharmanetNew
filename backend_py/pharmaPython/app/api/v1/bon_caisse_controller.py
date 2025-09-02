@@ -5,7 +5,7 @@ from typing import List
 from pydantic import BaseModel
 
 from app.api.deps import get_db
-from app.models.bon_caisse import BonCaisse
+from app.models.bon_caisse import BonCaisse, BonCaisseSchema
 from app.services.bon_caisse_service import BonCaisseService
 
 
@@ -26,7 +26,7 @@ router = APIRouter(
 # ----------------------------
 # Récupérer tous les bons
 # ----------------------------
-@router.get("/", response_model=List[BonCaisse])
+@router.get("/")
 def get_all_bons(db: Session = Depends(get_db)):
   service = BonCaisseService(db)
   return service.get_all_bons()
@@ -35,7 +35,7 @@ def get_all_bons(db: Session = Depends(get_db)):
 # ----------------------------
 # Récupérer un bon par ID
 # ----------------------------
-@router.get("/{id}", response_model=BonCaisse)
+@router.get("/{id}", response_model=BonCaisseSchema)
 def get_bon_by_id(id: int, db: Session = Depends(get_db)):
   service = BonCaisseService(db)
   bon = service.get_bon_by_id(id)
@@ -47,7 +47,7 @@ def get_bon_by_id(id: int, db: Session = Depends(get_db)):
 # ----------------------------
 # Récupérer un bon par code-barres
 # ----------------------------
-@router.get("/codebarre/{codebarre_id}", response_model=BonCaisse)
+@router.get("/codebarre/{codebarre_id}", response_model=BonCaisseSchema)
 def get_bon_by_codebarre_id(codebarre_id: str, db: Session = Depends(get_db)):
   service = BonCaisseService(db)
   return service.get_bon_by_codebarre_id(codebarre_id)
@@ -56,7 +56,7 @@ def get_bon_by_codebarre_id(codebarre_id: str, db: Session = Depends(get_db)):
 # ----------------------------
 # Créer un bon
 # ----------------------------
-@router.post("/", response_model=BonCaisse)
+@router.post("/", response_model=BonCaisseSchema)
 def create_bon(bon: BonCaisseData, db: Session = Depends(get_db)):
   service = BonCaisseService(db)
   return service.create_bon(bon)
@@ -65,7 +65,7 @@ def create_bon(bon: BonCaisseData, db: Session = Depends(get_db)):
 # ----------------------------
 # Mettre à jour un bon (via codebarre)
 # ----------------------------
-@router.put("/{codebarre_id}", response_model=BonCaisse)
+@router.put("/{codebarre_id}", response_model=BonCaisseSchema)
 def update_bon(codebarre_id: str, db: Session = Depends(get_db)):
   service = BonCaisseService(db)
   return service.update_bon(codebarre_id)

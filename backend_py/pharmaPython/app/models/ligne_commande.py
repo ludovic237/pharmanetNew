@@ -3,6 +3,7 @@ from app.core.db import Base
 
 class LigneCommande(Base):
   __tablename__ = "ligne_commande"
+  __table_args__ = {"extend_existing": True}
 
   id = Column(Integer, primary_key=True)
   type = Column(String(50))

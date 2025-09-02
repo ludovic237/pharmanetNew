@@ -8,6 +8,7 @@ from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from decimal import Decimal, ROUND_HALF_UP
 
+from app.models.produit import Produit
 from app.repositories.caisse_repository import CaisseRepository
 from app.repositories.categorie_repository import CategorieRepository
 from app.repositories.commande_repository import CommandeRepository
@@ -92,7 +93,7 @@ class ProduitService:
   def create_produit(self, request) -> Dict[str, Any]:
     # Unicité par code-barres
     if getattr(request, "codeUbipharm", None):
-      if self.produit_repo.find_by_codeubipharm_and_supprimer(request.codeUbipharm):
+      if self.produit_repo.find_by_code_ubipharm_and_supprimer(request.codeUbipharm):
         raise HTTPException(422, detail=f"Un produit avec le code-barres '{request.codeUbipharm}' existe déjà.")
 
     # Prix conseillé (marge & TVA)
@@ -102,7 +103,7 @@ class ProduitService:
     pvc_ht = prix_achat * (Decimal("1") + marge)
     pvc_ttc = _round2(pvc_ht * (Decimal("1") + tva))
 
-    produit = self.produit_repo.model()  # instance SQLAlchemy (ex: Produit())
+    produit = Produit  # instance SQLAlchemy (ex: Produit())
     produit.ean13 = request.ean13
     produit.codeLaborex = request.codeLaborex
     produit.codeUbipharm = request.codeUbipharm
@@ -134,7 +135,7 @@ class ProduitService:
   # ----------------------------------------------------------------------
   def create_produit_new(self, request) -> Any:
     if getattr(request, "codeUbipharm", None):
-      if self.produit_repo.find_by_codeubipharm_and_supprimer(request.codeUbipharm):
+      if self.produit_repo.find_by_code_ubipharm_and_supprimer(request.codeUbipharm):
         raise HTTPException(422, detail=f"Un produit avec le code-barres '{request.codeUbipharm}' existe déjà.")
 
     produit = self.produit_repo.model()
@@ -192,7 +193,7 @@ class ProduitService:
 
   def get_enrayon_detail_by_id(self, enrayon_id: str) -> Dict[str, Any]:
     er = _require(self.enrayon_repo.find_by_id(str(enrayon_id)), "EnRayon introuvable")
-    p = _require(self.produit_repo.find_by_id(int(er.produitId)), "Produit introuvable")
+    p = _require(self.produit_repo.find_by_id(int(er.produit_id)), "Produit introuvable")
     return {
       "id": p.id,
       "rayonId": er.id,
@@ -229,14 +230,14 @@ class ProduitService:
     p = self.produit_repo.find_by_id(id_)
     if not p or int(p.supprimer or 0) != 0:
       raise HTTPException(404, detail=f"Produit non trouvé avec ID: {id_}")
-    enrayons = self.enrayon_repo.find_all_by_produit_id_and_supprimer_and_quantite_restante_greater_than(p.id)
+    enrayons = self.enrayon_repo.find_all_by_produit_id_and_supprimer_and_quantite_restante_gt(p.id)
     return [{
       "id": p.id,
       "rayonId": er.id,
       "nom": p.nom,
-      "stock": er.quantiteRestante,
-      "dateLivraison": er.dateLivraison,
-      "datePeremption": er.datePeremption,
+      "stock": er.quantite_restante,
+      "dateLivraison": er.date_livraison,
+      "datePeremption": er.date_peremption,
       "categorie": getattr(p.categorie, "nom", None),
       "prixAchat": 0,
       "prixVente": 0,
@@ -368,19 +369,19 @@ class ProduitService:
       raise HTTPException(404, detail=f"Produit non trouvé avec ID: {id_}")
 
     p.ean13 = request.ean13
-    p.codeLaborex = request.codeLaborex
-    p.codeUbipharm = request.codeUbipharm
+    p.code_laborex = request.codeLaborex
+    p.code_ubipharm = request.codeUbipharm
     p.reference = request.reference
     p.nom = request.nom
     p.stock = request.stock
-    p.stockMax = request.stockMax
-    p.stockMin = request.stockMin
-    p.contenuDetail = request.contenuDetail
-    p.prixDetail = str(request.prixDetail) if request.prixDetail is not None else "0"
+    p.stock_max = request.stockMax
+    p.stock_min = request.stockMin
+    p.contenu_detail = request.contenuDetail
+    p.prix_detail = str(request.prixDetail) if request.prixDetail is not None else "0"
     p.etat = request.etat
-    p.reductionMax = request.reductionMax
-    p.grossisteId = request.grossisteId
-    p.detailId = request.detailId
+    p.reduction_max = request.reductionMax
+    p.grossiste_id = request.grossisteId
+    p.detail_id = request.detailId
     p.categorie = _require(self.categorie_repo.find_by_id(request.categorie), "Catégorie introuvable")
     p.forme = _require(self.forme_repo.find_by_id(request.forme), "Forme introuvable")
     p.fabriquant = _require(self.fabriquant_repo.find_by_id(request.fabriquant), "Fabriquant introuvable")
@@ -400,18 +401,18 @@ class ProduitService:
         raise HTTPException(404, detail=f"Produit non trouvé avec ID: {id_}")
 
     p.ean13 = request.ean13
-    p.codeLaborex = request.codeLaborex
-    p.codeUbipharm = request.codeUbipharm
+    p.code_laborex = request.codeLaborex
+    p.code_ubipharm = request.codeUbipharm
     p.reference = request.reference
     p.nom = request.nom
     p.stock = request.stock
-    p.stockMax = request.stockMax
-    p.stockMin = request.stockMin
-    p.contenuDetail = request.contenuDetail
-    p.prixDetail = str(request.prixDetail) if request.prixDetail is not None else "0"
+    p.stock_max = request.stockMax
+    p.stock_min = request.stockMin
+    p.contenu_detail = request.contenuDetail
+    p.prix_detail = str(request.prixDetail) if request.prixDetail is not None else "0"
     p.etat = request.etat
-    p.reductionMax = request.reductionMax
-    p.detailId = request.detailId
+    p.reduction_max = request.reductionMax
+    p.detail_id = request.detailId
     p.categorie = _require(self.categorie_repo.find_by_id(request.categorieId), "Catégorie introuvable")
     p.forme = _require(self.forme_repo.find_by_id(request.formeId), "Forme introuvable")
     p.fabriquant = _require(self.fabriquant_repo.find_by_id(request.fabriquantId), "Fabriquant introuvable")
@@ -522,7 +523,7 @@ class ProduitService:
       produit_id = int(pr["produitId"])
       q_retour = int(pr["quantiteRetour"])
 
-      concerner = self.concerner_repo.find_by_vente_id_and_enrayon_id(vente.id, rayon_id)
+      concerner = self.concerner_repo.find_by_vente_id_and_en_rayon_id(vente.id, rayon_id)
       if not concerner:
         raise HTTPException(404, detail=f"Produit non trouvé dans la vente avec l'ID: {produit_id}")
       if q_retour <= 0:
@@ -564,8 +565,8 @@ class ProduitService:
     toutes = self.concerner_repo.find_by_produit_id(int(p.id))
     ventes_du_mois = []
     for c in toutes:
-      v = self.vente_repo.find_by_id(int(c.venteId))
-      if v and getattr(v, "dateVente", None) and v.dateVente >= start_month:
+      v = self.vente_repo.find_by_id(int(c.vente_id))
+      if v and getattr(v, "dateVente", None) and v.date_vente >= start_month:
         ventes_du_mois.append((c, v))
 
     def _sum_decimal(lst, f):
@@ -593,10 +594,10 @@ class ProduitService:
 
     ventes_list = []
     for c in toutes:
-      v = self.vente_repo.find_by_id(int(c.venteId))
+      v = self.vente_repo.find_by_id(int(c.vente_id))
       if not v:
         continue
-      pu = _bd(c.prixUnit or 0)
+      pu = _bd(c.prix_unit or 0)
       qte = int(c.quantite or 0)
       total = pu * Decimal(qte)
       ventes_list.append({
@@ -614,8 +615,8 @@ class ProduitService:
     lcmds = self.produit_cmd_repo.find_by_produit(p)
     commandes_du_mois = []
     for lc in lcmds:
-      cmd = self.commande_repo.find_by_id(int(lc.commandeId))
-      if cmd and getattr(cmd, "dateCreation", None) and cmd.dateCreation >= start_month:
+      cmd = self.commande_repo.find_by_id(int(lc.commande_id))
+      if cmd and getattr(cmd, "dateCreation", None) and cmd.date_creation >= start_month:
         commandes_du_mois.append(lc)
 
     def _sum_cmd(lst, field):
@@ -639,7 +640,7 @@ class ProduitService:
     commande_price_total_commande = 0
     commandes_list = []
     for lc in lcmds:
-      cmd = self.commande_repo.find_by_id(int(lc.commandeId))
+      cmd = self.commande_repo.find_by_id(int(lc.commande_id))
       if not cmd:
         continue
       pa = _bd(getattr(lc, "puCmd", 0))
@@ -686,7 +687,7 @@ class ProduitService:
 
     stock_sorties = []
     for c in toutes:
-      v = self.vente_repo.find_by_id(int(c.venteId))
+      v = self.vente_repo.find_by_id(int(c.vente_id))
       stock_sorties.append({
         "nom": p.nom,
         "quantite": int(c.quantite or 0),

@@ -4,12 +4,13 @@ from app.core.db import Base
 
 class Facturation(Base):
   __tablename__ = "facturation"
+  __table_args__ = {"extend_existing": True}
 
   id = Column(Integer, primary_key=True)
-  vente_id = Column(Integer, ForeignKey("vente.id"))
-  caisse_id = Column(Integer, ForeignKey("caisse.id"))
-  vente = relationship("Vente", lazy="select")
-  caisse = relationship("Caisse", lazy="select")
+  vente_id = Column(Integer, ForeignKey("vente.id"), nullable=False)
+  caisse_id = Column(Integer, ForeignKey("caisse.id"), nullable=False)
+  vente = relationship("Vente", lazy="joined")
+  caisse = relationship("Caisse", lazy="joined")
   type_paiement = Column(String(100))
   montant_percu = Column(Integer)
   reste = Column(Integer)

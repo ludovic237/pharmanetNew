@@ -3,6 +3,7 @@ from app.core.db import Base
 
 class Unite(Base):
   __tablename__ = "unite"
+  __table_args__ = {"extend_existing": True}
 
   id = Column(Integer, primary_key=True, autoincrement=True)
   nom = Column(String(16))

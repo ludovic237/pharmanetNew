@@ -17,7 +17,7 @@ router = APIRouter(
 # ----------------------------
 @router.get("/active/details")
 def get_active_caisse_details(db: Session = Depends(get_db)):
-  service = CaisseService(db, UserUtils(db))
+  service = CaisseService(db)
   active_caisse = service.get_caisse_active()
   if active_caisse:
     employe_name = active_caisse.user.user.nom if active_caisse.user else "Inconnu"
@@ -36,11 +36,11 @@ def get_active_caisse_details(db: Session = Depends(get_db)):
 # ----------------------------
 @router.get("/ouverte")
 def is_caisse_ouverte(db: Session = Depends(get_db)):
-  service = CaisseService(db, UserUtils(db))
+  service = CaisseService(db)
   caisse_active = service.get_caisse_active()
   caisse_en_cours = service.get_caisse_en_cours()
   last_caisse = service.get_last_caisse()
-  employe_current_id = service.user_utils.get_current_employe_id()
+  employe_current_id = service.user_utils.get_current_employe().id
 
   # ⚠️ Ici la logique détaillée Kotlin est très longue → à mapper selon besoin
   if last_caisse and last_caisse.etat == "Clot":
@@ -59,7 +59,7 @@ def is_caisse_ouverte(db: Session = Depends(get_db)):
 # ----------------------------
 @router.put("/active/attente-cloture")
 def set_caisse_to_pending_closure(db: Session = Depends(get_db)):
-  service = CaisseService(db, UserUtils(db))
+  service = CaisseService(db)
   try:
     updated_caisse = service.set_caisse_to_pending_closure()
     return {"message": "La caisse a été mise en attente de clôture.", "caisse": updated_caisse}
@@ -72,7 +72,7 @@ def set_caisse_to_pending_closure(db: Session = Depends(get_db)):
 # ----------------------------
 @router.post("/cloturer")
 def cloturer_caisse(request: CaisseClotureRequestDto, db: Session = Depends(get_db)):
-  service = CaisseService(db, UserUtils(db))
+  service = CaisseService(db)
   try:
     caisse_dto = service.cloturer_caisse(request.fond_caisse_ferme, request.fermeture_caisse)
     return caisse_dto
@@ -85,7 +85,7 @@ def cloturer_caisse(request: CaisseClotureRequestDto, db: Session = Depends(get_
 # ----------------------------
 @router.get("/en_cours")
 def mettre_caisse_en_attente(db: Session = Depends(get_db)):
-  service = CaisseService(db, UserUtils(db))
+  service = CaisseService(db)
   try:
     caisse_dto = service.mettre_caisse_en_attente()
     return caisse_dto
@@ -98,7 +98,7 @@ def mettre_caisse_en_attente(db: Session = Depends(get_db)):
 # ----------------------------
 @router.post("/ouvrir")
 def ouvrir_nouvelle_caisse(request: CaisseOuvertureRequestDto, db: Session = Depends(get_db)):
-  service = CaisseService(db, UserUtils(db))
+  service = CaisseService(db)
   try:
     caisse_dto = service.ouvrir_nouvelle_caisse(request)
     return caisse_dto
@@ -111,7 +111,7 @@ def ouvrir_nouvelle_caisse(request: CaisseOuvertureRequestDto, db: Session = Dep
 # ----------------------------
 @router.get("/cloture/details")
 def get_caisse_closure_details(db: Session = Depends(get_db)):
-  service = CaisseService(db, UserUtils(db))
+  service = CaisseService(db)
   caisse_details = service.get_caisse_attente_cloture()
   if caisse_details:
     return caisse_details
@@ -123,7 +123,7 @@ def get_caisse_closure_details(db: Session = Depends(get_db)):
 # ----------------------------
 @router.get("/{caisse_id}/rapport")
 def get_caisse_report(caisse_id: int, db: Session = Depends(get_db)):
-  service = CaisseService(db, UserUtils(db))
+  service = CaisseService(db)
   return service.generate_caisse_report(caisse_id)
 
 
@@ -132,7 +132,7 @@ def get_caisse_report(caisse_id: int, db: Session = Depends(get_db)):
 # ----------------------------
 @router.get("/all/pageable")
 def get_all_caisses(page: int = Query(0), size: int = Query(10), db: Session = Depends(get_db)):
-  service = CaisseService(db, UserUtils(db))
+  service = CaisseService(db)
   return service.get_all_caisses(page=page, size=size)
 
 
@@ -148,5 +148,5 @@ def get_filtered_caisses(
   size: int = Query(10),
   db: Session = Depends(get_db)
 ):
-  service = CaisseService(db, UserUtils(db))
+  service = CaisseService(db)
   return service.get_filtered_caisses(caisse_id, start_date, end_date, page=page, size=size)

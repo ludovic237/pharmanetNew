@@ -10,11 +10,12 @@ from app.models.rayon import Rayon
 from app.schemas.enrayon_dto import ProduitEnRayonDto, ProduitDetailIncrementEnRayonDto, EnRayonDto, \
   EnRayonPageableCustomDto
 from app.services.en_rayon_service import EnRayonService
+from app.utility.jwt_authentication import jwt_authentication
 
 router = APIRouter(
   prefix="/en-rayon",
   tags=["EnRayon"],
-  # dependencies=[Depends(jwt_authentication)]  # équivalent @PreAuthorize
+  dependencies=[Depends(jwt_authentication)]  # équivalent @PreAuthorize
 )
 
 # ---------------------------
@@ -115,7 +116,7 @@ def get_pageable(
     page, size, sort, direction
   )
 
-@router.get("/pageable/new", response_model=EnRayonPageableCustomDto)
+@router.get("/pageable/new")
 def get_pageable_new(
   nomProduit: Optional[str] = None,
   bientotPerimee: Optional[str] = None,
@@ -134,7 +135,7 @@ def get_pageable_new(
     startDate, endDate, enStock, page, size, sort, direction
   )
 
-@router.get("/product/pageable/new", response_model=EnRayonPageableCustomDto)
+@router.get("/product/pageable/new")
 def get_pageable_produit_range(
   nomProduit: Optional[str] = None,
   bientotPerimee: Optional[str] = None,

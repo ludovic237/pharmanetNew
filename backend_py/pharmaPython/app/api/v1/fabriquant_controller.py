@@ -27,7 +27,7 @@ def create_fabriquant(body: FabriquantIn, db: Session = Depends(get_db)):
 
 
 
-@router.get("/", response_model=List[FabriquantSchema])
+@router.get("/")
 def get_all_fabriquants(db: Session = Depends(get_db)):
   service = FabriquantService(db)
   return service.get_all_fabriquants()  # ORM -> sérialisé grâce à from_attributes

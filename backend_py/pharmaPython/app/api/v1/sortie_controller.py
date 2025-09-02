@@ -29,18 +29,15 @@ def get_sortie_stock_pageable(
   renvoie {content, totalElements, totalPages, pageSize, pageNumber}
   Tri effectif par 'dateSortie' DESC comme en Kotlin.
   """
-  svc = SortieStockService(
-    db,
-    produit_detail_repo=..., sortie_stock_repo=..., enrayon_repo=..., type_sortie_repo=..., produit_repo=...,
-  )
+  svc = SortieStockService(db)
   en_rayon_id = int(enRayonId) if (enRayonId and enRayonId.isdigit()) else 0
   produit_detail_id = int(produitDetailId) if (produitDetailId and produitDetailId.isdigit()) else 0
 
   result = svc.get_sortie_stock_pageable(
-    nomProduit=nomProduit,
-    typeSortie=typeSortie,
-    enRayonId=en_rayon_id,
-    produitDetailId=produit_detail_id,
+    nom_produit=nomProduit,
+    type_sortie=typeSortie,
+    en_rayon_id=en_rayon_id,
+    produit_detail_id=produit_detail_id,
     page=page,
     size=size,
   )
@@ -73,28 +70,26 @@ def get_sortie_stock_pageable_product_range(
   db: Session = Depends(get_db),
 ):
   svc = SortieStockService(
-    db,
-    produit_detail_repo=..., sortie_stock_repo=..., enrayon_repo=..., type_sortie_repo=..., produit_repo=...,
-  )
+    db)
   en_rayon_id = int(enRayonId) if (enRayonId and enRayonId.isdigit()) else 0
   produit_detail_id = int(produitDetailId) if (produitDetailId and produitDetailId.isdigit()) else 0
 
   dto = svc.get_sortie_stock_pageable_product_range(
-    nomProduit=nomProduit,
-    produitId=produitId,
+    nom_produit=nomProduit,
+    produit_id=produitId,
     supprimer=supprimer,
-    startDate=startDate,
-    endDate=endDate,
-    typeSortie=typeSortie,
-    enRayonId=en_rayon_id,
-    produitDetailId=produit_detail_id,
+    start_date=startDate,
+    end_date=endDate,
+    type_sortie=typeSortie,
+    en_rayon_id=en_rayon_id,
+    produit_detail_id=produit_detail_id,
     page=page,
     size=size,
   )
   # dto de type CommandePageableCustomlDto côté Kotlin → dict Python
   dto["pageNumber"] = page
   dto["pageSize"] = size
-  dto["sort"] = "dateSortie"
+  dto["sort"] = "date_sortie"
   dto["direction"] = "DESC"
   return dto
 
@@ -104,8 +99,5 @@ def add_sortie_stock(sortie: SortieDetailDto = Body(...), db: Session = Depends(
   """
   Équivalent du POST /save Kotlin : ajoute une sortie sur un ProduitDetail.
   """
-  svc = SortieStockService(
-    db,
-    produit_detail_repo=..., sortie_stock_repo=..., enrayon_repo=..., type_sortie_repo=..., produit_repo=...,
-  )
+  svc = SortieStockService(db)
   return svc.add_produit_detail(sortie)

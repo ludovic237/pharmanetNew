@@ -3,6 +3,7 @@ from app.core.db import Base
 
 class Concerner(Base):
   __tablename__ = "concerner"
+  __table_args__ = {"extend_existing": True}
 
   id = Column(Integer, primary_key=True, index=True)
   vente_id = Column(Integer)

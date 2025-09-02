@@ -4,6 +4,7 @@ from app.core.db import Base
 
 class Fournisseur(Base):
   __tablename__ = "fournisseur"
+  __table_args__ = {"extend_existing": True}
 
   id = Column(Integer, primary_key=True)
   code = Column(String(16))

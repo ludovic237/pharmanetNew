@@ -155,7 +155,7 @@ class CommandeService:
     # ---------- util ----------
 
   def _recalc_totaux(self, commande: Commande):
-    lignes = self.produit_cmd_repo.find_by_commande(commande.id)
+    lignes = self.produit_cmd_repo.find_by_commande_id(commande.id)
     commande.qtite_cmd = sum((l.qtite_cmd or 0) for l in lignes)
     commande.qtite_recu = sum((l.qtite_recu or 0) for l in lignes)
     commande.unite_gratuite = sum((l.unite_gratuite or 0) for l in lignes)
@@ -196,7 +196,7 @@ class CommandeService:
     if not commande or commande.supprimer == 1:
       raise HTTPException(status_code=404, detail="Commande non trouvée")
 
-    lignes = {l.id: l for l in self.produit_cmd_repo.find_by_commande(commande.id)}
+    lignes = {l.id: l for l in self.produit_cmd_repo.find_by_commande_id(commande.id)}
 
     for item in produits:
       if not item.productCmdId:
@@ -227,7 +227,7 @@ class CommandeService:
     self._recalc_totaux(commande)
 
     # Etat
-    toutes = self.produit_cmd_repo.find_by_commande(commande.id)
+    toutes = self.produit_cmd_repo.find_by_commande_id(commande.id)
     if all((l.qtite_recu or 0) >= (l.qtite_cmd or 0) for l in toutes):
       commande.etat = "RECEP_TOTALE"
     elif any((l.qtite_recu or 0) > 0 for l in toutes):
@@ -248,24 +248,16 @@ class CommandeService:
     typeFournisseur: Optional[str],  # non utilisé ici, garde si nécessaire
     startDate: Optional[str],
     endDate: Optional[str],
-  ) -> CommandePageableCustomlDto:
-    """
-    Page<Map<String, Any>> en Kotlin -> ici, structure DTO custom.
-    Applique filtres simples (etat, fournisseur, dates).
-    """
-    q = self.db.query(Commande).filter(Commande.supprimer == 0)
-    if etat: q = q.filter(Commande.etat == etat)
-    if fournisseurId:
-      try:
-        fid = int(fournisseurId)
-      except:
-        fid = None
-      if fid: q = q.filter(Commande.fournisseur_id == fid)
-    if startDate: q = q.filter(Commande.date_creation >= startDate)
-    if endDate: q = q.filter(Commande.date_creation <= endDate)
+  ) -> Dict[str, Any]:
 
-    q = q.order_by(Commande.date_creation.desc())
-    rows, total = self.commande_repo.find_paged(q, page, size)
+    rows, total = self.commande_repo.filter_commande_range(
+      etat=etat,
+      fournisseurId=fournisseurId,
+      typeFournisseur=typeFournisseur,
+      startDate=startDate,
+      endDate=endDate,
+      supprimer=0,
+      page=page, size=size)
 
     content: List[Dict[str, Any]] = []
     total_amount_cmd = 0.0
@@ -293,23 +285,33 @@ class CommandeService:
 
     total_pages = (total + size - 1) // size if size else 1
 
-    return CommandePageableCustomlDto(
-      content=content,
-      totalElements=total,
-      totalPages=total_pages,
-      pageSize=size,
-      pageNumber=page,
-      totalAmountRecu=total_amount_recu,
-      totalAmountCommande=total_amount_cmd,
-      totalQteRecu=total_qte_recu,
-      totalQteCommande=total_qte_cmd
-    )
+    return {
+      "content":{
+        "content":content,
+        "totalElements":total,
+        "totalPages":total_pages,
+        "pageSize":size,
+        "pageNumber":page,
+        "totalAmountRecu":total_amount_recu,
+        "totalAmountCommande":total_amount_cmd,
+        "totalQteRecu":total_qte_recu,
+        "totalQteCommande":total_qte_cmd
+      },
+      "totalElements":total,
+      "totalPages":total_pages,
+      "pageSize":size,
+      "pageNumber":page,
+      "totalAmountRecu":total_amount_recu,
+      "totalAmountCommande":total_amount_cmd,
+      "totalQteRecu":total_qte_recu,
+      "totalQteCommande":total_qte_cmd
+    }
 
   def modifier_lignes_commande(self, id_: int, produits: List[ProduitCmdRequest]) -> Commande:
     commande = self.commande_repo.find_by_id(id_)
     if not commande or commande.supprimer == 1:
       raise HTTPException(status_code=404, detail="Commande non trouvée")
-    lignes_by_id = {l.id: l for l in self.produit_cmd_repo.find_by_commande(commande.id)}
+    lignes_by_id = {l.id: l for l in self.produit_cmd_repo.find_by_commande_id(commande.id)}
 
     for item in produits:
       if item.productCmdId and item.productCmdId in lignes_by_id:
@@ -383,7 +385,7 @@ class CommandeService:
     """
     cmd = self.commande_repo.find_by_id(id_)
     if not cmd: raise HTTPException(status_code=404, detail="Commande non trouvée")
-    lignes = self.produit_cmd_repo.find_by_commande(cmd.id)
+    lignes = self.produit_cmd_repo.find_by_commande_id(cmd.id)
     contenu = f"BON DE COMMANDE\nREF: {cmd.ref}\n" + "\n".join(
       f"- Ligne #{l.id}  produit={l.produit_id}  qte={l.qtite_cmd}  PU={l.pu_cmd}"
       for l in lignes
@@ -412,7 +414,7 @@ class CommandeService:
     """
     cmd = self.commande_repo.find_by_id(id_)
     if not cmd: raise HTTPException(status_code=404, detail="Commande non trouvée")
-    lignes = self.produit_cmd_repo.find_by_commande(cmd.id)
+    lignes = self.produit_cmd_repo.find_by_commande_id(cmd.id)
     hist: List[Dict[str, Any]] = []
     for l in lignes:
       hist.append({
@@ -450,7 +452,7 @@ class CommandeService:
     cmd = self.commande_repo.find_by_id(id_)
     if not cmd: raise HTTPException(status_code=404, detail="Commande non trouvée")
     self._recalc_totaux(cmd)
-    lignes = self.produit_cmd_repo.find_by_commande(cmd.id)
+    lignes = self.produit_cmd_repo.find_by_commande_id(cmd.id)
     corps = "\n".join(
       f"{l.produit_id};{l.qtite_cmd};{l.qtite_recu};{l.pu_cmd};{l.pu_recept}"
       for l in lignes
@@ -463,7 +465,7 @@ class CommandeService:
     """
     cmd = self.commande_repo.find_by_id(id_)
     if not cmd: raise HTTPException(status_code=404, detail="Commande non trouvée")
-    lignes = self.produit_cmd_repo.find_by_commande(cmd.id)
+    lignes = self.produit_cmd_repo.find_by_commande_id(cmd.id)
     header = "produit_id;qtite_cmd;qtite_recu;unite_gratuite;pu_cmd;pu_recept;prix_public;date_peremption"
     rows = [
       f"{l.produit_id};{l.qtite_cmd};{l.qtite_recu};{l.unite_gratuite};{l.pu_cmd};{l.pu_recept};{l.prix_public};{l.date_peremption or ''}"
@@ -572,7 +574,6 @@ class CommandeService:
       totalQteRecu=total_qte_recu,
       totalQteCommande=total_qte_cmd,
     )
-
 
   def update_commande_simple(
     self,

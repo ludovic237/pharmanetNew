@@ -5,11 +5,12 @@ from typing import List, Dict, Any, Tuple
 from app.api.deps import get_db
 from app.models.forme import Forme, FormeIn, FormeSchema
 from app.services.forme_service import FormeService
+from app.utility.jwt_authentication import jwt_authentication
 
 router = APIRouter(
   prefix="/formes",
   tags=["Formes"],
-  # dependencies=[Depends(jwt_authentication)],
+  dependencies=[Depends(jwt_authentication)],
 )
 
 

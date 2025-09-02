@@ -38,9 +38,11 @@ from app.utility.user_utils import UserUtils
 def _now() -> datetime:
   return datetime.now()
 
+
 def _order_by(model, sort_by: str, direction: str):
   col = getattr(model, sort_by, getattr(model, "id"))
   return desc(col) if direction.lower() == "desc" else asc(col)
+
 
 # --- Service --------------------------------------------------------------
 
@@ -256,7 +258,9 @@ class InventaireService:
       "content": rows,
       "totalElements": total,
       "totalPages": (total + size - 1) // size if size else 1,
-      "pageSize": size,
+      "pageable": {
+        "pageSize": size,
+      },
       "pageNumber": page,
       "sortBy": sort,
       "sortDir": direction.upper(),
@@ -325,20 +329,23 @@ class InventaireService:
       "content": content,
       "totalElements": total,
       "totalPages": (total + size - 1) // size if size else 1,
-      "pageSize": size,
+      "pageable": {
+        "pageSize": size,
+      },
       "pageNumber": page,
     }
 
   # ------------------------------------------------------------------
   # listerProduitsParInventaire(inventaireId, pageable)
   # ------------------------------------------------------------------
-  def lister_produits_par_inventaire(self, inventaire_id: int, page: int, size: int, sort: str, direction: str) -> Dict[str, Any]:
+  def lister_produits_par_inventaire(self, inventaire_id: int, page: int, size: int, sort: str, direction: str) -> Dict[
+    str, Any]:
     inv = self.inventaire_repo.find_by_id(int(inventaire_id))
     if not inv:
       raise HTTPException(status_code=404, detail=f"Inventaire introuvable avec l'ID: {inventaire_id}")
 
-    q = self.db.query(ProduitInventaire).filter(ProduitInventaire.inventaire_id == inv.id) \
-      .order_by(_order_by(ProduitInventaire, sort, direction))
+    q = self.db.query(ProduitInventaire).filter(ProduitInventaire.inventaire_id == inv.id).order_by(
+      _order_by(ProduitInventaire, sort, direction))
     total = q.count()
     rows = q.offset(page * size).limit(size).all()
     return {
@@ -468,11 +475,13 @@ class InventaireService:
     if not inv:
       raise HTTPException(status_code=404, detail=f"Inventaire introuvable avec l'ID: {inventaire_id}")
 
-    q = self.produit_inventorie_repo.q_by_inventaire(inv).order_by(_order_by(ProduitInventaire, sort, direction))
+    q = self.db.query(ProduitInventaire).filter(ProduitInventaire.inventaire_id == inv.id).order_by(
+      _order_by(ProduitInventaire, sort, direction))
     all_rows: List[ProduitInventaire] = q.all()
 
     def _keep(p: ProduitInventaire) -> bool:
-      sa = int(p.stock_avant or 0); sv = int(p.stock_valide or 0)
+      sa = int(p.stock_avant or 0);
+      sv = int(p.stock_valide or 0)
       if filtre == "equal":   return sa == sv
       if filtre == "greater": return sa > sv
       if filtre == "less":    return sa < sv

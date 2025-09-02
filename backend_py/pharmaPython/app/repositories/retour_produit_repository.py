@@ -1,5 +1,5 @@
 # repositories/retour_produit_repository.py
-from typing import List, Optional
+from typing import List, Optional, Type, Tuple
 from datetime import datetime
 from sqlalchemy.orm import Session
 from sqlalchemy import text
@@ -9,6 +9,25 @@ from app.models.caisse import Caisse
 class RetourProduitRepository:
   def __init__(self, db: Session):
     self.db = db
+
+  def find_all(self) -> list[Type[RetourProduit]]:
+    return self.db.query(RetourProduit).all()
+
+  def find_all_pageable(
+    self,
+    *,  supprimer: Optional[int], page: Optional[int], size: Optional[int],
+    sort_by: str = "id",
+    direction: str = "DESC",
+  ) -> Tuple[List[RetourProduit], int]:
+    q = self.db.query(RetourProduit)
+
+    q = q.filter(RetourProduit.supprimer == supprimer)
+
+    total = q.count()
+    col = getattr(RetourProduit, sort_by, RetourProduit.id)
+    col = col.desc() if direction.upper() == "DESC" else col.asc()
+    rows = q.order_by(col).offset(page * size).limit(size).all()
+    return rows, total
 
   def find_by_caisse(self, caisse: Caisse) -> List[RetourProduit]:
     return self.db.query(RetourProduit).filter(RetourProduit.caisse_id == caisse.id).all()

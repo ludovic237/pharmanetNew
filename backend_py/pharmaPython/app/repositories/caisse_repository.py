@@ -11,6 +11,9 @@ class CaisseRepository:
   def __init__(self, db: Session):
     self.db = db
 
+  def find_by_id(self, id_: int) -> Optional[Caisse]:
+    return self.db.query(Caisse).get(id_)
+
   def find_top_by_order_by_id_desc(self) -> Optional[Caisse]:
     return self.db.query(Caisse).order_by(Caisse.id.desc()).first()
 

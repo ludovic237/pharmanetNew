@@ -144,16 +144,16 @@ class VenteService:
 
     vente = Vente(
       id=int(now.strftime("%Y%m%d%H%M%S")),
-      employe=employe,
+      employe_id=employe.id,
       reduction=str(dto.prixReduction or 0),
       caisse=None if dto.etat == "CREDIT" else active_caisse,
       reference=ref,
-      dateVente=now,
+      date_vente=now,
       etat=dto.etat,
-      prixTotal=(dto.prixTotal or 0.0) - (dto.prixReduction or 0.0),
+      prix_total=(dto.prixTotal or 0.0) - (dto.prixReduction or 0.0),
       commentaire=dto.commentaire,
-      user=client,
-      prescripteur=prescripteur,
+      user_id=client.id,
+      prescripteur_id=prescripteur.id,
       supprimer=0,
     )
     vente = self.vente_repo.save(vente)
@@ -177,10 +177,10 @@ class VenteService:
         self.produit_detail_repo.save(produit_detail)
 
         con = Concerner(
-          venteId=vente.id,
-          produitId=produit_detail.id,
+          vente_id=vente.id,
+          produit_id=produit_detail.id,
           quantite=qte,
-          prixUnit=p.prixUnit,
+          prix_unit=p.prixUnit,
           type=p.type,
           reduction=p.reduction,
         )
@@ -201,11 +201,11 @@ class VenteService:
         self.produit_repo.save(prod)
 
         con = Concerner(
-          venteId=vente.id,
-          produitId=prod.id,
-          enRayonId=er.id,
+          vente_id=vente.id,
+          produit_id=prod.id,
+          en_rayon_id=er.id,
           quantite=qte,
-          prixUnit=p.prixUnit,
+          prix_unit=p.prixUnit,
           type=p.type,
           reduction=p.reduction,
         )
@@ -254,25 +254,25 @@ class VenteService:
         prescripteur = Prescripteur(nom=pname)
         self.prescripteur_repo.save(prescripteur)
 
-    active_caisse = self.caisse_service.get_caisse_active()
+    active_caisse = self.caisse_service(self.db).get_caisse_active()
     now = _now()
     ref = self.generer_reference(self.vente_repo.count_mois())
 
     vente = Vente(
       id=int(now.strftime("%Y%m%d%H%M%S")),
-      employe=employe,
+      employe_id=employe.id,
       reduction=str(vdto.prixReduction or 0),
-      caisse=active_caisse,
+      caisse_id=active_caisse.id,
       reference=ref,
-      dateVente=now,
+      date_vente=now,
       etat=vdto.etat,
-      prixTotal=(vdto.prixTotal or 0.0) - (vdto.prixReduction or 0.0),
+      prix_total=(vdto.prixTotal or 0.0) - (vdto.prixReduction or 0.0),
       commentaire=vdto.commentaire,
-      user=client,
-      prescripteur=prescripteur,
+      user_id=client.id,
+      prescripteur_id=prescripteur.id,
       supprimer=0,
-      dateEncaissement=now,
-      prixPercu=float((dto.encaissementDto or {}).get("montantPercu") or 0.0),
+      date_encaissement=now,
+      prix_percu=float((dto.encaissementDto or {}).get("montantPercu") or 0.0),
     )
     vente = self.vente_repo.save(vente)
 
@@ -292,8 +292,8 @@ class VenteService:
         self.produit_detail_repo.save(produit_detail)
 
         self.concerner_repo.save(Concerner(
-          venteId=vente.id, produitId=produit_detail.id, quantite=qte,
-          prixUnit=p.prixUnit, type=p.type, reduction=p.reduction,
+          vente_id=vente.id, produit_id=produit_detail.id, quantite=qte,
+          prix_unit=p.prixUnit, type=p.type, reduction=p.reduction,
         ))
       else:
         er = _require(self.enrayon_repo.find_by_id(str(p.rayonId)), f"EnRayon introuvable: {p.rayonId}")
@@ -305,20 +305,20 @@ class VenteService:
         self.produit_repo.save(prod)
 
         self.concerner_repo.save(Concerner(
-          venteId=vente.id, produitId=prod.id, enRayonId=er.id, quantite=qte,
-          prixUnit=p.prixUnit, type=p.type, reduction=p.reduction,
+          vente_id=vente.id, produit_id=prod.id, en_rayon_id=er.id, quantite=qte,
+          prix_unit=p.prixUnit, type=p.type, reduction=p.reduction,
         ))
 
     # Facturation + lignes selon type
     fact = Facturation(
       id=int(self.generate_id()),
-      vente=vente,
-      caisse=active_caisse,
-      typePaiement=(dto.encaissementDto or {}).get("typeEncaissement"),
-      montantPercu=(dto.encaissementDto or {}).get("montantPercu"),
+      vente_id=vente.id,
+      caisse_id=active_caisse.id,
+      type_paiement=(dto.encaissementDto or {}).get("typeEncaissement"),
+      montant_percu=(dto.encaissementDto or {}).get("montantPercu"),
       reste=(dto.encaissementDto or {}).get("montantRendu"),
-      montantTtc=int(vente.prixTotal or 0),
-      dateFacture=now,
+      montant_ttc=int(vente.prixTotal or 0),
+      date_facture=now,
       supprimer=0,
     )
     fact = self.facturation_repo.save(fact)
@@ -328,12 +328,12 @@ class VenteService:
     if type_e == "espece":
       montant = (dto.encaissementDto or {}).get("espece")
       if montant is not None:
-        self.facture_espece_repo.save(FactureEspece(facturationId=fact.id, montant=montant))
+        self.facture_espece_repo.save(FactureEspece(facturation_id=fact.id, montant=montant))
 
     elif type_e == "electronique":
       el = (dto.encaissementDto or {}).get("electronique") or {}
       self.facture_electronique_repo.save(
-        FactureElectronique(facturationId=fact.id, numeroTelephone=el.get("numeroTelephone"),
+        FactureElectronique(facturation_id=fact.id, numero_telephone=el.get("numeroTelephone"),
                             montant=el.get("montantElectronique"))
       )
 
@@ -347,18 +347,18 @@ class VenteService:
       self.bon_caisse_repo.save(ticket)
 
       self.facture_ticket_repo.save(
-        FactureTicket(facturationId=fact.id, ticketCaisseId=ticket.id, montant=tk.get("montantTicket"))
+        FactureTicket(facturation_id=fact.id, ticket_caisse_id=ticket.id, montant=tk.get("montantTicket"))
       )
 
     elif type_e == "mixte":
       # espèces
       montant = (dto.encaissementDto or {}).get("espece")
       if montant is not None:
-        self.facture_espece_repo.save(FactureEspece(facturationId=fact.id, montant=montant))
+        self.facture_espece_repo.save(FactureEspece(facturation_id=fact.id, montant=montant))
       # électronique
       el = (dto.encaissementDto or {}).get("electronique") or {}
       self.facture_electronique_repo.save(
-        FactureElectronique(facturationId=fact.id, numeroTelephone=el.get("numeroTelephone"),
+        FactureElectronique(facturation_id=fact.id, numeroTelephone=el.get("numeroTelephone"),
                             montant=el.get("montantElectronique"))
       )
       # ticket
@@ -370,7 +370,7 @@ class VenteService:
       ticket.caisseIdEncaisser = active_caisse.id if active_caisse else None
       self.bon_caisse_repo.save(ticket)
       self.facture_ticket_repo.save(
-        FactureTicket(facturationId=fact.id, ticketCaisseId=ticket.id, montant=tk.get("montantTicket"))
+        FactureTicket(facturation_id=fact.id, ticket_caisse_id=ticket.id, montant=tk.get("montantTicket"))
       )
     else:
       raise HTTPException(status_code=400, detail=f"Type de paiement non pris en charge: {type_e}")
@@ -390,38 +390,38 @@ class VenteService:
     caisse = self.caisse_service.get_caisse_active()
     fact = Facturation(
       id=int(self.generate_id()),
-      vente=vente,
-      caisse=caisse,
-      typePaiement=req.typePaiement,
-      montantPercu=req.montantPercu,
+      vente_id=vente.id,
+      caisse_id=caisse.id,
+      type_paiement=req.typePaiement,
+      montant_percu=req.montantPercu,
       reste=req.reste,
-      montantTtc=req.montantTtc,
-      dateFacture=_now(),
+      montant_ttc=req.montantTtc,
+      date_facture=_now(),
       supprimer=0,
     )
     # Lignes selon type
     t = _remove_accents_lower(req.typePaiement)
     if t == "espece" and req.espece is not None:
-      self.facture_espece_repo.save(FactureEspece(facturationId=fact.id, montant=req.espece))
+      self.facture_espece_repo.save(FactureEspece(facturation_id=fact.id, montant=req.espece))
     elif t == "electronique" and req.electronique:
       self.facture_electronique_repo.save(
-        FactureElectronique(facturationId=fact.id,
-                            numeroTelephone=req.electronique.numeroTelephone,
+        FactureElectronique(facturation_id=fact.id,
+                            numero_telephone=req.electronique.numeroTelephone,
                             montant=req.electronique.montant)
       )
     elif t == "ticket" and req.ticket is not None:
-      self.facture_ticket_repo.save(FactureTicket(facturationId=fact.id, montant=req.ticket))
+      self.facture_ticket_repo.save(FactureTicket(facturation_id=fact.id, montant=req.ticket))
     elif t == "mixte":
       if req.espece is not None:
-        self.facture_espece_repo.save(FactureEspece(facturationId=fact.id, montant=req.espece))
+        self.facture_espece_repo.save(FactureEspece(facturation_id=fact.id, montant=req.espece))
       if req.electronique:
         self.facture_electronique_repo.save(
-          FactureElectronique(facturationId=fact.id,
-                              numeroTelephone=req.electronique.numeroTelephone,
+          FactureElectronique(facturation_id=fact.id,
+                              numero_telephone=req.electronique.numeroTelephone,
                               montant=req.electronique.montant)
         )
       if req.ticket is not None:
-        self.facture_ticket_repo.save(FactureTicket(facturationId=fact.id, montant=req.ticket))
+        self.facture_ticket_repo.save(FactureTicket(facturation_id=fact.id, montant=req.ticket))
     else:
       raise HTTPException(status_code=400, detail=f"Type de paiement non pris en charge: {req.typePaiement}")
 
@@ -440,23 +440,23 @@ class VenteService:
     caisse = self.caisse_service.get_caisse_active()
     fact = Facturation(
       id=int(self.generate_id()),
-      vente=vente,
-      caisse=caisse,
-      typePaiement=dto.typeEncaissement,
-      montantPercu=dto.montantPercu,
+      vente_id=vente.id,
+      caisse_id=caisse.id,
+      type_paiement=dto.typeEncaissement,
+      montant_percu=dto.montantPercu,
       reste=dto.montantRendu,
-      montantTtc=int(vente.prixTotal or 0),
-      dateFacture=_now(),
+      montant_ttc=int(vente.prixTotal or 0),
+      date_facture=_now(),
       supprimer=0,
     )
     fact = self.facturation_repo.save(fact)
 
     if dto.typeEncaissement == "espece" and dto.espece is not None:
-      self.facture_espece_repo.save(FactureEspece(facturationId=fact.id, montant=dto.espece))
+      self.facture_espece_repo.save(FactureEspece(facturation_id=fact.id, montant=dto.espece))
     elif dto.typeEncaissement == "electronique" and dto.electronique:
       self.facture_electronique_repo.save(
-        FactureElectronique(facturationId=fact.id,
-                            numeroTelephone=dto.electronique.numeroTelephone,
+        FactureElectronique(facturation_id=fact.id,
+                            numero_telephone=dto.electronique.numeroTelephone,
                             montant=dto.electronique.montantElectronique)
       )
     elif dto.typeEncaissement == "ticket" and dto.ticket:
@@ -467,15 +467,15 @@ class VenteService:
       self.bon_caisse_repo.save(ticket)
 
       self.facture_ticket_repo.save(
-        FactureTicket(facturationId=fact.id, ticketCaisseId=ticket.id, montant=dto.ticket.montantTicket)
+        FactureTicket(facturation_id=fact.id, ticket_caisse_id=ticket.id, montant=dto.ticket.montantTicket)
       )
     elif dto.typeEncaissement == "mixte":
       if dto.espece is not None:
-        self.facture_espece_repo.save(FactureEspece(facturationId=fact.id, montant=dto.espece))
+        self.facture_espece_repo.save(FactureEspece(facturation_id=fact.id, montant=dto.espece))
       if dto.electronique:
         self.facture_electronique_repo.save(
-          FactureElectronique(facturationId=fact.id,
-                              numeroTelephone=dto.electronique.numeroTelephone,
+          FactureElectronique(facturation_id=fact.id,
+                              numero_telephone=dto.electronique.numeroTelephone,
                               montant=dto.electronique.montantElectronique)
         )
       if dto.ticket:
@@ -485,7 +485,7 @@ class VenteService:
         ticket.caisseIdEncaisser = (self.caisse_service.get_caisse_active() or {}).id if self.caisse_service else None
         self.bon_caisse_repo.save(ticket)
         self.facture_ticket_repo.save(
-          FactureTicket(facturationId=fact.id, ticketCaisseId=ticket.id, montant=dto.ticket.montantTicket)
+          FactureTicket(facturation_id=fact.id, ticket_caisse_id=ticket.id, montant=dto.ticket.montantTicket)
         )
     else:
       raise HTTPException(status_code=400, detail=f"Type de paiement non pris en charge: {dto.typeEncaissement}")
@@ -512,19 +512,19 @@ class VenteService:
     for c in self.concerner_repo.find_by_vente_id(int(vente.id)):
       nom, pid = None, None
       if c.type == "detail":
-        pd = self.produit_detail_repo.find_by_id(int(c.enRayonId))
+        pd = self.produit_detail_repo.find_by_id(int(c.en_rayon_id))
         _require(pd, "ProduitDetail introuvable")
         nom, pid = pd.nom, pd.id
       else:
-        er = _require(self.enrayon_repo.find_by_id(str(c.enRayonId)), "EnRayon introuvable")
+        er = _require(self.enrayon_repo.find_by_id(str(c.en_rayon_id)), "EnRayon introuvable")
         p = _require(self.produit_repo.find_by_id(int(er.produitId)), "Produit introuvable")
         nom, pid = p.nom, p.id
       produits.append({
         "id": c.id,
         "nom": nom,
-        "prixUnitaire": c.prixUnit,
+        "prixUnitaire": c.prix_unit,
         "quantite": c.quantite,
-        "prixTotal": _parse_int(c.prixUnit) * _parse_int(c.quantite),
+        "prixTotal": _parse_int(c.prix_unit) * _parse_int(c.quantite),
         "reduction": c.reduction,
         "type": c.type,
       })
@@ -557,7 +557,7 @@ class VenteService:
         "infoClients": f"{v.user.nom} ({v.user.telephone})" if v.user else "Aucun client",
         "vendeur": getattr(getattr(v.employe, "user", None), "nom", "Inconnu"),
         "commentaire": v.commentaire,
-        "dateVente": v.dateVente,
+        "dateVente": v.date_vente,
         "actions": "edit,delete",
       })
     return out
@@ -574,32 +574,32 @@ class VenteService:
     produits: List[Dict[str, Any]] = []
     for v in ventes:
       for c in self.concerner_repo.find_by_vente_id(int(v.id)):
-        if _parse_int(c.enRayonId) > 1000:
-          er = self.enrayon_repo.find_by_id(str(c.enRayonId))
-          p = self.produit_repo.find_by_id(int(er.produitId)) if er else None
+        if _parse_int(c.en_rayon_id) > 1000:
+          er = self.enrayon_repo.find_by_id(str(c.en_rayon_id))
+          p = self.produit_repo.find_by_id(int(er.produit_id)) if er else None
           if not p or not er:
             continue
           if fournisseur_id == "null":
             produits.append({
-              "id": p.id, "nom": p.nom, "prix": c.prixUnit, "stock": p.stock,
+              "id": p.id, "nom": p.nom, "prix": c.prix_unit, "stock": p.stock,
               "fournisseur": er.fournisseur.nom if er.fournisseur else None,
-              "dateLivraison": er.dateLivraison, "datePeremption": er.datePeremption,
-              "quantiteStock": p.stock, "prixAchat": er.prixAchat, "quantiteRestante": 0,
+              "dateLivraison": er.date_livraison, "datePeremption": er.date_peremption,
+              "quantiteStock": p.stock, "prixAchat": er.prix_achat, "quantiteRestante": 0,
             })
           elif fournisseur_id and int(fournisseur_id) > 0:
             if er.fournisseur and int(er.fournisseur.id) == int(fournisseur_id):
               produits.append({
-                "id": p.id, "nom": p.nom, "prix": c.prixUnit, "stock": p.stock,
-                "fournisseur": er.fournisseur.nom, "dateLivraison": er.dateLivraison,
-                "datePeremption": er.datePeremption, "quantiteStock": p.stock,
-                "prixAchat": er.prixAchat, "quantiteRestante": 0,
+                "id": p.id, "nom": p.nom, "prix": c.prix_unit, "stock": p.stock,
+                "fournisseur": er.fournisseur.nom, "dateLivraison": er.date_livraison,
+                "datePeremption": er.date_peremption, "quantiteStock": p.stock,
+                "prixAchat": er.prix_achat, "quantiteRestante": 0,
               })
           else:
             produits.append({
-              "id": p.id, "nom": p.nom, "prix": c.prixUnit, "stock": p.stock,
+              "id": p.id, "nom": p.nom, "prix": c.prix_unit, "stock": p.stock,
               "fournisseur": er.fournisseur.nom if er.fournisseur else None,
-              "dateLivraison": er.dateLivraison, "datePeremption": er.datePeremption,
-              "quantiteStock": p.stock, "prixAchat": er.prixAchat, "quantiteRestante": 0,
+              "dateLivraison": er.date_livraison, "datePeremption": er.date_peremption,
+              "quantiteStock": p.stock, "prixAchat": er.prix_achat, "quantiteRestante": 0,
             })
     # distinct par nom
     seen = set()
@@ -620,16 +620,16 @@ class VenteService:
     if not caisse:
       return {"content": [], "totalElements": 0, "totalPages": 0, "pageSize": size, "pageNumber": page}
 
-    spec = self.vente_repo.spec_filter(caisse=caisse, price_percu_mode=0, encaisse_mode=0,
-                                       etat="null", dateVente="null", dateEncaissement="null",
-                                       userId="null", employeId="null", prescripteurId="null", caisseId="null",
-                                       search=search)
-    rows, total = self.vente_repo.find_all(spec, page, size, sort="dateVente", direction="DESC")
+    rows, total = self.vente_repo.filter_ventes(active_caisse=caisse, price_percu=0,
+                                                etat="null", date_vente="null", date_encaissement="null",
+                                                user_id="null", employe_id="null", prescripteurId="null",
+                                                caisse_id="null",
+                                                page=page, size=size, sort_by="date_vente", direction="DESC")
     content = [{
-      "id": v.id, "netAPayer": v.prixTotal, "reduction": v.reduction, "reference": v.reference,
+      "id": v.id, "netAPayer": v.prix_total, "reduction": v.reduction, "reference": v.reference,
       "infoClients": f"{v.user.nom} ({v.user.telephone})" if v.user else "Aucun client",
       "vendeur": getattr(getattr(v.employe, "user", None), "nom", "Inconnu"),
-      "commentaire": v.commentaire, "dateVente": v.dateVente, "actions": "edit,delete",
+      "commentaire": v.commentaire, "dateVente": v.date_vente, "actions": "edit,delete",
     } for v in rows]
     return {
       "content": content, "totalElements": total,
@@ -642,19 +642,19 @@ class VenteService:
   def lister_ventes_encaissees(self, page: int, size: int, sort: str, direction: str, search: Optional[str]) -> Dict[
     str, Any]:
     page, size = _page_sizing(page, size)
-    caisse = self.caisse_service.get_caisse_active()
-    spec = self.vente_repo.spec_filter(caisse=caisse, price_percu_mode=0, encaisse_mode=1,
-                                       etat="null", dateVente="null", dateEncaissement="null",
-                                       userId="null", employeId="null", prescripteurId="null", caisseId="null",
-                                       search=search)
-    rows, total = self.vente_repo.find_all(spec, page, size, sort="dateVente", direction="DESC")
+    caisse = self.caisse_service(self.db).get_caisse_active()
+    rows, total = self.vente_repo.filter_ventes(active_caisse=caisse, price_percu=0, encaisse_mode=1,
+                                                etat="null", date_vente="null", date_encaissement="null",
+                                                user_id="null", employe_id="null", prescripteur_id="null",
+                                                caisse_id="null",
+                                                page=page, size=size, sort_by="date_vente", direction="DESC")
     content = [{
-      "id": v.id, "prixPercu": v.prixPercu, "netAPayer": v.prixTotal, "reduction": v.reduction,
+      "id": v.id, "prixPercu": v.prix_percu, "netAPayer": v.prix_total, "reduction": v.reduction,
       "reference": v.reference,
       "infoClients": f"{v.user.nom} ({v.user.telephone})" if v.user else "Aucun client",
       "vendeur": getattr(getattr(v.employe, "user", None), "nom", "Inconnu"),
-      "commentaire": v.commentaire, "etat": v.etat, "dateVente": v.dateVente,
-      "dateEncaissement": v.dateEncaissement, "actions": "edit,delete",
+      "commentaire": v.commentaire, "etat": v.etat, "dateVente": v.date_vente,
+      "dateEncaissement": v.date_encaissement, "actions": "edit,delete",
     } for v in rows]
     return {
       "content": content, "totalElements": total,
@@ -667,34 +667,35 @@ class VenteService:
   def lister_ventes_credit_non_encaissees(self, page: int, size: int, sort: str, direction: str,
                                           search: Optional[str]) -> Dict[str, Any]:
     page, size = _page_sizing(page, size)
-    spec = self.vente_repo.spec_filter(caisse=None, price_percu_mode=0, encaisse_mode=0,
-                                       etat="CREDIT", dateVente="null", dateEncaissement="null",
-                                       userId="null", employeId="null", prescripteurId="null", caisseId="null",
-                                       search=search)
-    rows, total = self.vente_repo.find_all(spec, page, size, sort="dateVente", direction="DESC")
+    rows, total = self.vente_repo.filter_ventes(active_caisse=None, prix_percu=0,
+                                                etat="CREDIT", date_vente="null", date_encaissement="null",
+                                                user_id="null", employe_id="null", prescripteur_id="null",
+                                                caisse_id="null",
+                                                supprimer=0,
+                                                page=page, size=size, sort_by="date_vente", direction="DESC")
     content = []
     for v in rows:
       produits = []
       for c in self.concerner_repo.find_by_vente_id(int(v.id)):
         if c.type == "detail":
-          pd = self.produit_detail_repo.find_by_id(int(c.enRayonId))
+          pd = self.produit_detail_repo.find_by_id(int(c.en_rayon_id))
           nom, pid = pd.nom, pd.id
         else:
-          er = self.enrayon_repo.find_by_id(str(c.enRayonId))
-          p = self.produit_repo.find_by_id(int(er.produitId)) if er else None
+          er = self.enrayon_repo.find_by_id(str(c.en_rayon_id))
+          p = self.produit_repo.find_by_id(int(er.produit_id)) if er else None
           nom, pid = getattr(p, "nom", None), getattr(p, "id", None)
         produits.append({
           "id": c.id, "nom": nom, "produitId": pid, "quantite": c.quantite,
-          "prixUnitaire": c.prixUnit, "reduction": c.reduction,
-          "prixTotal": _parse_int(c.prixUnit) * _parse_int(c.quantite),
+          "prixUnitaire": c.prix_unit, "reduction": c.reduction,
+          "prixTotal": _parse_int(c.prix_unit) * _parse_int(c.quantite),
         })
       content.append({
-        "id": v.id, "prixPercu": v.prixPercu, "netAPayer": v.prixTotal, "reduction": v.reduction,
+        "id": v.id, "prixPercu": v.prix_percu, "netAPayer": v.prix_total, "reduction": v.reduction,
         "reference": v.reference,
         "infoClients": f"{v.user.nom} ({v.user.telephone})" if v.user else "Aucun client",
         "vendeur": getattr(getattr(v.employe, "user", None), "nom", "Inconnu"),
-        "commentaire": v.commentaire, "etat": v.etat, "dateVente": v.dateVente,
-        "dateEncaissement": v.dateEncaissement, "produits": produits, "actions": "edit,delete",
+        "commentaire": v.commentaire, "etat": v.etat, "dateVente": v.date_vente,
+        "dateEncaissement": v.date_encaissement, "produits": produits, "actions": "edit,delete",
       })
     return {
       "content": content, "totalElements": total,
@@ -722,7 +723,7 @@ class VenteService:
         "id": c.id, "nom": nom, "prixUnitaire": c.prix_unit, "quantite": c.quantite,
         "prixTotal": _parse_int(c.prix_unit) * _parse_int(c.quantite), "reduction": c.reduction,
       })
-
+    print(vente.id)
     facturation = self.facturation_repo.find_by_vente(vente)
     t = _remove_accents_lower(getattr(facturation, "typePaiement", "") or "")
 
@@ -832,18 +833,14 @@ class VenteService:
     if caisseId == "non":
       active_caisse = None
 
-    spec = self.vente_repo.filter_ventes_range(
+    rows, total = self.vente_repo.filter_ventes_range(
       supprimer=0,
       active_caisse=active_caisse, prix_percu=0, etat=etat,
       start_date_vente=startDateVente, end_date_vente=endDateVente,
       start_date_encaissement=startDateEncaissement, end_date_encaissement=endDateEncaissement,
       user_id=userId, employe_id=employeId, prescripteur_id=prescripteurId, caisse_id=caisseId,
-    )
-    # rows, total = self.vente_repo.find_all(spec, page, size, sort="dateVente", direction="DESC")
-    rows, total = self.vente_repo.find_all(
-      spec=spec,
       page=page, size=size,
-      sort="dateVente", direction="DESC",
+      sort_by="dateVente", direction="DESC",
     )
 
     def _map(v: Vente) -> Dict[str, Any]:
@@ -881,7 +878,13 @@ class VenteService:
     # totalAmount global (requête complète non paginée)
     total_amount = 0.0
     if total > 0:
-      all_rows, _ = self.vente_repo.find_all(spec, page=0, size=total, sort="dateVente", direction="DESC")
+      all_rows, _ = self.vente_repo.filter_ventes_range(
+        supprimer=0,
+        active_caisse=active_caisse, prix_percu=0, etat=etat,
+        start_date_vente=startDateVente, end_date_vente=endDateVente,
+        start_date_encaissement=startDateEncaissement, end_date_encaissement=endDateEncaissement,
+        user_id=userId, employe_id=employeId, prescripteur_id=prescripteurId, caisse_id=caisseId,
+        page=0, size=total, sort_by="date_vente", direction="DESC")
       total_amount = sum((r.prix_total or 0.0) for r in all_rows)
 
     # return VentePageableCustomlDto(
@@ -899,13 +902,13 @@ class VenteService:
         "totalElements": total,
         "totalPages": (total + size - 1) // size if size else 1,
         "pageSize": size,
-        "totalAmount":total_amount,
+        "totalAmount": total_amount,
         "pageNumber": page,
       },
       "totalElements": total,
       "totalPages": (total + size - 1) // size if size else 1,
       "pageSize": size,
-      "totalAmount":total_amount,
+      "totalAmount": total_amount,
       "pageNumber": page,
     }
 
@@ -996,35 +999,33 @@ class VenteService:
     if caisseId == "non":
       active_caisse = None
 
-    spec = self.vente_repo.spec_filter_range(
-      caisse=active_caisse, price_percu_mode=0, encaisse_mode=1, etat=etat,
-      startDateVente=startDateVente, endDateVente=endDateVente,
-      startDateEncaissement=startDateEncaissement, endDateEncaissement=endDateEncaissement,
-      userId=userId, employeId=employeId, prescripteurId=prescripteurId, caisseId=caisseId,
-      search=search,
+    rows, total = self.vente_repo.filter_ventes_range(
+      active_caisse=active_caisse, price_percu=0, etat=etat,
+      start_date_vente=startDateVente, end_date_vente=endDateVente,
+      start_date_encaissement=startDateEncaissement, end_date_encaissement=endDateEncaissement,
+      user_Id=userId, employe_Id=employeId, prescripteur_Id=prescripteurId, caisse_Id=caisseId,
+      page=page, size=size, sort="date_vente", direction="DESC"
     )
-    rows, total = self.vente_repo.find_all(spec, page, size, sort="dateVente", direction="DESC")
-
     content: List[Dict[str, Any]] = []
     for v in rows:
       enrayons = self.enrayon_repo.find_all_by_produit_id_and_supprimer(int(produitId)) if produitId else []
-      concerner_list = self.concerner_repo.find_by_vente_id_and_enrayon_id_in(int(v.id), [e.id for e in enrayons])
+      concerner_list = self.concerner_repo.find_by_vente_id_and_en_rayon_id_in(int(v.id), [e.id for e in enrayons])
       if concerner_list:
         d: Dict[str, Any] = {
           "venteId": v.id,
-          "prixPercu": v.prixPercu,
-          "netAPayer": v.prixTotal,
+          "prixPercu": v.prix_percu,
+          "netAPayer": v.prix_total,
           "reference": v.reference,
           "commentaire": v.commentaire,
           "etat": v.etat,
-          "date": v.dateVente,
-          "dateEncaissement": v.dateEncaissement,
-          "produits": [{"quantite": c.quantite, "prixUnitaire": c.prixUnit, "reduction": c.reduction}
+          "date": v.date_vente,
+          "dateEncaissement": v.date_encaissement,
+          "produits": [{"quantite": c.quantite, "prix_unitaire": c.prixUnit, "reduction": c.reduction}
                        for c in concerner_list],
           "quantite": sum(_parse_int(c.quantite) for c in concerner_list),
           "prixUnitaire": sum(_parse_int(c.prixUnit) for c in concerner_list),
           "reduction": sum(_parse_int(c.reduction) for c in concerner_list),
-          "prixVente": v.prixTotal,
+          "prixVente": v.prix_total,
           "prixTotal": sum(_parse_int(c.quantite) * _parse_int(c.prixUnit) for c in concerner_list),
           "infoClients": f"{v.user.nom} ({v.user.telephone})" if v.user else "Aucun client",
           "vendeur": (getattr(getattr(v.employe, "user", None), "nom", None) or "Invonnu"),
@@ -1033,7 +1034,7 @@ class VenteService:
         content.append(d)
 
     # agrégats globaux
-    prix_vente_total = sum(_parse_int(row.get("prixTotal")) for row in content)
+    prix_vente_total = sum(_parse_int(row.get("prix_total")) for row in content)
     qte_vente_total = sum(_parse_int(row.get("quantite")) for row in content)
     reduction_total = sum(_parse_int(row.get("reduction")) for row in content)
 

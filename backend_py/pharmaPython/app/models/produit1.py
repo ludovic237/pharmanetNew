@@ -4,6 +4,7 @@ from app.core.db import Base
 
 class Produit1(Base):
   __tablename__ = "produit1"
+  __table_args__ = {"extend_existing": True}
 
   id = Column(Integer, primary_key=True)
   ean13 = Column(String(16), nullable=False)

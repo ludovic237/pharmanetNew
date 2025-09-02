@@ -4,6 +4,7 @@ from app.core.db import Base
 
 class Vente(Base):
   __tablename__ = "vente"
+  __table_args__ = {"extend_existing": True}
 
   id = Column(Integer, primary_key=True)
   prix_total = Column(Float, default=0.0)

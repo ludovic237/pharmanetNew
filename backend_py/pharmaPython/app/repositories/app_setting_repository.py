@@ -13,7 +13,7 @@ class AppSettingRepository:
     return self.db.query(AppSetting).all()
 
   def find_by_key_name(self, key: str) -> Optional[AppSetting]:
-    return self.db.query(AppSetting).filter(AppSetting.keyName == key).first()
+    return self.db.query(AppSetting).filter(AppSetting.key_name == key).first()
 
   # helpers CRUD
   def find_by_id(self, id_: int) -> Optional[AppSetting]:

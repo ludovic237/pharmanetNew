@@ -8,11 +8,12 @@ from app.models.produit_inventaire import ProduitInventaireSchema
 from app.schemas.inventaire_dto import InventaireRequestDto, InventaireNewCreatetDto, \
   InventaireOneProductUpdateRequestDto, InventaireUpdateRequestDto
 from app.services.inventaire_service import InventaireService
+from app.utility.jwt_authentication import jwt_authentication
 
 router = APIRouter(
   prefix="/admin/inventaire",
   tags=["Inventaire"],
-  # dependencies=[Depends(jwt_authentication)],
+  dependencies=[Depends(jwt_authentication)],
 )
 
 
@@ -52,7 +53,7 @@ def lister_inventaires(
   sort: str = Query("id"), direction: str = Query("desc"),
   db: Session = Depends(get_db),
 ):
-  return InventaireService(db).lister_inventaires(page, size, sort, direction)
+  return InventaireService(db).lister_inventaires_custom(page, size, sort, direction)
 
 
 @router.get("/list/new")

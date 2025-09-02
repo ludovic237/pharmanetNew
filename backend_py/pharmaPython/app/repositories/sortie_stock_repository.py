@@ -9,9 +9,17 @@ from app.models.en_rayon import EnRayon
 from app.models.produit_detail import ProduitDetail
 from app.models.produit import Produit  # si sortie.produit.nom est utilisé
 
+
 class SortieStockRepository:
   def __init__(self, db: Session):
     self.db = db
+
+  def find_all_pageable(self, page: int, size: int) -> Tuple[List[SortieStock], int]:
+    q = self.db.query(SortieStock)
+    total = q.count()
+    rows = q.offset(page * size).limit(size).all()
+    return rows, total
+
 
   # ---- filterSortieStockRange(...) avec pagination ----
   def filter_sortie_stock_range(
@@ -33,13 +41,13 @@ class SortieStockRepository:
       self.db.query(SortieStock)
       .options(
         joinedload(SortieStock.en_rayon),
-        joinedload(SortieStock.produit_detail),
-        joinedload(SortieStock.produit),   # si modèle le permet
+        # joinedload(SortieStock.produit_detail),
+        # joinedload(SortieStock.produit),  # si modèle le permet
       )
     )
 
     if nom_produit and nom_produit != "null":
-      q = q.join(SortieStock.produit).filter(
+      q = q.join(SortieStock.en_rayon.produit.nom).filter(
         func.lower(Produit.nom).like(f"%{nom_produit.lower()}%")
       )
 
@@ -65,13 +73,14 @@ class SortieStockRepository:
       q = q.filter(SortieStock.en_rayon_id == int(en_rayon_id))
 
     if produit_detail_id and produit_detail_id != 0:
-      q = q.filter(SortieStock.produit_detail_id == int(produit_detail_id))
+      q = q.filter(SortieStock.detail_id == int(produit_detail_id))
 
     total = q.count()
     col = getattr(SortieStock, sort_by, SortieStock.id)
     col = col.desc() if direction.upper() == "DESC" else col.asc()
     rows = q.order_by(col).offset(page * size).limit(size).all()
     return rows, total
+
 
   # ---- filterSortieStock(...) (sans plage de dates) ----
   def filter_sortie_stock(
@@ -114,10 +123,19 @@ class SortieStockRepository:
     rows = q.order_by(col).offset(page * size).limit(size).all()
     return rows, total
 
+
   # helpers CRUD
   def find_by_id(self, id_: int) -> Optional[SortieStock]:
     return self.db.query(SortieStock).get(id_)
+
+
   def save(self, entity: SortieStock) -> SortieStock:
-    self.db.add(entity); self.db.commit(); self.db.refresh(entity); return entity
+    self.db.add(entity);
+    self.db.commit();
+    self.db.refresh(entity);
+    return entity
+
+
   def delete(self, entity: SortieStock) -> None:
-    self.db.delete(entity); self.db.commit()
+    self.db.delete(entity);
+    self.db.commit()

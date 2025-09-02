@@ -9,9 +9,13 @@ from sqlalchemy.orm import joinedload
 from app.models.produit_cmd import ProduitCmd
 from app.models.produit import Produit
 
+
 class ProduitCmdRepository:
   def __init__(self, db: Session):
     self.db = db
+
+  def find_by_id(self, id_: int) -> Optional[ProduitCmd]:
+    return self.db.query(ProduitCmd).get(id_)
 
   def find_by_commande_id(self, commande_id: int) -> List[ProduitCmd]:
     return (

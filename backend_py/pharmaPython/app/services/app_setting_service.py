@@ -1,7 +1,9 @@
 # services/app_setting_service.py
 from __future__ import annotations
-from typing import Optional, List
+from typing import Optional, List, Dict, Any
 from sqlalchemy.orm import Session
+
+from app.models.app_setting import AppSetting
 from app.repositories.app_setting_repository import AppSettingRepository
 
 
@@ -32,5 +34,14 @@ class AppSettingService:
     return self.app_setting_repo.save(setting)
 
   # getAll(): List<AppSetting>
-  def get_all(self) -> List:
-    return self.app_setting_repo.find_all()
+  def get_all(self) -> list[dict[str, Any]]:
+    datas =  self.app_setting_repo.find_all()
+    mapped: List[Dict[str, Any]] = []
+    for d in datas:
+      mapped.append({
+        "id": getattr(d, "id", None),
+        "keyName": getattr(d, "key_name", None),
+        "value": getattr(d, "value", None),
+        "type": getattr(d, "type", None),
+      })
+    return mapped

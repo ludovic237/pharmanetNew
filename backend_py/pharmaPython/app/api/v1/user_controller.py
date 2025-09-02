@@ -6,11 +6,12 @@ from app.api.deps import get_db
 from app.models.user import User, UserSchema, UserIn
 from app.schemas.user_dto import UserNewDto
 from app.services.user_service import UserService
+from app.utility.jwt_authentication import jwt_authentication
 
 router = APIRouter(
   prefix="/admin/users",
   tags=["Users"],
-  # dependencies=[Depends(jwt_authentication)],
+  dependencies=[Depends(jwt_authentication)],
 )
 
 @router.get("/")
@@ -19,7 +20,7 @@ def get_all_users(db: Session = Depends(get_db)):
 
 @router.get("/{id}", response_model=UserSchema)
 def get_user_by_id(id: int = Path(..., ge=1), db: Session = Depends(get_db)):
-  user = UserService(db, user_repo=... ).get_user_by_id(id)
+  user = UserService(db).get_user_by_id(id)
   if not user:
     raise HTTPException(status_code=404, detail="User not found")
   return user
@@ -27,13 +28,13 @@ def get_user_by_id(id: int = Path(..., ge=1), db: Session = Depends(get_db)):
 @router.post("/", response_model=UserSchema, status_code=201)
 def create_user(user: UserIn, db: Session = Depends(get_db)):
   # print("Creating user:", user)  # si tu veux garder le println
-  return UserService(db, user_repo=... ).create_user(user)
+  return UserService(db).create_user(user)
 
 @router.put("/{id}", response_model=UserSchema)
 def update_user(id: int, updated_user: UserNewDto, db: Session = Depends(get_db)):
-  return UserService(db, user_repo=... ).update_user(id, updated_user)
+  return UserService(db).update_user(id, updated_user)
 
 @router.delete("/{id}", status_code=204)
 def delete_user(id: int, db: Session = Depends(get_db)):
-  UserService(db, user_repo=... ).delete_user(id)
+  UserService(db).delete_user(id)
   return {"message": "deleted"}

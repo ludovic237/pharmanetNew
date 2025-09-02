@@ -16,7 +16,7 @@ router = APIRouter(
 
 @router.get("/", response_model=List[DepenseIn])
 def list_depenses(db: Session = Depends(get_db)):
-  return DepenseService.get_all_depenses(db)
+  return DepenseService(db).get_all_depenses()
 
 
 @router.get("/pageable")
@@ -30,7 +30,7 @@ def list_depenses_pageable(
   Équivalent de: Page<Map<String, Any?>> avec tri DESC sur dateDepense par défaut.
   On renvoie un objet de pagination simple et la liste mappée.
   """
-  full = DepenseService.get_all_depenses_pageable(db, skip=page * size, limit=size)
+  full = DepenseService(db).get_all_depenses_pageable(skip=page * size, limit=size)
 
   # Si tu veux un vrai total/nb pages, rajoute une méthode count() côté service/repo :
   total_elements = len(full) if len(full) < size else (page + 1) * size  # approximation si pas de count
@@ -61,9 +61,9 @@ def create(depenseData: Dict[str, Any], db: Session = Depends(get_db)):
     raise HTTPException(status_code=422, detail="Missing or invalid 'prixUnitaire'")
 
   if len(depenseData) > 3:
-    return DepenseService.create_depense_map(db, depenseData)
+    return DepenseService(db).create_depense_map(depenseData)
   else:
-    return DepenseService.create_depense(db, designation, prix_unitaire)
+    return DepenseService(db).create_depense(designation, prix_unitaire)
 
 
 @router.put("/{id}", response_model=DepenseIn)
@@ -76,7 +76,7 @@ def update(id: int, depenseData: Dict[str, Any], db: Session = Depends(get_db)):
   if prix_unitaire is None or not isinstance(prix_unitaire, int):
     raise HTTPException(status_code=422, detail="Missing or invalid 'prixUnitaire'")
 
-  return DepenseService.update_depense(db, id, designation, prix_unitaire)
+  return DepenseService(db).update_depense(id, designation, prix_unitaire)
 
 
 @router.delete("/{id}", status_code=204)

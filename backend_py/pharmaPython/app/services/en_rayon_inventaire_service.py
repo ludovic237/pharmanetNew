@@ -1,6 +1,8 @@
 
 from sqlalchemy.orm import Session
-from models import EnRayonInventaire
+
+from app.models.en_rayon_inventaire import EnRayonInventaire
+
 
 def ajouter_produits_en_rayon(db: Session, produits: list[EnRayonInventaire]):
     db.add_all(produits)

@@ -3,6 +3,7 @@ from app.core.db import Base
 
 class FactureEspece(Base):
   __tablename__ = "facture_espece"
+  __table_args__ = {"extend_existing": True}
 
   id = Column(Integer, primary_key=True)
   facturation_id = Column(Integer)

@@ -1,7 +1,12 @@
 from fastapi import FastAPI, Depends
 from fastapi.security import OAuth2PasswordBearer
 from fastapi.middleware.cors import CORSMiddleware
-from app.core.security import JwtUtil
+from starlette.responses import JSONResponse
+
+from app.utility.jwt_util import JwtUtil
+import logging
+
+logger = logging.getLogger("unicorn.error")
 
 app = FastAPI()
 
@@ -10,7 +15,11 @@ jwt_util = JwtUtil()
 
 @app.middleware("http")
 async def jwt_auth_middleware(request, call_next):
+  print("jwt_auth_middleware")
+  logger.info("jwt_auth_middleware")
   token = request.headers.get("Authorization")
+  print(token)
+  logger.info(f"token :  {token}")
   if token:
     try:
       jwt_util.verify_token(token.split(" ")[1])

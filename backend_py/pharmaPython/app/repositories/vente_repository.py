@@ -305,7 +305,7 @@ class VenteRepository:
 
     total = q.count()
 
-    sort_col = getattr(Vente, sort, getattr(Vente, "dateVente", Vente.id))
+    sort_col = getattr(Vente, sort, getattr(Vente, "date_vente", Vente.id))
     sort_col = sort_col.desc() if direction.upper() == "DESC" else sort_col.asc()
     rows = q.order_by(sort_col).offset(page * size).limit(size).all()
     return rows, total

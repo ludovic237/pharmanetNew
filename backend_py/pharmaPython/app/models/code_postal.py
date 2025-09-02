@@ -4,6 +4,7 @@ from app.core.db import Base
 
 class CodePostal(Base):
   __tablename__ = "code_postal"
+  __table_args__ = {"extend_existing": True}
 
   id = Column(Integer, primary_key=True, index=True)
   code = Column(String(16))

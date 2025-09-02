@@ -29,7 +29,6 @@ from app.schemas.enrayon_dto import ProduitEnRayonDto, EnRayonDto, EnRayonPageab
 # - Rayon: id, nom
 
 
-
 def _parse_iso_dt(s: Optional[str]) -> Optional[datetime]:
   if not s:
     return None
@@ -153,7 +152,8 @@ class EnRayonService:
     data: List[Dict[str, Any]] = []
     if produit_id < 700:
       # Côté détail
-      p = self.produit_detail_repo.find_by_id_stock_gt_and_supprimer(produit_id)
+      p = self.produit_detail_repo.find_by_id_and_stock_greater_than_and_supprimer(produit_id)
+      # p = self.produit_detail_repo.find_by_id_stock_gt_and_supprimer(produit_id)
       if not p:
         return []
       grossistes = []
@@ -253,7 +253,8 @@ class EnRayonService:
           "statut": getattr(getattr(er, "fournisseur", None), "statut", None),
           "supprimer": getattr(getattr(er, "fournisseur", None), "supprimer", None),
         },
-        "commande": {"id": getattr(getattr(er, "commande", None), "id", None)} if getattr(er, "commande", None) else None,
+        "commande": {"id": getattr(getattr(er, "commande", None), "id", None)} if getattr(er, "commande",
+                                                                                          None) else None,
         "dateLivraison": er.date_livraison,
         "datePeremption": er.date_peremption,
         "prixAchat": er.prix_achat,
@@ -334,8 +335,15 @@ class EnRayonService:
     """
     Émule la Page<Map<...>> Spring : renvoie un dict {content, totalElements, totalPages, pageSize, pageNumber}
     """
-    spec = self.enrayon_repo.filter_enrayon(nom_produit, bientot_perimee, jours_avant_peremption, en_stock)
-    rows, total = self.enrayon_repo.find_all(spec, page, size, sort, direction)  # -> (List[EnRayon], int)
+    rows, total = self.enrayon_repo.filter_en_rayon(
+      nom_produit=nom_produit,
+      bientot_perimee=bientot_perimee,
+      jours_avant_peremption=jours_avant_peremption,
+      en_stock=en_stock,
+      page=page,
+      size=size,
+      sort_by=sort,
+      direction=direction)
 
     def _map(er: EnRayon) -> Dict[str, Any]:
       prod = self.produit_repo.find_by_id(int(er.produit_id or 0))
@@ -384,12 +392,18 @@ class EnRayonService:
     size: str,
     sort: str,
     direction: str,
-  ) -> EnRayonPageableCustomDto:
-    spec = self.enrayon_repo.filter_enrayon_range(
-      nom_produit, start_date, end_date, bientot_perimee, jours_avant_peremption, en_stock
-    )
-    page_i, size_i = int(page), int(size)
-    rows, total = self.enrayon_repo.find_all(spec, page_i, size_i, sort, direction)
+  ) -> Dict[str, Any]:
+    rows, total = self.enrayon_repo.filter_en_rayon_range(
+      nom_produit=nom_produit,
+      start_date=start_date,
+      end_date=end_date,
+      bientot_perimee=bientot_perimee,
+      jours_avant_peremption=jours_avant_peremption,
+      en_stock=en_stock,
+      page=int(page),
+      size=int(size),
+      sort_by=sort,
+      direction=direction)
 
     # Map content (comme en Kotlin)
     content: List[Dict[str, Any]] = []
@@ -421,21 +435,50 @@ class EnRayonService:
     total_amount_enrayon = 0
     total_qte = 0
     if total > 0:
-      all_rows, _ = self.enrayon_repo.find_all(spec, page=0, size=total, sort="dateLivraison", direction="desc")
+      all_rows, _ = self.enrayon_repo.filter_en_rayon_range(
+        nom_produit=nom_produit,
+        start_date=start_date,
+        end_date=end_date,
+        bientot_perimee=bientot_perimee,
+        jours_avant_peremption=jours_avant_peremption,
+        en_stock=en_stock,
+        page=0,
+        size=total,
+        sort_by="date_livraison",
+        direction="desc")
       total_amount_enrayon = sum(int(er.prix_vente or 0) * int(er.quantite_restante or 0) for er in all_rows)
       total_qte = sum(int(er.quantite_restante or 0) for er in all_rows)
 
-    total_pages = (total + size_i - 1) // size_i if size_i else 1
-    return EnRayonPageableCustomDto(
-      content=content,
-      totalElements=total,
-      totalPages=total_pages,
-      pageSize=size_i,
-      pageNumber=page_i,
-      totalAmountEnRayon=total_amount_enrayon,
-      totalQte=total_qte,
-      data={}
-    )
+    total_pages = (total + int(size) - 1) // int(size) if int(size) else 1
+    # return EnRayonPageableCustomDto(
+    #   content=content,
+    #   totalElements=total,
+    #   totalPages=total_pages,
+    #   pageSize=size,
+    #   pageNumber=page,
+    #   totalAmountEnRayon=total_amount_enrayon,
+    #   totalQte=total_qte,
+    #   data={}
+    # )
+    return {
+      "content": {
+        "content": content,
+        "totalElements": total,
+        "totalPages": total_pages,
+        "pageSize": size,
+        "pageNumber": page,
+        "totalAmountEnRayon": total_amount_enrayon,
+        "totalQte": total_qte,
+        "data": {}
+      },
+      "totalElements": total,
+      "totalPages": total_pages,
+      "pageSize": size,
+      "pageNumber": page,
+      "totalAmountEnRayon": total_amount_enrayon,
+      "totalQte": total_qte,
+      "data": {}
+    }
 
   # ---------------------------------------------------------------------
   # getProduitsEnRayonPageableProduitRange(...)
@@ -454,12 +497,22 @@ class EnRayonService:
     size: str,
     sort: str,
     direction: str,
-  ) -> EnRayonPageableCustomDto:
-    spec = self.enrayon_repo.filter_enrayon_range_with_produit_id(
-      produit_id, supprimer, start_date, end_date, None, None, None
-    )
+  ) -> Dict[str, Any]:
     page_i, size_i = int(page), int(size)
-    rows, total = self.enrayon_repo.find_all(spec, page_i, size_i, sort, direction)
+
+    rows, total = self.enrayon_repo.filter_en_rayon_range_with_produit_id(
+      produit_id=produit_id,
+      supprimer=supprimer,
+      start_date=start_date,
+      end_date=end_date,
+      bientot_perimee=None,
+      jours_avant_peremption=None,
+      en_stock=None,
+      page=page_i,
+      size=size_i,
+      sort_by=sort,
+      direction=direction,
+    )
 
     # Produit “pivot”
     p = self.produit_repo.find_by_id(int(produit_id)) if produit_id else None
@@ -491,26 +544,52 @@ class EnRayonService:
     total_qte = 0
     total_commande_qte = 0
     if total > 0:
-      all_rows, _ = self.enrayon_repo.find_all(spec, page=0, size=total, sort="dateLivraison", direction="desc")
+      all_rows, _ = self.enrayon_repo.filter_en_rayon_range_with_produit_id(
+        produit_id=produit_id,
+        supprimer=supprimer,
+        start_date=start_date,
+        end_date=end_date,
+        bientot_perimee=None,
+        jours_avant_peremption=None,
+        en_stock=None,
+        page=0,
+        size=total,
+        sort_by="dateLivraison",
+        direction="desc",
+      )
+
       total_amount_enrayon = sum(int(er.prix_vente or 0) * int(er.quantite_restante or 0) for er in all_rows)
       total_qte = sum(int(er.quantite_restante or 0) for er in all_rows)
       total_commande_qte = sum(int(er.quantite or 0) for er in all_rows)
 
     total_pages = (total + size_i - 1) // size_i if size_i else 1
-    return EnRayonPageableCustomDto(
-      content=content,
-      totalElements=total,
-      totalPages=total_pages,
-      pageSize=size_i,
-      pageNumber=page_i,
-      totalAmountEnRayon=total_amount_enrayon,
-      totalQte=total_qte,
-      data={
+    return {
+      "content": {
+        "content": content,
+        "totalElements": total,
+        "totalPages": total_pages,
+        "pageSize": size_i,
+        "pageNumber": page_i,
+        "totalAmountEnRayon": total_amount_enrayon,
+        "totalQte": total_qte,
+        "data": {
+          "totalAmountEnRayon": total_amount_enrayon,
+          "totalQte": total_qte,
+          "totalCommandeQte": total_commande_qte,
+        }
+      },
+      "totalElements": total,
+      "totalPages": total_pages,
+      "pageSize": size_i,
+      "pageNumber": page_i,
+      "totalAmountEnRayon": total_amount_enrayon,
+      "totalQte": total_qte,
+      "data": {
         "totalAmountEnRayon": total_amount_enrayon,
         "totalQte": total_qte,
         "totalCommandeQte": total_commande_qte,
       }
-    )
+    }
 
   # ---------------------------------------------------------------------
   # deleteEnRayon(id)

@@ -10,6 +10,9 @@ class ConcernerRepository:
   def __init__(self, db: Session):
     self.db = db
 
+  def find_by_id(self, id_: int) -> Optional[Concerner]:
+    return self.db.query(Concerner).get(id_)
+
   def find_by_vente_id_and_produit_id(self, vente_id: int, produit_id: int) -> Optional[Concerner]:
     return (
       self.db.query(Concerner)
@@ -69,3 +72,9 @@ class ConcernerRepository:
         """)
     rows = self.db.execute(sql, {"from": start, "to": end}).mappings().all()
     return [{"categorie": r["categorie"], "total": float(r["total"])} for r in rows]
+
+  def save(self, concerner: Concerner) -> Concerner:
+    self.db.add(concerner)
+    self.db.commit()
+    self.db.refresh(concerner)
+    return concerner

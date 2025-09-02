@@ -28,7 +28,7 @@ def set_param(key: str, value: str, db: Session = Depends(get_db)):
   return service.update_param(key, value)
 
 
-@router.get("", response_model=List[AppSettingSchema])
+@router.get("")
 def get_all(db: Session = Depends(get_db)):
   service = AppSettingService(db)
   return service.get_all()

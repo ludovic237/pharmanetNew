@@ -1,5 +1,5 @@
 # repositories/depense_repository.py
-from typing import List, Optional
+from typing import List, Optional, Tuple
 from datetime import datetime
 from sqlalchemy.orm import Session
 from sqlalchemy import text
@@ -8,6 +8,15 @@ from app.models.depense import Depense
 class DepenseRepository:
   def __init__(self, db: Session):
     self.db = db
+
+  def find_all(self) -> List[Depense]:
+    return self.db.query(Depense).all()
+
+  def find_all_pageable(self, page: int, size: int) -> Tuple[List[Depense], int]:
+    q = self.db.query(Depense)
+    total = q.count()
+    rows = q.offset(page * size).limit(size).all()
+    return rows, total
 
   def find_by_caisse_id(self, caisse_id: str) -> List[Depense]:
     return self.db.query(Depense).filter(Depense.caisse_id == caisse_id).all()

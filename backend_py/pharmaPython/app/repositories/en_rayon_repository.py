@@ -181,9 +181,9 @@ class EnRayonRepository:
       th = now + timedelta(days=7)
       q = q.filter(EnRayon.date_peremption <= th) if bientot_perimee else q.filter(EnRayon.date_peremption > th)
 
-    if jours_avant_peremption and jours_avant_peremption > 0:
-      target = now + timedelta(days=jours_avant_peremption)
-      q = q.filter(EnRayon.date_peremption <= target)
+    if jours_avant_peremption and jours_avant_peremption != "null" and int(jours_avant_peremption) > 0:
+        target = now + timedelta(days=int(jours_avant_peremption))
+        q = q.filter(EnRayon.date_peremption <= target)
 
     if isinstance(en_stock, bool):
       q = q.filter(EnRayon.quantite_restante > 0) if en_stock else q.filter(EnRayon.quantite_restante == 0)
@@ -272,3 +272,9 @@ class EnRayonRepository:
               AND date_peremption <= DATE_ADD(CURDATE(), INTERVAL :days DAY)
         """)
     return int(self.db.execute(sql, {"days": days}).scalar() or 0)
+
+  def save(self, enRayon: EnRayon) -> EnRayon:
+    self.db.add(enRayon)
+    self.db.commit()
+    self.db.refresh(enRayon)
+    return enRayon

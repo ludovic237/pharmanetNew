@@ -4,6 +4,7 @@ from app.core.db import Base
 
 class Forme(Base):
   __tablename__ = "forme"
+  __table_args__ = {"extend_existing": True}
 
   id = Column(Integer, primary_key=True)
   code = Column(String(16))

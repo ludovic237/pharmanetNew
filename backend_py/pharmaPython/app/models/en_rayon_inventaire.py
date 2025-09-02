@@ -3,6 +3,7 @@ from app.core.db import Base
 
 class EnRayonInventaire(Base):
   __tablename__ = "en_rayon_inventaire"
+  __table_args__ = {"extend_existing": True}
 
   id = Column(Integer, primary_key=True, autoincrement=True)
   inventaire_id = Column(Integer)

@@ -6,11 +6,12 @@ from app.api.deps import get_db
 from app.models.type_sortie import TypeSortie, TypeSortieSchema
 from app.schemas.type_sortie_dto import TypeSortieDto
 from app.services.type_sortie_service import TypeSortieService
+from app.utility.jwt_authentication import jwt_authentication
 
 router = APIRouter(
   prefix="/type-sortie",
   tags=["TypeSortie"],
-  # dependencies=[Depends(jwt_authentication)],
+  dependencies=[Depends(jwt_authentication)],
 )
 
 @router.get("/")

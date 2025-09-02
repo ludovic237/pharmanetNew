@@ -1,5 +1,5 @@
 # repositories/rayon_repository.py
-from typing import List, Optional, Tuple
+from typing import List, Optional, Tuple, Type
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from app.models.rayon import Rayon  # adapte le chemin
@@ -8,6 +8,9 @@ from app.models.rayon import Rayon  # adapte le chemin
 class RayonRepository:
   def __init__(self, db: Session):
     self.db = db
+
+  def find_all(self) -> list[Type[Rayon]]:
+    return self.db.query(Rayon).all()
 
   def find_by_nom_and_supprimer(self, nom: str, supprimer: int = 0) -> Optional[Rayon]:
     return (
@@ -45,11 +48,11 @@ class RayonRepository:
     return self.db.query(Rayon).get(id_)
 
   def save(self, entity: Rayon) -> Rayon:
-    self.db.add(entity);
-    self.db.commit();
-    self.db.refresh(entity);
+    self.db.add(entity)
+    self.db.commit()
+    self.db.refresh(entity)
     return entity
 
   def delete(self, entity: Rayon) -> None:
-    self.db.delete(entity);
+    self.db.delete(entity)
     self.db.commit()

@@ -6,6 +6,7 @@ Base = declarative_base()
 
 class FactureElectronique(Base):
   __tablename__ = "facture_electronique"
+  __table_args__ = {"extend_existing": True}
 
   id = Column(Integer, primary_key=True, autoincrement=True, nullable=False)
   # En Kotlin: Long? ; on peut mapper en BigInteger (ou Integer si votre DB l'utilise)

@@ -4,6 +4,7 @@ from app.core.db import Base
 
 class ProduitRetour(Base):
   __tablename__ = "produit_retour"
+  __table_args__ = {"extend_existing": True}
 
   id = Column(Integer, primary_key=True, autoincrement=True)
   retour_produit_id = Column(Integer, ForeignKey("retour_produit.id"))

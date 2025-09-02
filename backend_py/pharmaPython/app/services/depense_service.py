@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 from fastapi import HTTPException
 
 from app.models.depense import Depense
+from app.repositories.depense_repository import DepenseRepository
 
 
 def _parse_iso_to_naive_dt(value: Optional[str]) -> Optional[datetime]:
@@ -37,6 +38,7 @@ class DepenseService:
 
   def __init__(self, db: Session, caisse_service=None):
     self.db = db
+    self.depense_repo = DepenseRepository(db)  # optionnel: pour get_caisse_active()
     self.caisse_service = caisse_service  # optionnel: pour get_caisse_active()
 
   # ---------------------------
@@ -49,14 +51,8 @@ class DepenseService:
   # Récupération paginée "mappée"
   # (équivalent Page<Map<String, Any?>> côté Kotlin)
   # ---------------------------
-  def get_all_depenses_pageable(self, skip: int = 0, limit: int = 10) -> List[Dict[str, Any]]:
-    rows: List[Depense] = (
-      self.db.query(Depense)
-      .order_by(Depense.date_depense.desc() if hasattr(Depense, "date_depense") else Depense.id.desc())
-      .offset(skip)
-      .limit(limit)
-      .all()
-    )
+  def get_all_depenses_pageable(self, skip: int = 0, limit: int = 10) -> [Dict[str, Any]]:
+    rows, total = self.depense_repo.find_all_pageable(page=skip, size=limit)
     mapped: List[Dict[str, Any]] = []
     for d in rows:
       mapped.append({
@@ -75,6 +71,7 @@ class DepenseService:
         "supprimer": getattr(d, "supprimer", None),
       })
     return mapped
+
 
   # ---------------------------
   # Création simple (designation + prixUnitaire)

@@ -48,7 +48,7 @@ def get_all_commandes_mapped(db: Session = Depends(get_db)):
 # ----------------------------
 # Liste des commandes paginées
 # ----------------------------
-@router.get("/paged", response_model=CommandePageableCustomlDto)
+@router.get("/paged")
 def get_all_commandes_paged(
   page: int = Query(0, ge=0),
   size: int = Query(10, ge=1),
@@ -84,7 +84,7 @@ def modifier_lignes(id: int, produits: List[ProduitCmdRequest], db: Session = De
 # ----------------------------
 # Créer une commande fournisseur
 # ----------------------------
-@router.post("/commande_par_fournisseur", response_model=CommandeSchema)
+@router.post("/commande_par_fournisseur")
 def commande_by_fournisseur(
   fournisseurId: Optional[str],
   totalAmount: str,

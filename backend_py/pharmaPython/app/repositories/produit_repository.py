@@ -1,14 +1,49 @@
 # repositories/produit_repository.py
 from __future__ import annotations
-from typing import List, Optional, Tuple
+from typing import List, Optional, Tuple, Dict, Any, Iterable
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from app.models.produit import Produit
 from app.models.en_rayon import EnRayon
+from sqlalchemy.sql.elements import BinaryExpression
 
 class ProduitRepository:
   def __init__(self, db: Session):
     self.db = db
+
+  def find_all_by_spec(
+    self,
+    spec: Dict[str, Any] | Iterable[BinaryExpression] | None = None,
+    page: int = 0,
+    size: int = 10,
+    sort: str = "dateVente",
+    direction: str = "DESC",
+  ) -> Tuple[List[Produit], int]:
+    q = self.db.query(Produit)
+
+    # Accepte dict OU liste/tuple de filtres SQLAlchemy
+    if spec:
+      # cas 1: dictionnaire clé/valeur
+      if isinstance(spec, dict):
+        for key, value in spec.items():
+          if value is None or (isinstance(value, str) and value.lower() == "null"):
+            continue
+          column = getattr(Produit, key, None)
+          if column is not None:
+            q = q.filter(column == value)
+      # cas 2: itérable de BinaryExpression (ex: [Vente.etat == "VALIDE", Vente.supprimer == 0])
+      elif isinstance(spec, (list, tuple)):
+        from sqlalchemy.sql.elements import BinaryExpression
+        filters = [f for f in spec if isinstance(f, BinaryExpression)]
+        if filters:
+          q = q.filter(*filters)
+
+    total = q.count()
+
+    sort_col = getattr(Produit, sort, getattr(Produit, "id", Produit.id))
+    sort_col = sort_col.desc() if direction.upper() == "DESC" else sort_col.asc()
+    rows = q.order_by(sort_col).offset(page * size).limit(size).all()
+    return rows, total
 
   def find_by_code_ubipharm_and_supprimer(self, codebarre: str, supprimer: int = 0) -> Optional[Produit]:
     return (
@@ -102,3 +137,6 @@ class ProduitRepository:
     return self.db.query(Produit).get(id_)
   def save(self, entity: Produit) -> Produit:
     self.db.add(entity); self.db.commit(); self.db.refresh(entity); return entity
+
+  def find_all(self) -> List:
+    return self.db.query(Produit).all()
