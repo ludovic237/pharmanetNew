@@ -14,11 +14,15 @@
 #     print_hi('PyCharm')
 #
 # # See PyCharm help at https://www.jetbrains.com/help/pycharm/
-
+from apscheduler.schedulers.background import BackgroundScheduler
 from fastapi import FastAPI
+
+from app.api.deps import get_db
 from app.api.router import api_router
 from app.core.config import settings
 from fastapi.middleware.cors import CORSMiddleware
+
+from app.services.stock_alert_service import compute_and_store_alerts
 
 app = FastAPI(title=settings.app_name)
 
@@ -33,6 +37,21 @@ app.add_middleware(
 
 # Montage des routes (équivalent @RestController scan)
 app.include_router(api_router)
+
+
+scheduler = BackgroundScheduler()
+
+def job_compute_alerts():
+  # SessionLocal = get_db_session_factory()
+  db = get_db()
+  try:
+    compute_and_store_alerts(db)
+  finally:
+    db.close()
+
+def start_scheduler():
+  scheduler.add_job(job_compute_alerts, "interval", hours=6, id="alerts_job", replace_existing=True)
+  scheduler.start()
 
 # Health check
 @app.get("/health")

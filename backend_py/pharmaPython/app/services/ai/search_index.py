@@ -1,7 +1,5 @@
 # app/ai/search_index.py
 from typing import List, Tuple
-import faiss, numpy as np
-from sentence_transformers import SentenceTransformer
 from sqlalchemy.orm import Session
 from app.models.produit import Produit
 
