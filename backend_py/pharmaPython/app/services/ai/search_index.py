@@ -29,6 +29,8 @@ def _get_model() -> SentenceTransformer:
 
 
 def build_index(db: Session) -> None:
+  """build_index(db) construit l’index FAISS sur les noms produits.."""
+
   """Construit l’index vectoriel à partir de tous les produits."""
   global _index, _id_map, _dim
   model = _get_model()
@@ -62,6 +64,9 @@ def ensure_index(db: Optional[Session] = None) -> None:
 
 
 def semantic_search(query: str, top_k: int = 10, db: Optional[Session] = None) -> List[int]:
+  """
+  semantic_search(query, top_k, db) renvoie des IDs de produits triés par similarité (à utiliser pour remonter la fiche produit côté Angular)
+  """
   """
   Retourne une liste d'IDs de Produit, triés par similarité décroissante.
   Si l’index n’existe pas encore et que `db` est fourni, on le construit.

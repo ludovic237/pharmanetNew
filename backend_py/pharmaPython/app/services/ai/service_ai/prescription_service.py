@@ -6,6 +6,7 @@ from app.services.ai.rx_match import match_drug, build_product_index
 from app.services.ai.rx_parse import parse_prescription_text
 
 
+#Pour an
 def analyze_prescription(db: Session, image_path: str):
   text = extract_text(image_path)
   items = parse_prescription_text(text)

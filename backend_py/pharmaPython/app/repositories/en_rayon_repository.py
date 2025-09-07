@@ -1,7 +1,7 @@
 # repositories/en_rayon_repository.py
 from __future__ import annotations
 
-from typing import List, Optional, Tuple, Dict, Union
+from typing import List, Optional, Tuple, Dict, Union, Any, Type
 from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
 from sqlalchemy import func, desc, select, union_all, text
@@ -260,8 +260,8 @@ class EnRayonRepository:
     return [
       {
         "produit": r["produit"], "produitId": r["produitId"], "quantiteRestante": r["quantiteRestante"],
-                                       "datePeremption": r["datePeremption"]}
-            for r in rows]
+        "datePeremption": r["datePeremption"]}
+      for r in rows]
 
   def alerts_ruptures(self, low: int) -> int:
     sql = text("""
@@ -407,3 +407,21 @@ class EnRayonRepository:
       .scalar()
     )
     return float(total or 0.0)
+
+  def sum_stock_by_product_list_id(self, produit_ids: List[int], supprimer: int = 0) -> Dict[int, float]:
+    """
+    Retourne un mapping {produit_id: stock_total_en_rayons} pour la liste donnée.
+    """
+    if not produit_ids:
+      return {}
+
+    rows = (
+      self.db.query(
+        EnRayon.produit_id,
+        func.coalesce(func.sum(EnRayon.quantite_restante), 0.0)
+      )
+      .filter(EnRayon.produit_id.in_(list(map(int, produit_ids))), EnRayon.supprimer == supprimer)
+      .group_by(EnRayon.produit_id)
+      .all()
+    )
+    return {int(pid): float(qty or 0.0) for pid, qty in rows}

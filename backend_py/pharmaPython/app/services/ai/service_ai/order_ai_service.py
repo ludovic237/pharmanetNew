@@ -51,7 +51,7 @@ def suggest_reorders(
   product_ids = [pid for pid, _ in produits]
 
   # stock courant
-  stock_map: Dict[int, float] = enrayon_repo.sum_stock_by_product(product_ids)
+  stock_map: Dict[int, float] = enrayon_repo.sum_stock_by_product_list_id(product_ids,0)
 
   # incoming sur commandes (si tu as)
   on_order_map: Dict[int, float] = {}  # CommandeRepository(db).incoming_qty_by_product(product_ids)

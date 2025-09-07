@@ -16,6 +16,20 @@ from app.repositories.retour_produit_repository import RetourProduitRepository
 from app.repositories.vente_repository import VenteRepository
 
 def _ensure_fitted(model: IsolationForest, db: Session) -> IsolationForest:
+  """
+  _ensure_fitted vérifie/entraîne le modèle si nécessaire.
+
+  """
+  """
+    Ensure that the IsolationForest model is fitted. If not, train it.
+
+    Args:
+        model (IsolationForest): The IsolationForest model to check.
+        db (Session): The database session.
+
+    Returns:
+        IsolationForest: The fitted IsolationForest model.
+    """
   try:
     check_is_fitted(model)
     return model
@@ -24,6 +38,18 @@ def _ensure_fitted(model: IsolationForest, db: Session) -> IsolationForest:
     return train_caisse_anomaly_model(db)
 
 def train_caisse_anomaly_model(db: Session) -> IsolationForest:
+  """
+  train_caisse_anomaly_model assemble des features caisse (fonds ouvert/fermé, quantités vendues, retours, dépenses) et entraîne le modèle
+  """
+  """
+    Train an IsolationForest model using caisse-related data.
+
+    Args:
+        db (Session): The database session.
+
+    Returns:
+        IsolationForest: The trained IsolationForest model.
+    """
   data = []
   for c in db.query(Caisse).all():
     depense_repo = DepenseRepository(db)
@@ -65,6 +91,17 @@ def train_caisse_anomaly_model(db: Session) -> IsolationForest:
 
 
 def score_caisse(db: Session, model: IsolationForest, caisse_id: int) -> float:
+  """
+    Calculate the anomaly score for a specific caisse.
+
+    Args:
+        db (Session): The database session.
+        model (IsolationForest): The IsolationForest model.
+        caisse_id (int): The ID of the caisse to score.
+
+    Returns:
+        float: The anomaly score (negative values indicate higher anomaly).
+    """
   model = _ensure_fitted(model, db)
 
   caisse_repo = CaisseRepository(db)
@@ -100,6 +137,17 @@ def score_caisse(db: Session, model: IsolationForest, caisse_id: int) -> float:
   return float(model.decision_function(x)[0])
 
 def zscore_anomalies(series: List[Tuple[date, float]], z: float = 2.5):
+  """
+   Detect anomalies in a time series using Z-score.
+
+   Args:
+       series (List[Tuple[date, float]]): The time series data as a list of (date, value) tuples.
+       z (float): The Z-score threshold for anomaly detection. Default is 2.5.
+
+   Returns:
+       List[Tuple[date, float, float]]: A list of anomalies with their Z-scores.
+   """
+
   if not series:
     return []
   vals = [v for _, v in series]

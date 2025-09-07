@@ -32,6 +32,9 @@ USE_SARIMAX = False            # True si tu veux seasonal weekly
 
 @dataclass
 class RecoCommande:
+  """
+   Data class representing a replenishment recommendation for a product.
+   """
   produit_id: int
   produit_nom: str
   stock_actuel: int
@@ -52,6 +55,17 @@ def _group_daily_sales(db: Session, days: int = 180) -> pd.DataFrame:
   """
   Retourne un DF: date, produit_id, qty (quantité vendue / jour / produit)
   """
+
+  """
+    Groups daily sales data by product and returns a DataFrame.
+
+    Args:
+        db (Session): The database session.
+        days (int): Number of days to consider for sales history.
+
+    Returns:
+        pd.DataFrame: DataFrame with columns ['date', 'produit_id', 'qty'].
+    """
   since = date.today() - timedelta(days=days)
   rows = (
     db.query(Vente.date_vente, EnRayon.produit_id, func.sum(Concerner.quantite))
@@ -74,6 +88,17 @@ def _abc_classes(db: Session, days: int = 180) -> dict[int, str]:
   """
   Classe ABC sur CA recent par produit. Retourne {produit_id: 'A'|'B'|'C'}
   """
+
+  """
+    Classifies products into ABC categories based on recent revenue.
+
+    Args:
+        db (Session): The database session.
+        days (int): Number of days to consider for revenue calculation.
+
+    Returns:
+        dict[int, str]: Mapping of product IDs to their ABC class ('A', 'B', or 'C').
+    """
   since = date.today() - timedelta(days=days)
   rows = (
     db.query(Concerner.produit_id, func.sum(Concerner.quantite * Concerner.prix_unit))
@@ -99,11 +124,30 @@ def _stock_dispo(db: Session) -> dict[int, int]:
   Retourne le stock actuel par produit_id.
   Adapte selon ton modèle (EnRayon / ProduitDetail / Produit.stock).
   """
+
+  """
+    Retrieves the current stock for each product.
+
+    Args:
+        db (Session): The database session.
+
+    Returns:
+        dict[int, int]: Mapping of product IDs to their current stock.
+    """
   # Exemple si tu stockes au niveau produit (simplifié)
   rows = db.query(Produit.id, Produit.stock).all() if hasattr(Produit, "stock") else []
   return {pid: int(stock or 0) for pid, stock in rows}
 
 def _lead_time_for(p: Produit) -> int:
+  """
+    Retrieves the lead time for a product.
+
+    Args:
+        p (Produit): The product instance.
+
+    Returns:
+        int: The lead time in days.
+    """
   return int(DEFAULT_LEAD_TIME)
   # return int(p.lead_time_jours or DEFAULT_LEAD_TIME)
 
@@ -113,6 +157,16 @@ def _forecast_daily(df_prod: pd.Series) -> tuple[float, float]:
   df_prod = Series indexée par date, valeurs qty (jour)
   Retourne (mean, std) de la demande journalière prévue.
   """
+
+  """
+    Forecasts daily demand for a product.
+
+    Args:
+        df_prod (pd.Series): Time series of daily sales quantities.
+
+    Returns:
+        tuple[float, float]: Mean and standard deviation of the forecasted daily demand.
+    """
   if df_prod.empty:
     return 0.0, 0.0
   # Série régulière (jours manquants = 0)
@@ -144,6 +198,15 @@ def _forecast_daily(df_prod: pd.Series) -> tuple[float, float]:
 
 # ---------- Reco principale ----------
 def compute_replenishment(db: Session) -> list[RecoCommande]:
+  """
+    Computes replenishment recommendations for all products.
+
+    Args:
+        db (Session): The database session.
+
+    Returns:
+        list[RecoCommande]: List of replenishment recommendations.
+    """
   sales = _group_daily_sales(db, days=max(180, MIN_HISTORY_DAYS))
   abc = _abc_classes(db, days=180)
   stock_map = _stock_dispo(db)
@@ -211,6 +274,17 @@ def generate_purchase_orders(db: Session) -> list[Dict[str, Any]]:
   Crée des propositions de commandes groupées par fournisseur (sans commit),
   retourne payload JSON exploitable par le front.
   """
+
+  """
+    Generates purchase orders grouped by supplier.
+
+    Args:
+        db (Session): The database session.
+
+    Returns:
+        list[Dict[str, Any]]: List of purchase orders.
+    """
+
   recos = compute_replenishment(db)
   print("recos")
   print(recos)
@@ -250,6 +324,18 @@ def compute_safety_stock(daily_demand: List[Tuple[date, float]], lead_time_days:
   Stock de sécurité = z * σ_d * sqrt(L)
   σ_d = écart-type de la demande journalière.
   """
+
+  """
+    Computes the safety stock based on daily demand and lead time.
+
+    Args:
+        daily_demand (List[Tuple[date, float]]): Daily demand data.
+        lead_time_days (int): Lead time in days.
+        service_level_z (float): Z-score for the desired service level.
+
+    Returns:
+        float: Safety stock quantity.
+    """
   if not daily_demand:
     return 0.0
   vals = [v for _, v in daily_demand]
@@ -259,12 +345,36 @@ def compute_safety_stock(daily_demand: List[Tuple[date, float]], lead_time_days:
   return max(0.0, service_level_z * std * math.sqrt(max(lead_time_days, 1)))
 
 def compute_reorder_point(avg_daily_demand: float, lead_time_days: int, safety_stock: float) -> float:
+  """
+    Computes the reorder point.
+
+    Args:
+        avg_daily_demand (float): Average daily demand.
+        lead_time_days (int): Lead time in days.
+        safety_stock (float): Safety stock quantity.
+
+    Returns:
+        float: Reorder point.
+    """
   return max(0.0, avg_daily_demand * lead_time_days + safety_stock)
 
 def suggested_order_qty(current_stock: float, forecast_next_days: float, reorder_point: float, target_coverage_days: int, avg_daily_demand: float) -> float:
   """
   Si stock < point de commande, on remonte jusqu’à target_coverage_days.
   """
+
+  """
+    Generate product recommendations based on basket data.
+
+    Args:
+        baskets (List[List[int]]): A list of baskets, where each basket is a list of product IDs.
+        top_k (int): The number of top recommendations to return. Default is 8.
+        for_product (Optional[int]): The product ID for which recommendations are generated. If None, global recommendations are returned.
+
+    Returns:
+        List[Dict[str, Any]]: A list of dictionaries containing recommended product IDs and their scores.
+    """
+  # Initialize the co-occurrence matrix
   if current_stock >= reorder_point:
     return 0.0
   target_stock = avg_daily_demand * target_coverage_days

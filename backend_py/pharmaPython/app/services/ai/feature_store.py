@@ -15,13 +15,9 @@ def get_daily_sales_series(db: Session, produit_id: int, days: int = 180) -> Lis
   """
   # Idée: réutiliser une méthode existante si tu as déjà un "sales_daily(produit_id, from_date)"
   from_dt = date.today() - timedelta(days=days)
-  print("from_dt")
-  print(from_dt)
   # Exemples de récupération (à remplacer par tes méthodes repos)
   rows = ConcernerRepository(db).sum_daily_qty_by_product(produit_id, from_dt)
   # rows -> [{"date": date, "qty": float}, ...]
-  print("get_daily_sales_series rows")
-  print(rows)
   return [(r["date"], float(r["qty"])) for r in rows]
 
 def get_current_stock(db: Session, produit_id: int) -> float:
