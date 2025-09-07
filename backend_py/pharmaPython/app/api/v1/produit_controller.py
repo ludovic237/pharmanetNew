@@ -6,48 +6,54 @@ from app.api.deps import get_db
 from app.schemas.produit_detail_dto import ProduitRequestDto, ProduitResponseNewDto, \
   ProduitTarificationUpdateRequestDto, CategorieDto, FournisseurDto, RayonDto, ProduitRequestNewDto, \
   ProduitStockUpdateRequestDto
+from app.services.ai.autocomplete import suggest
+from app.services.ai.search_index import search_products_advance
 from app.services.produit_service import ProduitService
 from app.utility.jwt_authentication import jwt_authentication
 
-router = APIRouter(prefix="/produits", tags=["Produits"], dependencies=[Depends(jwt_authentication)], )
+router = APIRouter(
+  prefix="/produits",
+  tags=["Produits"],
+  # dependencies=[Depends(jwt_authentication)],
+)
 
 
 @router.post("/", status_code=201)
 def create_produit(request: ProduitRequestDto, db: Session = Depends(get_db)):
   try:
-    return ProduitService(db, ...).create_produit(request)
+    return ProduitService(db).create_produit(request)
   except ValueError as e:
     raise HTTPException(status_code=400, detail=str(e))
 
 
 @router.post("/new", status_code=201)
 def create_produit_new(request: ProduitResponseNewDto, db: Session = Depends(get_db)):
-  return ProduitService(db, ...).create_produit_new(request)
+  return ProduitService(db).create_produit_new(request)
 
 
 @router.get("/{id}")
 def get_produit_by_id(id: int, db: Session = Depends(get_db)):
-  return ProduitService(db, ...).get_produit_by_id(id)
+  return ProduitService(db).get_produit_by_id(id)
 
 
 @router.get("/{id}/map")
 def get_produit_by_id_map(id: int, db: Session = Depends(get_db)):
-  return ProduitService(db, ...).get_produit_by_id_map(id)
+  return ProduitService(db).get_produit_by_id_map(id)
 
 
 @router.get("/{id}/info")
 def get_produit_detail_by_id(id: int, db: Session = Depends(get_db)):
-  return ProduitService(db, ...).get_produit_detail_by_id(id)
+  return ProduitService(db).get_produit_detail_by_id(id)
 
 
 @router.get("/{id}/info/en_rayon")
 def get_produit_enrayon_detail_by_id(id: int, db: Session = Depends(get_db)):
-  return ProduitService(db, ...).get_produit_enrayon_detail_by_id(id)
+  return ProduitService(db).get_produit_enrayon_detail_by_id(id)
 
 
 @router.get("/{id}/info/scan/en_rayon")
 def get_enrayon_detail_by_id(id: str, db: Session = Depends(get_db)):
-  return ProduitService(db, ...).get_enrayon_detail_by_id(id)
+  return ProduitService(db).get_enrayon_detail_by_id(id)
 
 
 @router.get("/")
@@ -73,7 +79,7 @@ def search_products_param(
   magasinId: Optional[str] = None, categorieId: Optional[str] = None,
   db: Session = Depends(get_db)
 ):
-  return ProduitService(db, ...).search_products_with_param(
+  return ProduitService(db).search_products_with_param(
     query=query, page=page, size=size,
     rayonId=rayonId, fabriquantId=fabriquantId, etagereId=etagereId,
     formeId=formeId, magasinId=magasinId, categorieId=categorieId
@@ -82,60 +88,87 @@ def search_products_param(
 
 @router.put("/{id}")
 def update_produit(id: int, request: ProduitRequestDto, db: Session = Depends(get_db)):
-  return ProduitService(db, ...).update_produit(id, request)
+  return ProduitService(db).update_produit(id, request)
 
 
 @router.put("/{id}/save")
 def add_or_update_produit_new(id: int, request: ProduitRequestNewDto, db: Session = Depends(get_db)):
-  return ProduitService(db, ...).add_or_update_produit_new(id, request)
+  return ProduitService(db).add_or_update_produit_new(id, request)
 
 
 @router.delete("/{id}", status_code=204)
 def delete_produit(id: int, db: Session = Depends(get_db)):
-  ProduitService(db, ...).delete_produit(id)
+  ProduitService(db).delete_produit(id)
   return {"message": "deleted"}
 
 
 @router.post("/{id}/stock")
 def update_stock_produit(id: int, request: ProduitStockUpdateRequestDto, db: Session = Depends(get_db)):
-  return ProduitService(db, ...).update_stock_produit(id, request)
+  return ProduitService(db).update_stock_produit(id, request)
 
 
 @router.post("/{id}/tarification")
 def update_tarification_produit(id: int, request: ProduitTarificationUpdateRequestDto, db: Session = Depends(get_db)):
-  return ProduitService(db, ...).update_tarification_produit(id, request)
+  return ProduitService(db).update_tarification_produit(id, request)
 
 
 @router.post("/categories", status_code=201)
 def create_categorie(dto: CategorieDto, db: Session = Depends(get_db)):
-  return ProduitService(db, ...).create_categorie(dto)
+  return ProduitService(db).create_categorie(dto)
 
 
 @router.get("/categories")
 def get_all_categories(db: Session = Depends(get_db)):
-  return ProduitService(db, ...).get_all_categories()
+  return ProduitService(db).get_all_categories()
 
 
 @router.post("/fournisseurs", status_code=201)
 def create_fournisseur(dto: FournisseurDto, db: Session = Depends(get_db)):
-  return ProduitService(db, ...).create_fournisseur(dto)
+  return ProduitService(db).create_fournisseur(dto)
 
 
 @router.get("/fournisseurs")
 def get_all_fournisseurs(db: Session = Depends(get_db)):
-  return ProduitService(db, ...).get_all_fournisseurs()
+  return ProduitService(db).get_all_fournisseurs()
 
 
 @router.post("/rayons", status_code=201)
 def create_rayon(dto: RayonDto, db: Session = Depends(get_db)):
-  return ProduitService(db, ...).create_rayon(dto)
+  return ProduitService(db).create_rayon(dto)
 
 
 @router.get("/rayons")
 def get_all_rayons(db: Session = Depends(get_db)):
-  return ProduitService(db, ...).get_all_rayons()
+  return ProduitService(db).get_all_rayons()
 
 
 @router.get("/{id}/details")
 def get_produit_details(id: int, db: Session = Depends(get_db)):
-  return ProduitService(db, ...).get_produit_details(id)
+  return ProduitService(db).get_produit_details(id)
+
+@router.get("/search/new")
+def search(q:str, db: Session = Depends(get_db)):
+  return search_products_advance(q,10,db)
+
+@router.get("/suggest")
+def suggest_router(q: str, db: Session = Depends(get_db)):
+  return suggest(q)
+
+@router.get("/sellable", response_model=List[Dict])
+def list_sellable_products(
+  search: Optional[str] = Query(None),
+  limit: int = Query(50, ge=1, le=200),
+  offset: int = Query(0, ge=0),
+  db: Session = Depends(get_db),
+):
+  return ProduitService(db).find_all_sellable_ids_and_names(search, limit, offset)
+
+@router.get("/sellable-by-stock", response_model=List[Dict])
+def list_sellable_products_by_stock(
+  search: Optional[str] = Query(None),
+  min_stock: int = Query(1, ge=0),
+  limit: int = Query(50, ge=1, le=200),
+  offset: int = Query(0, ge=0),
+  db: Session = Depends(get_db),
+):
+  return ProduitService(db).find_all_sellable_ids_and_names_by_stock(search, limit, offset, min_stock)

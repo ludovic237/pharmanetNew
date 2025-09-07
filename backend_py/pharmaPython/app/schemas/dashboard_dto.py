@@ -54,6 +54,7 @@ class OrderRow(BaseModel):
 
 
 class StockAlertRow(BaseModel):
+  produitId: Optional[int] = None
   produit: str
   quantiteRestante: Optional[int] = None
   datePeremption: Optional[date] = None

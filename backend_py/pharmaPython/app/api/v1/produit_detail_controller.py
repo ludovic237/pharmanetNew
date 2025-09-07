@@ -12,12 +12,12 @@ router = APIRouter(prefix="/produits-detail", tags=["Produits detail"], dependen
 
 @router.get("/info/{produitId}")
 def get_produit_details_info(produitId: str, db: Session = Depends(get_db)):
-  return ProduitDetailService(db, ...).get_produit_details_info(produitId)
+  return ProduitDetailService(db).get_produit_details_info(produitId)
 
 
 @router.get("/search")
 def search_produit_details_by_name(nom: str, db: Session = Depends(get_db)):
-  return ProduitDetailService(db, ...).get_produit_details_by_name(nom)
+  return ProduitDetailService(db).get_produit_details_by_name(nom)
 
 
 @router.get("/search/pageable")
@@ -44,19 +44,19 @@ def get_produit_details_list(
 
 @router.post("/add")
 def create_produit_detail(produit: ProduitDetailDto, db: Session = Depends(get_db)):
-  return ProduitDetailService(db, ...).create_produit_detail(produit)
+  return ProduitDetailService(db).create_produit_detail(produit)
 
 
 @router.post("/update/{produitDetailId}")
 def update_produit_detail(produitDetailId: str, produit: ProduitDetailDto, db: Session = Depends(get_db)):
-  return ProduitDetailService(db, ...).update_produit_detail(produitDetailId, produit)
+  return ProduitDetailService(db).update_produit_detail(produitDetailId, produit)
 
 
 @router.get("/remove/prarent")
 def remove_parent_detail(productId: str, productDetailId: str, db: Session = Depends(get_db)):
-  return ProduitDetailService(db, ...).remove_parent_detail(productId, productDetailId)
+  return ProduitDetailService(db).remove_parent_detail(productId, productDetailId)
 
 
 @router.get("/remove")
 def remove_produit_detail(productDetailId: str, db: Session = Depends(get_db)):
-  return ProduitDetailService(db, ...).remove_produit_detail(productDetailId)
+  return ProduitDetailService(db).remove_produit_detail(productDetailId)

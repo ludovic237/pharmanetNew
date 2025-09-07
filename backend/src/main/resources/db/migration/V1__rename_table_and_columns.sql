@@ -26,7 +26,7 @@ UPDATE `concerner`
 SET `prix_unit` = `prixUnit`;
 
 ALTER TABLE `depense`
-  add column date_delivrance datetime     null,
+  add column date_delivrance datetime null,
   add column date_depense    datetime     null,
   add column lieu_delivrance varchar(100) null,
   add column numero_cni      varchar(100) null,
@@ -42,7 +42,7 @@ SET `date_delivrance` = `dateDelivrance`,
     `type_depense`    = `typeDepense`;
 
 ALTER TABLE `commande`
-  ADD COLUMN date_creation  datetime null,
+  ADD COLUMN date_creation datetime null,
   ADD COLUMN date_livraison datetime null,
   ADD COLUMN montant_cmd    double   null,
   ADD COLUMN montant_recu   double   null,
@@ -87,18 +87,18 @@ SET `prix_unit` = `prixUnit`;
 
 
 ALTER TABLE `produit_detail`
-  add column reduction_max  int default 0 null,
+  add column reduction_max int default 0 null,
   add column stock_max      int           null,
   add column stock_min      int           null;
 
 UPDATE `produit_detail`
-SET `reduction_max`  = `reductionMax`,
-    `stock_max`      = `stockMax`,
-    `stock_min`      = `stockMin`;
+SET `reduction_max` = `reductionMax`,
+    `stock_max`     = `stockMax`,
+    `stock_min`     = `stockMin`;
 
 
 ALTER TABLE `produit`
-  add column code_laborex   varchar(32)   null,
+  add column code_laborex varchar(32) null,
   add column code_ubipharm  varchar(32)   null,
   add column contenu_detail varchar(10)   null,
   add column prix_detail    varchar(10)   null,
@@ -116,7 +116,7 @@ SET `code_laborex`   = `codeLaborex`,
     `stock_min`      = `stockMin`;
 
 ALTER TABLE `produit_cmd`
-  add column prix_public    double null,
+  add column prix_public double null,
   add column pt_cmd         double null,
   add column pt_recept      double null,
   add column pu_cmd         double null,
@@ -148,7 +148,7 @@ UPDATE `sortie_stock`
 SET `date_sortie` = `dateSortie`;
 
 ALTER TABLE `produit1`
-  add column date_cmd        datetime null,
+  add column date_cmd datetime null,
   add column date_peremption datetime null,
   add column prix_achat      double   null,
   add column prix_public     double   null,
@@ -179,7 +179,7 @@ SET employe.`faire_reduction_max` = `faireReductionMax`;
 
 
 ALTER TABLE `caisse`
-  add column date_ferme         datetime     null,
+  add column date_ferme datetime null,
   add column date_ouvert        datetime     null,
   add column fermeture_caisse   varchar(255) null,
   add column fond_caisse_ferme  double       null,
@@ -196,7 +196,7 @@ SET `date_ferme`         = `dateFerme`,
 
 
 ALTER TABLE `en_rayon`
-  add column date_livraison    datetime null,
+  add column date_livraison datetime null,
   add column date_peremption   datetime null,
   add column prix_achat        int      null,
   add column prix_vente        int      null,
@@ -220,7 +220,7 @@ SET `date_encaisser` = `dateEncaisser`,
 
 
 ALTER TABLE `history`
-  add column date_histo datetime    null,
+  add column date_histo datetime null,
   add column type_histo varchar(64) not null;
 
 UPDATE `history`
@@ -229,7 +229,7 @@ SET `date_histo` = `dateHisto`,
 
 
 ALTER TABLE `ligne_caisse`
-  add column date_ligne  datetime not null,
+  add column date_ligne datetime not null,
   add column ref_produit int      not null;
 
 UPDATE `ligne_caisse`
@@ -238,7 +238,7 @@ SET `date_ligne`  = `dateLigne`,
 
 
 ALTER TABLE `produit_inventaire`
-  add column stock_avant  int null,
+  add column stock_avant int null,
   add column stock_valide int null;
 
 UPDATE `produit_inventaire`
@@ -281,7 +281,7 @@ SET `date_encaissement` = `dateEncaissement`,
 
 
 ALTER TABLE `facturation`
-  add column date_facture  datetime     null,
+  add column date_facture datetime null,
   add column montant_percu int          null,
   add column montant_ttc   int          null,
   add column type_paiement varchar(100) null;
@@ -294,7 +294,7 @@ SET `date_facture`  = `dateFacture`,
 
 
 ALTER TABLE `produit_vendu`
-  add column prix_unit   double null,
+  add column prix_unit double null,
   add column qtite_vendu int    null;
 
 UPDATE `produit_vendu`
@@ -311,19 +311,19 @@ SET `date_retour` = `dateRetour`;
 CREATE TABLE audit_logs
 (
   id           BIGINT AUTO_INCREMENT PRIMARY KEY,
-  user_id      BIGINT       NULL,
-  action       VARCHAR(50)  NULL,
+  user_id      BIGINT NULL,
+  action       VARCHAR(50) NULL,
   method_name  VARCHAR(255) NULL,
   arguments    longtext,
   result       LONGTEXT,
   exception    longtext,
   timestamp    DATETIME DEFAULT CURRENT_TIMESTAMP,
-  created_date datetime     null,
-  updated_date datetime     null
+  created_date datetime null,
+  updated_date datetime null
 );
 
 alter table inventaire
-  add column employe_id     int          null,
+  add column employe_id int null,
   add column rayon_id       int          null,
   add column categorie_id   int          null,
   add column fabriquant_id  int          null,
@@ -342,22 +342,37 @@ alter table user
   add username varchar(255) not null;
 
 alter table user
-  modify password varchar(255) null,
-  modify username varchar(255) null;
+  modify password varchar (255) null,
+  modify username varchar (255) null;
 
 alter table user
-  add   role              tinytext                not null;
+  add role tinytext not null;
 
 alter table commande
-  add column employe_id     int          null;
+  add column employe_id int null;
 
 alter table facturation
   modify id bigint auto_increment;
 
 CREATE TABLE application_settings
 (
-  id           BIGINT AUTO_INCREMENT PRIMARY KEY,
-  key_name      VARCHAR(255)   NULL,
-  value       Text  NULL,
-  type  VARCHAR(50) default '0'
+  id       BIGINT AUTO_INCREMENT PRIMARY KEY,
+  key_name VARCHAR(255) NULL,
+  value    Text NULL,
+  type     VARCHAR(50) default '0'
+);
+
+CREATE TABLE stock_alert
+(
+  id         BIGINT AUTO_INCREMENT PRIMARY KEY,
+  produit_id BIGINT NULL,
+  type       VARCHAR(255) NULL,
+  message    longtext null,
+  severity   VARCHAR(255) NULL,
+  stock      int null,
+  rop        decimal null,
+  days_left  decimal null,
+  status     VARCHAR(255) NULL,
+  created_at datetime null,
+  updated_at datetime null
 );

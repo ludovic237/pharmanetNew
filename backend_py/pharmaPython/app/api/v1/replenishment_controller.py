@@ -6,12 +6,12 @@ from app.services.ai.replenishment import compute_replenishment, generate_purcha
 
 router = APIRouter(prefix="/replenishment", tags=["replenishment"])
 
-@router.get("/suggest")
+@router.get("/suggest/reco")
 def suggest(db: Session = Depends(get_db)):
   recos = compute_replenishment(db)
   return [r.__dict__ for r in recos]
 
-@router.post("/purchase-orders/preview")
+@router.post("/purchase-orders/preview/order")
 def po_preview(db: Session = Depends(get_db)):
   return generate_purchase_orders(db)
 

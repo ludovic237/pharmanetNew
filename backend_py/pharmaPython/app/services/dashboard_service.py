@@ -112,6 +112,7 @@ class DashboardService:
     rows = self.enrayon_repo.stock_alerts(low, days, limit)
     return [
       StockAlertRow(
+        produitId=row["produitId"],
         produit=row["produit"],
         quantiteRestante=row["quantiteRestante"],
         datePeremption=row["datePeremption"]

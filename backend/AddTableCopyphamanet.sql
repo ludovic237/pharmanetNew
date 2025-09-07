@@ -361,3 +361,18 @@ CREATE TABLE application_settings
   value       Text  NULL,
   type  VARCHAR(50) default '0'
 );
+
+CREATE TABLE stock_alert
+(
+  id         BIGINT AUTO_INCREMENT PRIMARY KEY,
+  produit_id BIGINT NULL,
+  type       VARCHAR(255) NULL,
+  message    longtext null,
+  severity   VARCHAR(255) NULL,
+  stock      int null,
+  rop        decimal null,
+  days_left  decimal null,
+  status     VARCHAR(255) NULL,
+  created_at datetime null,
+  updated_at datetime null
+);

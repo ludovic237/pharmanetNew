@@ -18,7 +18,7 @@ def retourner_produits_vendus_et_en_rayon(
   db: Session = Depends(get_db),
 ):
   try:
-    return ProduitService(db, ...).retourner_produits_vendus_et_en_rayon(venteId, produitsRetour)
+    return ProduitService(db).retourner_produits_vendus_et_en_rayon(venteId, produitsRetour)
   except ValueError as e:
     # 400 Bad Request (IllegalArgumentException en Kotlin)
     raise HTTPException(status_code=400, detail=str(e))

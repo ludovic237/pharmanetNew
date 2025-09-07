@@ -1,10 +1,12 @@
 # repositories/en_rayon_repository.py
 from __future__ import annotations
-from typing import List, Optional, Tuple
+
+from typing import List, Optional, Tuple, Dict, Union
 from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
-from sqlalchemy import func, text
+from sqlalchemy import func, desc, select, union_all, text
 from app.models.en_rayon import EnRayon
+from app.models.produit_detail import ProduitDetail
 
 
 class EnRayonRepository:
@@ -182,8 +184,8 @@ class EnRayonRepository:
       q = q.filter(EnRayon.date_peremption <= th) if bientot_perimee else q.filter(EnRayon.date_peremption > th)
 
     if jours_avant_peremption and jours_avant_peremption != "null" and int(jours_avant_peremption) > 0:
-        target = now + timedelta(days=int(jours_avant_peremption))
-        q = q.filter(EnRayon.date_peremption <= target)
+      target = now + timedelta(days=int(jours_avant_peremption))
+      q = q.filter(EnRayon.date_peremption <= target)
 
     if isinstance(en_stock, bool):
       q = q.filter(EnRayon.quantite_restante > 0) if en_stock else q.filter(EnRayon.quantite_restante == 0)
@@ -246,7 +248,7 @@ class EnRayonRepository:
   # --- Alertes stock & péremption (SQL natif similaire à Kotlin) ---
   def stock_alerts(self, low: int, days: int, limit: int) -> List[dict]:
     sql = text("""
-            SELECT p.nom AS produit, er.quantite_restante AS quantiteRestante, er.date_peremption AS datePeremption
+            SELECT p.nom AS produit, p.id AS produitId, er.quantite_restante AS quantiteRestante, er.date_peremption AS datePeremption
             FROM en_rayon er
             JOIN produit p ON p.id = er.produit_id
             WHERE (er.quantite_restante IS NOT NULL AND er.quantite_restante <= :low)
@@ -255,7 +257,10 @@ class EnRayonRepository:
             LIMIT :limit
         """)
     rows = self.db.execute(sql, {"low": low, "days": days, "limit": limit}).mappings().all()
-    return [{"produit": r["produit"], "quantiteRestante": r["quantiteRestante"], "datePeremption": r["datePeremption"]}
+    return [
+      {
+        "produit": r["produit"], "produitId": r["produitId"], "quantiteRestante": r["quantiteRestante"],
+                                       "datePeremption": r["datePeremption"]}
             for r in rows]
 
   def alerts_ruptures(self, low: int) -> int:
@@ -278,3 +283,127 @@ class EnRayonRepository:
     self.db.commit()
     self.db.refresh(enRayon)
     return enRayon
+
+  # def sum_stock_by_product(
+  #   self,
+  #   product_ids: Optional[List[int]] = None,
+  # ) -> Dict[int, float]:
+  #   """
+  #   Agrège le stock total par produit_id en cumulant:
+  #     - SUM(EnRayon.quantite_restante) groupé par EnRayon.produit_id
+  #     - SUM(ProduitDetail.quantite_restante) groupé par ProduitDetail.produit_id
+  #
+  #   :param product_ids: (optionnel) liste de produits à filtrer
+  #   :return: dict {produit_id: stock_total}
+  #   """
+  #
+  #   # --- Sous-requête: stock côté EnRayon ---
+  #   stmt_enrayon = (
+  #     select(
+  #       EnRayon.produit_id.label("produit_id"),
+  #       func.coalesce(  # <- adapte le champ si nécessaire
+  #         func.sum(EnRayon.quantite_restante), 0
+  #       ).label("qty")
+  #     )
+  #     .group_by(EnRayon.produit_id)
+  #   )
+  #   print("product_ids")
+  #   print(product_ids)
+  #   print("stmt_enrayon")
+  #   print(stmt_enrayon)
+  #   if product_ids:
+  #     stmt_enrayon = stmt_enrayon.where(EnRayon.produit_id.in_(product_ids))
+  #
+  #   # --- Sous-requête: stock côté ProduitDetail ---
+  #   stmt_pdetail = (
+  #     select(
+  #       ProduitDetail.id.label("produit_id"),
+  #       func.coalesce(  # <- adapte le champ si nécessaire
+  #         func.sum(ProduitDetail.stock), 0
+  #       ).label("qty")
+  #     )
+  #     .group_by(ProduitDetail.id)
+  #   )
+  #   if product_ids:
+  #     stmt_pdetail = stmt_pdetail.where(ProduitDetail.id.in_(product_ids))
+  #
+  #   # --- UNION ALL pour cumuler les deux sources ---
+  #   union_stmt = union_all(stmt_enrayon, stmt_pdetail).subquery()
+  #
+  #   # --- Re-agrégation finale par produit_id ---
+  #   final_stmt = (
+  #     select(
+  #       union_stmt.c.produit_id,
+  #       func.sum(union_stmt.c.qty).label("stock_total")
+  #     )
+  #     .group_by(union_stmt.c.produit_id)
+  #   )
+  #
+  #   rows: List[Tuple[int, float]] = self.db.execute(final_stmt).all()
+  #
+  #   # Transformer en dict {produit_id: stock_total}
+  #   return {int(pid): float(stock or 0) for pid, stock in rows}
+
+  # def sum_stock_by_product(
+  #   self,
+  #   product_ids: Optional[Union[int, List[int]]] = None,
+  # ) -> Dict[int, float]:
+  #   """
+  #   Agrège le stock total par produit_id en cumulant:
+  #     - SUM(EnRayon.quantite_restante) groupé par EnRayon.produit_id
+  #     - SUM(ProduitDetail.stock) groupé par ProduitDetail.id  (à adapter si ton modèle a produit_id)
+  #   Accepte product_ids = None | int | List[int]
+  #   """
+  #
+  #   # --- Normalisation: int -> [int]
+  #   ids_list: Optional[List[int]]
+  #   if product_ids is None:
+  #     ids_list = None
+  #   elif isinstance(product_ids, int):
+  #     ids_list = [product_ids]
+  #   else:
+  #     ids_list = list(product_ids)  # au cas où ce soit un tuple / set
+  #
+  #   # --- Sous-requête: stock côté EnRayon ---
+  #   stmt_enrayon = (
+  #     select(
+  #       EnRayon.produit_id.label("produit_id"),
+  #       func.coalesce(func.sum(EnRayon.quantite_restante), 0).label("qty"),
+  #     )
+  #     .group_by(EnRayon.produit_id)
+  #   )
+  #   if ids_list:
+  #     stmt_enrayon = stmt_enrayon.where(EnRayon.produit_id.in_(ids_list))
+  #
+  #   # --- Sous-requête: stock côté ProduitDetail ---
+  #   # NOTE: si ton modèle a ProduitDetail.produit_id, remplace id -> produit_id ci-dessous.
+  #   stmt_pdetail = (
+  #     select(
+  #       ProduitDetail.id.label("produit_id"),
+  #       func.coalesce(func.sum(ProduitDetail.stock), 0).label("qty"),
+  #     )
+  #     .group_by(ProduitDetail.id)
+  #   )
+  #   if ids_list:
+  #     stmt_pdetail = stmt_pdetail.where(ProduitDetail.id.in_(ids_list))
+  #
+  #   # --- UNION ALL puis agrégation finale ---
+  #   union_stmt = union_all(stmt_enrayon, stmt_pdetail).subquery()
+  #   final_stmt = (
+  #     select(
+  #       union_stmt.c.produit_id,
+  #       func.sum(union_stmt.c.qty).label("stock_total"),
+  #     )
+  #     .group_by(union_stmt.c.produit_id)
+  #   )
+  #
+  #   rows: List[Tuple[int, float]] = self.db.execute(final_stmt).all()
+  #   return {int(pid): float(stock or 0) for pid, stock in rows}
+
+  def sum_stock_by_product(self, produit_id: int) -> float:
+    total = (
+      self.db.query(func.coalesce(func.sum(EnRayon.quantite_restante), 0.0))
+      .filter(EnRayon.produit_id == produit_id)
+      .scalar()
+    )
+    return float(total or 0.0)

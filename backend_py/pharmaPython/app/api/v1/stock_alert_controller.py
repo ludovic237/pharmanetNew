@@ -3,9 +3,8 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from typing import List
 from app.api.deps import get_db
-from app.schemas.stock_alert import StockAlertSchema
 from app.services.stock_alert_service import compute_and_store_alerts, acknowledge, close
-from app.models.stock_alert import StockAlert
+from app.models.stock_alert import StockAlert, StockAlertSchema
 
 router = APIRouter(prefix="/alerts", tags=["alerts"])
 

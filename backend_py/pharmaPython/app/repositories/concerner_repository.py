@@ -3,8 +3,13 @@ from __future__ import annotations
 from typing import List, Optional, Dict
 from datetime import datetime
 from sqlalchemy.orm import Session
-from sqlalchemy import text
+from sqlalchemy import text, func
 from app.models.concerner import Concerner
+from app.models.en_rayon import EnRayon
+from app.models.produit import Produit
+from app.models.produit_detail import ProduitDetail
+from app.models.vente import Vente
+
 
 class ConcernerRepository:
   def __init__(self, db: Session):
@@ -78,3 +83,76 @@ class ConcernerRepository:
     self.db.commit()
     self.db.refresh(concerner)
     return concerner
+
+
+  def fetch_last_baskets(self, limit: int = 5000) -> List[List[int]]:
+    """
+    Retourne une liste de paniers (baskets) récents:
+    [[prod_id, prod_id, ...], ...] groupé par vente_id (ordre ventes récentes).
+
+    Récupère produit_id via COALESCE(EnRayon.produit_id, ProduitDetail.produit_id).
+    """
+    # 1) Récupérer les derniers ventes.ids (ordre le + récent)
+    last_vente_ids = [
+      v.id for v in (
+        self.db.query(Vente.id)
+        .order_by(Vente.date_vente.desc(), Vente.id.desc())
+        .limit(limit)  # limite sur le nombre de ventes choisies
+        .all()
+      )
+    ]
+    if not last_vente_ids:
+      return []
+
+    # 2) Récupérer les lignes Concerner correspondantes et en déduire produit_id
+    prod_id_expr = func.coalesce(EnRayon.produit_id, ProduitDetail.id)
+
+    rows = (
+      self.db.query(
+        Concerner.vente_id.label("vente_id"),
+        prod_id_expr.label("produit_id")
+      )
+      .filter(Concerner.vente_id.in_(last_vente_ids))
+      .outerjoin(EnRayon, EnRayon.id == Concerner.en_rayon_id)
+      .outerjoin(ProduitDetail, ProduitDetail.id == Concerner.en_rayon_id)
+      .all()
+    )
+
+    # 3) Regrouper par vente_id => paniers
+    baskets_map: Dict[int, List[int]] = {}
+    for vente_id, produit_id in rows:
+      if produit_id is None:
+        continue
+      baskets_map.setdefault(vente_id, []).append(int(produit_id))
+
+    # Conserver l’ordre des ventes récentes
+    baskets = [baskets_map[v_id] for v_id in last_vente_ids if v_id in baskets_map]
+    return baskets
+
+    # (exemple utile pour la série journalière si tu en as besoin)
+  def sum_daily_qty_by_product(self, produit_id: int, from_date) -> List[Dict]:
+    """
+    Exemple d’agrégation par jour (utile pour la prévision).
+    Suppose que Vente.date_vente est un Date/DateTime.
+    """
+    # NB: MySQL: utiliser DATE(Vente.date_vente) pour grouper par jour
+    print("from_date")
+    print(from_date)
+    q = (
+      self.db.query(
+        func.date(Vente.date_vente).label("date"),
+        func.sum(Concerner.quantite).label("qty"),
+      )
+      .join(Vente, Vente.id == Concerner.vente_id)
+      .outerjoin(EnRayon, EnRayon.id == Concerner.en_rayon_id)
+      # .outerjoin(ProduitDetail, ProduitDetail.id == Concerner.en_rayon_id)
+      .outerjoin(Produit, Produit.id == EnRayon.produit_id)
+      .filter(func.coalesce(EnRayon.produit_id, Produit.id) == produit_id)
+      .filter(Vente.date_vente >= from_date)
+      .group_by(func.date(Vente.date_vente))
+      .order_by(func.date(Vente.date_vente))
+    )
+    rows = q.all()
+    print("rows 2")
+    print(rows)
+    return [{"date": r.date, "qty": float(r.qty or 0)} for r in rows]

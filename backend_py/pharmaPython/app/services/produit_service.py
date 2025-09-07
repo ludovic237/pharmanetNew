@@ -28,7 +28,7 @@ from app.repositories.rayon_repository import RayonRepository
 from app.repositories.retour_produit_repository import RetourProduitRepository
 from app.repositories.sortie_stock_repository import SortieStockRepository
 from app.repositories.vente_repository import VenteRepository
-from app.services.IA.search_index import semantic_search
+from app.services.ai.search_index import semantic_search
 from app.services.caisse_service import CaisseService
 from app.utility.user_utils import UserUtils
 
@@ -832,3 +832,13 @@ class ProduitService:
     return (self.db.query(Produit)
             .filter(Produit.id.in_(ids))
             .all())
+
+  def find_all_sellable_ids_and_names(
+    self, search: Optional[str] = None, limit: int = 50, offset: int = 0
+  ) -> List[Dict]:
+    return self.produit_repo.find_all_sellable_ids_and_names(search, limit, offset)
+
+  def find_all_sellable_ids_and_names_by_stock(
+    self, search: Optional[str] = None, limit: int = 50, offset: int = 0, min_stock: int = 1
+  ) -> List[Dict]:
+    return self.produit_repo.find_all_sellable_ids_and_names_by_stock(search, limit, offset, min_stock)

@@ -1,14 +1,17 @@
 # app/ai/replenishment.py
 from __future__ import annotations
+
+import math
 from dataclasses import dataclass
 from datetime import date, timedelta
-from typing import Iterable, Optional, List, Dict, Any
+from typing import Iterable, Optional, List, Dict, Any, Tuple
 
 import numpy as np
 import pandas as pd
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 
+from app.models.en_rayon import EnRayon
 # === Modèles SQLAlchemy supposés ===
 # Produit(id, nom, fournisseur_id, min_lot, lead_time_jours, categorie_id, supprimer)
 # EnRayon (stock_dispo, produit_id, ... )  OU Produit.stock (selon ton modèle)
@@ -51,12 +54,16 @@ def _group_daily_sales(db: Session, days: int = 180) -> pd.DataFrame:
   """
   since = date.today() - timedelta(days=days)
   rows = (
-    db.query(Vente.date_vente, Concerner.produit_id, func.sum(Concerner.quantite))
+    db.query(Vente.date_vente, EnRayon.produit_id, func.sum(Concerner.quantite))
     .join(Concerner, Concerner.vente_id == Vente.id)
+    .join(EnRayon, EnRayon.id == Concerner.en_rayon_id)
     .filter(Vente.date_vente >= since)
-    .group_by(Vente.date_vente, Concerner.produit_id)
+    .group_by(Vente.date_vente, EnRayon.produit_id)
     .all()
   )
+  print("len(rows)")
+  print(len(rows))
+  print(rows)
   if not rows:
     return pd.DataFrame(columns=["date", "produit_id", "qty"], dtype=float)
   df = pd.DataFrame(rows, columns=["date", "produit_id", "qty"])
@@ -97,7 +104,8 @@ def _stock_dispo(db: Session) -> dict[int, int]:
   return {pid: int(stock or 0) for pid, stock in rows}
 
 def _lead_time_for(p: Produit) -> int:
-  return int(p.lead_time_jours or DEFAULT_LEAD_TIME)
+  return int(DEFAULT_LEAD_TIME)
+  # return int(p.lead_time_jours or DEFAULT_LEAD_TIME)
 
 # ---------- Prévision simple par SKU ----------
 def _forecast_daily(df_prod: pd.Series) -> tuple[float, float]:
@@ -139,7 +147,6 @@ def compute_replenishment(db: Session) -> list[RecoCommande]:
   sales = _group_daily_sales(db, days=max(180, MIN_HISTORY_DAYS))
   abc = _abc_classes(db, days=180)
   stock_map = _stock_dispo(db)
-
   # Mise en forme: dict produit_id -> series qty/jour
   recos: list[RecoCommande] = []
   if sales.empty:
@@ -205,6 +212,8 @@ def generate_purchase_orders(db: Session) -> list[Dict[str, Any]]:
   retourne payload JSON exploitable par le front.
   """
   recos = compute_replenishment(db)
+  print("recos")
+  print(recos)
   # Filtrer ceux à commander
   to_order = [r for r in recos if r.qte_suggeree > 0]
   if not to_order:
@@ -212,7 +221,8 @@ def generate_purchase_orders(db: Session) -> list[Dict[str, Any]]:
 
   # Charger produits pour récupérer fournisseur
   produits = {p.id: p for p in db.query(Produit).filter(Produit.id.in_([r.produit_id for r in to_order])).all()}
-
+  print("produits")
+  print(produits)
   # Groupage par fournisseur
   grouped: dict[int, list[RecoCommande]] = {}
   for r in to_order:
@@ -220,6 +230,8 @@ def generate_purchase_orders(db: Session) -> list[Dict[str, Any]]:
     grouped.setdefault(int(f), []).append(r)
 
   po_list = []
+  print("grouped")
+  print(grouped)
   for fournisseur_id, items in grouped.items():
     lignes = [
       dict(produitId=r.produit_id, nom=r.produit_nom, qte=r.qte_suggeree, raison=r.raison)
@@ -231,3 +243,30 @@ def generate_purchase_orders(db: Session) -> list[Dict[str, Any]]:
       lignes=lignes
     ))
   return po_list
+
+
+def compute_safety_stock(daily_demand: List[Tuple[date, float]], lead_time_days: int = 7, service_level_z: float = 1.65) -> float:
+  """
+  Stock de sécurité = z * σ_d * sqrt(L)
+  σ_d = écart-type de la demande journalière.
+  """
+  if not daily_demand:
+    return 0.0
+  vals = [v for _, v in daily_demand]
+  mean = sum(vals) / len(vals)
+  var = sum((v - mean) ** 2 for v in vals) / max(len(vals)-1, 1)
+  std = math.sqrt(var)
+  return max(0.0, service_level_z * std * math.sqrt(max(lead_time_days, 1)))
+
+def compute_reorder_point(avg_daily_demand: float, lead_time_days: int, safety_stock: float) -> float:
+  return max(0.0, avg_daily_demand * lead_time_days + safety_stock)
+
+def suggested_order_qty(current_stock: float, forecast_next_days: float, reorder_point: float, target_coverage_days: int, avg_daily_demand: float) -> float:
+  """
+  Si stock < point de commande, on remonte jusqu’à target_coverage_days.
+  """
+  if current_stock >= reorder_point:
+    return 0.0
+  target_stock = avg_daily_demand * target_coverage_days
+  qty = max(0.0, target_stock - current_stock)
+  return round(qty, 2)

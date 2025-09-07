@@ -1,11 +1,15 @@
 # dashboard_controller.py
 from fastapi import APIRouter, Depends, HTTPException, Query
+from sklearn.ensemble import IsolationForest
 from sqlalchemy.orm import Session
 from datetime import datetime
 from typing import List
 
 from app.api.deps import get_db
+from app.core.db import SessionLocal
 from app.schemas.dashboard_dto import OrderRow, TopProduct, StockAlertRow, SalesMonthlyPoint, CategorySales, KpiDto
+from app.services.ai.anomaly import score_caisse, train_caisse_anomaly_model
+from app.services.ai.forecast import forecast_sales
 from app.services.dashboard_service import DashboardService
 from app.utility.jwt_authentication import jwt_authentication
 
@@ -15,9 +19,11 @@ from app.utility.jwt_authentication import jwt_authentication
 router = APIRouter(
   prefix="/dashboard",
   tags=["Dashboard"],
-  dependencies=[Depends(jwt_authentication)]  # équiv. @PreAuthorize("isAuthenticated()")
+  # dependencies=[Depends(jwt_authentication)]  # équiv. @PreAuthorize("isAuthenticated()")
 )
 
+# modèle global (sera remplacé par un modèle entraîné au startup)
+_ANOMALY_MODEL: IsolationForest | None = None
 
 def _parse_dt(s: str | None, label: str) -> datetime:
   if not s:
@@ -30,7 +36,7 @@ def _parse_dt(s: str | None, label: str) -> datetime:
 
 
 @router.get("/kpis", response_model=KpiDto)
-def kpis(
+def kpis_router(
   from_: str | None = Query(alias="from"),
   to: str | None = Query(alias="to"),
   db: Session = Depends(get_db),
@@ -40,7 +46,7 @@ def kpis(
 
 
 @router.get("/sales-monthly", response_model=List[SalesMonthlyPoint])
-def sales_monthly(
+def sales_monthly_router(
   from_: str | None = Query(alias="from"),
   to: str | None = Query(alias="to"),
   db: Session = Depends(get_db),
@@ -50,7 +56,7 @@ def sales_monthly(
 
 
 @router.get("/sales-by-category", response_model=List[CategorySales])
-def sales_by_category(
+def sales_by_category_router(
   from_: str | None = Query(alias="from"),
   to: str | None = Query(alias="to"),
   db: Session = Depends(get_db),
@@ -60,7 +66,7 @@ def sales_by_category(
 
 
 @router.get("/top-products", response_model=List[TopProduct])
-def top_products(
+def top_products_router(
   limit: int = Query(10, ge=1),
   from_: str | None = Query(alias="from"),
   to: str | None = Query(alias="to"),
@@ -71,7 +77,7 @@ def top_products(
 
 
 @router.get("/orders-recent", response_model=List[OrderRow])
-def orders_recent(
+def orders_recent_router(
   page: int = Query(0, ge=0),
   size: int = Query(10, ge=1),
   db: Session = Depends(get_db),
@@ -81,7 +87,7 @@ def orders_recent(
 
 
 @router.get("/stock-alerts", response_model=List[StockAlertRow])
-def stock_alerts(
+def stock_alerts_router(
   low: int = Query(10, ge=0),
   days: int = Query(30, ge=1),
   limit: int = Query(20, ge=1),
@@ -89,3 +95,24 @@ def stock_alerts(
 ):
   service = DashboardService(db)
   return service.get_stock_alerts(low, days, limit)
+
+@router.get("/forecast_sales")
+def forecast_sales_router(
+  db: Session = Depends(get_db),
+):
+  return forecast_sales(db)
+
+# @router.on_event("startup")
+def _train_anomaly_on_startup():
+  global _ANOMALY_MODEL
+  with SessionLocal() as db:
+    _ANOMALY_MODEL = train_caisse_anomaly_model(db)
+
+@router.get("/score-caisse/{caisse_id}")
+def score_caisse_router(caisse_id: int, db: Session = Depends(get_db)):
+  global _ANOMALY_MODEL
+  if _ANOMALY_MODEL is None:
+    # sécurité si le startup n’a pas encore tourné
+    _ANOMALY_MODEL = train_caisse_anomaly_model(db)
+  score = score_caisse(db=db, model=_ANOMALY_MODEL, caisse_id=caisse_id)
+  return {"caisseId": caisse_id, "anomalyScore": score}

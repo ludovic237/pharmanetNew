@@ -2,10 +2,15 @@
 from __future__ import annotations
 from typing import List, Optional, Tuple, Dict, Any, Iterable
 from sqlalchemy.orm import Session
-from sqlalchemy import func
+from sqlalchemy import func, desc, select, union_all
+
+from app.models.concerner import Concerner
 from app.models.produit import Produit
 from app.models.en_rayon import EnRayon
 from sqlalchemy.sql.elements import BinaryExpression
+
+from app.models.produit_detail import ProduitDetail
+
 
 class ProduitRepository:
   def __init__(self, db: Session):
@@ -135,8 +140,192 @@ class ProduitRepository:
   # helpers
   def find_by_id(self, id_: int) -> Optional[Produit]:
     return self.db.query(Produit).get(id_)
+
   def save(self, entity: Produit) -> Produit:
-    self.db.add(entity); self.db.commit(); self.db.refresh(entity); return entity
+    self.db.add(entity);
+    self.db.commit();
+    self.db.refresh(entity);
+    return entity
 
   def find_all(self) -> List:
     return self.db.query(Produit).all()
+
+
+  def find_top_n(self, limit: int = 100) -> List[Produit]:
+    """
+    Retourne les top produits par quantité vendue (concerner.quantite),
+    en se basant sur l’ID produit récupéré via:
+      - EnRayon.produit_id si la ligne Concerner pointe vers EnRayon
+      - sinon ProduitDetail.produit_id
+    Fallback: si aucune vente, renvoie les N premiers produits (par id décroissant).
+    """
+    # produit_id = COALESCE(en_rayon.produit_id, produit_detail.produit_id)
+    prod_id_expr = func.coalesce(EnRayon.produit_id, ProduitDetail.id)
+
+    # Agrégation des quantités vendues par produit
+    sub = (
+      self.db.query(
+        prod_id_expr.label("produit_id"),
+        func.sum(Concerner.quantite).label("qty")
+      )
+      .outerjoin(EnRayon, EnRayon.id == Concerner.en_rayon_id)
+      .outerjoin(ProduitDetail, ProduitDetail.id == Concerner.en_rayon_id)
+      .group_by(prod_id_expr)
+      .subquery()
+    )
+
+    # Joindre sur Produit pour obtenir les objets Produit complets
+    q = (
+      self.db.query(Produit)
+      .join(sub, sub.c.produit_id == Produit.id)
+      .order_by(desc(sub.c.qty))
+      .limit(limit)
+    )
+    results = q.all()
+
+    if results:
+      return results
+
+    # Fallback si pas de ventes: retourner quelques produits (ex: par id desc)
+    return (
+      self.db.query(Produit)
+      .order_by(Produit.id.desc())
+      .limit(limit)
+      .all()
+    )
+
+    # (existant)
+
+
+  def find_all_basic(self, limit: int = 1000) -> List[Produit]:
+    """
+    Optionnel: utilisé par l'IA pour récupérer id/nom rapidement.
+    """
+    return (
+      self.db.query(Produit)
+      .order_by(Produit.id.desc())
+      .limit(limit)
+      .all()
+    )
+
+
+  def sum_stock_by_product(
+    self,
+    product_ids: Optional[List[int]] = None,
+  ) -> Dict[int, float]:
+    """
+    Même logique que la version EnRayonRepository, mais exposée côté ProduitRepository.
+    """
+
+    stmt_enrayon = (
+      select(
+        EnRayon.produit_id.label("produit_id"),
+        func.coalesce(func.sum(EnRayon.quantite_restante), 0).label("qty")
+      )
+      .group_by(EnRayon.produit_id)
+    )
+    if product_ids:
+      stmt_enrayon = stmt_enrayon.where(EnRayon.produit_id.in_(product_ids))
+
+    stmt_pdetail = (
+      select(
+        ProduitDetail.id.label("produit_id"),
+        func.coalesce(func.sum(ProduitDetail.stock), 0).label("qty")
+      )
+      .group_by(ProduitDetail.id)
+    )
+    if product_ids:
+      stmt_pdetail = stmt_pdetail.where(ProduitDetail.id.in_(product_ids))
+
+    union_stmt = union_all(stmt_enrayon, stmt_pdetail).subquery()
+
+    final_stmt = (
+      select(
+        union_stmt.c.produit_id,
+        func.sum(union_stmt.c.qty).label("stock_total")
+      )
+      .group_by(union_stmt.c.produit_id)
+    )
+
+    rows: List[Tuple[int, float]] = self.db.execute(final_stmt).all()
+    return {int(pid): float(stock or 0) for pid, stock in rows}
+
+  def list_id_and_name_with_synonyms(self) -> List[Tuple[int, str]]:
+    """
+    Retourne une liste (id, label) où label = nom + synonymes concaténés
+    Utile pour indexer dans FAISS ou matcher des ordonnances
+    """
+    produits = self.db.query(Produit.id, Produit.nom, Produit.synonymes).all()
+    rows: List[Tuple[int, str]] = []
+    for pid, nom, syns in produits:
+      label = nom or ""
+      if syns:
+        # si synonymes est une string "Doliprane,Paracetamol,Acetaminophen"
+        label += " " + syns.replace(",", " ")
+      rows.append((pid, label.strip()))
+    return rows
+
+  def find_all_sellable_ids_and_names(
+    self,
+    search: Optional[str] = None,
+    limit: int = 50,
+    offset: int = 0,
+  ) -> List[Dict]:
+    """
+    Retourne une liste de dicts {id, nom} pour les produits vendables.
+    Hypothèses:
+      - Produit.vendable == True (si le champ existe)
+      - Produit.supprimer == 0 (produits actifs)
+    """
+
+    q = self.db.query(Produit.id, Produit.nom)
+
+    # Filtre "actif" si présent dans ton modèle
+    if hasattr(Produit, "supprimer"):
+      q = q.filter(Produit.supprimer == 0)
+
+    # Filtre "vendable" si présent dans ton modèle
+    if hasattr(Produit, "vendable"):
+      q = q.filter(Produit.vendable.is_(True))
+
+    # Recherche plein-texte sur le nom
+    if search:
+      q = q.filter(func.lower(Produit.nom).like(f"%{search.lower()}%"))
+
+    q = q.order_by(Produit.nom.asc()).offset(offset).limit(limit)
+
+    rows = q.all()
+    return [{"id": r[0], "nom": r[1]} for r in rows]
+
+  def find_all_sellable_ids_and_names_by_stock(
+    self,
+    search: Optional[str] = None,
+    limit: int = 50,
+    offset: int = 0,
+    min_stock: int = 1,
+  ) -> List[Dict]:
+    """
+    Retourne {id, nom} pour les produits qui ont du stock en rayon (quantite >= min_stock).
+    Combine l'état actif/vendable si ces colonnes existent.
+    """
+
+    q = (
+      self.db.query(Produit.id, Produit.nom)
+      .join(EnRayon, EnRayon.produit_id == Produit.id)
+      .group_by(Produit.id, Produit.nom)
+      .having(func.sum(func.coalesce(EnRayon.quantite, 0)) >= min_stock)
+    )
+
+    if hasattr(Produit, "supprimer"):
+      q = q.filter(Produit.supprimer == 0)
+
+    if hasattr(Produit, "vendable"):
+      q = q.filter(Produit.vendable.is_(True))
+
+    if search:
+      q = q.filter(func.lower(Produit.nom).like(f"%{search.lower()}%"))
+
+    q = q.order_by(Produit.nom.asc()).offset(offset).limit(limit)
+
+    rows = q.all()
+    return [{"id": r[0], "nom": r[1]} for r in rows]
