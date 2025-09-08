@@ -27,7 +27,7 @@ import {MatStepperModule} from "@angular/material/stepper";
 import {MatRadioModule} from "@angular/material/radio";
 import {MatSnackBarModule} from "@angular/material/snack-bar";
 import {NgxPaginationModule} from "ngx-pagination";
-import {MatPaginator} from "@angular/material/paginator";
+import {MatPaginator, MatPaginatorModule} from "@angular/material/paginator";
 
 @Component({
   selector: 'app-replenishment',
@@ -75,7 +75,7 @@ import {MatPaginator} from "@angular/material/paginator";
     MatSnackBarModule,
     MatChipsModule,
     NgxPaginationModule,
-    MatPaginator,
+    MatPaginatorModule
   ],
   templateUrl: './replenishment.component.html',
   styleUrl: './replenishment.component.scss'

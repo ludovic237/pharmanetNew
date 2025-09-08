@@ -28,7 +28,8 @@ import {MatStepperModule} from "@angular/material/stepper";
 import {MatRadioModule} from "@angular/material/radio";
 import {MatSnackBarModule} from "@angular/material/snack-bar";
 import {NgxPaginationModule} from "ngx-pagination";
-import {MatPaginator} from "@angular/material/paginator";
+import {MatPaginator, MatPaginatorModule} from "@angular/material/paginator";
+import {MatProgressSpinnerModule} from "@angular/material/progress-spinner";
 
 @Component({
   selector: 'app-forecast-chart',
@@ -76,7 +77,8 @@ import {MatPaginator} from "@angular/material/paginator";
     MatSnackBarModule,
     MatChipsModule,
     NgxPaginationModule,
-    MatPaginator,
+    MatPaginatorModule,
+    MatProgressSpinnerModule
   ],
   templateUrl: './forecast-chart.component.html',
   styleUrl: './forecast-chart.component.scss'
@@ -91,7 +93,8 @@ export class ForecastChartComponent implements OnInit {
     responsive: true, maintainAspectRatio: false
   };
 
-  constructor(private ai: AiService) {}
+  constructor(private ai: AiService) {
+  }
 
   ngOnInit(): void {
     if (!this.produitId) return;
@@ -99,14 +102,15 @@ export class ForecastChartComponent implements OnInit {
     this.ai.forecast(this.produitId).subscribe({
       next: (res) => {
         this.data = res;
-        const labels = res.forecast.map((p:any) => p.date);
-        const values = res.forecast.map((p:any) => p.yhat);
+        const labels = res.forecast.map((p: any) => p.date);
+        const values = res.forecast.map((p: any) => p.yhat);
         this.lineChartData = {
           labels,
-          datasets: [{ data: values, label: 'Prévision (unités/jour)' }]
+          datasets: [{data: values, label: 'Prévision (unités/jour)'}]
         };
       },
-      error: () => {},
+      error: () => {
+      },
       complete: () => (this.loading = false)
     });
   }

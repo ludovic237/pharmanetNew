@@ -27,7 +27,8 @@ import {MatStepperModule} from "@angular/material/stepper";
 import {MatRadioModule} from "@angular/material/radio";
 import {MatSnackBarModule} from "@angular/material/snack-bar";
 import {NgxPaginationModule} from "ngx-pagination";
-import {MatPaginator} from "@angular/material/paginator";
+import {MatPaginator, MatPaginatorModule} from "@angular/material/paginator";
+import {MatProgressSpinnerModule} from "@angular/material/progress-spinner";
 
 @Component({
   selector: 'app-optimize-dashboard',
@@ -75,7 +76,8 @@ import {MatPaginator} from "@angular/material/paginator";
     MatSnackBarModule,
     MatChipsModule,
     NgxPaginationModule,
-    MatPaginator,
+    MatPaginatorModule,
+    MatProgressSpinnerModule
   ],
   templateUrl: './optimize-dashboard.component.html',
   styleUrl: './optimize-dashboard.component.scss'

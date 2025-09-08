@@ -40,6 +40,10 @@ import {MatSnackBar, MatSnackBarModule} from "@angular/material/snack-bar";
 import {NgxPaginationModule} from "ngx-pagination";
 import {AuthService} from "@services/auth.service";
 import {LoaderService} from "@services/loader.service";
+import {OptimizeDashboardComponent} from "../components/optimize-dashboard/optimize-dashboard.component";
+import {ForecastChartComponent} from "../components/forecast-chart/forecast-chart.component";
+import {LowStockTableComponent} from "../components/low-stock-table/low-stock-table.component";
+import {ReplenishmentComponent} from "../components/replenishment/replenishment.component";
 
 function toIso(dt: Date, endOfDay = false): string {
   if (!dt) return '';
@@ -56,6 +60,10 @@ function toIso(dt: Date, endOfDay = false): string {
 @Component({
   selector: 'app-dashboard-new',
   imports: [
+    OptimizeDashboardComponent,
+    LowStockTableComponent,
+    ReplenishmentComponent,
+    ForecastChartComponent,
     ReactiveFormsModule,
     // Material
     MatCardModule, MatFormFieldModule, MatInputModule,
@@ -279,10 +287,10 @@ export class DashboardNewComponent implements OnInit, OnDestroy {
     // Rafraîchir tout à chaque changement de période
 
     combineLatest([
-      this.api.kpis(formatDate(new Date(new Date(this.startDateVente).setHours(0,0,0,0))+""), formatDate(new Date(new Date(this.endDateVente).setHours(23,59,59,999))+"")),
-      this.api.salesMonthly(formatDate(new Date(new Date(this.startDateVente).setHours(0,0,0,0))+""), formatDate(new Date(new Date(this.endDateVente).setHours(23,59,59,999))+"")),
-      this.api.salesByCategory(formatDate(new Date(new Date(this.startDateVente).setHours(0,0,0,0))+""), formatDate(new Date(new Date(this.endDateVente).setHours(23,59,59,999))+"")),
-      this.api.topProducts(10, formatDate(new Date(new Date(this.startDateVente).setHours(0,0,0,0))+""), formatDate(new Date(new Date(this.endDateVente).setHours(23,59,59,999))+"")),
+      this.api.kpis(formatDate(new Date(new Date(this.startDateVente).setHours(0, 0, 0, 0)) + ""), formatDate(new Date(new Date(this.endDateVente).setHours(23, 59, 59, 999)) + "")),
+      this.api.salesMonthly(formatDate(new Date(new Date(this.startDateVente).setHours(0, 0, 0, 0)) + ""), formatDate(new Date(new Date(this.endDateVente).setHours(23, 59, 59, 999)) + "")),
+      this.api.salesByCategory(formatDate(new Date(new Date(this.startDateVente).setHours(0, 0, 0, 0)) + ""), formatDate(new Date(new Date(this.endDateVente).setHours(23, 59, 59, 999)) + "")),
+      this.api.topProducts(10, formatDate(new Date(new Date(this.startDateVente).setHours(0, 0, 0, 0)) + ""), formatDate(new Date(new Date(this.endDateVente).setHours(23, 59, 59, 999)) + "")),
     ]).subscribe({
       next: ([kpi, monthly, byCat, top]) => {
         this.kpi = kpi;

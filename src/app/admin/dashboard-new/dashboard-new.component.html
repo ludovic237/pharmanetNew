@@ -188,5 +188,12 @@
       </div>
     </mat-card>
   </div>
+  <app-optimize-dashboard></app-optimize-dashboard>
+
+  <app-low-stock-table [threshold]="5" [limit]="50"></app-low-stock-table>
+
+  <app-replenishment [produitId]="123"></app-replenishment>
+
+  <app-forecast-chart [produitId]="123"></app-forecast-chart>
 </div>
 

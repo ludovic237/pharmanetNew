@@ -29,6 +29,7 @@ import {MatStepperModule} from "@angular/material/stepper";
 import {MatRadioModule} from "@angular/material/radio";
 import {MatSnackBarModule} from "@angular/material/snack-bar";
 import {NgxPaginationModule} from "ngx-pagination";
+import {MatProgressSpinnerModule} from "@angular/material/progress-spinner";
 
 @Component({
   selector: 'app-low-stock-table',
@@ -77,6 +78,7 @@ import {NgxPaginationModule} from "ngx-pagination";
     MatChipsModule,
     NgxPaginationModule,
     MatPaginator,
+    MatProgressSpinnerModule
   ],
   templateUrl: './low-stock-table.component.html',
   styleUrl: './low-stock-table.component.scss'
