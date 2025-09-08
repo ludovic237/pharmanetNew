@@ -16,6 +16,7 @@ import { NgxPaginationModule } from 'ngx-pagination';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatButtonModule } from '@angular/material/button';
 import {CommandesService} from "@services/commandes.service";
+import {LoaderService} from "@services/loader.service";
 // import {Commande} from "@models/product";
 
 @Component({

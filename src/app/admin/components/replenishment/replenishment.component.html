@@ -1,0 +1,41 @@
+<mat-card>
+  <mat-card-title>Réassort suggéré</mat-card-title>
+  <mat-card-content>
+
+    <div *ngIf="loading" class="center">
+      <mat-progress-spinner diameter="40" mode="indeterminate"></mat-progress-spinner>
+    </div>
+
+    <ng-container *ngIf="!loading && data">
+      <mat-list>
+        <mat-list-item>
+          <mat-icon matListIcon>inventory_2</mat-icon>
+          <div matLine>Stock actuel</div>
+          <div matLine>{{ data.current_stock }}</div>
+        </mat-list-item>
+
+        <mat-list-item>
+          <mat-icon matListIcon>shield</mat-icon>
+          <div matLine>Stock de sécurité</div>
+          <div matLine>{{ data.safety_stock | number:'1.0-0' }}</div>
+        </mat-list-item>
+
+        <mat-list-item>
+          <mat-icon matListIcon>flag</mat-icon>
+          <div matLine>Point de commande (ROP)</div>
+          <div matLine>{{ data.reorder_point | number:'1.0-0' }}</div>
+        </mat-list-item>
+
+        <mat-list-item>
+          <mat-icon matListIcon>add_shopping_cart</mat-icon>
+          <div matLine>Qté à commander</div>
+          <div matLine><b>{{ data.suggested_order_qty }}</b></div>
+        </mat-list-item>
+      </mat-list>
+
+      <p class="hint">{{ data.rationale }}</p>
+
+      <button mat-raised-button color="primary" (click)="order()">Commander</button>
+    </ng-container>
+  </mat-card-content>
+</mat-card>
