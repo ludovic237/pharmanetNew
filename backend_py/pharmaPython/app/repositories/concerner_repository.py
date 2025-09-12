@@ -50,18 +50,37 @@ class ConcernerRepository:
   # --- requêtes natives topProducts & salesByCategory ---
   def top_products(self, limit: int, start: datetime, end: datetime) -> List[Dict]:
     sql = text("""
-            SELECT p.nom AS nom, COALESCE(SUM(con.quantite),0) AS qty
+            SELECT p.nom AS nom, p.id AS id, COALESCE(SUM(con.quantite),0) AS qty
             FROM concerner con
             JOIN en_rayon r ON r.id = con.en_rayon_id
             JOIN produit  p ON p.id = r.produit_id
             JOIN vente    v ON v.id = con.vente_id
             WHERE v.supprimer=0 AND v.date_vente BETWEEN :from AND :to
-            GROUP BY p.nom
+            GROUP BY p.nom, p.id
             ORDER BY qty DESC
             LIMIT :limit
         """)
     rows = self.db.execute(sql, {"limit": limit, "from": start, "to": end}).mappings().all()
-    return [{"nom": r["nom"], "qty": int(r["qty"])} for r in rows]
+    return [{"nom": r["nom"], "id": r["id"], "qty": int(r["qty"])} for r in rows]
+
+  def total_qty_by_product_between(self, produit_id: int, start: datetime, end: datetime) -> int:
+    """
+    Somme des quantités pour un produit donné entre deux dates.
+    Utilise la même logique de jointure que top_products().
+    """
+    sql = text("""
+            SELECT COALESCE(SUM(con.quantite),0) AS qty,
+            p.id AS id
+            FROM concerner con
+            JOIN en_rayon r ON r.id = con.en_rayon_id
+            JOIN produit  p ON p.id = r.produit_id
+            JOIN vente    v ON v.id = con.vente_id
+            WHERE v.supprimer=0
+              AND p.id = :pid
+              AND v.date_vente BETWEEN :from AND :to
+        """)
+    row = self.db.execute(sql, {"pid": produit_id, "from": start, "to": end}).mappings().first()
+    return  int(row["qty"] or 0)
 
   def sales_by_category(self, start: datetime, end: datetime) -> List[Dict]:
     sql = text("""
@@ -84,7 +103,6 @@ class ConcernerRepository:
     self.db.refresh(concerner)
     return concerner
 
-
   def fetch_last_baskets(self, limit: int = 5000) -> List[List[int]]:
     """
     Retourne une liste de paniers (baskets) récents:
@@ -105,7 +123,8 @@ class ConcernerRepository:
       return []
 
     # 2) Récupérer les lignes Concerner correspondantes et en déduire produit_id
-    prod_id_expr = func.coalesce(EnRayon.produit_id, ProduitDetail.id)
+    # prod_id_expr = func.coalesce(EnRayon.produit_id, ProduitDetail.id)
+    prod_id_expr = func.coalesce(EnRayon.produit_id, Produit.id)
 
     rows = (
       self.db.query(
@@ -114,7 +133,8 @@ class ConcernerRepository:
       )
       .filter(Concerner.vente_id.in_(last_vente_ids))
       .outerjoin(EnRayon, EnRayon.id == Concerner.en_rayon_id)
-      .outerjoin(ProduitDetail, ProduitDetail.id == Concerner.en_rayon_id)
+      .outerjoin(Produit, Produit.id == EnRayon.produit_id)
+      # .outerjoin(ProduitDetail, ProduitDetail.id == Concerner.en_rayon_id)
       .all()
     )
 
@@ -130,14 +150,15 @@ class ConcernerRepository:
     return baskets
 
     # (exemple utile pour la série journalière si tu en as besoin)
+
   def sum_daily_qty_by_product(self, produit_id: int, from_date) -> List[Dict]:
     """
     Exemple d’agrégation par jour (utile pour la prévision).
     Suppose que Vente.date_vente est un Date/DateTime.
     """
     # NB: MySQL: utiliser DATE(Vente.date_vente) pour grouper par jour
-    print("from_date")
-    print(from_date)
+    # print("from_date")
+    # print(from_date)
     q = (
       self.db.query(
         func.date(Vente.date_vente).label("date"),
@@ -153,6 +174,6 @@ class ConcernerRepository:
       .order_by(func.date(Vente.date_vente))
     )
     rows = q.all()
-    print("rows 2")
-    print(rows)
+    # print("rows 2")
+    # print(rows)
     return [{"date": r.date, "qty": float(r.qty or 0)} for r in rows]

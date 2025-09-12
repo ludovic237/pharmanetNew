@@ -20,7 +20,7 @@ import {MatTableModule} from "@angular/material/table";
 import {MatCardModule} from "@angular/material/card";
 import {MatButtonModule} from "@angular/material/button";
 import {MatDatepickerModule} from "@angular/material/datepicker";
-import {MatNativeDateModule} from "@angular/material/core";
+import {MatLine, MatNativeDateModule} from "@angular/material/core";
 import {MatSelectModule} from "@angular/material/select";
 import {FlexLayoutModule} from "@ngbracket/ngx-layout";
 import {MatStepperModule} from "@angular/material/stepper";
@@ -28,6 +28,7 @@ import {MatRadioModule} from "@angular/material/radio";
 import {MatSnackBarModule} from "@angular/material/snack-bar";
 import {NgxPaginationModule} from "ngx-pagination";
 import {MatPaginator, MatPaginatorModule} from "@angular/material/paginator";
+import {MatProgressSpinnerModule} from "@angular/material/progress-spinner";
 
 @Component({
   selector: 'app-replenishment',
@@ -75,11 +76,15 @@ import {MatPaginator, MatPaginatorModule} from "@angular/material/paginator";
     MatSnackBarModule,
     MatChipsModule,
     NgxPaginationModule,
-    MatPaginatorModule
+    MatPaginatorModule,
+    MatProgressSpinnerModule,
+    MatLine
   ],
   templateUrl: './replenishment.component.html',
+  standalone: true,
   styleUrl: './replenishment.component.scss'
 })
+
 export class ReplenishmentComponent implements OnInit {
   @Input() produitId!: number;
   loading = false;
@@ -101,5 +106,7 @@ export class ReplenishmentComponent implements OnInit {
     if (!this.data) return;
     // branche ta logique commande automatique
     console.log('Commander quantité', this.data.suggested_order_qty, 'pour produit', this.data.produit_id);
+
   }
+
 }

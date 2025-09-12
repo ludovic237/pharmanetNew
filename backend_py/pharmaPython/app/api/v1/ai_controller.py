@@ -65,13 +65,9 @@ def forecast_produit(produit_id: int, horizon_days: int = 14, history_days: int 
 
 
 @router.get("/replenishment/{produit_id}", response_model=ReplenishmentSuggestion)
-def suggest_replenishment(
-  produit_id: int,
-  lead_time_days: int = 7,
-  target_coverage_days: int = 21,
-  history_days: int = 180,
-  db: Session = Depends(get_db)
-):
+def suggest_replenishment(produit_id: int, lead_time_days: int = 7, target_coverage_days: int = 21,
+                          history_days: int = 180, db: Session = Depends(get_db)
+                          ):
   """""
   - Rôle : calcule le stock de sécurité, le point de commande (ROP), et la quantité suggérée à commander.
 
@@ -121,7 +117,8 @@ def suggest_replenishment(
   )
 
 
-@router.get("/alerts/low-stock", response_model=List[StockAlert])
+# @router.get("/alerts/low-stock", response_model=List[StockAlert])
+@router.get("/alerts/low-stock")
 def low_stock_alerts(threshold: float = 5.0, limit: int = 100, db: Session = Depends(get_db)):
   # Exemple: récupère les stocks et produits
   """
@@ -152,12 +149,14 @@ def low_stock_alerts(threshold: float = 5.0, limit: int = 100, db: Session = Dep
   rows = []
   for p in produits:
     stock = get_current_stock(db, p.id)
-    rows.append({"produit_id": p.id, "produit": p.nom, "stock": stock, "threshold": threshold})
-  return [StockAlert(**a) for a in build_stock_alerts(rows, low_threshold=threshold)]
+    rows.append({"produit_id": p.id, "max": p.stock_max, "min": p.stock_min, "produit": p.nom, "stock": stock,
+                 "threshold": threshold})
+  # return [StockAlert(**a) for a in build_stock_alerts(rows, low_threshold=threshold)]
+  return [a for a in build_stock_alerts(rows, low_threshold=threshold)]
 
 
 @router.get("/recommendations", response_model=RecommendationsResponse)
-def recommendations(for_produit_id: Optional[int] = None, limit_baskets: int = 5000, db: Session = Depends(get_db)):
+def recommendations(for_produit_id: Optional[int] = None, top_k: int = 8,  limit_baskets: int = 5000, db: Session = Depends(get_db)):
   # Récupère les paniers (listes d’IDs produit par vente)
 
   """
@@ -188,7 +187,7 @@ def recommendations(for_produit_id: Optional[int] = None, limit_baskets: int = 5
     """
   baskets = ConcernerRepository(db).fetch_last_baskets(limit=limit_baskets)
   # -> [[prod_id, prod_id, ...], ...]
-  recos = also_bought_from_baskets(baskets, top_k=8, for_product=for_produit_id)
+  recos = also_bought_from_baskets(baskets, top_k=top_k, for_product=for_produit_id)
   # Optionnel: enrichir le nom produit
   id2nom = {p["id"]: p["nom"] for p in get_products_basic(db, limit=10000)}
   enriched = [Recommendation(produit_id=r["produit_id"], produit=id2nom.get(r["produit_id"]), score=r["score"]) for r in
@@ -233,60 +232,52 @@ def anomalies_sales(produit_id: int, days: int = 180, z: float = 2.5, db: Sessio
     anomalies=[AnomalyPoint(date=d, value=v, zscore=zs) for d, v, zs in out]
   )
 
+  """
+  Optimize dashboard :
+  - les meilleurs produits vendu par rapport au derniere vente
+  - la quantite en stock
+   """
+
 
 @router.get("/optimize/dashboard", response_model=OptimizeDashboardResponse)
-def optimize_dashboard(db: Session = Depends(get_db)):
-  # Best sellers (simples): via fréquence dans les paniers
-
-  """
-  Rôle : payload tout-en-un pour le tableau de bord IA (best-sellers, alertes stock, réassorts suggérés).
-
-Ce que ça fait : calcule 3 blocs : best_sellers, low_stock, reorder_suggestions.
-
-Réponse (exemple) :
-
-{
-  "best_sellers": [{"produit_id": 45, "produit": "Vitamine C 1000", "score": 0.88}],
-  "low_stock": [{"produit_id": 12, "produit": "Paracétamol 500mg", "stock": 3, "threshold": 5}],
-  "reorder_suggestions": [
-    {"produit_id": 98, "current_stock": 4, "safety_stock": 6.1, "reorder_point": 14.5, "suggested_order_qty": 11, "rationale": "Nom: avg=0.9/d"}
-  ]
-}
-  """
-  """
-    Optimize the dashboard by providing best sellers, low stock alerts, and reorder suggestions.
-
-    Args:
-        db (Session): The database session dependency.
-
-    Returns:
-        OptimizeDashboardResponse: The optimized dashboard data.
-    """
-
-  baskets = ConcernerRepository(db).fetch_last_baskets(limit=10000)
-
-  recos = also_bought_from_baskets(baskets, top_k=10, for_product=None)
-
-  id2nom = {p["id"]: p["nom"] for p in get_products_basic(db, limit=10000)}
-
+def optimize_dashboard(last_sell: int = 100, last_day_sell: int = 360, top_product_number_in_basket: int = 10,
+                       total_product_number: Optional[int] = 0,
+                       total_qty_concerner_by_product: Optional[int] = 100,
+                       min_stock: Optional[int] = 5.0,
+                       temp_dattente_pour_futur_approvisionnemen: Optional[int] = 7,
+                       db: Session = Depends(get_db)):
+  if total_product_number == 0:
+    total_product_number = len(ProduitRepository(db).find_all())
+  if total_qty_concerner_by_product == 0:
+    total_qty_concerner_by_product = len(ProduitRepository(db).find_all())
+  # best sell
+  baskets = ConcernerRepository(db).fetch_last_baskets(limit=last_sell)
+  recos = also_bought_from_baskets(baskets, top_k=top_product_number_in_basket, for_product=None)
+  id2nom = {p["id"]: p["nom"] for p in get_products_basic(db, limit=total_product_number)}
   best = [Recommendation(produit_id=r["produit_id"], produit=id2nom.get(r["produit_id"]), score=r["score"]) for r in
           recos]
-
   # Low stock
-  produits = ProduitRepository(db).find_top_n(limit=100)
-  rows = [{"produit_id": p.id, "produit": p.nom, "stock": get_current_stock(db, p.id), "threshold": 5.0} for p in
-          produits]
-  alerts = [StockAlert(**a) for a in build_stock_alerts(rows, low_threshold=5.0)]
-
+  produits = ProduitRepository(db).find_top_n(limit=total_qty_concerner_by_product)
+  rows = [
+    {"produit_id": p.id, "max": p.stock_max, "min": p.stock_min, "produit": p.nom, "stock": get_current_stock(db, p.id),
+     "threshold": 5.0} for p in
+    produits]
+  alerts = [StockAlert(**a) for a in build_stock_alerts(rows, low_threshold=min_stock)]
   # Reorder suggestions top N (rapide)
   suggestions = []
-  for p in produits[:20]:
-    series = get_daily_sales_series(db, p.id, days=120)
+  for p in produits:
+    series = get_daily_sales_series(db, p.id, days=last_day_sell)
     avg_daily = (sum(v for _, v in series) / max(len(series), 1)) if series else 0.0
-    ss = compute_safety_stock(series, lead_time_days=7)
+    ss = compute_safety_stock(series, lead_time_days=temp_dattente_pour_futur_approvisionnemen)
     rop = compute_reorder_point(avg_daily, 7, ss)
     stock = get_current_stock(db, p.id)
-    qty = suggested_order_qty(stock, sum(y for _, y in forecast_daily(series, 21)), rop, 21, avg_daily)
+
+    qty = suggested_order_qty(
+      stock,
+      sum(y for _, y in forecast_daily(series, 21)),
+      rop,
+      21,
+      avg_daily)
     if qty > 0:
       suggestions.append(
         ReplenishmentSuggestion(

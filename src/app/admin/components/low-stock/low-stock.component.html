@@ -1,0 +1,15 @@
+<mat-card>
+  <h3><mat-icon color="warn">warning</mat-icon>&nbsp;Stock faible</h3>
+  <div class="space-y-3 mt-2">
+    <mat-card *ngFor="let it of items">
+      <div class="flex justify-between items-center">
+        <div>
+          <div class="font-semibold">{{it.produit}}</div>
+          <div class="text-gray-500">Stock: {{it.current_stock}}/{{it.max}}</div>
+          <mat-progress-bar mode="determinate" value="{{(it.current_stock/it.max)}}"></mat-progress-bar>
+        </div>
+        <span matBadge="{{it.severity}}" matBadgeColor="warn" matBadgeSize="small"></span>
+      </div>
+    </mat-card>
+  </div>
+</mat-card>

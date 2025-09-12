@@ -15,10 +15,13 @@ def build_stock_alerts(rows: List[Dict[str, Any]], low_threshold: float = 5.0) -
     elif stock <= th:
       urgency = "MEDIUM"
     alerts.append({
+      "max": r.get("max"),
+      "min": r.get("min"),
       "produit_id": r["produit_id"],
       "produit": r.get("produit"),
       "current_stock": stock,
       "threshold": th,
-      "urgency": urgency
+      "urgency": urgency,
+      "severity": urgency,
     })
   return alerts

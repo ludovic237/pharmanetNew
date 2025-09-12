@@ -64,6 +64,8 @@ class DashboardService:
   # ----------------------------
   def get_sales_monthly(self, from_dt: datetime, to_dt: datetime) -> List[SalesMonthlyPoint]:
     rows = self.vente_repo.sales_monthly(from_dt, to_dt)
+    print("get_sales_monthly")
+    print(rows)
     return [SalesMonthlyPoint(mois=row["mois"], total=row["total"]) for row in rows]
 
   # ----------------------------
@@ -71,7 +73,7 @@ class DashboardService:
   # ----------------------------
   def get_sales_by_category(self, from_dt: datetime, to_dt: datetime) -> List[CategorySales]:
     rows = self.concerner_repo.sales_by_category(from_dt, to_dt)
-    print("rows")
+    print("get_sales_by_category")
     print(rows)
     return [
       CategorySales(categorie=(row["categorie"] or "Sans catégorie"), total=row["total"])
@@ -83,7 +85,27 @@ class DashboardService:
   # ----------------------------
   def get_top_products(self, limit: int, from_dt: datetime, to_dt: datetime) -> List[TopProduct]:
     rows = self.concerner_repo.top_products(limit, from_dt, to_dt)
-    return [TopProduct(nom=row["nom"], qty=row["qty"]) for row in rows]
+    interval = from_dt - to_dt
+    new_from = from_dt - interval
+    new_to = to_dt - interval
+    # most_sell = self.concerner_repo.total_qty_by_product_between(rows[0].get("id"), new_from, new_to)
+    return [TopProduct(
+      id=row["id"],
+      nom=row["nom"],
+      score=((row["qty"] / rows[0]["qty"]) * 100),
+      variation=self.calcul_variation(row["qty"],
+                                      self.concerner_repo.total_qty_by_product_between(row["id"], new_from, new_to)),
+      qty=row["qty"]
+    ) for row in rows]
+
+  def calcul_variation(self, current_sales: int, previous_sales: int):
+    if previous_sales == 0:
+      if current_sales == 0:
+        return "0%"
+      else:
+        return "100%"
+    varition = ((current_sales - previous_sales) / previous_sales) * 100
+    return f"{varition:.2f}%"
 
   # ----------------------------
   # Commandes récentes

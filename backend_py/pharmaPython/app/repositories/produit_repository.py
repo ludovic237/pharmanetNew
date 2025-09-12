@@ -160,7 +160,8 @@ class ProduitRepository:
     Fallback: si aucune vente, renvoie les N premiers produits (par id décroissant).
     """
     # produit_id = COALESCE(en_rayon.produit_id, produit_detail.produit_id)
-    prod_id_expr = func.coalesce(EnRayon.produit_id, ProduitDetail.id)
+    # prod_id_expr = func.coalesce(EnRayon.produit_id, ProduitDetail.id)
+    prod_id_expr = func.coalesce(EnRayon.produit_id, Produit.id)
 
     # Agrégation des quantités vendues par produit
     sub = (
@@ -169,7 +170,8 @@ class ProduitRepository:
         func.sum(Concerner.quantite).label("qty")
       )
       .outerjoin(EnRayon, EnRayon.id == Concerner.en_rayon_id)
-      .outerjoin(ProduitDetail, ProduitDetail.id == Concerner.en_rayon_id)
+      .outerjoin(Produit, Produit.id == EnRayon.produit_id)
+      # .outerjoin(ProduitDetail, ProduitDetail.id == Concerner.en_rayon_id)
       .group_by(prod_id_expr)
       .subquery()
     )

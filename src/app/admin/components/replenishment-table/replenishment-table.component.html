@@ -1,0 +1,53 @@
+<table mat-table [dataSource]="data" class="full-width mat-elevation-z1">
+
+  <!-- Produit -->
+  <ng-container matColumnDef="produit">
+    <th mat-header-cell *matHeaderCellDef> PRODUIT </th>
+    <td mat-cell *matCellDef="let r">
+      <div class="prod">
+        <div class="name">{{ r.produit }}</div>
+        <div class="id">ID: {{ r.produit_id }}</div>
+        <mat-chip [color]="r.severity==='haute' ? 'warn' : (r.severity==='moyenne' ? 'accent' : undefined)"
+                  [disabled]="!r.severity">
+          {{ r.severity || '' }}
+        </mat-chip>
+      </div>
+    </td>
+  </ng-container>
+
+  <!-- Stock -->
+  <ng-container matColumnDef="stock">
+    <th mat-header-cell *matHeaderCellDef> STOCK </th>
+    <td mat-cell *matCellDef="let r">
+      <div>{{ r.stock }}</div>
+      <div class="sub" *ngIf="r.min_stock != null">Min: {{ r.min_stock }}</div>
+    </td>
+  </ng-container>
+
+  <!-- Quantité suggérée -->
+  <ng-container matColumnDef="suggested">
+    <th mat-header-cell *matHeaderCellDef> QTÉ SUGGÉRÉE </th>
+    <td mat-cell *matCellDef="let r" class="suggest">
+      <a class="link">{{ r.suggested_qty }}</a>
+    </td>
+  </ng-container>
+
+  <!-- Raison -->
+  <ng-container matColumnDef="reason">
+    <th mat-header-cell *matHeaderCellDef> RAISON </th>
+    <td mat-cell *matCellDef="let r">{{ r.reason }}</td>
+  </ng-container>
+
+  <!-- Action -->
+  <ng-container matColumnDef="action">
+    <th mat-header-cell *matHeaderCellDef> ACTION </th>
+    <td mat-cell *matCellDef="let r">
+      <button mat-raised-button color="primary" (click)="order(r)">
+        Commander
+      </button>
+    </td>
+  </ng-container>
+
+  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+  <tr mat-row        *matRowDef="let row; columns: displayedColumns;"></tr>
+</table>

@@ -1,0 +1,25 @@
+.reco-card {
+  padding: 16px;
+}
+.header {
+  display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;
+  .title { display: flex; align-items: baseline; gap: 8px; }
+  h2 { margin: 0; }
+  .subtitle { color: rgba(0,0,0,.6); font-size: 13px; margin-left: 32px; }
+}
+.loading, .error, .empty { padding: 12px; }
+.list { display: grid; gap: 12px; }
+.item {
+  display: grid; grid-template-columns: 1fr 160px; gap: 12px; padding: 12px;
+}
+.left { display: flex; gap: 12px; align-items: flex-start; }
+.rank { width: 28px; height: 28px; border-radius: 50%; background: #e8f0ff; }
+.name-id { display: grid; gap: 8px; }
+.name, .pair { display: flex; align-items: center; gap: 8px; font-weight: 600; }
+.assoc { display: flex; align-items: center; gap: 8px; color: rgba(0,0,0,.6); }
+.bar { width: 2px; height: 16px; background: #ddd; display: inline-block; }
+.dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block;
+  &.blue { background: #2962ff; } &.green { background: #00c853; }
+}
+.right { display: grid; gap: 6px; text-align: right; }
+.freq { font-weight: 600; color: rgba(0,0,0,.7); }

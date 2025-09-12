@@ -192,8 +192,31 @@
 
   <app-low-stock-table [threshold]="5" [limit]="50"></app-low-stock-table>
 
-  <app-replenishment [produitId]="123"></app-replenishment>
+  <app-replenishment [produitId]="1001"></app-replenishment>
 
-  <app-forecast-chart [produitId]="123"></app-forecast-chart>
+  <app-forecast-chart [produitId]="1001"></app-forecast-chart>
+
+  <app-associated-products [productId]="null" [top]="30" [limitBaskets]="5000"></app-associated-products>
+
+
+  <div class="grid grid-2 mt-4">
+    <app-monthly-sales [data]="monthly"></app-monthly-sales>
+    <app-categorie-pie *ngIf="categories.length>0" [data]="categories"></app-categorie-pie>
+  </div>
+
+  <div class="grid grid-2 mt-4">
+    <app-weekly-seasonality  *ngIf="weekly.length>0" [data]="weekly"></app-weekly-seasonality>
+    <app-daily-sales [data]="daily"></app-daily-sales>
+  </div>
+
+  <div class="grid grid-2 mt-4">
+    <app-top-products [items]="top"></app-top-products>
+    <app-low-stock *ngIf="low.length>0" [items]="low"></app-low-stock>
+  </div>
+
+  <div class="grid mt-4">
+    <app-replenishment-table [rows]="repl"></app-replenishment-table>
+  </div>
+
 </div>
 

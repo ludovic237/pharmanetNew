@@ -38,8 +38,11 @@ class CategorySales(BaseModel):
 
 
 class TopProduct(BaseModel):
+  id: int
   nom: str
   qty: int
+  variation: str
+  score: float
 
 
 class OrderRow(BaseModel):

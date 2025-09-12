@@ -64,11 +64,7 @@ def also_bought_from_baskets(baskets: List[List[int]], top_k: int = 8, for_produ
           List[Dict[str, Any]]: A list of dictionaries containing recommended product IDs and their scores.
       """
 # Initialize the co-occurrence matrix
-  print("defaultdict")
-  print(defaultdict)
   co = defaultdict(lambda: defaultdict(int))  # co[a][b] = co-occurrence
-  print("co")
-  print(co)
   for b in baskets:
     uniq = list(set(b))
     for i in range(len(uniq)):

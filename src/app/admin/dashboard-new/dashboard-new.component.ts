@@ -19,7 +19,7 @@ import {MatNativeDateModule} from "@angular/material/core";
 import {MatDatepickerModule} from "@angular/material/datepicker";
 import {NgxChartsModule} from "@swimlane/ngx-charts";
 import {NgChartsModule} from "ng2-charts";
-import {CommonModule, isPlatformBrowser} from '@angular/common';
+import {CommonModule, formatDate, isPlatformBrowser} from '@angular/common';
 import {ChartData} from "chart.js";
 import {MatPaginatorModule} from "@angular/material/paginator";
 import {MatMenuModule} from "@angular/material/menu";
@@ -44,6 +44,17 @@ import {OptimizeDashboardComponent} from "../components/optimize-dashboard/optim
 import {ForecastChartComponent} from "../components/forecast-chart/forecast-chart.component";
 import {LowStockTableComponent} from "../components/low-stock-table/low-stock-table.component";
 import {ReplenishmentComponent} from "../components/replenishment/replenishment.component";
+import {AssociatedProductsComponent} from "../components/associated-products/associated-products.component";
+import {CategoriePieComponent} from "../components/categorie-pie/categorie-pie.component";
+import {WeeklySeasonalityComponent} from "../components/weekly-seasonality/weekly-seasonality.component";
+import {DailySalesComponent} from "../components/daily-sales/daily-sales.component";
+import {TopProductsComponent} from "../components/top-products/top-products.component";
+import {LowStockComponent} from "../components/low-stock/low-stock.component";
+import {ReplenishmentTableComponent} from "../components/replenishment-table/replenishment-table.component";
+import {AiService} from "@services/ai.service";
+import {InsightService} from "@services/insight.service";
+import {MonthlySalesComponent} from "../components/monthly-sales/monthly-sales.component";
+import {AppService} from "@services/app.service";
 
 function toIso(dt: Date, endOfDay = false): string {
   if (!dt) return '';
@@ -64,6 +75,15 @@ function toIso(dt: Date, endOfDay = false): string {
     LowStockTableComponent,
     ReplenishmentComponent,
     ForecastChartComponent,
+    AssociatedProductsComponent,
+    CategoriePieComponent,
+    WeeklySeasonalityComponent,
+    DailySalesComponent,
+    AssociatedProductsComponent,
+    TopProductsComponent,
+    LowStockComponent,
+    MonthlySalesComponent,
+    ReplenishmentTableComponent,
     ReactiveFormsModule,
     // Material
     MatCardModule, MatFormFieldModule, MatInputModule,
@@ -127,6 +147,17 @@ function toIso(dt: Date, endOfDay = false): string {
 })
 export class DashboardNewComponent implements OnInit, OnDestroy {
 
+  updatedAt = '';
+  kpis: any[] = [];
+  monthly?: any;
+  weekly?: any[] = [];
+  categories: any[] = [];
+  assoc: any[] = [];
+  repl: any[] = [];
+  low: any[] = [];
+  top: any[] = [];
+  daily?: any;
+
   range!: FormGroup;
   refresh$ = new BehaviorSubject<void>(undefined);
   destroy$ = new Subject<void>();
@@ -163,15 +194,23 @@ export class DashboardNewComponent implements OnInit, OnDestroy {
   constructor(
     public loaderService: LoaderService,
     public authService: AuthService,
+    public appService: AppService,
     private fb: FormBuilder,
     private api: DashboardService,
     public snackBar: MatSnackBar,
+    private ai: AiService, private ins: InsightService,
     @Inject(PLATFORM_ID) platformId: Object) {
     // this.isPlatformBrowser = isPlatformBrowser(platformId);
   }
 
   ngOnInit(): void {
+
+    // déclenche un premier refresh
+    this.fetchVentesPageable();
+
     // charger les tables statiques
+
+    this.loadAll()
 
     this.api.ordersRecent(0, 8).subscribe({
       next: (r: any[]) => {
@@ -261,8 +300,7 @@ export class DashboardNewComponent implements OnInit, OnDestroy {
 
     // Rafraîchir tout à chaque changement de période
 
-    // déclenche un premier refresh
-    this.fetchVentesPageable();
+
   }
 
   refresh(): void {
@@ -368,6 +406,202 @@ export class DashboardNewComponent implements OnInit, OnDestroy {
         }
       }
     });
+  }
+
+  loadAll() {
+    this.updatedAt = new Date().toLocaleTimeString();
+    this.ins.kpis().subscribe(v => this.kpis = v);
+    this.ins.monthlySales().subscribe(
+      {
+        next: (data: any[]) => {
+          this.monthly = {
+            labels: data.map(m => m.mois),
+            datasets: [{data: data.map(m => m.total), label: 'Ventes'}]
+          }
+        },
+        error: (err) => {
+          console.error('Error  subscription:', err);
+
+          if (err.status === 401 || err.status === 403) {
+
+            this.authService.logout().subscribe({
+              next: (data) => {
+
+                localStorage.removeItem('token');
+                localStorage.setItem("lastLink", window.location.href);
+                window.location.href = '/sign-in';
+                this.snackBar.open('Déconnexion réussie.', '×', {
+                  panelClass: 'success',
+                  verticalPosition: 'top',
+                  duration: 3000,
+                });
+              },
+              error: (err) => {
+
+                console.error('Error  subscription:', err);
+                if (err.status === 401 || err.status === 403) {
+                  this.authService.logout();
+                  localStorage.removeItem('token');
+                  localStorage.setItem("lastLink", window.location.href);
+                  ;
+                  this.snackBar.open('Déconnexion, une erreur.', '×', {
+                    panelClass: 'success',
+                    verticalPosition: 'top',
+                    duration: 3000,
+                  });
+                  window.location.href = '/sign-in';
+                }
+              }
+            })
+          }
+        }
+      });
+    this.ins.weeklySeasonality(160).subscribe(
+      {
+        next: (data: any[]) => {
+          this.weekly = data
+          console.log("this.weekly")
+          console.log(this.weekly)
+          const barChartWeeklySeasonality = {
+            labels: data.map(m => m.label),
+            datasets: [{data: data.map(m => m.total), label: 'Ventes'}]
+          }
+        },
+        error: (err) => {
+          console.error('Error  subscription:', err);
+
+          if (err.status === 401 || err.status === 403) {
+
+            this.authService.logout().subscribe({
+              next: (data) => {
+
+                localStorage.removeItem('token');
+                localStorage.setItem("lastLink", window.location.href);
+                window.location.href = '/sign-in';
+                this.snackBar.open('Déconnexion réussie.', '×', {
+                  panelClass: 'success',
+                  verticalPosition: 'top',
+                  duration: 3000,
+                });
+              },
+              error: (err) => {
+
+                console.error('Error  subscription:', err);
+                if (err.status === 401 || err.status === 403) {
+                  this.authService.logout();
+                  localStorage.removeItem('token');
+                  localStorage.setItem("lastLink", window.location.href);
+                  ;
+                  this.snackBar.open('Déconnexion, une erreur.', '×', {
+                    panelClass: 'success',
+                    verticalPosition: 'top',
+                    duration: 3000,
+                  });
+                  window.location.href = '/sign-in';
+                }
+              }
+            })
+          }
+        }
+      });
+    this.ins.salesByCategory(160).subscribe(
+      {
+        next: (data: any[]) => {
+          this.categories = data
+          // this.categories = {
+          //   labels: data.map(m => m.categorie),
+          //   datasets: [{data: data.map(m => m.ca), label: 'Ventes'}]
+          // }
+        },
+        error: (err) => {
+          console.error('Error  subscription:', err);
+
+          if (err.status === 401 || err.status === 403) {
+
+            this.authService.logout().subscribe({
+              next: (data) => {
+
+                localStorage.removeItem('token');
+                localStorage.setItem("lastLink", window.location.href);
+                window.location.href = '/sign-in';
+                this.snackBar.open('Déconnexion réussie.', '×', {
+                  panelClass: 'success',
+                  verticalPosition: 'top',
+                  duration: 3000,
+                });
+              },
+              error: (err) => {
+
+                console.error('Error  subscription:', err);
+                if (err.status === 401 || err.status === 403) {
+                  this.authService.logout();
+                  localStorage.removeItem('token');
+                  localStorage.setItem("lastLink", window.location.href);
+                  ;
+                  this.snackBar.open('Déconnexion, une erreur.', '×', {
+                    panelClass: 'success',
+                    verticalPosition: 'top',
+                    duration: 3000,
+                  });
+                  window.location.href = '/sign-in';
+                }
+              }
+            })
+          }
+        }
+      });
+    this.ins.dailySales().subscribe(v => this.daily = v);
+    this.ai.associations(10).subscribe(v => this.assoc = v);
+    this.ai.suggestReplenishment().subscribe(v => this.repl = v);
+    this.ai.lowStock().subscribe(
+      {
+        next: (data: any[]) => {
+          this.low = data
+          console.log("this.low")
+          console.log(this.low)
+        },
+        error: (err) => {
+          console.error('Error  subscription:', err);
+
+          if (err.status === 401 || err.status === 403) {
+
+            this.authService.logout().subscribe({
+              next: (data) => {
+
+                localStorage.removeItem('token');
+                localStorage.setItem("lastLink", window.location.href);
+                window.location.href = '/sign-in';
+                this.snackBar.open('Déconnexion réussie.', '×', {
+                  panelClass: 'success',
+                  verticalPosition: 'top',
+                  duration: 3000,
+                });
+              },
+              error: (err) => {
+
+                console.error('Error  subscription:', err);
+                if (err.status === 401 || err.status === 403) {
+                  this.authService.logout();
+                  localStorage.removeItem('token');
+                  localStorage.setItem("lastLink", window.location.href);
+                  ;
+                  this.snackBar.open('Déconnexion, une erreur.', '×', {
+                    panelClass: 'success',
+                    verticalPosition: 'top',
+                    duration: 3000,
+                  });
+                  window.location.href = '/sign-in';
+                }
+              }
+            })
+          }
+        }
+      });
+    this.ai.topProducts(10,
+      // this.appService.formatDate(new Date(new Date(this.startDateVente).setHours(0, 0, 0, 0)) + ""),
+      // this.appService.formatDate(new Date(new Date(this.endDateVente).setHours(23, 59, 59, 999)) + "")
+    )
+      .subscribe(v => this.top = v);
   }
 }
 

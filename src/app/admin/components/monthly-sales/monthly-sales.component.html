@@ -1,0 +1,12 @@
+<mat-card *ngIf="chart">
+  <h3><mat-icon>bar_chart</mat-icon>&nbsp;Ventes mensuelles</h3>
+<!--  <canvas baseChart-->
+<!--          [type]="'bar'"-->
+<!--          [data]="chart!.data"-->
+<!--          [options]="chart!.options">-->
+<!--  </canvas>-->
+  <canvas baseChart
+          [type]="'bar'"
+          [data]="data">
+  </canvas>
+</mat-card>

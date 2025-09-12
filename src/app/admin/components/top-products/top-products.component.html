@@ -1,0 +1,24 @@
+<mat-card>
+  <h3><mat-icon>trending_up</mat-icon>&nbsp;Produits les plus vendus</h3>
+  <div class="space-y-3 mt-2">
+    <mat-card *ngFor="let p of items; let i = index">
+      <div class="flex justify-between items-center">
+        <div class="flex items-center gap-3">
+          <div class="rank" style="background: #2E7D32;width: auto;height: auto;padding: 2px;border-radius: 40px">{{i+1}}</div>
+          <div>
+            <div class="font-semibold">{{p.nom}}</div>
+            <div class="text-xs text-gray-500">ID: {{p.id}}</div>
+            <div class="text-gray-500">Ventes: {{p.qty}}</div>
+          </div>
+        </div>
+        <div class="text-right">
+          <div class="font-bold">{{p.score}}</div>
+          <div class="text-green-600">+{{p.variation}}</div>
+          <mat-progress-bar mode="determinate"
+                            [color]="getColor(p)"
+                            [value]="p.score"></mat-progress-bar>
+        </div>
+      </div>
+    </mat-card>
+  </div>
+</mat-card>

@@ -358,7 +358,12 @@ def compute_reorder_point(avg_daily_demand: float, lead_time_days: int, safety_s
     """
   return max(0.0, avg_daily_demand * lead_time_days + safety_stock)
 
-def suggested_order_qty(current_stock: float, forecast_next_days: float, reorder_point: float, target_coverage_days: int, avg_daily_demand: float) -> float:
+def suggested_order_qty(
+  current_stock: float,
+  forecast_next_days: float,
+  reorder_point: float,
+  target_coverage_days: int,
+  avg_daily_demand: float) -> float:
   """
   Si stock < point de commande, on remonte jusqu’à target_coverage_days.
   """

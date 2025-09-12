@@ -39,12 +39,12 @@ export class DashboardService {
     return this.http.get<CategorySales[]>(`${this.base}/sales-by-category`, {params, headers: this.getHeaders()});
   }
 
-  topProducts(limit: number, from: string, to: string): Observable<TopProduct[]> {
+  topProducts(limit: number, from: string, to: string): Observable<any[]> {
     const params = new HttpParams()
       .set('limit', limit)
       .set('from', from)
       .set('to', to);
-    return this.http.get<TopProduct[]>(`${this.base}/top-products`, {params, headers: this.getHeaders()});
+    return this.http.get<any[]>(`${this.base}/top-products`, {params, headers: this.getHeaders()});
   }
 
   ordersRecent(page = 0, size = 10): Observable<OrderRow[]> {
