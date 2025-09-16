@@ -1,67 +1,109 @@
-<mat-card>
-  <mat-card-title>Tableau de bord IA</mat-card-title>
+<div *ngIf="loading" class="center">
+  <mat-progress-spinner diameter="40" mode="indeterminate"></mat-progress-spinner>
+</div>
+<ng-container *ngIf="!loading && data">
+  <mat-accordion fxLayout="row">
+    <div fxFlex="100" fxFlex.gt-sm="50" class="p-2">
+      <mat-expansion-panel expanded>
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <mat-icon color="warn">warning</mat-icon>&nbsp;<h3>Best sellers</h3>
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        <ng-scrollbar orientation="vertical" pointerEventsMethod="scrollbar">
+          @for (b of data.best_sellers; track b; let i = $index) {
+            <mat-card class="m-2">
+              <div fxLayout="row" fxLayoutAlign="space-between center">
+                <div fxLayout="row">
+                  <mat-chip-listbox class="list-view">
+                    <mat-chip-option color="warn" highlighted selectable="false">{{ i }}</mat-chip-option>
+                  </mat-chip-listbox>
+                  <div>
+                    <div matLine>{{ b.produit }}</div>
+                    <div matLine class="text-muted">Score: {{ b.score | number:'1.2-2' }}</div>
+                  </div>
 
-  <mat-card-content>
-    <div *ngIf="loading" class="center">
-      <mat-progress-spinner diameter="40" mode="indeterminate"></mat-progress-spinner>
+                </div>
+
+              </div>
+            </mat-card>
+          }
+        </ng-scrollbar>
+      </mat-expansion-panel>
     </div>
+    <div fxFlex="100" fxFlex.gt-sm="50" class="p-2">
+      <mat-expansion-panel expanded>
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <mat-icon color="warn">warning</mat-icon>&nbsp;<h3>Stock faible</h3>
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        <ng-scrollbar orientation="vertical" pointerEventsMethod="scrollbar">
+          <mat-card>
+            <table mat-table [dataSource]="lowStockData">
+              <ng-container matColumnDef="produit">
+                <th mat-header-cell *matHeaderCellDef>Produit</th>
+                <td mat-cell *matCellDef="let row">{{ row.produit }}</td>
+              </ng-container>
+              <ng-container matColumnDef="stock">
+                <th mat-header-cell *matHeaderCellDef>Stock</th>
+                <td mat-cell *matCellDef="let row">{{ row.current_stock }}</td>
+              </ng-container>
+              <ng-container matColumnDef="threshold">
+                <th mat-header-cell *matHeaderCellDef>Seuil</th>
+                <td mat-cell *matCellDef="let row">{{ row.threshold }}</td>
+              </ng-container>
+              <tr mat-header-row *matHeaderRowDef="lowColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: lowColumns;"></tr>
+            </table>
+          </mat-card>
 
-    <ng-container *ngIf="!loading && data">
-      <!-- Best sellers -->
-      <h3>Best sellers</h3>
-      <mat-list>
-        <mat-list-item *ngFor="let b of data.best_sellers">
-          <mat-icon matListIcon>trending_up</mat-icon>
-          <div matLine>{{ b.produit }}</div>
-          <div matLine>Score: {{ b.score | number:'1.2-2' }}</div>
-        </mat-list-item>
-      </mat-list>
+        </ng-scrollbar>
+      </mat-expansion-panel>
+    </div>
+    <div fxFlex="100" fxFlex.gt-sm="50" class="p-2">
+      <mat-expansion-panel expanded>
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <mat-icon color="warn">warning</mat-icon>&nbsp;<h3>Réassorts suggérés</h3>
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        <ng-scrollbar orientation="vertical" pointerEventsMethod="scrollbar">
+          <mat-card>
+            <table mat-table [dataSource]="reorderData">
+              <ng-container matColumnDef="produit_id">
+                <th mat-header-cell *matHeaderCellDef>Produit ID</th>
+                <td mat-cell *matCellDef="let row">{{ row.mom }}</td>
+              </ng-container>
+              <ng-container matColumnDef="current_stock">
+                <th mat-header-cell *matHeaderCellDef>Stock actuel</th>
+                <td mat-cell *matCellDef="let row">{{ row.current_stock }}</td>
+              </ng-container>
+              <ng-container matColumnDef="safety_stock">
+                <th mat-header-cell *matHeaderCellDef>Stock de securite</th>
+                <td mat-cell *matCellDef="let row">{{ row.safety_stock | number:'1.0-0' }}</td>
+              </ng-container>
+              <ng-container matColumnDef="reorder_point">
+                <th mat-header-cell *matHeaderCellDef>ROP</th>
+                <td mat-cell *matCellDef="let row">{{ row.reorder_point | number:'1.0-0' }}</td>
+              </ng-container>
+              <ng-container matColumnDef="suggested_order_qty">
+                <th mat-header-cell *matHeaderCellDef>Qté à commander</th>
+                <td mat-cell *matCellDef="let row">{{ row.suggested_order_qty }}</td>
+              </ng-container>
+              <ng-container matColumnDef="avg_daily">
+                <th mat-header-cell *matHeaderCellDef>Qté à commander</th>
+                <td mat-cell *matCellDef="let row">{{ row.avg_daily }}</td>
+              </ng-container>
+              <tr mat-header-row *matHeaderRowDef="reorderColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: reorderColumns;"></tr>
+            </table>
+          </mat-card>
 
-      <!-- Low Stock -->
-      <h3>Stocks faibles</h3>
-      <table mat-table [dataSource]="lowStockData">
-        <ng-container matColumnDef="produit">
-          <th mat-header-cell *matHeaderCellDef>Produit</th>
-          <td mat-cell *matCellDef="let row">{{ row.produit }}</td>
-        </ng-container>
-        <ng-container matColumnDef="stock">
-          <th mat-header-cell *matHeaderCellDef>Stock</th>
-          <td mat-cell *matCellDef="let row">{{ row.stock }}</td>
-        </ng-container>
-        <ng-container matColumnDef="threshold">
-          <th mat-header-cell *matHeaderCellDef>Seuil</th>
-          <td mat-cell *matCellDef="let row">{{ row.threshold }}</td>
-        </ng-container>
-        <tr mat-header-row *matHeaderRowDef="lowColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: lowColumns;"></tr>
-      </table>
+        </ng-scrollbar>
+      </mat-expansion-panel>
+    </div>
+  </mat-accordion>
 
-      <!-- Reorder suggestions -->
-      <h3>Réassorts suggérés</h3>
-      <table mat-table [dataSource]="reorderData">
-        <ng-container matColumnDef="produit_id">
-          <th mat-header-cell *matHeaderCellDef>Produit ID</th>
-          <td mat-cell *matCellDef="let row">{{ row.produit_id }}</td>
-        </ng-container>
-        <ng-container matColumnDef="current_stock">
-          <th mat-header-cell *matHeaderCellDef>Stock</th>
-          <td mat-cell *matCellDef="let row">{{ row.current_stock }}</td>
-        </ng-container>
-        <ng-container matColumnDef="safety_stock">
-          <th mat-header-cell *matHeaderCellDef>SS</th>
-          <td mat-cell *matCellDef="let row">{{ row.safety_stock | number:'1.0-0' }}</td>
-        </ng-container>
-        <ng-container matColumnDef="reorder_point">
-          <th mat-header-cell *matHeaderCellDef>ROP</th>
-          <td mat-cell *matCellDef="let row">{{ row.reorder_point | number:'1.0-0' }}</td>
-        </ng-container>
-        <ng-container matColumnDef="suggested_order_qty">
-          <th mat-header-cell *matHeaderCellDef>Qté à commander</th>
-          <td mat-cell *matCellDef="let row">{{ row.suggested_order_qty }}</td>
-        </ng-container>
-        <tr mat-header-row *matHeaderRowDef="reorderColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: reorderColumns;"></tr>
-      </table>
-    </ng-container>
-  </mat-card-content>
-</mat-card>
+
+</ng-container>

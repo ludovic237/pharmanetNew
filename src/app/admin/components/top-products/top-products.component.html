@@ -1,24 +1,51 @@
-<mat-card>
-  <h3><mat-icon>trending_up</mat-icon>&nbsp;Produits les plus vendus</h3>
-  <div class="space-y-3 mt-2">
-    <mat-card *ngFor="let p of items; let i = index">
-      <div class="flex justify-between items-center">
-        <div class="flex items-center gap-3">
-          <div class="rank" style="background: #2E7D32;width: auto;height: auto;padding: 2px;border-radius: 40px">{{i+1}}</div>
+<mat-accordion>
+  <mat-expansion-panel expanded>
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        <mat-icon color="warn">trending_up</mat-icon><h3>Produits les plus vendus</h3>
+      </mat-panel-title>
+    </mat-expansion-panel-header>
+    <ng-scrollbar orientation="vertical" pointerEventsMethod="scrollbar">
+      @for (it of items; track it.id; let i = $index) {
+        <mat-card class="m-2 p-2">
           <div>
-            <div class="font-semibold">{{p.nom}}</div>
-            <div class="text-xs text-gray-500">ID: {{p.id}}</div>
-            <div class="text-gray-500">Ventes: {{p.qty}}</div>
+            <div fxLayout="row">
+              <mat-chip-listbox class="list-view">
+                <mat-chip-option color="warn" highlighted selectable="false">{{ i }}</mat-chip-option>
+              </mat-chip-listbox>
+              <div class="w-100">
+                <div fxLayoutAlign="space-between center" class="w-100">
+                  <h4 class="user-name">
+                    {{ it.nom }}
+                  </h4>
+                  <h3>
+                    {{ it.score }}
+                  </h3>
+                </div>
+                <div fxLayoutAlign="space-between center" class="w-100">
+                  <p class="text-muted">
+                    ID: {{ it.id }}
+                  </p>
+                  <p>
+                    +{{ it.variation }}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div fxLayout="row" fxLayoutAlign="space-between center">
+              <div class="text-gray-500">Ventes: {{ it.qty }}</div>
+              <div style="width: 50px;height: 20px;align-content: center;">
+                <mat-progress-bar mode="determinate"
+                                  [ngClass]="getCustomClass(it)"
+                                  [value]="it.score"></mat-progress-bar>
+              </div>
+            </div>
+
           </div>
-        </div>
-        <div class="text-right">
-          <div class="font-bold">{{p.score}}</div>
-          <div class="text-green-600">+{{p.variation}}</div>
-          <mat-progress-bar mode="determinate"
-                            [color]="getColor(p)"
-                            [value]="p.score"></mat-progress-bar>
-        </div>
-      </div>
-    </mat-card>
-  </div>
-</mat-card>
+        </mat-card>
+      }
+    </ng-scrollbar>
+  </mat-expansion-panel>
+</mat-accordion>
+

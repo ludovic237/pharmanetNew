@@ -9,3 +9,8 @@
 ::ng-deep .green-progress .mat-progress-bar-fill::after {
   background-color:green !important;
 }
+
+ .red-progress {
+  --mdc-linear-progress-active-indicator-color: #e22e2e;
+  --mdc-linear-progress-track-color: rgb(226, 46, 46);
+}

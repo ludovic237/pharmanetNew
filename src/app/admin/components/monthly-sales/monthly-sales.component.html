@@ -1,12 +1,16 @@
-<mat-card *ngIf="chart">
-  <h3><mat-icon>bar_chart</mat-icon>&nbsp;Ventes mensuelles</h3>
-<!--  <canvas baseChart-->
-<!--          [type]="'bar'"-->
-<!--          [data]="chart!.data"-->
-<!--          [options]="chart!.options">-->
-<!--  </canvas>-->
-  <canvas baseChart
-          [type]="'bar'"
-          [data]="data">
-  </canvas>
-</mat-card>
+<mat-accordion>
+  <mat-expansion-panel>
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        <mat-icon color="warn">bar_chart</mat-icon><h3>Ventes mensuelles</h3>
+      </mat-panel-title>
+    </mat-expansion-panel-header>
+    <ng-scrollbar  *ngIf="chart" orientation="vertical" pointerEventsMethod="scrollbar">
+      <canvas baseChart
+              [type]="'bar'"
+              [data]="data">
+      </canvas>
+    </ng-scrollbar>
+  </mat-expansion-panel>
+</mat-accordion>
+

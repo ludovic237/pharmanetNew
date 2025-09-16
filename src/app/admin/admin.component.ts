@@ -77,7 +77,7 @@ export class AdminComponent implements OnInit {
     }
     ;
     setTimeout(() => {
-      this.settings.theme = 'green';
+      this.settings.theme = 'orange';
     });
     this.loadMenuItems()
     this.appSettingsService.settingsUpdated$.subscribe((param: string) => {

@@ -20,6 +20,8 @@ from app.models.en_rayon import EnRayon
 from app.models.produit import Produit
 from app.models.concerner import Concerner
 from app.models.vente import Vente
+from app.services.ai.feature_store import get_current_stock, get_daily_sales_series, get_products_basic, \
+  get_stock_bounds_map
 
 # --------------------------
 # Paramètres globaux
@@ -49,6 +51,28 @@ class RecoCommande:
   qte_suggeree: int
   classe_abc: str
   raison: str
+  stock_min: float | None = None
+  stock_max: float | None = None
+
+
+def _clamp_target_with_bounds(rop, target, bounds):
+  """
+  Ajuste ROP et target avec les bornes min/max éventuelles.
+  - ROP >= stock_min si défini
+  - target <= stock_max si défini et target >= ROP
+  """
+  stock_min = bounds.get("min")
+  stock_max = bounds.get("max")
+  if stock_min is not None:
+    rop = max(rop, stock_min)
+    target = max(target, rop)  # on ne descend pas sous le ROP
+  if stock_max is not None:
+    target = min(target, stock_max)
+    # si max < ROP, on force target = ROP (et signale via raison)
+    if target < rop:
+      target = rop
+  return rop, target
+
 
 # ---------- Utils ------------
 def _group_daily_sales(db: Session, days: int = 180) -> pd.DataFrame:
@@ -385,3 +409,88 @@ def suggested_order_qty(
   target_stock = avg_daily_demand * target_coverage_days
   qty = max(0.0, target_stock - current_stock)
   return round(qty, 2)
+
+
+# def get_stock_bounds_map(db, product_ids):
+#   pass
+
+
+def compute_replenishment_new(db, horizon_days: int = 30, service_level_z: float = 1.65, default_lead_time_days: int = 3):
+  """
+  Renvoie une liste de RecoCommande.
+  Prend désormais en compte stock_min/stock_max par produit.
+  """
+  basics = get_products_basic(db)  # [{id, nom, lead_time, classe_abc}, ...]
+  product_ids = [p["id"] for p in basics]
+  bounds_map = get_stock_bounds_map(db, product_ids)  # {id: {"min":..., "max":...}}
+
+  recos: list[RecoCommande] = []
+  if not basics:
+    return []
+
+  for p in basics:
+    pid = p["id"]
+    nom = p.get("nom") or p.get("name") or f"Produit {pid}"
+    lead_time = int(p.get("lead_time") or default_lead_time_days)
+    classe = p.get("classe_abc") or "C"
+
+    # Série ventes → moyenne/écart-type
+    series = get_daily_sales_series(db, pid, days=max(horizon_days, 90))
+    if not series:
+      daily_mean = 0.0
+      daily_std = 0.0
+    else:
+      vals = [float(q) for _, q in series]
+      daily_mean = float(sum(vals)) / max(len(vals), 1)
+      # écart-type simple
+      m = daily_mean
+      daily_std = (sum((v - m) ** 2 for v in vals) / max(len(vals), 1)) ** 0.5
+
+    stock = float(get_current_stock(db, pid) or 0.0)
+
+    # ROP / Target (classique : demande sur LT + SS, Target = ROP + couverture_horizon)
+    demand_lt = daily_mean * lead_time
+    safety_stock = service_level_z * daily_std * (lead_time ** 0.5)
+    rop = float(round(demand_lt + safety_stock, 2))
+
+    target = float(round(rop + daily_mean * (horizon_days - lead_time), 2))
+
+    # Intégrer min/max
+    b = bounds_map.get(pid, {"min": None, "max": None})
+    rop_adj, target_adj = _clamp_target_with_bounds(rop, target, b)
+
+    # Quantité suggérée
+    qte = max(0.0, target_adj - stock)
+    qte = int(math.ceil(qte))
+
+    raison = []
+    if stock <= rop_adj:
+      raison.append("Sous le ROP")
+    if b.get("min") is not None and stock < b["min"]:
+      raison.append("Sous stock_min")
+    if b.get("max") is not None and target_adj == b["max"]:
+      raison.append("Cappé au stock_max")
+    if not raison:
+      raison.append("Réassort préventif")
+
+    recos.append(
+      RecoCommande(
+        produit_id=pid,
+        produit_nom=nom,
+        lead_time=lead_time,
+        daily_mean=round(daily_mean, 3),
+        daily_std=round(daily_std, 3),
+        stock_actuel=round(stock, 3),
+        rop=round(rop_adj, 3),
+        target_stock=round(target_adj, 3),
+        qte_suggeree=qte,
+        classe_abc=classe,
+        raison=", ".join(raison),
+        stock_min=b.get("min"),
+        stock_max=b.get("max"),
+        mu_L=0.0,
+        sigma_L=0.0,
+        safety_stock=0.0,
+      )
+    )
+  return recos

@@ -177,3 +177,29 @@ class ConcernerRepository:
     # print("rows 2")
     # print(rows)
     return [{"date": r.date, "qty": float(r.qty or 0)} for r in rows]
+
+  def sum_daily_qty(self, from_date) -> List[Dict]:
+    """
+    Exemple d’agrégation par jour (utile pour la prévision).
+    Suppose que Vente.date_vente est un Date/DateTime.
+    """
+    # NB: MySQL: utiliser DATE(Vente.date_vente) pour grouper par jour
+    # print("from_date")
+    # print(from_date)
+    q = (
+      self.db.query(
+        func.date(Vente.date_vente).label("date"),
+        func.sum(Concerner.quantite).label("qty"),
+      )
+      .join(Vente, Vente.id == Concerner.vente_id)
+      .outerjoin(EnRayon, EnRayon.id == Concerner.en_rayon_id)
+      # .outerjoin(ProduitDetail, ProduitDetail.id == Concerner.en_rayon_id)
+      .outerjoin(Produit, Produit.id == EnRayon.produit_id)
+      .filter(Vente.date_vente >= from_date)
+      .group_by(func.date(Vente.date_vente))
+      .order_by(func.date(Vente.date_vente))
+    )
+    rows = q.all()
+    # print("rows 2")
+    # print(rows)
+    return [{"date": r.date, "qty": float(r.qty or 0)} for r in rows]

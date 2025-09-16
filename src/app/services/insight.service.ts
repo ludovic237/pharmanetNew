@@ -35,6 +35,6 @@ export class InsightService {
   }
 
   dailySales(): Observable<any> {
-    return this.http.get<any>(`${this.base}/daily-sales`);
+    return this.http.get<any>(`${this.base}/daily_sales?produit_id=1001&horizon_days=0&history_days=0`);
   }
 }

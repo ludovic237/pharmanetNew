@@ -1,18 +1,29 @@
-<mat-card>
-  <mat-card-title>Prévision des ventes</mat-card-title>
-  <mat-card-content style="height:320px">
-    <ng-container *ngIf="!loading && lineChartData; else loadingTpl">
-<!--      <canvas baseChart-->
-<!--              [data]="lineChartData"-->
-<!--              [options]="lineChartOptions"-->
-<!--              >-->
-<!--&lt;!&ndash;              [type]="line">&ndash;&gt;-->
-<!--      </canvas>-->
-    </ng-container>
-    <ng-template #loadingTpl>
-      <div class="center">
-        <mat-progress-spinner diameter="40" mode="indeterminate"></mat-progress-spinner>
-      </div>
-    </ng-template>
-  </mat-card-content>
-</mat-card>
+<mat-accordion>
+  <mat-expansion-panel expanded>
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        <mat-icon color="warn">warning</mat-icon><h3>Prévision des ventes</h3>
+      </mat-panel-title>
+    </mat-expansion-panel-header>
+    <ng-scrollbar orientation="vertical" pointerEventsMethod="scrollbar">
+      <mat-card>
+        <mat-card-content style="height:320px">
+          <ng-container *ngIf="!loading && lineChartData; else loadingTpl">
+            <!--      <canvas baseChart-->
+            <!--              [data]="lineChartData"-->
+            <!--              [options]="lineChartOptions"-->
+            <!--              >-->
+            <!--&lt;!&ndash;              [type]="line">&ndash;&gt;-->
+            <!--      </canvas>-->
+          </ng-container>
+          <ng-template #loadingTpl>
+            <div class="center">
+              <mat-progress-spinner diameter="40" mode="indeterminate"></mat-progress-spinner>
+            </div>
+          </ng-template>
+        </mat-card-content>
+      </mat-card>
+    </ng-scrollbar>
+  </mat-expansion-panel>
+</mat-accordion>
+

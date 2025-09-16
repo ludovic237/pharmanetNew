@@ -1,3 +1,5 @@
+from statistics import mean
+
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from typing import List, Optional
@@ -13,7 +15,8 @@ from app.services.ai.anomaly import zscore_anomalies
 from app.services.ai.feature_store import get_daily_sales_series, get_current_stock, get_products_basic
 from app.services.ai.forecast import forecast_daily
 from app.services.ai.reco import also_bought_from_baskets
-from app.services.ai.replenishment import compute_safety_stock, compute_reorder_point, suggested_order_qty
+from app.services.ai.replenishment import compute_safety_stock, compute_reorder_point, suggested_order_qty, \
+  compute_replenishment, compute_replenishment_new
 
 router = APIRouter(prefix="/ai", tags=["AI"])
 
@@ -98,6 +101,7 @@ def suggest_replenishment(produit_id: int, lead_time_days: int = 7, target_cover
     Returns:
         ReplenishmentSuggestion: The suggested replenishment quantities and rationale.
     """
+  produit = ProduitRepository(db).find_by_id(produit_id)
   series = get_daily_sales_series(db, produit_id, days=history_days)
   avg_daily = (sum(v for _, v in series) / max(len(series), 1)) if series else 0.0
   ss = compute_safety_stock(series, lead_time_days=lead_time_days, service_level_z=1.65)
@@ -113,7 +117,9 @@ def suggest_replenishment(produit_id: int, lead_time_days: int = 7, target_cover
     safety_stock=round(ss, 2),
     reorder_point=round(rop, 2),
     suggested_order_qty=qty,
-    rationale=f"Avg={avg_daily:.2f}/d, LT={lead_time_days}j, Target={target_coverage_days}j"
+    rationale=f"Avg={avg_daily:.2f}/d, LT={lead_time_days}j, Target={target_coverage_days}j",
+    nom=produit.nom,
+    avg_daily=f"{avg_daily:.2f}"
   )
 
 
@@ -156,7 +162,8 @@ def low_stock_alerts(threshold: float = 5.0, limit: int = 100, db: Session = Dep
 
 
 @router.get("/recommendations", response_model=RecommendationsResponse)
-def recommendations(for_produit_id: Optional[int] = None, top_k: int = 8,  limit_baskets: int = 5000, db: Session = Depends(get_db)):
+def recommendations(for_produit_id: Optional[int] = None, top_k: int = 8, limit_baskets: int = 5000,
+                    db: Session = Depends(get_db)):
   # Récupère les paniers (listes d’IDs produit par vente)
 
   """
@@ -239,7 +246,7 @@ def anomalies_sales(produit_id: int, days: int = 180, z: float = 2.5, db: Sessio
    """
 
 
-@router.get("/optimize/dashboard", response_model=OptimizeDashboardResponse)
+@router.get("/optimize/dashboard")
 def optimize_dashboard(last_sell: int = 100, last_day_sell: int = 360, top_product_number_in_basket: int = 10,
                        total_product_number: Optional[int] = 0,
                        total_qty_concerner_by_product: Optional[int] = 100,
@@ -283,7 +290,81 @@ def optimize_dashboard(last_sell: int = 100, last_day_sell: int = 360, top_produ
         ReplenishmentSuggestion(
           produit_id=p.id, current_stock=stock, safety_stock=round(ss, 2),
           reorder_point=round(rop, 2), suggested_order_qty=qty,
-          rationale=f"{p.nom}: avg={avg_daily:.2f}/d"
+          rationale=f"{p.nom}: avg={avg_daily:.2f}/d",
+          nom=p.nom,
+          avg_daily=f"{avg_daily:.2f}"
         )
       )
   return OptimizeDashboardResponse(best_sellers=best, low_stock=alerts, reorder_suggestions=suggestions)
+
+
+def _service_level(score: float) -> str:
+  if score >= 85: return "excellent"
+  if score >= 70: return "bon"
+  if score >= 50: return "moyen"
+  return "faible"
+
+
+@router.get("/optimize-dashboard")
+def optimize_dashboard(db: Session = Depends(get_db)):
+  recos = compute_replenishment_new(db)
+
+  def _days_of_cover(r):
+    d = r.daily_mean if r.daily_mean > 0 else 0.0001
+    return round(r.stock_actuel / d, 1)
+
+  cmd_recos = [r for r in recos if r.qte_suggeree > 0]
+  coverage_ok = [r for r in recos if r.stock_actuel >= r.rop]
+  coverage_rate = round(100 * len(coverage_ok) / max(len(recos), 1), 1)
+  urgent_rate = 1 - (len(cmd_recos) / max(len(recos), 1))
+  health_score = round(0.7 * coverage_rate + 30 * urgent_rate, 1)
+
+  # Top priorités : sous stock_min OU sous ROP avec faible couverture
+  priorities = sorted(
+    recos,
+    key=lambda r: (
+      0 if (r.stock_min is not None and r.stock_actuel < r.stock_min) else 1,
+      r.stock_actuel - r.rop
+    )
+  )[:20]
+
+  top_products = [
+    dict(
+      id=r.produit_id,
+      nom=r.produit_nom,
+      classeABC=r.classe_abc,
+      stock=r.stock_actuel,
+      stockMin=r.stock_min,
+      stockMax=r.stock_max,
+      daysCover=_days_of_cover(r),
+      dailyMean=r.daily_mean,
+      rop=r.rop,
+      target=r.target_stock,
+      qteSuggeree=r.qte_suggeree,
+      risque=("élevé" if r.stock_actuel <= max(r.rop, r.stock_min or r.rop) else "faible")
+    )
+    for r in priorities
+  ]
+
+  return {
+    "health": {"score": health_score, "level": _service_level(health_score)},
+    "kpis": {
+      "skus": len(recos),
+      "toReorder": len(cmd_recos),
+      "coverageRatePct": coverage_rate,
+      "avgDailyDemand": round(mean([r.daily_mean for r in recos]) if recos else 0.0, 2)
+    },
+    "topProducts": top_products,
+    "reorders": [
+      dict(
+        produitId=r.produit_id, nom=r.produit_nom,
+        stock=r.stock_actuel, stockMin=r.stock_min, stockMax=r.stock_max,
+        leadTime=r.lead_time, dailyMean=r.daily_mean, dailyStd=r.daily_std,
+        rop=r.rop, target=r.target_stock, qte=r.qte_suggeree,
+        classeABC=r.classe_abc, raison=r.raison
+      )
+      for r in cmd_recos
+    ],
+    # tu peux conserver salesSeries / actions si tu les utilises déjà :
+    "actions": []
+  }

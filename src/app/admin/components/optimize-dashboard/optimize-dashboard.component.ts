@@ -12,7 +12,7 @@ import {MatFormFieldModule} from "@angular/material/form-field";
 import {MatInputModule} from "@angular/material/input";
 import {MatDividerModule} from "@angular/material/divider";
 import {MatExpansionModule} from "@angular/material/expansion";
-import {CommonModule} from "@angular/common";
+import {CommonModule, DecimalPipe} from "@angular/common";
 import {MatToolbarModule} from "@angular/material/toolbar";
 import {MatTabsModule} from "@angular/material/tabs";
 import {MatIconModule} from "@angular/material/icon";
@@ -29,10 +29,37 @@ import {MatSnackBarModule} from "@angular/material/snack-bar";
 import {NgxPaginationModule} from "ngx-pagination";
 import {MatPaginator, MatPaginatorModule} from "@angular/material/paginator";
 import {MatProgressSpinnerModule} from "@angular/material/progress-spinner";
+import {RouterModule} from "@angular/router";
+import {MatSidenavModule} from "@angular/material/sidenav";
+import {NgScrollbarModule} from "ngx-scrollbar";
+import {MatSliderModule} from "@angular/material/slider";
+import {CategoryListComponent} from "@shared-components/category-list/category-list.component";
+import {RatingComponent} from "@shared-components/rating/rating.component";
+import {ControlsComponent} from "@shared-components/controls/controls.component";
+import {PipesModule} from "../../../theme/pipes/pipes.module";
 
 @Component({
   selector: 'app-optimize-dashboard',
   imports: [
+    RouterModule,
+    FormsModule,
+    FlexLayoutModule,
+    MatSidenavModule,
+    MatExpansionModule,
+    MatButtonModule,
+    MatIconModule,
+    MatCheckboxModule,
+    MatMenuModule,
+    MatChipsModule,
+    NgScrollbarModule,
+    MatSliderModule,
+    MatCardModule,
+    NgxPaginationModule,
+    CategoryListComponent,
+    RatingComponent,
+    ControlsComponent,
+    DecimalPipe,
+    PipesModule,
     MatMenuModule,
     MatListModule,
     MatChipsModule,
@@ -89,7 +116,7 @@ export class OptimizeDashboardComponent implements OnInit {
   lowStockData = new MatTableDataSource<any>([]);
   reorderData = new MatTableDataSource<any>([]);
   lowColumns = ['produit', 'stock', 'threshold'];
-  reorderColumns = ['produit_id', 'current_stock', 'safety_stock', 'reorder_point', 'suggested_order_qty'];
+  reorderColumns = ['produit_id', 'current_stock', 'safety_stock', 'reorder_point', 'suggested_order_qty','avg_daily'];
 
   constructor(private ai: AiService) {}
 

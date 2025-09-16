@@ -1,0 +1,26 @@
+$orange-primary: mat.m2-define-palette(mat.$m2-green-palette, 700, 50, 900);
+$orange-error: mat.m2-define-palette(mat.$m2-red-palette, 700, 50, 900);
+$orange-accent: mat.m2-define-palette(mat.$m2-grey-palette, 300, 100, 700);
+$orange-success: mat.m2-define-palette(mat.$m2-blue-palette, 300, 100, 700);
+$orange-warn: mat.m2-define-palette(mat.$m2-orange-palette, 500, A200, 800);
+$orange-pink: mat.m2-define-palette(mat.$m2-pink-palette, 500, A200, 800);
+//$green-success: #47c347;
+//$green-error: #e22e2e;
+//$green-warning: #ffb136;
+//$green-second: #2099fd;
+//$green-pink: #ff4fb6;
+//$green-purple: #bc74e9;
+
+$orange-theme: mat.m2-define-light-theme((
+  color: (
+    primary: $orange-primary,
+    accent: $orange-accent,
+    warn: $orange-warn,
+    //warning: $green-warning,
+    success: $orange-success,
+    danger: $orange-error,
+    //second: $green-second,
+    pink: $orange-pink,
+    //purple: $green-purple,
+  )
+));

@@ -1,15 +1,57 @@
-<mat-card>
-  <h3><mat-icon color="warn">warning</mat-icon>&nbsp;Stock faible</h3>
-  <div class="space-y-3 mt-2">
-    <mat-card *ngFor="let it of items">
-      <div class="flex justify-between items-center">
-        <div>
-          <div class="font-semibold">{{it.produit}}</div>
-          <div class="text-gray-500">Stock: {{it.current_stock}}/{{it.max}}</div>
-          <mat-progress-bar mode="determinate" value="{{(it.current_stock/it.max)}}"></mat-progress-bar>
-        </div>
-        <span matBadge="{{it.severity}}" matBadgeColor="warn" matBadgeSize="small"></span>
-      </div>
-    </mat-card>
-  </div>
-</mat-card>
+<mat-accordion>
+  <mat-expansion-panel>
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        <mat-icon color="warn">warning</mat-icon><h3>Stock faible</h3>
+      </mat-panel-title>
+    </mat-expansion-panel-header>
+    <ng-scrollbar orientation="vertical" pointerEventsMethod="scrollbar">
+      @for (it of items; track it.id; let i = $index) {
+        <mat-card class="mt-2">
+          <div fxLayout="row" fxLayoutAlign="space-between center">
+            <!--        <div class="bg-primary" fxLayout="row" fxLayoutAlign="space-between center">-->
+            <h3 class="user-name">
+              {{ i+1 }} - {{ it.produit }}
+            </h3>
+            <mat-chip-listbox class="list-view">
+              <mat-chip-option color="warn" highlighted selectable="false">{{ it.severity }}</mat-chip-option>
+            </mat-chip-listbox>
+            <!--          <button mat-icon-button #menuTrigger="matMenuTrigger" class="default-contrast">-->
+            <!--            <mat-icon>more_vert</mat-icon>-->
+            <!--          </button>-->
+          </div>
+          <div class="user-content" fxLayout="row" fxLayoutAlign="space-around center">
+            <!--<div fxFlex="30" fxLayout="column" fxLayoutAlign="center center">
+              <div class="user-img">
+                @if (user.profile.image) {
+                  <img [src]="user.profile.image" class="transition-2" [class.blocked]="user.settings.isDeleted">
+                } @else {
+                  <img src="img/users/default-user.jpg" class="transition-2" [class.blocked]="user.settings.isDeleted">
+                }
+                @if (user.settings.isDeleted) {
+                  <mat-icon color="warn">block</mat-icon>
+                }
+              </div>
+              <div class="user-social">
+                <mat-slide-toggle color="primary" [checked]="user.settings.isDeleted" (change)="user.settings.isDeleted = !user.settings.isDeleted"></mat-slide-toggle>
+              </div>
+            </div>-->
+            <div fxFlex="100" fxLayout="column" class="user-details transition-2">
+              <div fxLayout="row wrap" fxLayoutAlign="space-between center" class="w-100 mb-2">
+                <span class="text-muted">Stock: {{ it.current_stock }}/{{ it.max }}</span>
+                <span> {{ it.current_stock / it.max }}</span>
+              </div>
+<!--              <p fxLayout="row" fxLayoutAlign="start center">-->
+<!--                <span matBadge="{{it.severity}}" matBadgeColor="warn" matBadgeSize="small"></span>-->
+<!--              </p>-->
+              <mat-progress-bar class="mb-4" [color]="getColor(it.current_stock/it.max)"
+                                mode="determinate" [value]="it.current_stock/it.max"></mat-progress-bar>
+            </div>
+          </div>
+        </mat-card>
+<!--        <mat-divider class="mt-4 mb-4"></mat-divider>-->
+      }
+    </ng-scrollbar>
+  </mat-expansion-panel>
+</mat-accordion>
+

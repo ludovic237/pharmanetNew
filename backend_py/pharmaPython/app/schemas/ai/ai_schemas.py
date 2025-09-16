@@ -19,13 +19,18 @@ class ReplenishmentSuggestion(BaseModel):
   reorder_point: float
   suggested_order_qty: float
   rationale: str
+  nom: str
+  avg_daily: str
 
 class StockAlert(BaseModel):
+  max: int
+  min: int
   produit_id: int
   produit: Optional[str]
   current_stock: float
   threshold: float
   urgency: str  # "LOW" | "MEDIUM" | "HIGH"
+  severity: str  # "LOW" | "MEDIUM" | "HIGH"
 
 class Recommendation(BaseModel):
   produit_id: int

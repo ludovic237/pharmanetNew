@@ -4,6 +4,7 @@ from datetime import date, timedelta
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.api.deps import get_db
+from app.services.ai.feature_store import get_daily_sales_series
 from app.services.insight_service import kpis, sales_by_category, weekly_seasonality, basket_pairs, sales_monthly
 from app.utility.jwt_authentication import jwt_authentication
 
@@ -30,6 +31,11 @@ def get_weekly_seasonality(db: Session = Depends(get_db), weeks: int = 30):
 def get_sales_monthly(db: Session = Depends(get_db), since: date = (date.today() - timedelta(days=260)),
                       until: date = date.today()):
   return sales_monthly(db, since, until)
+
+@router.get("/daily_sales")
+def daily_sales(produit_id: int, horizon_days: int = 14, history_days: int = 180, db: Session = Depends(get_db)):
+  series = get_daily_sales_series(db, produit_id, days=history_days)
+  return series
 
 @router.get("/basket-pairs")
 def get_basket_pairs(db: Session = Depends(get_db), days: int = 30, min_support: int = 10):

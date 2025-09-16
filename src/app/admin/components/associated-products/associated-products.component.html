@@ -1,35 +1,27 @@
-<mat-card class="reco-card">
-  <div class="header">
-    <div class="title">
-      <mat-icon color="primary">hub</mat-icon>
-      <h2>{{ ctxTitle }}</h2>
-      <div class="subtitle">{{ subtitle }}</div>
-    </div>
+<mat-accordion>
+  <mat-expansion-panel expanded>
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        <mat-icon color="warn">hub</mat-icon>
+        <h3>{{ ctxTitle }}</h3>
+        <div class="subtitle">{{ subtitle }}</div>
+      </mat-panel-title>
+    </mat-expansion-panel-header>
+    <ng-scrollbar orientation="vertical" pointerEventsMethod="scrollbar">
+      <ng-container *ngIf="loading">
+        <div class="loading">
+          <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+        </div>
+      </ng-container>
 
-    <div class="filters" *ngIf="productId">
-      <mat-chip-listbox>
-        <mat-chip-option selected>
-          Produit #{{ productId }}
-        </mat-chip-option>
-      </mat-chip-listbox>
-    </div>
-  </div>
+      <ng-container *ngIf="!loading && error">
+        <div class="error">
+          <mat-icon color="warn">error_outline</mat-icon>
+          {{ error }}
+        </div>
+      </ng-container>
 
-  <ng-container *ngIf="loading">
-    <div class="loading">
-      <mat-progress-bar mode="indeterminate"></mat-progress-bar>
-    </div>
-  </ng-container>
 
-  <ng-container *ngIf="!loading && error">
-    <div class="error">
-      <mat-icon color="warn">error_outline</mat-icon>
-      {{ error }}
-    </div>
-  </ng-container>
-
-<!--  <ng-container *ngIf="!loading && !error">-->
-<!--    <ng-container *ngIf="(items$ | async) as items; else empty">-->
       <div class="list">
         <mat-card class="item" *ngFor="let it of items; trackBy: trackById">
           <div class="left">
@@ -58,13 +50,7 @@
           </div>
         </mat-card>
       </div>
-<!--    </ng-container>-->
+    </ng-scrollbar>
+  </mat-expansion-panel>
+</mat-accordion>
 
-<!--    <ng-template #empty>-->
-<!--      <div class="empty">-->
-<!--        <mat-icon>info</mat-icon>-->
-<!--        Aucune recommandation disponible.-->
-<!--      </div>-->
-<!--    </ng-template>-->
-<!--  </ng-container>-->
-</mat-card>

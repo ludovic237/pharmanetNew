@@ -26,10 +26,14 @@ export class AiService {
     return this.http.get(`${API}/forecast/${produitId}`, {params});
   }
 
-  replenishment(produitId: number, lead = 7, target = 21): Observable<any> {
+  replenishment(produitId: number,
+                lead = 7,
+                history_days = 180,
+                target = 21): Observable<any> {
     const params = new HttpParams()
       .set('lead_time_days', lead)
-      .set('target_coverage_days', target);
+      .set('target_coverage_days', target)
+      .set('history_days', history_days);
     return this.http.get(`${API}/replenishment/${produitId}`, {params});
   }
 

@@ -1,11 +1,23 @@
 $green-primary: mat.m2-define-palette(mat.$m2-light-green-palette, 700, 50, 900);
 $green-accent: mat.m2-define-palette(mat.$m2-grey-palette, 300, 100, 700);
 $green-warn: mat.m2-define-palette(mat.$m2-red-palette, 500, A200, 800);
+//$green-success: #47c347;
+//$green-error: #e22e2e;
+//$green-warning: #ffb136;
+//$green-second: #2099fd;
+//$green-pink: #ff4fb6;
+//$green-purple: #bc74e9;
 
 $green-theme: mat.m2-define-light-theme((
-    color: (
-        primary: $green-primary,
-        accent: $green-accent,
-        warn: $green-warn,
-    )
+  color: (
+    primary: $green-primary,
+    accent: $green-accent,
+    warn: $green-warn,
+    //warning: $green-warning,
+    //success: $green-success,
+    //error: $green-error,
+    //second: $green-second,
+    //pink: $green-pink,
+    //purple: $green-purple,
+  )
 ));
