@@ -262,9 +262,9 @@
     <div [ngClass]="{'show': showOptions}">
       <mat-card>
         <mat-card-content>
-          <p><strong>Total :</strong> {{ total+totaleReduction }} FCFA</p>
-          <p><strong>Réduction :</strong> {{ totaleReduction }} FCFA</p>
-          <h3><strong>Net à payer :</strong> {{ netAPayer }} FCFA</h3>
+          <span><strong>Total :</strong> {{ total+totaleReduction | number : '1.2-2'}} FCFA</span>
+          <span class="text-muted"><strong>Réduction :</strong> {{ totaleReduction | number : '1.2-2'}} FCFA</span>
+          <span class="new-price"><strong>Net à payer :</strong> {{ netAPayer | number : '1.2-2'}} FCFA</span>
           <div fxLayout="row" fxLayoutGap="16px">
             <button mat-raised-button color="primary" (click)="onPayer('comptant')">Comptant</button>
             <button mat-raised-button (click)="onPayer('assurance')">Assurance</button>

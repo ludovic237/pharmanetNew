@@ -7,11 +7,11 @@
       <mat-expansion-panel expanded>
         <mat-expansion-panel-header>
           <mat-panel-title>
-            <mat-icon color="warn">warning</mat-icon>&nbsp;<h3>Best sellers</h3>
+            <mat-icon color="warn">warning</mat-icon>&nbsp;<h3>10 Best sellers</h3>
           </mat-panel-title>
         </mat-expansion-panel-header>
-        <ng-scrollbar orientation="vertical" pointerEventsMethod="scrollbar">
-          @for (b of data.best_sellers; track b; let i = $index) {
+        <ng-scrollbar *ngIf="data.length>0" orientation="vertical" pointerEventsMethod="scrollbar">
+          @for (b of data; track b.score; let i = $index) {
             <mat-card class="m-2">
               <div fxLayout="row" fxLayoutAlign="space-between center">
                 <div fxLayout="row">
@@ -72,24 +72,24 @@
           <mat-card>
             <table mat-table [dataSource]="reorderData">
               <ng-container matColumnDef="produit_id">
-                <th mat-header-cell *matHeaderCellDef>Produit ID</th>
-                <td mat-cell *matCellDef="let row">{{ row.mom }}</td>
+                <th mat-header-cell *matHeaderCellDef>Nom</th>
+                <td mat-cell *matCellDef="let row">{{ row.nom }}</td>
               </ng-container>
               <ng-container matColumnDef="current_stock">
                 <th mat-header-cell *matHeaderCellDef>Stock actuel</th>
-                <td mat-cell *matCellDef="let row">{{ row.current_stock }}</td>
+                <td mat-cell *matCellDef="let row">{{ row.stock }}</td>
               </ng-container>
               <ng-container matColumnDef="safety_stock">
                 <th mat-header-cell *matHeaderCellDef>Stock de securite</th>
-                <td mat-cell *matCellDef="let row">{{ row.safety_stock | number:'1.0-0' }}</td>
+                <td mat-cell *matCellDef="let row">{{ row.target | number:'1.0-0' }}</td>
               </ng-container>
               <ng-container matColumnDef="reorder_point">
                 <th mat-header-cell *matHeaderCellDef>ROP</th>
-                <td mat-cell *matCellDef="let row">{{ row.reorder_point | number:'1.0-0' }}</td>
+                <td mat-cell *matCellDef="let row">{{ row.rop | number:'1.0-0' }}</td>
               </ng-container>
               <ng-container matColumnDef="suggested_order_qty">
                 <th mat-header-cell *matHeaderCellDef>Qté à commander</th>
-                <td mat-cell *matCellDef="let row">{{ row.suggested_order_qty }}</td>
+                <td mat-cell *matCellDef="let row">{{ row.qte }}</td>
               </ng-container>
               <ng-container matColumnDef="avg_daily">
                 <th mat-header-cell *matHeaderCellDef>Qté à commander</th>

@@ -9,12 +9,12 @@
       <mat-card>
         <mat-card-content style="height:320px">
           <ng-container *ngIf="!loading && lineChartData; else loadingTpl">
-            <!--      <canvas baseChart-->
-            <!--              [data]="lineChartData"-->
-            <!--              [options]="lineChartOptions"-->
-            <!--              >-->
-            <!--&lt;!&ndash;              [type]="line">&ndash;&gt;-->
-            <!--      </canvas>-->
+                  <canvas baseChart
+                          [data]="lineChartData"
+                          [options]="lineChartOptions"
+                          >
+            <!--              [type]="line">-->
+                  </canvas>
           </ng-container>
           <ng-template #loadingTpl>
             <div class="center">

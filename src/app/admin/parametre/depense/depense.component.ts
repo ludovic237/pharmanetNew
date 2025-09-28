@@ -50,6 +50,7 @@ import {LoaderService} from "@services/loader.service";
 export class DepenseComponent {
 
   selectedTabIndex: number = 0;
+
   depenses: any[] = [];
   displayedColumns: string[] = ['id', 'designation', 'quantite', 'prixUnitaire', 'dateEpense', 'actions'];
   depenseForm: FormGroup;

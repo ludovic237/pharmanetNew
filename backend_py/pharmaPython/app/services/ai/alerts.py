@@ -12,7 +12,7 @@ def build_stock_alerts(rows: List[Dict[str, Any]], low_threshold: float = 5.0) -
     urgency = "LOW"
     if stock <= 0:
       urgency = "HIGH"
-    elif stock <= th:
+    elif stock <= r.get("max"):
       urgency = "MEDIUM"
     alerts.append({
       "max": r.get("max"),

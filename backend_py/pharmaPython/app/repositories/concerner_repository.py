@@ -50,7 +50,9 @@ class ConcernerRepository:
   # --- requêtes natives topProducts & salesByCategory ---
   def top_products(self, limit: int, start: datetime, end: datetime) -> List[Dict]:
     sql = text("""
-            SELECT p.nom AS nom, p.id AS id, COALESCE(SUM(con.quantite),0) AS qty
+            SELECT p.nom AS nom, p.id AS id,
+            COALESCE(SUM(con.quantite),0) AS qty,
+            COALESCE(SUM(con.prix_unit * con.quantite),0) AS total
             FROM concerner con
             JOIN en_rayon r ON r.id = con.en_rayon_id
             JOIN produit  p ON p.id = r.produit_id
@@ -61,7 +63,7 @@ class ConcernerRepository:
             LIMIT :limit
         """)
     rows = self.db.execute(sql, {"limit": limit, "from": start, "to": end}).mappings().all()
-    return [{"nom": r["nom"], "id": r["id"], "qty": int(r["qty"])} for r in rows]
+    return [{"nom": r["nom"], "id": r["id"], "qty": int(r["qty"]), "total": float(r["total"])} for r in rows]
 
   def total_qty_by_product_between(self, produit_id: int, start: datetime, end: datetime) -> int:
     """
@@ -69,7 +71,7 @@ class ConcernerRepository:
     Utilise la même logique de jointure que top_products().
     """
     sql = text("""
-            SELECT COALESCE(SUM(con.quantite),0) AS qty,
+              SELECT COALESCE(SUM(con.quantite),0) AS qty,
             p.id AS id
             FROM concerner con
             JOIN en_rayon r ON r.id = con.en_rayon_id
@@ -119,6 +121,58 @@ class ConcernerRepository:
         .all()
       )
     ]
+    if not last_vente_ids:
+      return []
+
+    # 2) Récupérer les lignes Concerner correspondantes et en déduire produit_id
+    # prod_id_expr = func.coalesce(EnRayon.produit_id, ProduitDetail.id)
+    prod_id_expr = func.coalesce(EnRayon.produit_id, Produit.id)
+
+    rows = (
+      self.db.query(
+        Concerner.vente_id.label("vente_id"),
+        prod_id_expr.label("produit_id")
+      )
+      .filter(Concerner.vente_id.in_(last_vente_ids))
+      .outerjoin(EnRayon, EnRayon.id == Concerner.en_rayon_id)
+      .outerjoin(Produit, Produit.id == EnRayon.produit_id)
+      # .outerjoin(ProduitDetail, ProduitDetail.id == Concerner.en_rayon_id)
+      .all()
+    )
+
+    # 3) Regrouper par vente_id => paniers
+    baskets_map: Dict[int, List[int]] = {}
+    for vente_id, produit_id in rows:
+      if produit_id is None:
+        continue
+      baskets_map.setdefault(vente_id, []).append(int(produit_id))
+
+    # Conserver l’ordre des ventes récentes
+    baskets = [baskets_map[v_id] for v_id in last_vente_ids if v_id in baskets_map]
+    return baskets
+
+    # (exemple utile pour la série journalière si tu en as besoin)
+
+  def fetch_last_baskets_range(self, limit: int, start: datetime, end: datetime, supprimer: int) -> List[List[int]]:
+    if limit==0:
+      last_vente_ids = [
+        v.id for v in (
+          self.db.query(Vente.id)
+          .filter(Vente.supprimer == supprimer, Vente.date_vente.between(start, end))
+          .order_by(Vente.date_vente.desc(), Vente.id.desc())
+          .all()
+        )
+      ]
+    else:
+      last_vente_ids = [
+        v.id for v in (
+          self.db.query(Vente.id)
+          .filter(Vente.supprimer == supprimer, Vente.date_vente.between(start, end))
+          .order_by(Vente.date_vente.desc(), Vente.id.desc())
+          .limit(limit)  # limite sur le nombre de ventes choisies
+          .all()
+        )
+      ]
     if not last_vente_ids:
       return []
 

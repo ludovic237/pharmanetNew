@@ -43,6 +43,7 @@ class TopProduct(BaseModel):
   qty: int
   variation: str
   score: float
+  total: float
 
 
 class OrderRow(BaseModel):

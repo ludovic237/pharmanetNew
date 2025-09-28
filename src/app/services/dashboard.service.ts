@@ -59,4 +59,14 @@ export class DashboardService {
       .set('limit', limit);
     return this.http.get<StockAlertRow[]>(`${this.base}/stock-alerts`, {params, headers: this.getHeaders()});
   }
+
+  stockActual(): Observable<any[]> {
+    const params = new HttpParams()
+    return this.http.get<any[]>(`${this.base}/stock-actual`, {params, headers: this.getHeaders()});
+  }
+
+  stockPerime(): Observable<any[]> {
+    const params = new HttpParams()
+    return this.http.get<any[]>(`${this.base}/stock-perime`, {params, headers: this.getHeaders()});
+  }
 }

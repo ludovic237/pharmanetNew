@@ -11,6 +11,7 @@ from app.repositories.produit_repository import ProduitRepository
 from app.repositories.en_rayon_repository import EnRayonRepository
 from app.repositories.concerner_repository import ConcernerRepository
 
+
 def get_daily_sales_series(db: Session, produit_id: int, days: int = 180) -> List[Tuple[date, float]]:
   """
   Retourne [(date, qty_vendue)] par jour pour un produit sur 'days' derniers jours.
@@ -19,20 +20,62 @@ def get_daily_sales_series(db: Session, produit_id: int, days: int = 180) -> Lis
   # Idée: réutiliser une méthode existante si tu as déjà un "sales_daily(produit_id, from_date)"
   from_dt = date.today() - timedelta(days=days)
   # Exemples de récupération (à remplacer par tes méthodes repos)
-  if produit_id>0:
+  if produit_id > 0:
     rows = ConcernerRepository(db).sum_daily_qty_by_product(produit_id, from_dt)
     return [(r["date"], float(r["qty"])) for r in rows]
   # rows -> [{"date": date, "qty": float}, ...]
   rows = ConcernerRepository(db).sum_daily_qty(from_dt)
   return [(r["date"], float(r["qty"])) for r in rows]
 
+
 def get_current_stock(db: Session, produit_id: int) -> float:
   er = EnRayonRepository(db).sum_stock_by_product(produit_id)  # À adapter (somme des stock en rayons)
   return float(er or 0.0)
 
+
 def get_products_basic(db: Session, limit: int = 1000) -> List[Dict[str, Any]]:
-  rows = ProduitRepository(db).find_all_basic(limit=limit)  # À créer si besoin: id, nom
+  total = ProduitRepository(db).get_total_count()
+  rows = ProduitRepository(db).find_all_basic(limit=total)  # À créer si besoin: id, nom
   return [{"id": r.id, "nom": r.nom} for r in rows]
+
+
+def get_products_basic_with_stock(db: Session) -> List[Dict[str, Any]]:
+  rows = ProduitRepository(db).sum_quantites_restantes_en_rayon()  # À créer si besoin: id, nom
+  return rows
+
+
+def get_products_basic_with_stock_pageable(db: Session,
+                                           page: int = 0,
+                                           size: int = 10,
+                                           search: Optional[str] = None) -> List[Dict[str, Any]]:
+  total_produit = ProduitRepository(db).get_total_count()
+  rows_all, total_all = ProduitRepository(db).sum_quantites_restantes_en_rayon_pageable(page=0, size=total_produit,
+                                                                                        search=None)  # À créer si besoin: id, nom
+  rows, total = ProduitRepository(db).sum_quantites_restantes_en_rayon_pageable(page=page, size=size,
+                                                                                search=search)  # À créer si besoin: id, nom
+  print("rows")
+  print(rows)
+  total_valeur = sum(p['valeur'] for p in rows_all)
+  if total_valeur == 0:
+    return []
+
+  produits_sorted = sorted(rows, key=lambda x: x['valeur'], reverse=True)
+
+  cumul = 0
+
+  for p in produits_sorted:
+    contribution = (p["valeur"] / total_valeur) * 100 if total_valeur > 0 else 0
+    cumul += contribution
+    p['contribution'] = round(contribution, 2)
+    p['cumul'] = round(cumul, 2)
+    if cumul <= 80:
+      p['classe_abc'] = "A"
+    elif cumul <= 95:
+      p['classe_abc'] = "B"
+    else:
+      p['classe_abc'] = "C"
+  return produits_sorted
+
 
 def get_stock_bounds_map(db, product_ids):
   """

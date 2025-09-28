@@ -27,6 +27,7 @@ from app.repositories.facturation_repository import FacturationRepository
 from app.repositories.facture_electronique_repository import FactureElectroniqueRepository
 from app.repositories.facture_espece_repository import FactureEspeceRepository
 from app.repositories.facture_ticket_repository import FactureTicketRepository
+from app.repositories.fournisseur_repository import FournisseurRepository
 from app.repositories.prescripteur_repository import PrescripteurRepository
 from app.repositories.produit_detail_repository import ProduitDetailRepository
 from app.repositories.produit_repository import ProduitRepository
@@ -94,6 +95,7 @@ class VenteService:
     self.user_utils = UserUtils
     self.rayon_repo = RayonRepository(db)
     self.produit_detail_repo = ProduitDetailRepository(db)
+    self.fournis_repo = FournisseurRepository(db)
 
   # ---------------------------------------------------------------------
   # creerVenteSansEncaissement(venteRequestDto)
@@ -581,24 +583,27 @@ class VenteService:
           if not p or not er:
             continue
           if fournisseur_id == "null":
+            fournisseur = self.fournis_repo.find_by_id(int(er.fournisseur_id))
             produits.append({
               "id": p.id, "nom": p.nom, "prix": c.prix_unit, "stock": p.stock,
-              "fournisseur": er.fournisseur.nom if er.fournisseur else None,
+              "fournisseur": fournisseur.nom if fournisseur else None,
               "dateLivraison": er.date_livraison, "datePeremption": er.date_peremption,
               "quantiteStock": p.stock, "prixAchat": er.prix_achat, "quantiteRestante": 0,
             })
           elif fournisseur_id and int(fournisseur_id) > 0:
-            if er.fournisseur and int(er.fournisseur.id) == int(fournisseur_id):
+            if er.fournisseur_id and int(er.fournisseur_id) == int(fournisseur_id):
+              fournisseur = self.fournis_repo.find_by_id(int(fournisseur_id))
               produits.append({
                 "id": p.id, "nom": p.nom, "prix": c.prix_unit, "stock": p.stock,
-                "fournisseur": er.fournisseur.nom, "dateLivraison": er.date_livraison,
+                "fournisseur": fournisseur.nom, "dateLivraison": er.date_livraison,
                 "datePeremption": er.date_peremption, "quantiteStock": p.stock,
                 "prixAchat": er.prix_achat, "quantiteRestante": 0,
               })
           else:
+            fournisseur = self.fournis_repo.find_by_id(int(er.fournisseur_id))
             produits.append({
               "id": p.id, "nom": p.nom, "prix": c.prix_unit, "stock": p.stock,
-              "fournisseur": er.fournisseur.nom if er.fournisseur else None,
+              "fournisseur": fournisseur.nom if fournisseur else None,
               "dateLivraison": er.date_livraison, "datePeremption": er.date_peremption,
               "quantiteStock": p.stock, "prixAchat": er.prix_achat, "quantiteRestante": 0,
             })

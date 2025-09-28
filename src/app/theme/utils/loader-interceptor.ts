@@ -40,9 +40,9 @@ export const LoaderInterceptor: HttpInterceptorFn = (req, next) => {
   // }
   // return next(req)
 
-  console.log("LoaderInterceptor")
-  console.log(req)
-  console.log(next)
+  // console.log("LoaderInterceptor")
+  // console.log(req)
+  // console.log(next)
   const loaderService = inject(LoaderService)
   const ngZone = inject(NgZone)
   ngZone.run(() => loaderService.show())

@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
 import {OptimizeDashboardResponse} from "../../../model/ai.models";
 import {MatTableDataSource, MatTableModule} from "@angular/material/table";
 import {AiService} from "@services/ai.service";
@@ -37,6 +37,7 @@ import {CategoryListComponent} from "@shared-components/category-list/category-l
 import {RatingComponent} from "@shared-components/rating/rating.component";
 import {ControlsComponent} from "@shared-components/controls/controls.component";
 import {PipesModule} from "../../../theme/pipes/pipes.module";
+import {AppService} from "@services/app.service";
 
 @Component({
   selector: 'app-optimize-dashboard',
@@ -110,25 +111,58 @@ import {PipesModule} from "../../../theme/pipes/pipes.module";
   styleUrl: './optimize-dashboard.component.scss'
 })
 export class OptimizeDashboardComponent implements OnInit {
+  @Input() startDateVente: Date | null = new Date();
+  @Input() endDateVente: Date | null = new Date();
+
   loading = false;
-  data?: OptimizeDashboardResponse;
+  data: any[] = [];
+  // data?: OptimizeDashboardResponse;
 
   lowStockData = new MatTableDataSource<any>([]);
   reorderData = new MatTableDataSource<any>([]);
   lowColumns = ['produit', 'stock', 'threshold'];
-  reorderColumns = ['produit_id', 'current_stock', 'safety_stock', 'reorder_point', 'suggested_order_qty','avg_daily'];
+  reorderColumns = ['produit_id', 'current_stock', 'safety_stock', 'reorder_point', 'suggested_order_qty', 'avg_daily'];
 
-  constructor(private ai: AiService) {}
+  constructor(
+    private ai: AiService,
+    private appService: AppService,
+  ) {
+  }
 
   ngOnInit(): void {
     this.loading = true;
-    this.ai.optimizeDashboard().subscribe({
+    this.ai.optimizeDashboard(0, 10, 100).subscribe({
+      next: res => {
+        // this.data = res;
+        this.lowStockData.data = res.low_stock;
+        this.reorderData.data = res.reorders;
+      },
+      error: () => {
+      },
+      complete: () => this.loading = false
+    });
+    this.ai.lowStock(5, 10).subscribe({
+      next: res => {
+        this.lowStockData = res;
+      },
+      error: () => {
+      },
+      complete: () => this.loading = false
+    });
+
+    this.ai.optimizeBestSellRange(
+      10,
+      0,
+      this.appService.formatDate(new Date(new Date(this.startDateVente).setHours(0, 0, 0, 0)) + ""),
+      this.appService.formatDate(new Date(new Date(this.endDateVente).setHours(23, 59, 59, 999)) + ""),
+      0,
+      100
+    ).subscribe({
       next: res => {
         this.data = res;
-        this.lowStockData.data = res.low_stock;
-        this.reorderData.data = res.reorder_suggestions;
       },
-      error: () => {},
+      error: () => {
+      },
       complete: () => this.loading = false
     });
   }

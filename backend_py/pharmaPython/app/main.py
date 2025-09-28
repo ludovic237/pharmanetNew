@@ -16,7 +16,6 @@
 # # See PyCharm help at https://www.jetbrains.com/help/pycharm/
 from apscheduler.schedulers.background import BackgroundScheduler
 from fastapi import FastAPI
-
 from app.api.deps import get_db
 from app.api.router import api_router
 from app.core.config import settings

@@ -66,8 +66,7 @@ export class LowStockComponent implements OnInit{
 
 
   ngOnInit(): void {
-    console.log("this.items")
-    console.log(this.items)
+
   }
 
   getColor(p:number): 'success' | 'danger' | 'pink' {

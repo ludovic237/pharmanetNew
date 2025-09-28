@@ -77,7 +77,6 @@ export class MonthlySalesComponent implements OnInit{
   }
 
   ngOnInit() {
-    console.log("MonthlySalesComponent")
-    console.log(this.data)
+
   }
 }

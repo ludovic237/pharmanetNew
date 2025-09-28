@@ -20,7 +20,7 @@ import {MatDatepickerModule} from "@angular/material/datepicker";
 import {NgxChartsModule} from "@swimlane/ngx-charts";
 import {NgChartsModule} from "ng2-charts";
 import {CommonModule, formatDate, isPlatformBrowser} from '@angular/common';
-import {ChartData} from "chart.js";
+import {ChartData, ChartOptions} from "chart.js";
 import {MatPaginatorModule} from "@angular/material/paginator";
 import {MatMenuModule} from "@angular/material/menu";
 import {MatListModule} from "@angular/material/list";
@@ -55,6 +55,8 @@ import {AiService} from "@services/ai.service";
 import {InsightService} from "@services/insight.service";
 import {MonthlySalesComponent} from "../components/monthly-sales/monthly-sales.component";
 import {AppService} from "@services/app.service";
+import {NgScrollbarModule} from "ngx-scrollbar";
+import {MatProgressSpinnerModule} from "@angular/material/progress-spinner";
 
 function toIso(dt: Date, endOfDay = false): string {
   if (!dt) return '';
@@ -138,6 +140,8 @@ function toIso(dt: Date, endOfDay = false): string {
     MatSnackBarModule,
     MatChipsModule,
     NgxPaginationModule,
+    NgScrollbarModule,
+    MatProgressSpinnerModule
   ],
   host: {
     'ngSkipHydration': ''
@@ -147,16 +151,41 @@ function toIso(dt: Date, endOfDay = false): string {
 })
 export class DashboardNewComponent implements OnInit, OnDestroy {
 
+  displayedColumnsRupture: string[] = ['id', 'nom', 'stock', 'statut'];
+  reorderDataRupture: any[] = [];
+
+  tempsReelDataVente: any[] = [];
+
+
+  selectedTabIndex: number = 0;
+
   updatedAt = '';
   kpis: any[] = [];
-  monthly?: any;
+  monthly?: any = {
+    labels: [],
+    datasets: []
+  };
   weekly?: any[] = [];
   categories: any[] = [];
   assoc: any[] = [];
   repl: any[] = [];
   low: any[] = [];
   top: any[] = [];
-  daily?: any;
+  top7: any[] = [];
+
+  topToday: any[] = [];
+  totalTodayVente = 0;
+  totalTodayVentePrice = 0;
+
+  stockActuel: any[] = [];
+  totalStockActuel= 0;
+  totalStockActuelPrice = 0;
+
+  stockPerime: any[] = [];
+  totalStockPerime= 0;
+  totalStockPerimePrice = 0;
+
+  daily?: any[] = [];
 
   range!: FormGroup;
   refresh$ = new BehaviorSubject<void>(undefined);
@@ -212,14 +241,13 @@ export class DashboardNewComponent implements OnInit, OnDestroy {
 
     this.loadAll()
 
-    this.api.ordersRecent(0, 8).subscribe({
+    this.api.stockActual().subscribe({
       next: (r: any[]) => {
-        this.ordersRecent = r
-
+        this.stockActuel = r
+        this.totalStockActuel = this.stockActuel[0].qty
+        this.totalStockActuelPrice = this.stockActuel[0].total
       },
       error: (err) => {
-        console.error('Error fetching commandes:', err);
-
         if (err.status === 401 || err.status === 403) {
 
           this.authService.logout().subscribe({
@@ -235,8 +263,84 @@ export class DashboardNewComponent implements OnInit, OnDestroy {
               });
             },
             error: (err) => {
+              if (err.status === 401 || err.status === 403) {
+                this.authService.logout();
+                localStorage.removeItem('token');
+                localStorage.setItem("lastLink", window.location.href);
+                ;
+                this.snackBar.open('Déconnexion, une erreur.', '×', {
+                  panelClass: 'success',
+                  verticalPosition: 'top',
+                  duration: 3000,
+                });
+                window.location.href = '/sign-in';
+              }
+            }
+          })
+        }
+      }
+    });
 
-              console.error('Error  subscription:', err);
+    this.api.stockPerime().subscribe({
+      next: (r: any[]) => {
+        this.stockPerime = r
+        this.totalStockPerime = this.stockPerime[0].qty
+        this.totalStockPerimePrice = this.stockPerime[0].total
+      },
+      error: (err) => {
+        if (err.status === 401 || err.status === 403) {
+
+          this.authService.logout().subscribe({
+            next: (data) => {
+
+              localStorage.removeItem('token');
+              localStorage.setItem("lastLink", window.location.href);
+              window.location.href = '/sign-in';
+              this.snackBar.open('Déconnexion réussie.', '×', {
+                panelClass: 'success',
+                verticalPosition: 'top',
+                duration: 3000,
+              });
+            },
+            error: (err) => {
+              if (err.status === 401 || err.status === 403) {
+                this.authService.logout();
+                localStorage.removeItem('token');
+                localStorage.setItem("lastLink", window.location.href);
+                ;
+                this.snackBar.open('Déconnexion, une erreur.', '×', {
+                  panelClass: 'success',
+                  verticalPosition: 'top',
+                  duration: 3000,
+                });
+                window.location.href = '/sign-in';
+              }
+            }
+          })
+        }
+      }
+    });
+
+    this.api.ordersRecent(0, 8).subscribe({
+      next: (r: any[]) => {
+        this.ordersRecent = r
+      },
+      error: (err) => {
+        if (err.status === 401 || err.status === 403) {
+
+          this.authService.logout().subscribe({
+            next: (data) => {
+
+              localStorage.removeItem('token');
+              localStorage.setItem("lastLink", window.location.href);
+              window.location.href = '/sign-in';
+              this.snackBar.open('Déconnexion réussie.', '×', {
+                panelClass: 'success',
+                verticalPosition: 'top',
+                duration: 3000,
+              });
+            },
+            error: (err) => {
               if (err.status === 401 || err.status === 403) {
                 this.authService.logout();
                 localStorage.removeItem('token');
@@ -261,8 +365,6 @@ export class DashboardNewComponent implements OnInit, OnDestroy {
 
       },
       error: (err) => {
-
-        console.error('Error fetching commandes:', err);
         if (err.status === 401 || err.status === 403) {
 
           this.authService.logout().subscribe({
@@ -278,8 +380,6 @@ export class DashboardNewComponent implements OnInit, OnDestroy {
               });
             },
             error: (err) => {
-
-              console.error('Error  subscription:', err);
               if (err.status === 401 || err.status === 403) {
                 this.authService.logout();
                 localStorage.removeItem('token');
@@ -325,7 +425,9 @@ export class DashboardNewComponent implements OnInit, OnDestroy {
     // Rafraîchir tout à chaque changement de période
 
     combineLatest([
-      this.api.kpis(formatDate(new Date(new Date(this.startDateVente).setHours(0, 0, 0, 0)) + ""), formatDate(new Date(new Date(this.endDateVente).setHours(23, 59, 59, 999)) + "")),
+      this.api.kpis(
+        formatDate(new Date(new Date(this.startDateVente).setHours(0, 0, 0, 0)) + ""),
+        formatDate(new Date(new Date(this.endDateVente).setHours(23, 59, 59, 999)) + "")),
       this.api.salesMonthly(formatDate(new Date(new Date(this.startDateVente).setHours(0, 0, 0, 0)) + ""), formatDate(new Date(new Date(this.endDateVente).setHours(23, 59, 59, 999)) + "")),
       this.api.salesByCategory(formatDate(new Date(new Date(this.startDateVente).setHours(0, 0, 0, 0)) + ""), formatDate(new Date(new Date(this.endDateVente).setHours(23, 59, 59, 999)) + "")),
       this.api.topProducts(10, formatDate(new Date(new Date(this.startDateVente).setHours(0, 0, 0, 0)) + ""), formatDate(new Date(new Date(this.endDateVente).setHours(23, 59, 59, 999)) + "")),
@@ -370,8 +472,6 @@ export class DashboardNewComponent implements OnInit, OnDestroy {
 
       },
       error: (err) => {
-
-        console.error('Error fetching commandes:', err);
         if (err.status === 401 || err.status === 403) {
 
           this.authService.logout().subscribe({
@@ -387,8 +487,6 @@ export class DashboardNewComponent implements OnInit, OnDestroy {
 
             },
             error: (err) => {
-              console.error('Error  subscription:', err);
-
               if (err.status === 401 || err.status === 403) {
                 this.authService.logout();
                 localStorage.removeItem('token');
@@ -411,65 +509,57 @@ export class DashboardNewComponent implements OnInit, OnDestroy {
   loadAll() {
     this.updatedAt = new Date().toLocaleTimeString();
     this.ins.kpis().subscribe(v => this.kpis = v);
-    this.ins.monthlySales().subscribe(
-      {
-        next: (data: any[]) => {
-          this.monthly = {
-            labels: data.map(m => m.mois),
-            datasets: [{data: data.map(m => m.total), label: 'Ventes'}]
-          }
-        },
-        error: (err) => {
-          console.error('Error  subscription:', err);
-
-          if (err.status === 401 || err.status === 403) {
-
-            this.authService.logout().subscribe({
-              next: (data) => {
-
-                localStorage.removeItem('token');
-                localStorage.setItem("lastLink", window.location.href);
-                window.location.href = '/sign-in';
-                this.snackBar.open('Déconnexion réussie.', '×', {
-                  panelClass: 'success',
-                  verticalPosition: 'top',
-                  duration: 3000,
-                });
-              },
-              error: (err) => {
-
-                console.error('Error  subscription:', err);
-                if (err.status === 401 || err.status === 403) {
-                  this.authService.logout();
-                  localStorage.removeItem('token');
-                  localStorage.setItem("lastLink", window.location.href);
-                  ;
-                  this.snackBar.open('Déconnexion, une erreur.', '×', {
-                    panelClass: 'success',
-                    verticalPosition: 'top',
-                    duration: 3000,
-                  });
-                  window.location.href = '/sign-in';
-                }
-              }
-            })
-          }
-        }
-      });
+    // this.ins.monthlySales().subscribe(
+    //   {
+    //     next: (data: any[]) => {
+    //       this.monthly = {
+    //         labels: data.map(m => m.mois),
+    //         datasets: [{data: data.map(m => m.total), label: 'Ventes'}]
+    //       }
+    //     },
+    //     error: (err) => {
+    //       if (err.status === 401 || err.status === 403) {
+    //
+    //         this.authService.logout().subscribe({
+    //           next: (data) => {
+    //
+    //             localStorage.removeItem('token');
+    //             localStorage.setItem("lastLink", window.location.href);
+    //             window.location.href = '/sign-in';
+    //             this.snackBar.open('Déconnexion réussie.', '×', {
+    //               panelClass: 'success',
+    //               verticalPosition: 'top',
+    //               duration: 3000,
+    //             });
+    //           },
+    //           error: (err) => {
+    //             if (err.status === 401 || err.status === 403) {
+    //               this.authService.logout();
+    //               localStorage.removeItem('token');
+    //               localStorage.setItem("lastLink", window.location.href);
+    //               ;
+    //               this.snackBar.open('Déconnexion, une erreur.', '×', {
+    //                 panelClass: 'success',
+    //                 verticalPosition: 'top',
+    //                 duration: 3000,
+    //               });
+    //               window.location.href = '/sign-in';
+    //             }
+    //           }
+    //         })
+    //       }
+    //     }
+    //   });
     this.ins.weeklySeasonality(160).subscribe(
       {
         next: (data: any[]) => {
           this.weekly = data
-          console.log("this.weekly")
-          console.log(this.weekly)
           const barChartWeeklySeasonality = {
             labels: data.map(m => m.label),
             datasets: [{data: data.map(m => m.total), label: 'Ventes'}]
           }
         },
         error: (err) => {
-          console.error('Error  subscription:', err);
-
           if (err.status === 401 || err.status === 403) {
 
             this.authService.logout().subscribe({
@@ -485,8 +575,6 @@ export class DashboardNewComponent implements OnInit, OnDestroy {
                 });
               },
               error: (err) => {
-
-                console.error('Error  subscription:', err);
                 if (err.status === 401 || err.status === 403) {
                   this.authService.logout();
                   localStorage.removeItem('token');
@@ -514,8 +602,6 @@ export class DashboardNewComponent implements OnInit, OnDestroy {
           // }
         },
         error: (err) => {
-          console.error('Error  subscription:', err);
-
           if (err.status === 401 || err.status === 403) {
 
             this.authService.logout().subscribe({
@@ -531,8 +617,6 @@ export class DashboardNewComponent implements OnInit, OnDestroy {
                 });
               },
               error: (err) => {
-
-                console.error('Error  subscription:', err);
                 if (err.status === 401 || err.status === 403) {
                   this.authService.logout();
                   localStorage.removeItem('token');
@@ -550,19 +634,16 @@ export class DashboardNewComponent implements OnInit, OnDestroy {
           }
         }
       });
-    this.ins.dailySales().subscribe(v => this.daily = v);
-    this.ai.associations(10).subscribe(v => this.assoc = v);
-    this.ai.suggestReplenishment().subscribe(v => this.repl = v);
-    this.ai.lowStock().subscribe(
+    this.ins.dailySales().subscribe(
       {
         next: (data: any[]) => {
-          this.low = data
-          console.log("this.low")
-          console.log(this.low)
+          this.daily = data
+          // this.categories = {
+          //   labels: data.map(m => m.categorie),
+          //   datasets: [{data: data.map(m => m.ca), label: 'Ventes'}]
+          // }
         },
         error: (err) => {
-          console.error('Error  subscription:', err);
-
           if (err.status === 401 || err.status === 403) {
 
             this.authService.logout().subscribe({
@@ -578,8 +659,6 @@ export class DashboardNewComponent implements OnInit, OnDestroy {
                 });
               },
               error: (err) => {
-
-                console.error('Error  subscription:', err);
                 if (err.status === 401 || err.status === 403) {
                   this.authService.logout();
                   localStorage.removeItem('token');
@@ -597,11 +676,156 @@ export class DashboardNewComponent implements OnInit, OnDestroy {
           }
         }
       });
+    // this.ai.associations(10).subscribe(v => this.assoc = v);
+    // this.ai.suggestReplenishment().subscribe(v => this.repl = v);
+    /* this.ai.lowStock().subscribe(
+       {
+         next: (data: any[]) => {
+           this.low = data
+         },
+         error: (err) => {
+           if (err.status === 401 || err.status === 403) {
+
+             this.authService.logout().subscribe({
+               next: (data) => {
+
+                 localStorage.removeItem('token');
+                 localStorage.setItem("lastLink", window.location.href);
+                 window.location.href = '/sign-in';
+                 this.snackBar.open('Déconnexion réussie.', '×', {
+                   panelClass: 'success',
+                   verticalPosition: 'top',
+                   duration: 3000,
+                 });
+               },
+               error: (err) => {
+                 if (err.status === 401 || err.status === 403) {
+                   this.authService.logout();
+                   localStorage.removeItem('token');
+                   localStorage.setItem("lastLink", window.location.href);
+                   ;
+                   this.snackBar.open('Déconnexion, une erreur.', '×', {
+                     panelClass: 'success',
+                     verticalPosition: 'top',
+                     duration: 3000,
+                   });
+                   window.location.href = '/sign-in';
+                 }
+               }
+             })
+           }
+         }
+       });*/
     this.ai.topProducts(10,
       // this.appService.formatDate(new Date(new Date(this.startDateVente).setHours(0, 0, 0, 0)) + ""),
       // this.appService.formatDate(new Date(new Date(this.endDateVente).setHours(23, 59, 59, 999)) + "")
     )
       .subscribe(v => this.top = v);
+
+    const today = new Date();
+    today.setHours(23, 59, 59, 999)
+    const lastWeek = new Date();
+    lastWeek.setDate(today.getDate() - 7)
+    lastWeek.setHours(0, 0, 0, 0)
+
+    this.ai.topProducts(20,
+      this.appService.formatDate(lastWeek + ""),
+      this.appService.formatDate(today + "")
+    )
+
+    this.ai.topProducts(10000,
+      this.appService.formatDate(new Date(new Date().setHours(0, 0, 0, 0)) + ""),
+      this.appService.formatDate(today + "")
+    ).subscribe(
+      {
+        next: (v: any[]) => {
+          this.topToday = v;
+          this.totalTodayVentePrice =  this.topToday.reduce((sum, item) => sum + (item.total), 0);
+          this.totalTodayVente =  this.topToday.reduce((sum, item) => sum + (item.qte), 0);
+        },
+        error: (err) => {
+          if (err.status === 401 || err.status === 403) {
+
+            this.authService.logout().subscribe({
+              next: (data) => {
+
+                localStorage.removeItem('token');
+                localStorage.setItem("lastLink", window.location.href);
+                window.location.href = '/sign-in';
+                this.snackBar.open('Déconnexion réussie.', '×', {
+                  panelClass: 'success',
+                  verticalPosition: 'top',
+                  duration: 3000,
+                });
+              },
+              error: (err) => {
+                if (err.status === 401 || err.status === 403) {
+                  this.authService.logout();
+                  localStorage.removeItem('token');
+                  localStorage.setItem("lastLink", window.location.href);
+                  ;
+                  this.snackBar.open('Déconnexion, une erreur.', '×', {
+                    panelClass: 'success',
+                    verticalPosition: 'top',
+                    duration: 3000,
+                  });
+                  window.location.href = '/sign-in';
+                }
+              }
+            })
+          }
+        }
+      });
+
+    this.ai.optimizeDashboardNew().subscribe(
+      {
+        next: (data: any) => {
+
+        },
+        error: (err) => {
+          if (err.status === 401 || err.status === 403) {
+
+            this.authService.logout().subscribe({
+              next: (data) => {
+
+                localStorage.removeItem('token');
+                localStorage.setItem("lastLink", window.location.href);
+                window.location.href = '/sign-in';
+                this.snackBar.open('Déconnexion réussie.', '×', {
+                  panelClass: 'success',
+                  verticalPosition: 'top',
+                  duration: 3000,
+                });
+              },
+              error: (err) => {
+                if (err.status === 401 || err.status === 403) {
+                  this.authService.logout();
+                  localStorage.removeItem('token');
+                  localStorage.setItem("lastLink", window.location.href);
+                  ;
+                  this.snackBar.open('Déconnexion, une erreur.', '×', {
+                    panelClass: 'success',
+                    verticalPosition: 'top',
+                    duration: 3000,
+                  });
+                  window.location.href = '/sign-in';
+                }
+              }
+            })
+          }
+        }
+      });
+  }
+
+  protected readonly Plugin = Plugin;
+
+  pieChartOptions: ChartOptions<'pie'> = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: 'right'
+      }
+    }
   }
 }
 

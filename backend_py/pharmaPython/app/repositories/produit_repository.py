@@ -4,6 +4,7 @@ from typing import List, Optional, Tuple, Dict, Any, Iterable
 from sqlalchemy.orm import Session
 from sqlalchemy import func, desc, select, union_all
 
+from app.models.commandeout import Commande
 from app.models.concerner import Concerner
 from app.models.produit import Produit
 from app.models.en_rayon import EnRayon
@@ -56,6 +57,9 @@ class ProduitRepository:
       .filter(Produit.codeUbipharm == codebarre, Produit.supprimer == supprimer)
       .first()
     )
+
+  def get_total_count(self) -> int:
+    return self.db.query(Produit).count()
 
   def find_all_by_supprimer(self, supprimer: int = 0) -> List[Produit]:
     return self.db.query(Produit).filter(Produit.supprimer == supprimer).all()
@@ -150,7 +154,6 @@ class ProduitRepository:
   def find_all(self) -> List:
     return self.db.query(Produit).all()
 
-
   def find_top_n(self, limit: int = 100) -> List[Produit]:
     """
     Retourne les top produits par quantité vendue (concerner.quantite),
@@ -198,7 +201,6 @@ class ProduitRepository:
 
     # (existant)
 
-
   def find_all_basic(self, limit: int = 1000) -> List[Produit]:
     """
     Optionnel: utilisé par l'IA pour récupérer id/nom rapidement.
@@ -209,7 +211,6 @@ class ProduitRepository:
       .limit(limit)
       .all()
     )
-
 
   def sum_stock_by_product(
     self,
@@ -331,3 +332,132 @@ class ProduitRepository:
 
     rows = q.all()
     return [{"id": r[0], "nom": r[1]} for r in rows]
+
+  def sum_quantites_restantes_en_rayon(self) -> List[Dict[str, Any]]:
+    """
+    Retourne pour chaque produit la somme des quantités restantes en rayon.
+    Format : [{"produitId": 1, "nom": "Doliprane", "quantiteTotale": 120}, ...]
+    """
+    rows = (
+      self.db.query(
+        Produit.id.label("produitId"),
+        Produit.nom.label("nom"),
+        Produit.stock_max.label("stock_max"),
+        Produit.stock_min.label("stock_min"),
+        func.coalesce(func.sum(EnRayon.quantite_restante), 0).label("quantiteTotale")
+      )
+      .join(EnRayon, EnRayon.produit_id == Produit.id)
+      .group_by(Produit.id, Produit.nom)
+      .all()
+    )
+    return [
+      {"id": pid, "nom": nom, "max": stock_max, "min": stock_min, "stock": float(qty or 0)}
+      for pid, nom, stock_max, stock_min, qty, in rows
+    ]
+
+  def find_produits_stock_critique(self, low: int = 0) -> List[Dict[str, Any]]:
+    """
+    Retourne les produits dont la somme des quantités restantes en rayon
+    est négative ou inférieure à une valeur donnée (low).
+    Format : [{"produitId": 1, "nom": "Doliprane", "quantiteTotale": -3}, ...]
+    """
+    rows = (
+      self.db.query(
+        Produit.id.label("produitId"),
+        Produit.nom.label("nom"),
+        Produit.stock_max.label("stock_max"),
+        Produit.stock_min.label("stock_min"),
+        func.coalesce(func.sum(EnRayon.quantite_restante), 0).label("quantiteTotale")
+      )
+      .join(EnRayon, EnRayon.produit_id == Produit.id)
+      .group_by(Produit.id, Produit.nom)
+      .having(func.coalesce(func.sum(EnRayon.quantite_restante), 0) < low)
+      .all()
+    )
+    return [
+      {"id": pid, "nom": nom, "max": stock_max, "min": stock_min, "stock": float(qty or 0)}
+      for pid, nom, stock_max, stock_min, qty, in rows
+    ]
+
+  def sum_quantites_restantes_en_rayon_pageable(
+    self,
+    page: int = 0,
+    size: int = 10,
+    search: Optional[str] = None
+  ) -> Tuple[List[Dict[str, Any]], int]:
+    """
+    Retourne pour chaque produit la somme des quantités restantes en rayon.
+    Résultats paginés + filtre optionnel sur le nom.
+    """
+    q = (self.db.query(
+      Produit.id.label("id"),
+      Produit.nom.label("nom"),
+      Produit.stock_max.label("stock_max"),
+      Produit.stock_min.label("stock_min"),
+      func.coalesce(func.sum(EnRayon.quantite_restante), 0).label("stock"),
+      func.coalesce(func.sum(EnRayon.quantite_restante*EnRayon.prix_vente), 0).label("valeur"),
+      func.avg(func.datediff(EnRayon.date_livraison, Commande.date_creation)).label("lead_time"),
+      func.count().label("n")
+    )
+      .join(EnRayon, EnRayon.produit_id == Produit.id)
+      .join(Commande, Commande.id == EnRayon.commande_id)
+      .group_by(Produit.id, Produit.nom, Produit.stock_max, Produit.stock_min))
+
+    # 🔎 filtre inséré dès la construction de la query
+    if search:
+      q = q.filter(func.lower(Produit.nom).like(f"%{search.lower()}%"))
+
+    total = q.count()
+
+    rows = (
+      # q.order_by(Produit.nom.asc())
+      q.order_by(Produit.id.desc())
+      .offset(page * size)
+      .limit(size)
+      .all()
+    )
+
+    return [
+      {"id": pid, "nom": nom, "max": stock_max, "min": stock_min, "stock": float(stock or 0), "valeur": float(valeur or 0), "lead_time": float(lead_time or 0), "n": float(n or 0)}
+      for pid, nom, stock_max, stock_min, stock, valeur, lead_time, n in rows
+    ], total
+
+  def find_produits_stock_critique_pageable(
+    self,
+    low: int = 0,
+    page: int = 0,
+    size: int = 10,
+    search: Optional[str] = None
+  ) -> Tuple[List[Dict[str, Any]], int]:
+    """
+    Retourne les produits dont la somme des quantités restantes est < low (ou négative).
+    Résultats paginés + filtre optionnel sur le nom.
+    """
+    q = self.db.query(
+      Produit.id.label("id"),
+      Produit.nom.label("nom"),
+      Produit.stock_max.label("stock_max"),
+      Produit.stock_min.label("stock_min"),
+      func.coalesce(func.sum(EnRayon.quantite_restante), 0).label("stock")
+    ) \
+      .join(EnRayon, EnRayon.produit_id == Produit.id) \
+      .group_by(Produit.id, Produit.nom, Produit.stock_max, Produit.stock_min) \
+      .having(func.coalesce(func.sum(EnRayon.quantite_restante), 0) < low)
+
+    # 🔎 filtre inséré directement
+    if search:
+      q = q.filter(func.lower(Produit.nom).like(f"%{search.lower()}%"))
+
+    total = q.count()
+
+    rows = (
+      q.order_by(Produit.nom.asc())
+      .offset(page * size)
+      .limit(size)
+      .all()
+    )
+
+    return [
+      {"id": pid, "nom": nom, "max": stock_max, "min": stock_min, "stock": float(stock or 0)}
+      for pid, nom, stock_max, stock_min, stock in rows
+    ], total

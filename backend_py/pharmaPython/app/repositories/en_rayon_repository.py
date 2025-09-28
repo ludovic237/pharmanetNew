@@ -247,21 +247,100 @@ class EnRayonRepository:
 
   # --- Alertes stock & péremption (SQL natif similaire à Kotlin) ---
   def stock_alerts(self, low: int, days: int, limit: int) -> List[dict]:
+
     sql = text("""
-            SELECT p.nom AS produit, p.id AS produitId, er.quantite_restante AS quantiteRestante, er.date_peremption AS datePeremption
-            FROM en_rayon er
-            JOIN produit p ON p.id = er.produit_id
-            WHERE (er.quantite_restante IS NOT NULL AND er.quantite_restante <= :low)
-               OR (er.date_peremption IS NOT NULL AND er.date_peremption <= DATE_ADD(CURDATE(), INTERVAL :days DAY))
-            ORDER BY er.quantite_restante ASC, er.date_peremption ASC
-            LIMIT :limit
-        """)
+      SELECT
+          p.nom AS produit,
+          p.id AS produitId,
+          SUM(er.quantite_restante) AS quantiteTotale,
+          MIN(er.date_peremption) AS datePeremptionProche
+      FROM
+          en_rayon er
+      JOIN
+          produit p ON p.id = er.produit_id
+      GROUP BY
+          p.id, p.nom -- On regroupe toutes les lignes d'un même produit
+      HAVING
+          (quantiteTotale IS NOT NULL AND quantiteTotale <= :low)
+          OR (datePeremptionProche IS NOT NULL AND datePeremptionProche <= DATE_ADD(CURDATE(), INTERVAL :days DAY))
+      ORDER BY
+          quantiteTotale ASC, datePeremptionProche ASC
+          LIMIT :limit
+          """)
+
+    # sql = text("""
+    #         SELECT p.nom AS produit, p.id AS produitId, er.quantite_restante AS quantiteRestante, er.date_peremption AS datePeremption
+    #         FROM en_rayon er
+    #         JOIN produit p ON p.id = er.produit_id
+    #         WHERE (er.quantite_restante IS NOT NULL AND er.quantite_restante <= :low)
+    #            OR (er.date_peremption IS NOT NULL AND er.date_peremption <= DATE_ADD(CURDATE(), INTERVAL :days DAY))
+    #         ORDER BY er.quantite_restante ASC, er.date_peremption ASC
+    #         LIMIT :limit
+    #     """)
     rows = self.db.execute(sql, {"low": low, "days": days, "limit": limit}).mappings().all()
     return [
       {
-        "produit": r["produit"], "produitId": r["produitId"], "quantiteRestante": r["quantiteRestante"],
-        "datePeremption": r["datePeremption"]}
+        "produit": r["produit"], "produitId": r["produitId"], "quantiteRestante": r["quantiteTotale"],
+        "datePeremption": r["datePeremptionProche"]}
       for r in rows]
+
+  def stock_alerts_paginated(self, low: int, days: int, page: int = 1, page_size: int = 20) -> dict:
+    """
+    Retourne une page de produits en alerte (stock faible ou péremption proche).
+    """
+    offset = (page - 1) * page_size
+
+    sql = text("""
+        SELECT
+            p.nom AS produit,
+            p.id AS produitId,
+            SUM(er.quantite_restante) AS quantiteTotale,
+            MIN(er.date_peremption) AS datePeremptionProche
+        FROM en_rayon er
+        JOIN produit p ON p.id = er.produit_id
+        GROUP BY p.id, p.nom
+        HAVING
+            (quantiteTotale IS NOT NULL AND quantiteTotale <= :low)
+            OR (datePeremptionProche IS NOT NULL AND datePeremptionProche <= DATE_ADD(CURDATE(), INTERVAL :days DAY))
+        ORDER BY quantiteTotale ASC, datePeremptionProche ASC
+        LIMIT :page_size OFFSET :offset
+    """)
+
+    rows = self.db.execute(
+      sql,
+      {"low": low, "days": days, "page_size": page_size, "offset": offset}
+    ).mappings().all()
+
+    # 🔄 Compter le nombre total d'alertes (pour savoir combien de pages existent)
+    count_sql = text("""
+        SELECT COUNT(*) AS total
+        FROM (
+            SELECT p.id
+            FROM en_rayon er
+            JOIN produit p ON p.id = er.produit_id
+            GROUP BY p.id, p.nom
+            HAVING
+                (SUM(er.quantite_restante) IS NOT NULL AND SUM(er.quantite_restante) <= :low)
+                OR (MIN(er.date_peremption) IS NOT NULL AND MIN(er.date_peremption) <= DATE_ADD(CURDATE(), INTERVAL :days DAY))
+        ) AS sub
+    """)
+    total_count = self.db.execute(count_sql, {"low": low, "days": days}).scalar()
+
+    return {
+      "page": page,
+      "page_size": page_size,
+      "total": total_count,
+      "total_pages": (total_count + page_size - 1) // page_size,  # arrondi vers le haut
+      "items": [
+        {
+          "produit": r["produit"],
+          "produitId": r["produitId"],
+          "quantiteRestante": r["quantiteTotale"],
+          "datePeremption": r["datePeremptionProche"]
+        }
+        for r in rows
+      ]
+    }
 
   def alerts_ruptures(self, low: int) -> int:
     sql = text("""
@@ -425,3 +504,37 @@ class EnRayonRepository:
       .all()
     )
     return {int(pid): float(qty or 0.0) for pid, qty in rows}
+
+  def stock_actuel_query(self) -> List[Dict]:
+    sql = text("""
+              SELECT
+              COALESCE(SUM(r.quantite_restante),0) AS qty,
+              COALESCE(SUM(r.prix_vente * r.quantite_restante),0) AS total
+              FROM en_rayon r
+              WHERE r.quantite_restante>0
+              ORDER BY qty DESC
+          """)
+    rows = self.db.execute(sql).mappings().all()
+    return [{"qty": int(r["qty"]), "total": float(r["total"])} for r in rows]
+
+  def stock_perime_query(self) -> List[Dict]:
+    # sql = text("""
+    #           SELECT
+    #           r.id AS id,
+    #           COALESCE(SUM(r.quantite_restante),0) AS qty,
+    #           COALESCE(SUM(r.prix_vente * r.quantite_restante),0) AS total
+    #           FROM en_rayon r
+    #           WHERE r.quantite_restante>0 AND date_peremption <= (CURDATE())
+    #           GROUP BY r.id
+    #           ORDER BY qty DESC
+    #       """)
+    sql = text("""
+                SELECT
+                COALESCE(SUM(r.quantite_restante),0) AS qty,
+                COALESCE(SUM(r.prix_vente * r.quantite_restante),0) AS total
+                FROM en_rayon r
+                WHERE r.quantite_restante>0 AND date_peremption <= (CURDATE())
+                ORDER BY qty DESC
+            """)
+    rows = self.db.execute(sql).mappings().all()
+    return [{"qty": int(r["qty"]), "total": float(r["total"])} for r in rows]

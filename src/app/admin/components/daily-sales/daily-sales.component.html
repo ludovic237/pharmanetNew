@@ -1,1 +1,28 @@
-<p>daily-sales works!</p>
+<mat-accordion>
+  <mat-expansion-panel>
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        <mat-icon color="warn">warning</mat-icon>
+        <h3>Ventes par jour</h3>
+      </mat-panel-title>
+    </mat-expansion-panel-header>
+    <ng-scrollbar>
+      <mat-card>
+        <mat-card-header fxLayoutAlign="center">
+          <mat-card-title>Daily Sales</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="w-100 h-300p" #resizedDiv>
+            <canvas baseChart
+                    [data]="lineChartData"
+                    [legend]="true"
+                    [type]="'line'">
+            </canvas>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </ng-scrollbar>
+  </mat-expansion-panel>
+</mat-accordion>
+
+

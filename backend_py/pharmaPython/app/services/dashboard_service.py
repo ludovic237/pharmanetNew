@@ -1,6 +1,7 @@
 from datetime import datetime
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Dict, Any
+from sqlalchemy import text, func
 
 from app.repositories.caisse_repository import CaisseRepository
 from app.repositories.commande_repository import CommandeRepository
@@ -95,7 +96,8 @@ class DashboardService:
       score=((row["qty"] / rows[0]["qty"]) * 100),
       variation=self.calcul_variation(row["qty"],
                                       self.concerner_repo.total_qty_by_product_between(row["id"], new_from, new_to)),
-      qty=row["qty"]
+      qty=row["qty"],
+      total=row["total"],
     ) for row in rows]
 
   def calcul_variation(self, current_sales: int, previous_sales: int):
@@ -141,3 +143,17 @@ class DashboardService:
       )
       for row in rows
     ]
+
+  # ----------------------------
+  # Actuel stock
+  # ----------------------------
+  def get_stock_actuel(self) -> List[Dict[str, Any]]:
+    rows = self.enrayon_repo.stock_actuel_query()
+    return rows
+
+  # ----------------------------
+  # Perime stock
+  # ----------------------------
+  def get_perime_actuel(self) -> List[Dict[str, Any]]:
+    rows = self.enrayon_repo.stock_perime_query()
+    return rows

@@ -133,16 +133,16 @@ export class LowStockTableComponent implements OnInit, AfterViewInit {
   }
 
   refresh(): void {
-    this.loading = true;
-    this.ai.lowStock(this.threshold, this.limit).subscribe({
-      next: rows => this.dataSource.data = rows,
-      error: () => {},
-      complete: () => this.loading = false
-    });
+    // this.loading = true;
+    // this.ai.lowStock(this.threshold, this.limit).subscribe({
+    //   next: rows => this.dataSource.data = rows,
+    //   error: () => {},
+    //   complete: () => this.loading = false
+    // });
   }
 
   order(item: LowStockItem) {
     // branche ta logique de création de commande
-    console.log('Commander pour', item.produit_id);
+    // console.log('Commander pour', item.produit_id);
   }
 }

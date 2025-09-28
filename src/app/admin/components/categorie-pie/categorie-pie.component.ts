@@ -63,7 +63,6 @@ export class CategoriePieComponent implements OnInit{
   get values(){ return this.data.map(d=>d.ca); }
 
   ngOnInit(): void {
-    console.log("CategoriePieComponent")
-    console.log(this.data)
+
   }
 }

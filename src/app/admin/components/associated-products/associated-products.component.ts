@@ -105,8 +105,6 @@ export class AssociatedProductsComponent implements OnInit {
 
     this.ai.recommendations(this.productId, this.top, this.limitBaskets).subscribe({
       next: (data: any) => {
-        console.log("getRecommendations")
-        console.log(data)
         this.items$ = data.recommendations
         this.items = data.recommendations
       },

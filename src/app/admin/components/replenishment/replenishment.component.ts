@@ -134,7 +134,7 @@ export class ReplenishmentComponent implements OnInit {
   order() {
     if (!this.data) return;
     // branche ta logique commande automatique
-    console.log('Commander quantité', this.data.suggested_order_qty, 'pour produit', this.data.produit_id);
+    // console.log('Commander quantité', this.data.suggested_order_qty, 'pour produit', this.data.produit_id);
 
   }
 

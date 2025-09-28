@@ -5,7 +5,7 @@
         <mat-icon color="warn">bar_chart</mat-icon><h3>Ventes mensuelles</h3>
       </mat-panel-title>
     </mat-expansion-panel-header>
-    <ng-scrollbar  *ngIf="chart" orientation="vertical" pointerEventsMethod="scrollbar">
+    <ng-scrollbar  orientation="vertical" pointerEventsMethod="scrollbar">
       <canvas baseChart
               [type]="'bar'"
               [data]="data">

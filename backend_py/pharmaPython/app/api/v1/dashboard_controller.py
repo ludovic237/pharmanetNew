@@ -183,3 +183,17 @@ def score_caisse_router(caisse_id: int, db: Session = Depends(get_db)):
     _ANOMALY_MODEL = train_caisse_anomaly_model(db)
   score = score_caisse(db=db, model=_ANOMALY_MODEL, caisse_id=caisse_id)
   return {"caisseId": caisse_id, "anomalyScore": score}
+
+@router.get("/stock-actual")
+def stock_actual_router(
+  db: Session = Depends(get_db),
+):
+  service = DashboardService(db)
+  return service.get_stock_actuel()
+
+@router.get("/stock-perime")
+def stock_perime_router(
+  db: Session = Depends(get_db),
+):
+  service = DashboardService(db)
+  return service.get_perime_actuel()

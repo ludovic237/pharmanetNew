@@ -1,13 +1,14 @@
 <mat-accordion>
-  <mat-expansion-panel >
+  <mat-expansion-panel>
     <mat-expansion-panel-header>
       <mat-panel-title>
-        <div class="flex justify-between items-center">
-          <mat-icon>pie_chart</mat-icon><h3>Ventes par catégorie</h3>
-          <mat-select [value]="30" disabled>
-            <mat-option [value]="30">30 jours</mat-option>
-          </mat-select>
-        </div>
+
+        <mat-icon color="warn">pie_chart</mat-icon>
+        <h3>Ventes par catégorie</h3>
+        <!--<mat-select [value]="30" disabled>
+          <mat-option [value]="30">30 jours</mat-option>
+        </mat-select>-->
+
       </mat-panel-title>
     </mat-expansion-panel-header>
     <ng-scrollbar orientation="vertical" pointerEventsMethod="scrollbar">
@@ -17,9 +18,9 @@
 
       <mat-list>
         <mat-list-item *ngFor="let d of data">
-          <div matListItemTitle>{{d.categorie}}</div>
+          <div matListItemTitle>{{ d.categorie }}</div>
           <!--      <div matListItemLine>{{d.ca}} ({{d.percent}}%)</div>-->
-          <div matListItemLine>{{d.ca}}</div>
+          <div matListItemLine>{{ d.ca }}</div>
         </mat-list-item>
       </mat-list>
     </ng-scrollbar>

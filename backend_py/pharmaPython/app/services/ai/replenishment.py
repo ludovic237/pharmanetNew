@@ -21,16 +21,17 @@ from app.models.produit import Produit
 from app.models.concerner import Concerner
 from app.models.vente import Vente
 from app.services.ai.feature_store import get_current_stock, get_daily_sales_series, get_products_basic, \
-  get_stock_bounds_map
+  get_stock_bounds_map, get_products_basic_with_stock, get_products_basic_with_stock_pageable
 
 # --------------------------
 # Paramètres globaux
 # --------------------------
-DEFAULT_LEAD_TIME = 7          # jours si non rempli sur le produit
-SERVICE_LEVEL_Z = 1.65         # ~95%
+DEFAULT_LEAD_TIME = 7  # jours si non rempli sur le produit
+SERVICE_LEVEL_Z = 1.65  # ~95%
 MIN_HISTORY_DAYS = 90
-COVERAGE_DAYS = 21             # stock-cible pour tenue (période de couverture)
-USE_SARIMAX = False            # True si tu veux seasonal weekly
+COVERAGE_DAYS = 21  # stock-cible pour tenue (période de couverture)
+USE_SARIMAX = False  # True si tu veux seasonal weekly
+
 
 @dataclass
 class RecoCommande:
@@ -108,6 +109,7 @@ def _group_daily_sales(db: Session, days: int = 180) -> pd.DataFrame:
   df["date"] = pd.to_datetime(df["date"]).dt.date
   return df
 
+
 def _abc_classes(db: Session, days: int = 180) -> dict[int, str]:
   """
   Classe ABC sur CA recent par produit. Retourne {produit_id: 'A'|'B'|'C'}
@@ -136,12 +138,15 @@ def _abc_classes(db: Session, days: int = 180) -> dict[int, str]:
   df = pd.DataFrame(rows, columns=["produit_id", "ca"])
   df = df.sort_values("ca", ascending=False)
   df["cum"] = df["ca"].cumsum() / df["ca"].sum()
+
   def label(x):
     if x <= 0.2: return "A"
     if x <= 0.5: return "B"
     return "C"
+
   df["classe"] = df["cum"].apply(label)
   return dict(zip(df["produit_id"], df["classe"]))
+
 
 def _stock_dispo(db: Session) -> dict[int, int]:
   """
@@ -162,6 +167,7 @@ def _stock_dispo(db: Session) -> dict[int, int]:
   rows = db.query(Produit.id, Produit.stock).all() if hasattr(Produit, "stock") else []
   return {pid: int(stock or 0) for pid, stock in rows}
 
+
 def _lead_time_for(p: Produit) -> int:
   """
     Retrieves the lead time for a product.
@@ -174,6 +180,7 @@ def _lead_time_for(p: Produit) -> int:
     """
   return int(DEFAULT_LEAD_TIME)
   # return int(p.lead_time_jours or DEFAULT_LEAD_TIME)
+
 
 # ---------- Prévision simple par SKU ----------
 def _forecast_daily(df_prod: pd.Series) -> tuple[float, float]:
@@ -200,7 +207,7 @@ def _forecast_daily(df_prod: pd.Series) -> tuple[float, float]:
   if USE_SARIMAX and len(y) >= MIN_HISTORY_DAYS:
     try:
       from statsmodels.tsa.statespace.sarimax import SARIMAX
-      model = SARIMAX(y, order=(1,1,1), seasonal_order=(0,1,1,7),
+      model = SARIMAX(y, order=(1, 1, 1), seasonal_order=(0, 1, 1, 7),
                       enforce_stationarity=False, enforce_invertibility=False)
       res = model.fit(disp=False)
       # Prévision court terme (prochaine semaine pour estimer mean/std)
@@ -212,13 +219,14 @@ def _forecast_daily(df_prod: pd.Series) -> tuple[float, float]:
       pass
 
   # Fallback moyenne mobile pondérée (7j, 14j, 28j)
-  w7  = y.tail(7).mean() if len(y) >= 7 else y.mean()
+  w7 = y.tail(7).mean() if len(y) >= 7 else y.mean()
   w14 = y.tail(14).mean() if len(y) >= 14 else w7
   w28 = y.tail(28).mean() if len(y) >= 28 else w14
-  mean = float((0.5*w7 + 0.3*w14 + 0.2*w28))
+  mean = float((0.5 * w7 + 0.3 * w14 + 0.2 * w28))
   std = float(y.tail(28).std() if len(y) >= 28 else y.std())
   if np.isnan(std): std = 0.0
   return mean, std
+
 
 # ---------- Reco principale ----------
 def compute_replenishment(db: Session) -> list[RecoCommande]:
@@ -259,7 +267,7 @@ def compute_replenishment(db: Session) -> list[RecoCommande]:
 
     # Couverture cible (ABC)
     classe = abc.get(pid, "C")
-    cov = COVERAGE_DAYS if classe == "A" else (int(COVERAGE_DAYS*0.75) if classe == "B" else int(COVERAGE_DAYS*0.5))
+    cov = COVERAGE_DAYS if classe == "A" else (int(COVERAGE_DAYS * 0.75) if classe == "B" else int(COVERAGE_DAYS * 0.5))
     target_stock = daily_mean * max(cov, lead)
 
     min_lot = int(getattr(p, "min_lot", 1) or 1)
@@ -268,7 +276,7 @@ def compute_replenishment(db: Session) -> list[RecoCommande]:
     if stock <= rop:
       manque = max(0, int(round(target_stock - stock)))
       # arrondir au multiple de min_lot
-      q = int(max(min_lot, ( (manque + min_lot - 1) // min_lot ) * min_lot))
+      q = int(max(min_lot, ((manque + min_lot - 1) // min_lot) * min_lot))
       raison = f"Stock ({stock}) <= ROP ({int(rop)})"
 
     recos.append(RecoCommande(
@@ -289,8 +297,10 @@ def compute_replenishment(db: Session) -> list[RecoCommande]:
     ))
 
   # Prioriser: d’abord ceux avec q>0, ensuite par classe A>B>C puis manque le plus grand
-  recos.sort(key=lambda r: (r.qte_suggeree == 0, {"A":0,"B":1,"C":2}.get(r.classe_abc,3), -(r.target_stock - r.stock_actuel)))
+  recos.sort(key=lambda r: (
+  r.qte_suggeree == 0, {"A": 0, "B": 1, "C": 2}.get(r.classe_abc, 3), -(r.target_stock - r.stock_actuel)))
   return recos
+
 
 # ---------- Générer des commandes d’achat (PO) ----------
 def generate_purchase_orders(db: Session) -> list[Dict[str, Any]]:
@@ -343,7 +353,8 @@ def generate_purchase_orders(db: Session) -> list[Dict[str, Any]]:
   return po_list
 
 
-def compute_safety_stock(daily_demand: List[Tuple[date, float]], lead_time_days: int = 7, service_level_z: float = 1.65) -> float:
+def compute_safety_stock(daily_demand: List[Tuple[date, float]], lead_time_days: int = 7,
+                         service_level_z: float = 1.65) -> float:
   """
   Stock de sécurité = z * σ_d * sqrt(L)
   σ_d = écart-type de la demande journalière.
@@ -364,9 +375,10 @@ def compute_safety_stock(daily_demand: List[Tuple[date, float]], lead_time_days:
     return 0.0
   vals = [v for _, v in daily_demand]
   mean = sum(vals) / len(vals)
-  var = sum((v - mean) ** 2 for v in vals) / max(len(vals)-1, 1)
+  var = sum((v - mean) ** 2 for v in vals) / max(len(vals) - 1, 1)
   std = math.sqrt(var)
   return max(0.0, service_level_z * std * math.sqrt(max(lead_time_days, 1)))
+
 
 def compute_reorder_point(avg_daily_demand: float, lead_time_days: int, safety_stock: float) -> float:
   """
@@ -381,6 +393,7 @@ def compute_reorder_point(avg_daily_demand: float, lead_time_days: int, safety_s
         float: Reorder point.
     """
   return max(0.0, avg_daily_demand * lead_time_days + safety_stock)
+
 
 def suggested_order_qty(
   current_stock: float,
@@ -415,15 +428,30 @@ def suggested_order_qty(
 #   pass
 
 
-def compute_replenishment_new(db, horizon_days: int = 30, service_level_z: float = 1.65, default_lead_time_days: int = 3):
+def compute_replenishment_new(db,
+                              horizon_days: int = 30,
+                              service_level_z: float = 1.65,
+                              default_lead_time_days: int = 3,
+                              page: int = 0,
+                              size: int = 10,
+                              search: Optional[str] = None
+                              ):
   """
   Renvoie une liste de RecoCommande.
   Prend désormais en compte stock_min/stock_max par produit.
   """
-  basics = get_products_basic(db)  # [{id, nom, lead_time, classe_abc}, ...]
+  basics = get_products_basic_with_stock_pageable(db,
+                                                  page=page, size=size,
+                                                  search=search)  # [{id, nom, lead_time, classe_abc}, ...]
+  # basics = get_products_basic(db)  # [{id, nom, lead_time, classe_abc}, ...]
+  print("basics")
+  print(len(basics))
   product_ids = [p["id"] for p in basics]
+  print("product_ids")
+  print(len(product_ids))
   bounds_map = get_stock_bounds_map(db, product_ids)  # {id: {"min":..., "max":...}}
-
+  print("bounds_map")
+  print(len(bounds_map))
   recos: list[RecoCommande] = []
   if not basics:
     return []
@@ -446,7 +474,7 @@ def compute_replenishment_new(db, horizon_days: int = 30, service_level_z: float
       m = daily_mean
       daily_std = (sum((v - m) ** 2 for v in vals) / max(len(vals), 1)) ** 0.5
 
-    stock = float(get_current_stock(db, pid) or 0.0)
+    stock = float(p.get("stock") or 0.0)
 
     # ROP / Target (classique : demande sur LT + SS, Target = ROP + couverture_horizon)
     demand_lt = daily_mean * lead_time

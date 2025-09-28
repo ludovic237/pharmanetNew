@@ -1,239 +1,421 @@
-<!-- Filtre période -->
-<mat-card class="mb-3">
-  <mat-form-field appearance="outline">
-    <mat-label>Entrer date vente</mat-label>
-    <mat-date-range-input [rangePicker]="picker">
-      <input matStartDate placeholder="Start date" [(ngModel)]="startDateVente">
-      <input matEndDate placeholder="End date" [(ngModel)]="endDateVente">
-    </mat-date-range-input>
-    <!--            <mat-hint>MM/DD/YYYY - MM/DD/YYYY</mat-hint>-->
-    <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-    <mat-date-range-picker #picker>
-      <mat-date-range-picker-actions>
-        <button mat-button matDateRangePickerCancel>Annuler</button>
-        <button mat-button matDateRangePickerApply (click)="fetchVentesPageable()">Apply</button>
-      </mat-date-range-picker-actions>
-    </mat-date-range-picker>
-  </mat-form-field>
+<mat-toolbar color="primary">
+  <div fxLayout="row" fxLayoutAlign="space-between center" class="user-info">
+    <h2>Tableau de bord</h2>
+  </div>
+</mat-toolbar>
+<mat-card>
+  <mat-tab-group [(selectedIndex)]="selectedTabIndex">
+    <!-- Tab: Liste des Dépenses -->
+    <mat-tab label="Analyse par periode personnalisee">
+      <div class="p-2">
+        <!-- Filtre période -->
+        <mat-card class="mb-3">
+          <mat-form-field appearance="outline">
+            <mat-label>Entrer date vente</mat-label>
+            <mat-date-range-input [rangePicker]="picker">
+              <input matStartDate placeholder="Start date" [(ngModel)]="startDateVente">
+              <input matEndDate placeholder="End date" [(ngModel)]="endDateVente">
+            </mat-date-range-input>
+            <!--            <mat-hint>MM/DD/YYYY - MM/DD/YYYY</mat-hint>-->
+            <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-date-range-picker #picker>
+              <mat-date-range-picker-actions>
+                <button mat-button matDateRangePickerCancel>Annuler</button>
+                <button mat-button matDateRangePickerApply (click)="fetchVentesPageable()">Apply</button>
+              </mat-date-range-picker-actions>
+            </mat-date-range-picker>
+          </mat-form-field>
+        </mat-card>
+
+        <div fxLayout="row wrap">
+          <div fxFlex="50" fxFlex.xl="16.6" fxFlex.lg="16.6" fxFlex.md="33.3" fxFlex.sm="33.3" class="p-2">
+            <mat-card class="gradient-green tile p-2">
+              <mat-icon>monetization_on</mat-icon>
+              <h2>{{ formatMoney(kpi?.ca) }}</h2>
+              <p>CA (période)</p>
+            </mat-card>
+          </div>
+          <div fxFlex="50" fxFlex.xl="16.6" fxFlex.lg="16.6" fxFlex.md="33.3" fxFlex.sm="33.3" class="p-2">
+            <mat-card class="gradient-red tile p-2">
+              <mat-icon>thumb_up_alt</mat-icon>
+              <h2>{{ formatMoney(kpi?.encaisse) }}</h2>
+              <p>Encaissements</p>
+            </mat-card>
+          </div>
+          <div fxFlex="50" fxFlex.xl="16.6" fxFlex.lg="16.6" fxFlex.md="33.3" fxFlex.sm="33.3" class="p-2">
+            <mat-card class="gradient-orange tile p-2">
+              <mat-icon>group</mat-icon>
+              <h2>{{ kpi?.tickets || 0 }}</h2>
+              <p>Ventes</p>
+            </mat-card>
+          </div>
+          <div fxFlex="50" fxFlex.xl="16.6" fxFlex.lg="16.6" fxFlex.md="33.3" fxFlex.sm="33.3" class="p-2">
+            <mat-card class="gradient-pink tile p-2">
+              <mat-icon>shopping_cart</mat-icon>
+              <h2>{{ (kpi?.tauxRetour || 0) | percent:'1.0-2' }}</h2>
+              <p>Retours</p>
+            </mat-card>
+          </div>
+          <div fxFlex="50" fxFlex.xl="16.6" fxFlex.lg="16.6" fxFlex.md="33.3" fxFlex.sm="33.3" class="p-2">
+            <mat-card class="gradient-gray tile p-2">
+              <mat-icon>pie_chart</mat-icon>
+              <h2>{{ formatMoney(kpi?.depenses) }}</h2>
+              <p>Dépenses</p>
+            </mat-card>
+          </div>
+        </div>
+
+        <div fxLayout="row wrap">
+          <div fxFlex="100" fxFlex.gt-sm="45" class="p-2">
+            <mat-card>
+              <mat-card-header fxLayoutAlign="center">
+                <mat-card-title>Montly Sales</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="w-100 h-300p" #resizedDiv>
+                  <canvas baseChart
+                          [data]="lineChartData"
+                          [legend]="true"
+                          [type]="'line'">
+                  </canvas>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </div>
+          <div fxFlex="100" fxFlex.gt-sm="55" class="p-2">
+            <mat-card>
+              <mat-card-header fxLayoutAlign="center">
+                <mat-card-title>Répartition par catégorie</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <!--        <div class="w-100 h-300p" #resizedDiv>-->
+                <div #resizedDiv>
+                  <canvas baseChart
+                          [data]="pieChartData"
+                          [options]="pieChartOptions"
+                          [legend]="true"
+                          [type]="'pie'">
+                  </canvas>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </div>
+          <div fxFlex="100" fxFlex.gt-sm="55" class="p-2">
+            <mat-card>
+              <mat-card-header fxLayoutAlign="center">
+                <mat-card-title>Top produits vendus</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="w-100 h-300p" #resizedDiv>
+                  <canvas baseChart
+                          [data]="barChartData"
+                          [legend]="true"
+                          [type]="'bar'">
+                  </canvas>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </div>
+        </div>
+
+        <!-- Tables -->
+        <div fxLayout="row wrap">
+
+          <app-optimize-dashboard
+            [startDateVente]="startDateVente"
+            [endDateVente]="endDateVente"
+          ></app-optimize-dashboard>
+
+
+          <div fxFlex="100" fxFlex.gt-sm="50" class="p-2">
+            <app-replenishment [produitId]="1001"></app-replenishment>
+          </div>
+
+          <div fxFlex="100" fxFlex.gt-sm="50" class="p-2">
+            <app-forecast-chart [produitId]="1001"></app-forecast-chart>
+          </div>
+
+          <div fxFlex="100" fxFlex.gt-sm="50" class="p-2">
+            <app-associated-products [productId]="null" [top]="30" [limitBaskets]="5000"></app-associated-products>
+          </div>
+
+          <div fxFlex="100" fxFlex.gt-sm="50" class="p-2">
+            <app-monthly-sales *ngIf="lineChartData.datasets.length>0" [data]="lineChartData"></app-monthly-sales>
+          </div>
+
+          <div fxFlex="100" fxFlex.gt-sm="50" class="p-2">
+            <app-categorie-pie *ngIf="categories.length>0" [data]="categories"></app-categorie-pie>
+          </div>
+
+          <div fxFlex="100" fxFlex.gt-sm="50" class="p-2">
+            <app-weekly-seasonality *ngIf="weekly.length>0" [data]="weekly"></app-weekly-seasonality>
+          </div>
+
+          <div fxFlex="100" fxFlex.gt-sm="50" class="p-2">
+            <app-daily-sales *ngIf="daily.length>0" [data]="daily"></app-daily-sales>
+          </div>
+
+          <div fxFlex="100" fxFlex.gt-sm="50" class="p-2">
+            <app-top-products [items]="top"></app-top-products>
+          </div>
+
+          <div fxFlex="100" fxFlex.gt-sm="50" class="p-2">
+            <app-low-stock *ngIf="low.length>0" [items]="low"></app-low-stock>
+          </div>
+
+          <div fxFlex="100" fxFlex.gt-sm="50" class="p-2">
+            <app-replenishment-table [rows]="repl"></app-replenishment-table>
+          </div>
+
+        </div>
+      </div>
+    </mat-tab>
+    <mat-tab label="Donnees temps reel et alerts">
+      <div class="p-2">
+        <div fxLayout="row wrap">
+          <div  fxFlex="100" fxFlex.gt-sm="25" fxFlex.sm="50" class="p-2">
+            <mat-card class="gradient-green tile p-2">
+              <mat-icon>monetization_on</mat-icon>
+              <h2>{{ formatMoney(totalTodayVentePrice) }}</h2>
+              <p>Ventes aujourd'hui</p>
+              <span>{{ totalTodayVente }} ventes depuis ce matin</span>
+            </mat-card>
+          </div>
+          <div  fxFlex="100" fxFlex.gt-sm="25" fxFlex.sm="50" class="p-2">
+            <mat-card class="gradient-red tile p-2">
+              <mat-icon>thumb_up_alt</mat-icon>
+              <h2>{{ formatMoney(totalStockActuelPrice) }}</h2>
+              <p>Stock total actuel</p>
+              <span>Valeur : {{ totalStockActuel }}</span>
+            </mat-card>
+          </div>
+          <div  fxFlex="100" fxFlex.gt-sm="25" fxFlex.sm="50" class="p-2">
+            <mat-card class="gradient-orange tile p-2">
+              <mat-icon>group</mat-icon>
+              <h2>{{ formatMoney(totalStockPerimePrice) }}</h2>
+              <p>Total produits perimee</p>
+              <span>Valeur : {{ totalStockPerime }}</span>
+            </mat-card>
+          </div>
+          <div  fxFlex="100" fxFlex.gt-sm="25" fxFlex.sm="50" class="p-2">
+            <mat-card class="gradient-indigo tile p-2">
+              <mat-icon>group</mat-icon>
+              <h2>{{ formatMoney(totalStockActuelPrice-totalStockPerimePrice) }}</h2>
+              <p>Total produits non perimee</p>
+              <span>Valeur : {{ totalStockActuel-totalStockPerime }}</span>
+            </mat-card>
+          </div>
+        </div>
+        <div fxLayout="row wrap">
+          <!--          <div class="center">-->
+          <!--            <mat-progress-spinner diameter="40" mode="indeterminate"></mat-progress-spinner>-->
+          <!--          </div>-->
+          <!--<ng-container >
+            <mat-accordion fxLayout="row">
+              <div fxFlex="100" fxFlex.gt-sm="50" class="p-2">
+                <mat-expansion-panel expanded>
+                  <mat-expansion-panel-header>
+                    <mat-panel-title>
+                      <mat-icon color="warn">warning</mat-icon>&nbsp;<h3>Ruptures et alertes</h3>
+                      <h4>12</h4>
+                      <h6>5 ruptures critiques</h6>
+                    </mat-panel-title>
+                  </mat-expansion-panel-header>
+                  <ng-scrollbar orientation="vertical" pointerEventsMethod="scrollbar">
+                    <mat-card>
+                      <table mat-table [dataSource]="reorderDataRupture">
+                        <ng-container matColumnDef="id">
+                          <th mat-header-cell *matHeaderCellDef>id</th>
+                          <td mat-cell *matCellDef="let row">{{ row.id }}</td>
+                        </ng-container>
+                        <ng-container matColumnDef="nom">
+                          <th mat-header-cell *matHeaderCellDef>Produit</th>
+                          <td mat-cell *matCellDef="let row">{{ row.nom }}</td>
+                        </ng-container>
+                        <ng-container matColumnDef="stock">
+                          <th mat-header-cell *matHeaderCellDef>Stock</th>
+                          <td mat-cell *matCellDef="let row">{{ row.stock | number:'1.0-0' }}</td>
+                        </ng-container>
+                        <ng-container matColumnDef="statut">
+                          <th mat-header-cell *matHeaderCellDef>Statut</th>
+                          <td mat-cell *matCellDef="let row">
+                            {{ row.stock}}
+                          </td>
+                        </ng-container>
+                        <tr mat-header-row *matHeaderRowDef="displayedColumnsRupture"></tr>
+                        <tr mat-row *matRowDef="let row; columns: displayedColumnsRupture;"></tr>
+                      </table>
+                    </mat-card>
+
+                  </ng-scrollbar>
+                </mat-expansion-panel>
+              </div>
+            </mat-accordion>
+
+
+          </ng-container>-->
+
+        </div>
+        <mat-accordion fxLayout="row wrap">
+          <div fxFlex="100" fxFlex.gt-sm="50" class="p-2">
+            <mat-expansion-panel expanded>
+              <mat-expansion-panel-header>
+                <mat-panel-title>
+                  <mat-icon color="warn">warning</mat-icon>&nbsp;<h3>Ruptures et alertes</h3>
+                </mat-panel-title>
+              </mat-expansion-panel-header>
+              <ng-scrollbar *ngIf="reorderDataRupture.length>0" orientation="vertical" pointerEventsMethod="scrollbar">
+                <mat-toolbar>
+                  <h4>12</h4>
+                  <h6>5 ruptures critiques</h6>
+                </mat-toolbar>
+                <mat-card>
+                  <table mat-table [dataSource]="reorderDataRupture">
+                    <ng-container matColumnDef="id">
+                      <th mat-header-cell *matHeaderCellDef>id</th>
+                      <td mat-cell *matCellDef="let row">{{ row.id }}</td>
+                    </ng-container>
+                    <ng-container matColumnDef="nom">
+                      <th mat-header-cell *matHeaderCellDef>Produit</th>
+                      <td mat-cell *matCellDef="let row">{{ row.nom }}</td>
+                    </ng-container>
+                    <ng-container matColumnDef="stock">
+                      <th mat-header-cell *matHeaderCellDef>Stock</th>
+                      <td mat-cell *matCellDef="let row">{{ row.stock | number:'1.0-0' }}</td>
+                    </ng-container>
+                    <ng-container matColumnDef="statut">
+                      <th mat-header-cell *matHeaderCellDef>Statut</th>
+                      <td mat-cell *matCellDef="let row">
+                        {{ row.stock }}
+                      </td>
+                    </ng-container>
+                    <tr mat-header-row *matHeaderRowDef="displayedColumnsRupture"></tr>
+                    <tr mat-row *matRowDef="let row; columns: displayedColumnsRupture;"></tr>
+                  </table>
+                </mat-card>
+              </ng-scrollbar>
+              <ng-container *ngIf="reorderDataRupture.length==0">
+                <div fxLayout="row wrap" fxLayoutAlign="center center" class="w-100 p-3">
+                  No data available
+                </div>
+              </ng-container>
+            </mat-expansion-panel>
+          </div>
+          <div fxFlex="100" fxFlex.gt-sm="50" class="p-2">
+            <mat-expansion-panel expanded>
+              <mat-expansion-panel-header>
+                <mat-panel-title>
+                  <mat-icon color="warn">warning</mat-icon>&nbsp;<h3>Top ventes ( 7 jours)</h3>
+                </mat-panel-title>
+              </mat-expansion-panel-header>
+              <ng-scrollbar *ngIf="top7.length>0" orientation="vertical" pointerEventsMethod="scrollbar">
+                <div fxFlex="100" fxFlex.gt-sm="50" class="p-2">
+                  <app-top-products [items]="top7"></app-top-products>
+                </div>
+              </ng-scrollbar>
+              <ng-container *ngIf="top7.length==0">
+                <div fxLayout="row wrap" fxLayoutAlign="center center" class="w-100 p-3">
+                  No data available
+                </div>
+              </ng-container>
+            </mat-expansion-panel>
+          </div>
+          <div fxFlex="100" fxFlex.gt-sm="50" class="p-2">
+            <mat-card>
+              <mat-card-title>Commandes récentes</mat-card-title>
+              <div class="table-container">
+                <table mat-table [dataSource]="ordersRecent" class="mat-elevation-z8">
+
+                  <ng-container matColumnDef="id">
+                    <th mat-header-cell *matHeaderCellDef>ID</th>
+                    <td mat-cell *matCellDef="let r">{{ r.id }}</td>
+                  </ng-container>
+
+                  <ng-container matColumnDef="ref">
+                    <th mat-header-cell *matHeaderCellDef>Réf</th>
+                    <td mat-cell *matCellDef="let r">{{ r.ref || '—' }}</td>
+                  </ng-container>
+
+                  <ng-container matColumnDef="fournisseur">
+                    <th mat-header-cell *matHeaderCellDef>Fournisseur</th>
+                    <td mat-cell *matCellDef="let r">{{ r.fournisseur || '—' }}</td>
+                  </ng-container>
+
+                  <ng-container matColumnDef="montantCmd">
+                    <th mat-header-cell *matHeaderCellDef>Montant</th>
+                    <td mat-cell *matCellDef="let r">{{ formatMoney(r.montantCmd) }}</td>
+                  </ng-container>
+
+                  <ng-container matColumnDef="etat">
+                    <th mat-header-cell *matHeaderCellDef>État</th>
+                    <td mat-cell *matCellDef="let r">{{ r.etat || '—' }}</td>
+                  </ng-container>
+
+                  <ng-container matColumnDef="dateCreation">
+                    <th mat-header-cell *matHeaderCellDef>Créée le</th>
+                    <td mat-cell *matCellDef="let r">{{ r.dateCreation | date:'yyyy-MM-dd' }}</td>
+                  </ng-container>
+
+                  <ng-container matColumnDef="actions">
+                    <th mat-header-cell *matHeaderCellDef></th>
+                    <td mat-cell *matCellDef="let r">
+                      <!--              <button mat-icon-button matTooltip="Détails"><mat-icon>visibility</mat-icon></button>-->
+                      <ng-container *ngIf="isPlatformBrowser">
+                        <button mat-icon-button
+                        >
+                          <mat-icon>fullscreen</mat-icon>
+                        </button>
+                      </ng-container>
+                      <ng-container *ngIf="!isPlatformBrowser"><!--container--></ng-container>
+                    </td>
+                  </ng-container>
+
+                  <tr mat-header-row *matHeaderRowDef="displayedColumnsOrders"></tr>
+                  <tr mat-row *matRowDef="let row; columns: displayedColumnsOrders;"></tr>
+                </table>
+              </div>
+            </mat-card>
+          </div>
+          <div fxFlex="100" fxFlex.gt-sm="50" class="p-2">
+            <mat-accordion>
+              <mat-expansion-panel>
+                <mat-expansion-panel-header>
+                  <mat-panel-title>
+                    <mat-icon color="warn">warning</mat-icon>
+                    <h3>Top 10 des produits en alerte (stock et peremption)</h3>
+                  </mat-panel-title>
+                </mat-expansion-panel-header>
+                <ng-scrollbar orientation="vertical" pointerEventsMethod="scrollbar">
+                  <div class="table-container">
+                    <table mat-table [dataSource]="stockAlerts" class="mat-elevation-z8">
+                      <ng-container matColumnDef="produit">
+                        <th mat-header-cell *matHeaderCellDef>Produit</th>
+                        <td mat-cell *matCellDef="let r">{{ r.produit }}</td>
+                      </ng-container>
+                      <ng-container matColumnDef="quantiteRestante">
+                        <th mat-header-cell *matHeaderCellDef>Qté</th>
+                        <td mat-cell *matCellDef="let r">{{ r.quantiteRestante ?? '—' }}</td>
+                      </ng-container>
+                      <ng-container matColumnDef="datePeremption">
+                        <th mat-header-cell *matHeaderCellDef>Péremption</th>
+                        <td mat-cell *matCellDef="let r">{{ r.datePeremption | date:'yyyy-MM-dd' }}</td>
+                      </ng-container>
+
+                      <tr mat-header-row *matHeaderRowDef="displayedColumnsStock"></tr>
+                      <tr mat-row *matRowDef="let row; columns: displayedColumnsStock;"></tr>
+                    </table>
+                  </div>
+                </ng-scrollbar>
+              </mat-expansion-panel>
+            </mat-accordion>
+
+          </div>
+        </mat-accordion>
+      </div>
+    </mat-tab>
+  </mat-tab-group>
 </mat-card>
 
-<div fxLayout="row wrap">
-  <div fxFlex="50" fxFlex.xl="16.6" fxFlex.lg="16.6" fxFlex.md="33.3" fxFlex.sm="33.3" class="p-2">
-    <mat-card class="gradient-green tile p-2">
-      <mat-icon>monetization_on</mat-icon>
-      <h2>{{ formatMoney(kpi?.ca) }}</h2>
-      <p>CA (période)</p>
-    </mat-card>
-  </div>
-  <div fxFlex="50" fxFlex.xl="16.6" fxFlex.lg="16.6" fxFlex.md="33.3" fxFlex.sm="33.3" class="p-2">
-    <mat-card class="gradient-red tile p-2">
-      <mat-icon>thumb_up_alt</mat-icon>
-      <h2>{{ formatMoney(kpi?.encaisse) }}</h2>
-      <p>Encaissements</p>
-    </mat-card>
-  </div>
-  <div fxFlex="50" fxFlex.xl="16.6" fxFlex.lg="16.6" fxFlex.md="33.3" fxFlex.sm="33.3" class="p-2">
-    <mat-card class="gradient-orange tile p-2">
-      <mat-icon>group</mat-icon>
-      <h2>{{ kpi?.tickets || 0 }}</h2>
-      <p>Ventes</p>
-    </mat-card>
-  </div>
-  <div fxFlex="50" fxFlex.xl="16.6" fxFlex.lg="16.6" fxFlex.md="33.3" fxFlex.sm="33.3" class="p-2">
-    <mat-card class="gradient-pink tile p-2">
-      <mat-icon>shopping_cart</mat-icon>
-      <h2>{{ (kpi?.tauxRetour || 0) | percent:'1.0-2' }}</h2>
-      <p>Retours</p>
-    </mat-card>
-  </div>
-  <div fxFlex="50" fxFlex.xl="16.6" fxFlex.lg="16.6" fxFlex.md="33.3" fxFlex.sm="33.3" class="p-2">
-    <mat-card class="gradient-gray tile p-2">
-      <mat-icon>pie_chart</mat-icon>
-      <h2>{{ formatMoney(kpi?.depenses) }}</h2>
-      <p>Dépenses</p>
-    </mat-card>
-  </div>
-</div>
 
-<div fxLayout="row wrap">
-  <div fxFlex="100" fxFlex.gt-sm="45" class="p-2">
-    <mat-card>
-      <mat-card-header fxLayoutAlign="center">
-        <mat-card-title>Montly Sales</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <div class="w-100 h-300p" #resizedDiv>
-          <canvas baseChart
-                  [data]="lineChartData"
-                  [legend]="true"
-                  [type]="'line'">
-          </canvas>
-        </div>
-      </mat-card-content>
-    </mat-card>
-  </div>
-  <div fxFlex="100" fxFlex.gt-sm="55" class="p-2">
-    <mat-card>
-      <mat-card-header fxLayoutAlign="center">
-        <mat-card-title>Répartition par catégorie</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <div class="w-100 h-300p" #resizedDiv>
-          <canvas baseChart
-                  [data]="pieChartData"
-                  [legend]="true"
-                  [type]="'pie'">
-          </canvas>
-        </div>
-      </mat-card-content>
-    </mat-card>
-  </div>
-  <div fxFlex="100" fxFlex.gt-sm="55" class="p-2">
-    <mat-card>
-      <mat-card-header fxLayoutAlign="center">
-        <mat-card-title>Top produits vendus</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <div class="w-100 h-300p" #resizedDiv>
-          <canvas baseChart
-                  [data]="barChartData"
-                  [legend]="true"
-                  [type]="'bar'">
-          </canvas>
-        </div>
-      </mat-card-content>
-    </mat-card>
-  </div>
-</div>
 
-<!-- Tables -->
-<div fxLayout="row wrap">
-  <div fxFlex="100" fxFlex.gt-sm="50" class="p-2">
-    <mat-card>
-      <mat-card-title>Commandes récentes</mat-card-title>
-      <div class="table-container">
-        <table mat-table [dataSource]="ordersRecent" class="mat-elevation-z8">
-
-          <ng-container matColumnDef="id">
-            <th mat-header-cell *matHeaderCellDef>ID</th>
-            <td mat-cell *matCellDef="let r">{{ r.id }}</td>
-          </ng-container>
-
-          <ng-container matColumnDef="ref">
-            <th mat-header-cell *matHeaderCellDef>Réf</th>
-            <td mat-cell *matCellDef="let r">{{ r.ref || '—' }}</td>
-          </ng-container>
-
-          <ng-container matColumnDef="fournisseur">
-            <th mat-header-cell *matHeaderCellDef>Fournisseur</th>
-            <td mat-cell *matCellDef="let r">{{ r.fournisseur || '—' }}</td>
-          </ng-container>
-
-          <ng-container matColumnDef="montantCmd">
-            <th mat-header-cell *matHeaderCellDef>Montant</th>
-            <td mat-cell *matCellDef="let r">{{ formatMoney(r.montantCmd) }}</td>
-          </ng-container>
-
-          <ng-container matColumnDef="etat">
-            <th mat-header-cell *matHeaderCellDef>État</th>
-            <td mat-cell *matCellDef="let r">{{ r.etat || '—' }}</td>
-          </ng-container>
-
-          <ng-container matColumnDef="dateCreation">
-            <th mat-header-cell *matHeaderCellDef>Créée le</th>
-            <td mat-cell *matCellDef="let r">{{ r.dateCreation | date:'yyyy-MM-dd' }}</td>
-          </ng-container>
-
-          <ng-container matColumnDef="actions">
-            <th mat-header-cell *matHeaderCellDef></th>
-            <td mat-cell *matCellDef="let r">
-              <!--              <button mat-icon-button matTooltip="Détails"><mat-icon>visibility</mat-icon></button>-->
-              <ng-container *ngIf="isPlatformBrowser">
-                <button mat-icon-button
-                >
-                  <mat-icon>fullscreen</mat-icon>
-                </button>
-              </ng-container>
-              <ng-container *ngIf="!isPlatformBrowser"><!--container--></ng-container>
-            </td>
-          </ng-container>
-
-          <tr mat-header-row *matHeaderRowDef="displayedColumnsOrders"></tr>
-          <tr mat-row *matRowDef="let row; columns: displayedColumnsOrders;"></tr>
-        </table>
-      </div>
-    </mat-card>
-  </div>
-  <div fxFlex="100" fxFlex.gt-sm="50" class="p-2">
-    <mat-card>
-      <mat-card-title>Alertes stock</mat-card-title>
-      <div class="table-container">
-        <table mat-table [dataSource]="stockAlerts" class="mat-elevation-z8">
-          <ng-container matColumnDef="produit">
-            <th mat-header-cell *matHeaderCellDef>Produit</th>
-            <td mat-cell *matCellDef="let r">{{ r.produit }}</td>
-          </ng-container>
-          <ng-container matColumnDef="quantiteRestante">
-            <th mat-header-cell *matHeaderCellDef>Qté</th>
-            <td mat-cell *matCellDef="let r">{{ r.quantiteRestante ?? '—' }}</td>
-          </ng-container>
-          <ng-container matColumnDef="datePeremption">
-            <th mat-header-cell *matHeaderCellDef>Péremption</th>
-            <td mat-cell *matCellDef="let r">{{ r.datePeremption | date:'yyyy-MM-dd' }}</td>
-          </ng-container>
-
-          <tr mat-header-row *matHeaderRowDef="displayedColumnsStock"></tr>
-          <tr mat-row *matRowDef="let row; columns: displayedColumnsStock;"></tr>
-        </table>
-      </div>
-    </mat-card>
-  </div>
-
-  <app-optimize-dashboard></app-optimize-dashboard>
-
-  <div fxFlex="100" fxFlex.gt-sm="50" class="p-2">
-    <app-low-stock-table [threshold]="5" [limit]="50"></app-low-stock-table>
-  </div>
-
-  <div fxFlex="100" fxFlex.gt-sm="50" class="p-2">
-    <app-replenishment [produitId]="1001"></app-replenishment>
-  </div>
-
-  <div fxFlex="100" fxFlex.gt-sm="50" class="p-2">
-    <app-forecast-chart [produitId]="1001"></app-forecast-chart>
-  </div>
-
-  <div fxFlex="100" fxFlex.gt-sm="50" class="p-2">
-    <app-associated-products [productId]="null" [top]="30" [limitBaskets]="5000"></app-associated-products>
-  </div>
-
-  <div fxFlex="100" fxFlex.gt-sm="50" class="p-2">
-    <app-monthly-sales [data]="monthly"></app-monthly-sales>
-  </div>
-
-  <div fxFlex="100" fxFlex.gt-sm="50" class="p-2">
-    <app-categorie-pie *ngIf="categories.length>0" [data]="categories"></app-categorie-pie>
-  </div>
-
-  <div fxFlex="100" fxFlex.gt-sm="50" class="p-2">
-    <app-weekly-seasonality *ngIf="weekly.length>0" [data]="weekly"></app-weekly-seasonality>
-  </div>
-
-  <div fxFlex="100" fxFlex.gt-sm="50" class="p-2">
-    <app-daily-sales [data]="daily"></app-daily-sales>
-  </div>
-
-  <div fxFlex="100" fxFlex.gt-sm="50" class="p-2">
-    <app-top-products [items]="top"></app-top-products>
-  </div>
-
-  <div fxFlex="100" fxFlex.gt-sm="50" class="p-2">
-    <app-low-stock *ngIf="low.length>0" [items]="low"></app-low-stock>
-  </div>
-
-  <div fxFlex="100" fxFlex.gt-sm="50" class="p-2">
-    <app-replenishment-table [rows]="repl"></app-replenishment-table>
-  </div>
-
-</div>
 

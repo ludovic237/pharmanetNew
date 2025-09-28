@@ -61,8 +61,7 @@ export class WeeklySeasonalityComponent implements OnInit{
   @Input() data?: any[];
 
   ngOnInit(): void {
-    console.log("this.chart")
-    console.log(this.data)
+
   }
 
   get chart(): ChartConfiguration<'bar'> | undefined {

@@ -38,10 +38,14 @@ import {CategoryListComponent} from "@shared-components/category-list/category-l
 import {RatingComponent} from "@shared-components/rating/rating.component";
 import {ControlsComponent} from "@shared-components/controls/controls.component";
 import {PipesModule} from "../../../theme/pipes/pipes.module";
+import {NgChartsModule} from "ng2-charts";
+import {NgxChartsModule} from "@swimlane/ngx-charts";
 
 @Component({
   selector: 'app-forecast-chart',
   imports: [
+    NgChartsModule,
+    NgxChartsModule,
     RouterModule,
     FormsModule,
     FlexLayoutModule,

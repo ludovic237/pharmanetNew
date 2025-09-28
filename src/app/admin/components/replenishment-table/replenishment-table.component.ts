@@ -30,7 +30,6 @@ export class ReplenishmentTableComponent {
   }
 
   order(row: any) {
-    // TODO: action
-    console.log('Commander', row);
+
   }
 }
