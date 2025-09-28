@@ -284,7 +284,7 @@ class EnRayonRepository:
         "datePeremption": r["datePeremptionProche"]}
       for r in rows]
 
-  def stock_alerts_paginated(self, low: int, days: int, page: int = 1, page_size: int = 20) -> dict:
+  def stock_alerts_paginated_by_quantity_and_peremption(self, low: int, days: int, page: int = 1, page_size: int = 20) -> dict:
     """
     Retourne une page de produits en alerte (stock faible ou péremption proche).
     """

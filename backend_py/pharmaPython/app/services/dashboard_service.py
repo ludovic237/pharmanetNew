@@ -8,6 +8,7 @@ from app.repositories.commande_repository import CommandeRepository
 from app.repositories.concerner_repository import ConcernerRepository
 from app.repositories.depense_repository import DepenseRepository
 from app.repositories.en_rayon_repository import EnRayonRepository
+from app.repositories.produit_repository import ProduitRepository
 from app.repositories.produit_vendu_repository import ProduitVenduRepository
 from app.repositories.retour_produit_repository import RetourProduitRepository
 from app.repositories.vente_repository import VenteRepository
@@ -26,6 +27,7 @@ class DashboardService:
     self.produit_vendu_repo = ProduitVenduRepository(db)
     self.enrayon_repo = EnRayonRepository(db)
     self.vente_repo = VenteRepository(db)
+    self.produit_repo = ProduitRepository(db)
 
   # ----------------------------
   # KPIs principaux
@@ -157,3 +159,37 @@ class DashboardService:
   def get_perime_actuel(self) -> List[Dict[str, Any]]:
     rows = self.enrayon_repo.stock_perime_query()
     return rows
+
+  # ----------------------------
+  # Perime stock
+  # ----------------------------
+  def get_critique_actuel(self, db: Session, low: int = 0, limit: int = 0) -> List[Dict[str, Any]]:
+
+    total_produit = ProduitRepository(db).get_total_count()
+    rows_all, total_all = ProduitRepository(db).sum_quantites_restantes_en_rayon_pageable(page=0, size=total_produit,
+                                                                                          search=None)
+    rows = self.produit_repo.find_produits_stock_critique(low=low, supprimer=0, limit=limit)
+    print("get_critique_actuel")
+    print(rows)
+    produits_sorted = sorted(rows, key=lambda x: x['stock'], reverse=True)
+
+    cumul = 0
+    total_valeur = sum(p['valeur'] for p in rows_all)
+    if total_valeur == 0:
+      return []
+
+    print("produits_sorted")
+    print(produits_sorted)
+
+    for p in produits_sorted:
+      contribution = (p["valeur"] / total_valeur) * 100 if total_valeur > 0 else 0
+      cumul += contribution
+      p['contribution'] = round(contribution, 2)
+      p['cumul'] = round(cumul, 2)
+      if cumul <= 80:
+        p['classe_abc'] = "A"
+      elif cumul <= 95:
+        p['classe_abc'] = "B"
+      else:
+        p['classe_abc'] = "C"
+    return produits_sorted

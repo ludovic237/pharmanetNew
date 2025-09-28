@@ -70,6 +70,11 @@ function toIso(dt: Date, endOfDay = false): string {
   return d.toISOString().slice(0, 19);
 }
 
+export class StockStatus {
+  label: string;
+  class: string
+};
+
 @Component({
   selector: 'app-dashboard-new',
   imports: [
@@ -151,6 +156,8 @@ function toIso(dt: Date, endOfDay = false): string {
 })
 export class DashboardNewComponent implements OnInit, OnDestroy {
 
+
+
   displayedColumnsRupture: string[] = ['id', 'nom', 'stock', 'statut'];
   reorderDataRupture: any[] = [];
 
@@ -165,6 +172,9 @@ export class DashboardNewComponent implements OnInit, OnDestroy {
     labels: [],
     datasets: []
   };
+
+  dataBestSeller?: any[] = [];
+
   weekly?: any[] = [];
   categories: any[] = [];
   assoc: any[] = [];
@@ -178,11 +188,13 @@ export class DashboardNewComponent implements OnInit, OnDestroy {
   totalTodayVentePrice = 0;
 
   stockActuel: any[] = [];
-  totalStockActuel= 0;
+  totalStockActuel = 0;
   totalStockActuelPrice = 0;
 
+  stockCritique: any[] = [];
+
   stockPerime: any[] = [];
-  totalStockPerime= 0;
+  totalStockPerime = 0;
   totalStockPerimePrice = 0;
 
   daily?: any[] = [];
@@ -504,6 +516,67 @@ export class DashboardNewComponent implements OnInit, OnDestroy {
         }
       }
     });
+
+    this.ai.optimizeBestSellRange(
+      10,
+      0,
+      this.appService.formatDate(new Date(new Date(this.startDateVente).setHours(0, 0, 0, 0)) + ""),
+      this.appService.formatDate(new Date(new Date(this.endDateVente).setHours(23, 59, 59, 999)) + ""),
+      20,
+      100
+    ).subscribe({
+      next: res => {
+        this.dataBestSeller = res;
+      },
+      error: () => {
+      },
+      // complete: () => this.loading = false
+    });
+
+    this.ai.topProducts(20,
+      this.appService.formatDate(new Date(new Date(this.startDateVente).setHours(0, 0, 0, 0)) + ""),
+      this.appService.formatDate(new Date(new Date(this.endDateVente).setHours(23, 59, 59, 999)) + "")
+    )
+      .subscribe(v => this.top = v);
+
+    this.api.stockCritique(5, 20).subscribe({
+      next: (r: any[]) => {
+        this.stockCritique = r
+      },
+      error: (err) => {
+        if (err.status === 401 || err.status === 403) {
+
+          this.authService.logout().subscribe({
+            next: (data) => {
+
+              localStorage.removeItem('token');
+              localStorage.setItem("lastLink", window.location.href);
+              window.location.href = '/sign-in';
+              this.snackBar.open('Déconnexion réussie.', '×', {
+                panelClass: 'success',
+                verticalPosition: 'top',
+                duration: 3000,
+              });
+            },
+            error: (err) => {
+              if (err.status === 401 || err.status === 403) {
+                this.authService.logout();
+                localStorage.removeItem('token');
+                localStorage.setItem("lastLink", window.location.href);
+                ;
+                this.snackBar.open('Déconnexion, une erreur.', '×', {
+                  panelClass: 'success',
+                  verticalPosition: 'top',
+                  duration: 3000,
+                });
+                window.location.href = '/sign-in';
+              }
+            }
+          })
+        }
+      }
+    });
+
   }
 
   loadAll() {
@@ -592,7 +665,11 @@ export class DashboardNewComponent implements OnInit, OnDestroy {
           }
         }
       });
-    this.ins.salesByCategory(160).subscribe(
+
+    this.ins.salesByCategory(160,
+      this.appService.formatDate(new Date(new Date(this.startDateVente).setHours(0, 0, 0, 0)) + ""),
+      this.appService.formatDate(new Date(new Date(this.endDateVente).setHours(23, 59, 59, 999)) + ""),
+    ).subscribe(
       {
         next: (data: any[]) => {
           this.categories = data
@@ -716,11 +793,6 @@ export class DashboardNewComponent implements OnInit, OnDestroy {
            }
          }
        });*/
-    this.ai.topProducts(10,
-      // this.appService.formatDate(new Date(new Date(this.startDateVente).setHours(0, 0, 0, 0)) + ""),
-      // this.appService.formatDate(new Date(new Date(this.endDateVente).setHours(23, 59, 59, 999)) + "")
-    )
-      .subscribe(v => this.top = v);
 
     const today = new Date();
     today.setHours(23, 59, 59, 999)
@@ -740,8 +812,8 @@ export class DashboardNewComponent implements OnInit, OnDestroy {
       {
         next: (v: any[]) => {
           this.topToday = v;
-          this.totalTodayVentePrice =  this.topToday.reduce((sum, item) => sum + (item.total), 0);
-          this.totalTodayVente =  this.topToday.reduce((sum, item) => sum + (item.qte), 0);
+          this.totalTodayVentePrice = this.topToday.reduce((sum, item) => sum + (item.total), 0);
+          this.totalTodayVente = this.topToday.reduce((sum, item) => sum + (item.qte), 0);
         },
         error: (err) => {
           if (err.status === 401 || err.status === 403) {
@@ -826,6 +898,32 @@ export class DashboardNewComponent implements OnInit, OnDestroy {
         position: 'right'
       }
     }
+  }
+
+  getStockStatus(row: any): StockStatus {
+    const stock = Number(row?.stock ?? 0);
+    const min   = row?.min != null ? Number(row.min) : null;
+    const max   = row?.max != null ? Number(row.max) : null;
+
+    // Cas 1 : on a min & max -> règles basées sur min/max
+    if (Number.isFinite(min as number) && Number.isFinite(max as number) && (max as number) > 0) {
+      const minVal = min as number;
+      const maxVal = max as number;
+      const mid    = minVal + (maxVal - minVal) * 0.5; // milieu de la plage
+
+      if (stock <= 0)                return { label: 'Rupture',   class: 'status-rupture'   };
+      if (stock <= minVal)           return { label: 'Critique',  class: 'status-critique'  };
+      if (stock <= mid)              return { label: 'Bas',       class: 'status-bas'       };
+      if (stock <= maxVal)           return { label: 'OK',        class: 'status-ok'        };
+      return                             { label: 'Surstock',  class: 'status-surstock'  };
+    }
+
+    // Cas 2 : fallback (si min/max indisponibles) -> seuils génériques
+    if (stock <= 0)      return { label: 'Rupture',  class: 'status-rupture'  };
+    if (stock <= 5)      return { label: 'Critique', class: 'status-critique' };
+    if (stock <= 20)     return { label: 'Bas',      class: 'status-bas'      };
+    if (stock <= 100)    return { label: 'OK',       class: 'status-ok'       };
+    return                    { label: 'Surstock', class: 'status-surstock' };
   }
 }
 

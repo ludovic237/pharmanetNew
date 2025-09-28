@@ -66,7 +66,7 @@
         </div>
 
         <div fxLayout="row wrap">
-          <div fxFlex="100" fxFlex.gt-sm="45" class="p-2">
+          <div fxFlex="100" fxFlex.gt-sm="50" class="p-2">
             <mat-card>
               <mat-card-header fxLayoutAlign="center">
                 <mat-card-title>Montly Sales</mat-card-title>
@@ -82,7 +82,7 @@
               </mat-card-content>
             </mat-card>
           </div>
-          <div fxFlex="100" fxFlex.gt-sm="55" class="p-2">
+          <div fxFlex="100" fxFlex.gt-sm="50" class="p-2">
             <mat-card>
               <mat-card-header fxLayoutAlign="center">
                 <mat-card-title>Répartition par catégorie</mat-card-title>
@@ -100,7 +100,7 @@
               </mat-card-content>
             </mat-card>
           </div>
-          <div fxFlex="100" fxFlex.gt-sm="55" class="p-2">
+          <div fxFlex="100" fxFlex.gt-sm="50" class="p-2">
             <mat-card>
               <mat-card-header fxLayoutAlign="center">
                 <mat-card-title>Top produits vendus</mat-card-title>
@@ -116,29 +116,108 @@
               </mat-card-content>
             </mat-card>
           </div>
-        </div>
-
-        <!-- Tables -->
-        <div fxLayout="row wrap">
-
-          <app-optimize-dashboard
-            [startDateVente]="startDateVente"
-            [endDateVente]="endDateVente"
-          ></app-optimize-dashboard>
-
-
           <div fxFlex="100" fxFlex.gt-sm="50" class="p-2">
-            <app-replenishment [produitId]="1001"></app-replenishment>
-          </div>
+            <mat-accordion >
+              <mat-expansion-panel>
+                <mat-expansion-panel-header>
+                  <mat-panel-title>
+                    <mat-icon color="warn">warning</mat-icon>&nbsp;<h3>10 Produits tendance dans les paniers</h3>
+                  </mat-panel-title>
+                </mat-expansion-panel-header>
+                <ng-scrollbar *ngIf="dataBestSeller.length>0" orientation="vertical" pointerEventsMethod="scrollbar">
+                  @for (b of dataBestSeller; track b.score; let i = $index) {
+                    <mat-card class="m-2">
+                      <div fxLayout="row" fxLayoutAlign="space-between center">
+                        <div fxLayout="row">
+                          <mat-chip-listbox class="list-view">
+                            <mat-chip-option color="warn" highlighted selectable="false">{{ i }}</mat-chip-option>
+                          </mat-chip-listbox>
+                          <div>
+                            <div matLine>{{ b.produit }}</div>
+                            <div matLine class="text-muted">Score: {{ b.score | number:'1.2-2' }}</div>
+                          </div>
 
-          <div fxFlex="100" fxFlex.gt-sm="50" class="p-2">
-            <app-forecast-chart [produitId]="1001"></app-forecast-chart>
-          </div>
+                        </div>
 
-          <div fxFlex="100" fxFlex.gt-sm="50" class="p-2">
-            <app-associated-products [productId]="null" [top]="30" [limitBaskets]="5000"></app-associated-products>
-          </div>
+                      </div>
+                    </mat-card>
+                  }
+                </ng-scrollbar>
+              </mat-expansion-panel>
+              <!--   <div fxFlex="100" fxFlex.gt-sm="50" class="p-2">
+                   <mat-expansion-panel expanded>
+                     <mat-expansion-panel-header>
+                       <mat-panel-title>
+                         <mat-icon color="warn">warning</mat-icon>&nbsp;<h3>Stock faible</h3>
+                       </mat-panel-title>
+                     </mat-expansion-panel-header>
+                     <ng-scrollbar orientation="vertical" pointerEventsMethod="scrollbar">
+                       <mat-card>
+                         <table mat-table [dataSource]="lowStockData">
+                           <ng-container matColumnDef="produit">
+                             <th mat-header-cell *matHeaderCellDef>Produit</th>
+                             <td mat-cell *matCellDef="let row">{{ row.produit }}</td>
+                           </ng-container>
+                           <ng-container matColumnDef="stock">
+                             <th mat-header-cell *matHeaderCellDef>Stock</th>
+                             <td mat-cell *matCellDef="let row">{{ row.current_stock }}</td>
+                           </ng-container>
+                           <ng-container matColumnDef="threshold">
+                             <th mat-header-cell *matHeaderCellDef>Seuil</th>
+                             <td mat-cell *matCellDef="let row">{{ row.threshold }}</td>
+                           </ng-container>
+                           <tr mat-header-row *matHeaderRowDef="lowColumns"></tr>
+                           <tr mat-row *matRowDef="let row; columns: lowColumns;"></tr>
+                         </table>
+                       </mat-card>
 
+                     </ng-scrollbar>
+                   </mat-expansion-panel>
+                 </div>-->
+              <!--<div fxFlex="100" fxFlex.gt-sm="50" class="p-2">
+                <mat-expansion-panel expanded>
+                  <mat-expansion-panel-header>
+                    <mat-panel-title>
+                      <mat-icon color="warn">warning</mat-icon>&nbsp;<h3>Réassorts suggérés</h3>
+                    </mat-panel-title>
+                  </mat-expansion-panel-header>
+                  <ng-scrollbar orientation="vertical" pointerEventsMethod="scrollbar">
+                    <mat-card>
+                      <table mat-table [dataSource]="reorderData">
+                        <ng-container matColumnDef="produit_id">
+                          <th mat-header-cell *matHeaderCellDef>Nom</th>
+                          <td mat-cell *matCellDef="let row">{{ row.nom }}</td>
+                        </ng-container>
+                        <ng-container matColumnDef="current_stock">
+                          <th mat-header-cell *matHeaderCellDef>Stock actuel</th>
+                          <td mat-cell *matCellDef="let row">{{ row.stock }}</td>
+                        </ng-container>
+                        <ng-container matColumnDef="safety_stock">
+                          <th mat-header-cell *matHeaderCellDef>Stock de securite</th>
+                          <td mat-cell *matCellDef="let row">{{ row.target | number:'1.0-0' }}</td>
+                        </ng-container>
+                        <ng-container matColumnDef="reorder_point">
+                          <th mat-header-cell *matHeaderCellDef>ROP</th>
+                          <td mat-cell *matCellDef="let row">{{ row.rop | number:'1.0-0' }}</td>
+                        </ng-container>
+                        <ng-container matColumnDef="suggested_order_qty">
+                          <th mat-header-cell *matHeaderCellDef>Qté à commander</th>
+                          <td mat-cell *matCellDef="let row">{{ row.qte }}</td>
+                        </ng-container>
+                        <ng-container matColumnDef="avg_daily">
+                          <th mat-header-cell *matHeaderCellDef>Qté à commander</th>
+                          <td mat-cell *matCellDef="let row">{{ row.avg_daily }}</td>
+                        </ng-container>
+                        <tr mat-header-row *matHeaderRowDef="reorderColumns"></tr>
+                        <tr mat-row *matRowDef="let row; columns: reorderColumns;"></tr>
+                      </table>
+                    </mat-card>
+
+                  </ng-scrollbar>
+                </mat-expansion-panel>
+              </div>-->
+            </mat-accordion>
+          </div>
           <div fxFlex="100" fxFlex.gt-sm="50" class="p-2">
             <app-monthly-sales *ngIf="lineChartData.datasets.length>0" [data]="lineChartData"></app-monthly-sales>
           </div>
@@ -162,10 +241,40 @@
           <div fxFlex="100" fxFlex.gt-sm="50" class="p-2">
             <app-low-stock *ngIf="low.length>0" [items]="low"></app-low-stock>
           </div>
+        </div>
 
-          <div fxFlex="100" fxFlex.gt-sm="50" class="p-2">
+        <!-- Tables -->
+        <div fxLayout="row wrap">
+
+          <!--          <app-optimize-dashboard-->
+          <!--            [dataBestSeller]="dataBestSeller"-->
+          <!--          ></app-optimize-dashboard>-->
+
+
+
+
+          <!--   Réassort suggéré -->
+
+          <!--          <div fxFlex="100" fxFlex.gt-sm="50" class="p-2">-->
+          <!--            <app-replenishment [produitId]="1001"></app-replenishment>-->
+          <!--          </div>-->
+
+          <!--          Prévision des ventes-->
+          <!--          <div fxFlex="100" fxFlex.gt-sm="50" class="p-2">-->
+          <!--            <app-forecast-chart [produitId]="1001"></app-forecast-chart>-->
+          <!--          </div>-->
+
+          <!--          association de produits-->
+          <!--          <div fxFlex="100" fxFlex.gt-sm="50" class="p-2">-->
+          <!--            <app-associated-products [productId]="null" [top]="30" [limitBaskets]="5000"></app-associated-products>-->
+          <!--          </div>-->
+
+
+
+          <!--          suggestion de reapprovisionnement-->
+          <!--<div fxFlex="100" fxFlex.gt-sm="50" class="p-2">
             <app-replenishment-table [rows]="repl"></app-replenishment-table>
-          </div>
+          </div>-->
 
         </div>
       </div>
@@ -173,7 +282,7 @@
     <mat-tab label="Donnees temps reel et alerts">
       <div class="p-2">
         <div fxLayout="row wrap">
-          <div  fxFlex="100" fxFlex.gt-sm="25" fxFlex.sm="50" class="p-2">
+          <div fxFlex="100" fxFlex.gt-sm="25" fxFlex.sm="50" class="p-2">
             <mat-card class="gradient-green tile p-2">
               <mat-icon>monetization_on</mat-icon>
               <h2>{{ formatMoney(totalTodayVentePrice) }}</h2>
@@ -181,7 +290,7 @@
               <span>{{ totalTodayVente }} ventes depuis ce matin</span>
             </mat-card>
           </div>
-          <div  fxFlex="100" fxFlex.gt-sm="25" fxFlex.sm="50" class="p-2">
+          <div fxFlex="100" fxFlex.gt-sm="25" fxFlex.sm="50" class="p-2">
             <mat-card class="gradient-red tile p-2">
               <mat-icon>thumb_up_alt</mat-icon>
               <h2>{{ formatMoney(totalStockActuelPrice) }}</h2>
@@ -189,7 +298,7 @@
               <span>Valeur : {{ totalStockActuel }}</span>
             </mat-card>
           </div>
-          <div  fxFlex="100" fxFlex.gt-sm="25" fxFlex.sm="50" class="p-2">
+          <div fxFlex="100" fxFlex.gt-sm="25" fxFlex.sm="50" class="p-2">
             <mat-card class="gradient-orange tile p-2">
               <mat-icon>group</mat-icon>
               <h2>{{ formatMoney(totalStockPerimePrice) }}</h2>
@@ -197,12 +306,12 @@
               <span>Valeur : {{ totalStockPerime }}</span>
             </mat-card>
           </div>
-          <div  fxFlex="100" fxFlex.gt-sm="25" fxFlex.sm="50" class="p-2">
+          <div fxFlex="100" fxFlex.gt-sm="25" fxFlex.sm="50" class="p-2">
             <mat-card class="gradient-indigo tile p-2">
               <mat-icon>group</mat-icon>
-              <h2>{{ formatMoney(totalStockActuelPrice-totalStockPerimePrice) }}</h2>
+              <h2>{{ formatMoney(totalStockActuelPrice - totalStockPerimePrice) }}</h2>
               <p>Total produits non perimee</p>
-              <span>Valeur : {{ totalStockActuel-totalStockPerime }}</span>
+              <span>Valeur : {{ totalStockActuel - totalStockPerime }}</span>
             </mat-card>
           </div>
         </div>
@@ -261,16 +370,16 @@
             <mat-expansion-panel expanded>
               <mat-expansion-panel-header>
                 <mat-panel-title>
-                  <mat-icon color="warn">warning</mat-icon>&nbsp;<h3>Ruptures et alertes</h3>
+                  <mat-icon color="warn">warning</mat-icon>&nbsp;<h3>Ruptures et alertes  <button mat-raised-button color="warn" highlighted selectable="false">Voir tout</button></h3>
                 </mat-panel-title>
               </mat-expansion-panel-header>
-              <ng-scrollbar *ngIf="reorderDataRupture.length>0" orientation="vertical" pointerEventsMethod="scrollbar">
+              <ng-scrollbar *ngIf="stockCritique.length>0" orientation="vertical" pointerEventsMethod="scrollbar">
                 <mat-toolbar>
                   <h4>12</h4>
                   <h6>5 ruptures critiques</h6>
                 </mat-toolbar>
                 <mat-card>
-                  <table mat-table [dataSource]="reorderDataRupture">
+                  <table mat-table [dataSource]="stockCritique">
                     <ng-container matColumnDef="id">
                       <th mat-header-cell *matHeaderCellDef>id</th>
                       <td mat-cell *matCellDef="let row">{{ row.id }}</td>
@@ -286,7 +395,10 @@
                     <ng-container matColumnDef="statut">
                       <th mat-header-cell *matHeaderCellDef>Statut</th>
                       <td mat-cell *matCellDef="let row">
-                        {{ row.stock }}
+<!--                        {{ row.stock }}-->
+                        <span class="status-chip" [ngClass]="getStockStatus(row).class">
+                          {{ getStockStatus(row).label }}
+                        </span>
                       </td>
                     </ng-container>
                     <tr mat-header-row *matHeaderRowDef="displayedColumnsRupture"></tr>
@@ -294,7 +406,7 @@
                   </table>
                 </mat-card>
               </ng-scrollbar>
-              <ng-container *ngIf="reorderDataRupture.length==0">
+              <ng-container *ngIf="stockCritique.length==0">
                 <div fxLayout="row wrap" fxLayoutAlign="center center" class="w-100 p-3">
                   No data available
                 </div>

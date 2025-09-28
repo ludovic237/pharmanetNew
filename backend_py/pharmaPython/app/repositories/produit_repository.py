@@ -2,7 +2,7 @@
 from __future__ import annotations
 from typing import List, Optional, Tuple, Dict, Any, Iterable
 from sqlalchemy.orm import Session
-from sqlalchemy import func, desc, select, union_all
+from sqlalchemy import func, desc, select, union_all, case
 
 from app.models.commandeout import Commande
 from app.models.concerner import Concerner
@@ -355,29 +355,41 @@ class ProduitRepository:
       for pid, nom, stock_max, stock_min, qty, in rows
     ]
 
-  def find_produits_stock_critique(self, low: int = 0) -> List[Dict[str, Any]]:
-    """
-    Retourne les produits dont la somme des quantités restantes en rayon
-    est négative ou inférieure à une valeur donnée (low).
-    Format : [{"produitId": 1, "nom": "Doliprane", "quantiteTotale": -3}, ...]
-    """
-    rows = (
-      self.db.query(
-        Produit.id.label("produitId"),
-        Produit.nom.label("nom"),
-        Produit.stock_max.label("stock_max"),
-        Produit.stock_min.label("stock_min"),
-        func.coalesce(func.sum(EnRayon.quantite_restante), 0).label("quantiteTotale")
-      )
-      .join(EnRayon, EnRayon.produit_id == Produit.id)
-      .group_by(Produit.id, Produit.nom)
-      .having(func.coalesce(func.sum(EnRayon.quantite_restante), 0) < low)
-      .all()
-    )
-    return [
-      {"id": pid, "nom": nom, "max": stock_max, "min": stock_min, "stock": float(qty or 0)}
-      for pid, nom, stock_max, stock_min, qty, in rows
-    ]
+  # def find_produits_stock_critique(self, low: int = 0, limit: int = 20) -> List[Dict[str, Any]]:
+  #   """
+  #   Retourne les produits dont la somme des quantités restantes en rayon
+  #   est négative ou inférieure à une valeur donnée (low).
+  #   Format : [{"produitId": 1, "nom": "Doliprane", "quantiteTotale": -3}, ...]
+  #   """
+  #   rows = (
+  #     self.db.query(
+  #       Produit.id.label("produitId"),
+  #       Produit.nom.label("nom"),
+  #       Produit.stock_max.label("stock_max"),
+  #       Produit.stock_min.label("stock_min"),
+  #       func.sum(EnRayon.quantite_restante).label("qty"),
+  #       func.sum(EnRayon.quantite_restante * EnRayon.prix_vente).label("valeur"),
+  #       func.avg(func.datediff(EnRayon.date_livraison, Commande.date_creation)).label("lead_time"),
+  #     )
+  #     .join(EnRayon, EnRayon.produit_id == Produit.id)
+  #     .outerjoin(Commande, Commande.id == EnRayon.commande_id)
+  #     .group_by(Produit.id, Produit.nom)
+  #     .having(func.sum(EnRayon.quantite_restante) < low)
+  #     .order_by(desc("qty"))
+  #     .limit(limit)
+  #     .all()
+  #   )
+  #   return [
+  #     {"id": pid,
+  #      "nom": nom,
+  #      "max": stock_max,
+  #      "min": stock_min,
+  #      "valeur": float(valeur or 0),
+  #      "lead_time": float(lead_time or 0),
+  #      "stock": float(qty or 0)}
+  #     for pid, nom, stock_max, stock_min, qty, valeur, lead_time in rows
+  #   ]
+
 
   def sum_quantites_restantes_en_rayon_pageable(
     self,
@@ -395,13 +407,13 @@ class ProduitRepository:
       Produit.stock_max.label("stock_max"),
       Produit.stock_min.label("stock_min"),
       func.coalesce(func.sum(EnRayon.quantite_restante), 0).label("stock"),
-      func.coalesce(func.sum(EnRayon.quantite_restante*EnRayon.prix_vente), 0).label("valeur"),
+      func.coalesce(func.sum(EnRayon.quantite_restante * EnRayon.prix_vente), 0).label("valeur"),
       func.avg(func.datediff(EnRayon.date_livraison, Commande.date_creation)).label("lead_time"),
       func.count().label("n")
     )
-      .join(EnRayon, EnRayon.produit_id == Produit.id)
-      .join(Commande, Commande.id == EnRayon.commande_id)
-      .group_by(Produit.id, Produit.nom, Produit.stock_max, Produit.stock_min))
+         .join(EnRayon, EnRayon.produit_id == Produit.id)
+         .join(Commande, Commande.id == EnRayon.commande_id)
+         .group_by(Produit.id, Produit.nom, Produit.stock_max, Produit.stock_min))
 
     # 🔎 filtre inséré dès la construction de la query
     if search:
@@ -418,7 +430,8 @@ class ProduitRepository:
     )
 
     return [
-      {"id": pid, "nom": nom, "max": stock_max, "min": stock_min, "stock": float(stock or 0), "valeur": float(valeur or 0), "lead_time": float(lead_time or 0), "n": float(n or 0)}
+      {"id": pid, "nom": nom, "max": stock_max, "min": stock_min, "stock": float(stock or 0),
+       "valeur": float(valeur or 0), "lead_time": float(lead_time or 0), "n": float(n or 0)}
       for pid, nom, stock_max, stock_min, stock, valeur, lead_time, n in rows
     ], total
 
@@ -461,3 +474,64 @@ class ProduitRepository:
       {"id": pid, "nom": nom, "max": stock_max, "min": stock_min, "stock": float(stock or 0)}
       for pid, nom, stock_max, stock_min, stock in rows
     ], total
+
+
+  def find_produits_stock_critique(
+    self,
+    low: int = 0,
+    supprimer: int = 0,   # 0 = actif
+    limit: int | None = None,
+  ):
+    er = EnRayon
+
+    # Somme des quantités restantes uniquement pour les lignes non supprimées
+    stock_sum = func.coalesce(
+      func.sum(
+        case((er.supprimer == supprimer, er.quantite_restante), else_=0)
+      ),
+      0
+    )
+
+    # Valeur de stock = somme(qté_restante * prix_vente) sur lignes non supprimées
+    valeur_sum = func.coalesce(
+      func.sum(
+        case(
+          (er.supprimer == supprimer, er.quantite_restante * er.prix_vente),
+          else_=0.0
+        )
+      ),
+      0.0
+    )
+
+    q = (
+      self.db.query(
+        Produit.id.label("id"),
+        Produit.nom.label("nom"),
+        Produit.stock_max.label("stock_max"),
+        Produit.stock_min.label("stock_min"),
+        stock_sum.label("stock"),
+        valeur_sum.label("valeur"),
+      )
+      .select_from(Produit)                          # <-- ancrage depuis Produit
+      .outerjoin(er, er.produit_id == Produit.id)    # <-- inclut aussi les produits sans en_rayon
+      .group_by(Produit.id, Produit.nom, Produit.stock_max, Produit.stock_min)
+      .having(stock_sum < low)                       # <-- strictement inférieur ; mets <= si tu veux inclure l'égalité
+      .order_by(stock_sum.asc())                     # <-- les plus bas d'abord
+    )
+
+    if limit:
+      q = q.limit(limit)
+
+    rows = q.all()
+
+    return [
+      {
+        "id": pid,
+        "nom": nom,
+        "max": stock_max,
+        "min": stock_min,
+        "stock": float(stock or 0),
+        "valeur": float(valeur or 0),
+      }
+      for pid, nom, stock_max, stock_min, stock, valeur in rows
+    ]

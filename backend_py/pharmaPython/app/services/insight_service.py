@@ -1,7 +1,7 @@
 # app/services/insight_service.py
 from sqlalchemy.orm import Session
 from sqlalchemy import func, extract
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime
 import pandas as pd
 
 from app.models.en_rayon import EnRayon
@@ -22,9 +22,13 @@ def kpis(db: Session, days: int = 30):
   panier_moyen = (float(ca) / max(1, nb_ventes))
   return dict(ca=ca, nb_ventes=nb_ventes, panier_moyen=panier_moyen)
 
+  # def sales_by_category(db: Session, days: int = 30):
 
-def sales_by_category(db: Session, days: int = 30):
-  since = date.today() - timedelta(days=days)
+
+def sales_by_category(db: Session,
+                      from_dt: datetime = datetime.now(),
+                      to_dt: datetime = datetime.now().replace(day=1)):
+  since = to_dt - from_dt
   rows = (
     db.query(Categorie.nom, func.sum(Concerner.quantite * Concerner.prix_unit))
     .join(Produit, Produit.categorie_id == Categorie.id)

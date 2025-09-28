@@ -111,8 +111,7 @@ import {AppService} from "@services/app.service";
   styleUrl: './optimize-dashboard.component.scss'
 })
 export class OptimizeDashboardComponent implements OnInit {
-  @Input() startDateVente: Date | null = new Date();
-  @Input() endDateVente: Date | null = new Date();
+  @Input() dataBestSeller:any[] = [];
 
   loading = false;
   data: any[] = [];
@@ -130,11 +129,10 @@ export class OptimizeDashboardComponent implements OnInit {
   }
 
   ngOnInit(): void {
+
     this.loading = true;
     this.ai.optimizeDashboard(0, 10, 100).subscribe({
       next: res => {
-        // this.data = res;
-        this.lowStockData.data = res.low_stock;
         this.reorderData.data = res.reorders;
       },
       error: () => {
@@ -150,20 +148,6 @@ export class OptimizeDashboardComponent implements OnInit {
       complete: () => this.loading = false
     });
 
-    this.ai.optimizeBestSellRange(
-      10,
-      0,
-      this.appService.formatDate(new Date(new Date(this.startDateVente).setHours(0, 0, 0, 0)) + ""),
-      this.appService.formatDate(new Date(new Date(this.endDateVente).setHours(23, 59, 59, 999)) + ""),
-      0,
-      100
-    ).subscribe({
-      next: res => {
-        this.data = res;
-      },
-      error: () => {
-      },
-      complete: () => this.loading = false
-    });
+
   }
 }

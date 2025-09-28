@@ -69,4 +69,10 @@ export class DashboardService {
     const params = new HttpParams()
     return this.http.get<any[]>(`${this.base}/stock-perime`, {params, headers: this.getHeaders()});
   }
+
+  stockCritique(low: number = 5, limit: number = 20): Observable<any[]> {
+    const params = new HttpParams()
+      .set("low", low).set("limit", limit);
+    return this.http.get<any[]>(`${this.base}/stock-critique`, {params, headers: this.getHeaders()});
+  }
 }

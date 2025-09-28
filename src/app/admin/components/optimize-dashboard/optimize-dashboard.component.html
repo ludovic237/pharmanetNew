@@ -3,15 +3,15 @@
 </div>
 <ng-container *ngIf="!loading && data">
   <mat-accordion fxLayout="row">
-    <div fxFlex="100" fxFlex.gt-sm="50" class="p-2">
+    <div fxFlex="100" fxFlex.gt-sm="100" class="p-2">
       <mat-expansion-panel expanded>
         <mat-expansion-panel-header>
           <mat-panel-title>
-            <mat-icon color="warn">warning</mat-icon>&nbsp;<h3>10 Best sellers</h3>
+            <mat-icon color="warn">warning</mat-icon>&nbsp;<h3>10 Produits tendance dans les paniers</h3>
           </mat-panel-title>
         </mat-expansion-panel-header>
-        <ng-scrollbar *ngIf="data.length>0" orientation="vertical" pointerEventsMethod="scrollbar">
-          @for (b of data; track b.score; let i = $index) {
+        <ng-scrollbar *ngIf="dataBestSeller.length>0" orientation="vertical" pointerEventsMethod="scrollbar">
+          @for (b of dataBestSeller; track b.score; let i = $index) {
             <mat-card class="m-2">
               <div fxLayout="row" fxLayoutAlign="space-between center">
                 <div fxLayout="row">
@@ -31,7 +31,7 @@
         </ng-scrollbar>
       </mat-expansion-panel>
     </div>
-    <div fxFlex="100" fxFlex.gt-sm="50" class="p-2">
+ <!--   <div fxFlex="100" fxFlex.gt-sm="50" class="p-2">
       <mat-expansion-panel expanded>
         <mat-expansion-panel-header>
           <mat-panel-title>
@@ -60,8 +60,8 @@
 
         </ng-scrollbar>
       </mat-expansion-panel>
-    </div>
-    <div fxFlex="100" fxFlex.gt-sm="50" class="p-2">
+    </div>-->
+    <!--<div fxFlex="100" fxFlex.gt-sm="50" class="p-2">
       <mat-expansion-panel expanded>
         <mat-expansion-panel-header>
           <mat-panel-title>
@@ -102,7 +102,7 @@
 
         </ng-scrollbar>
       </mat-expansion-panel>
-    </div>
+    </div>-->
   </mat-accordion>
 
 
