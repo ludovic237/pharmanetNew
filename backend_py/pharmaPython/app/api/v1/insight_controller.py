@@ -39,8 +39,11 @@ def get_sales_monthly(db: Session = Depends(get_db), since: date = (date.today()
 
 
 @router.get("/daily_sales")
-def daily_sales(produit_id: int, horizon_days: int = 14, history_days: int = 180, db: Session = Depends(get_db)):
-  series = get_daily_sales_series(db, produit_id, days=history_days)
+def daily_sales(produit_id: int,
+                end: datetime = datetime.now(),
+                start: datetime = datetime.now().replace(day=1),
+                horizon_days: int = 14, history_days: int = 180, db: Session = Depends(get_db)):
+  series = get_daily_sales_series(db, produit_id, days=history_days, end=end, start=start)
   return series
 
 

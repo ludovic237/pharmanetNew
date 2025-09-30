@@ -128,3 +128,17 @@ def sales_monthly(db, since: date, until: date):
     .all()
   )
   return [{"year": int(r.year), "month": int(r.month), "total": float(r.total or 0)} for r in rows]
+
+
+
+def sales_daily_all(db, since: date, until: date):
+  m = func.month(Vente.date_vente).label("month")
+  y = func.year(Vente.date_vente).label("year")
+  rows = (
+    db.query(y, m, func.sum(Vente.prix_total).label("total"))
+    .filter(Vente.date_vente >= since, Vente.date_vente <= until)
+    .group_by(y, m)
+    .order_by(y, m)
+    .all()
+  )
+  return [{"year": int(r.year), "month": int(r.month), "total": float(r.total or 0)} for r in rows]

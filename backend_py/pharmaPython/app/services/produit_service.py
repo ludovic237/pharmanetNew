@@ -779,8 +779,8 @@ class ProduitService:
     } for er in ers if int(er.quantite or 0) > 0]
 
     produit_detail = None
-    contenu_detail = p.contenuDetail
-    prix_detail = p.prixDetail
+    contenu_detail = p.contenu_detail
+    prix_detail = p.prix_detail
     if getattr(p, "detailId", None):
       produit_detail = self.produit_detail_repo.find_by_id(int(p.detailId))
 
@@ -791,13 +791,13 @@ class ProduitService:
       "id": p.id,
       "nom": p.nom,
       "ean13": p.ean13,
-      "codeLaborex": p.codeLaborex or "",
-      "codeUbipharm": p.codeUbipharm or "",
+      "codeLaborex": p.code_laborex or "",
+      "codeUbipharm": p.code_ubipharm or "",
       "reference": p.reference or "",
       "description": "",
       "codebarre": "",
       "image": "",
-      "seuil": p.stockMin or 0,
+      "seuil": p.stock_min or 0,
       "categorieId": getattr(getattr(p, "categorie", None), "id", 0),
       "categorieNom": getattr(getattr(p, "categorie", None), "nom", None),
       "rayonId": getattr(getattr(p, "rayon", None), "id", 0),
@@ -819,9 +819,9 @@ class ProduitService:
       "contenuDetail": contenu_detail or 0,
       "prixDetail": prix_detail or 0,
       "stock": p.stock or 0,
-      "stockMin": p.stockMin or 0,
-      "stockMax": p.stockMax or 0,
-      "reductionMax": p.reductionMax or 0,
+      "stockMin": p.stock_min or 0,
+      "stockMax": p.stock_max or 0,
+      "reductionMax": p.reduction_max or 0,
       "stockDetails": stock_details,
     }
 

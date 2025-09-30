@@ -12,17 +12,23 @@
       </mat-panel-title>
     </mat-expansion-panel-header>
     <ng-scrollbar orientation="vertical" pointerEventsMethod="scrollbar">
-      <canvas baseChart [type]="'pie'"
+      <canvas baseChart
+              [type]="'pie'"
               [data]="{ labels: labels, datasets:[{ data: values }] }"
-              [options]="{ responsive:true }"></canvas>
+              [options]="{  responsive: true,
+    plugins: {
+      legend: {
+        position: 'right'
+      }
+    } }"></canvas>
 
-<!--      <mat-list>-->
-<!--        <mat-list-item *ngFor="let d of data">-->
-<!--          <div matListItemTitle>{{ d.categorie }}</div>-->
-<!--          &lt;!&ndash;      <div matListItemLine>{{d.ca}} ({{d.percent}}%)</div>&ndash;&gt;-->
-<!--          <div matListItemLine>{{ d.ca }}</div>-->
-<!--        </mat-list-item>-->
-<!--      </mat-list>-->
+      <!--      <mat-list>-->
+      <!--        <mat-list-item *ngFor="let d of data">-->
+      <!--          <div matListItemTitle>{{ d.categorie }}</div>-->
+      <!--          &lt;!&ndash;      <div matListItemLine>{{d.ca}} ({{d.percent}}%)</div>&ndash;&gt;-->
+      <!--          <div matListItemLine>{{ d.ca }}</div>-->
+      <!--        </mat-list-item>-->
+      <!--      </mat-list>-->
     </ng-scrollbar>
   </mat-expansion-panel>
 </mat-accordion>

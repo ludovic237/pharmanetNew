@@ -1,27 +1,44 @@
-# # This is a sample Python script.
-#
-# # Press Shift+F10 to execute it or replace it with your code.
-# # Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
-#
-#
-# def print_hi(name):
-#     # Use a breakpoint in the code line below to debug your script.
-#     print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
-#
-#
-# # Press the green button in the gutter to run the script.
-# if __name__ == '__main__':
-#     print_hi('PyCharm')
-#
-# # See PyCharm help at https://www.jetbrains.com/help/pycharm/
+from pathlib import Path
+
 from apscheduler.schedulers.background import BackgroundScheduler
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from starlette.staticfiles import StaticFiles
+from starlette.responses import FileResponse
+
 from app.api.deps import get_db
 from app.api.router import api_router
 from app.core.config import settings
-from fastapi.middleware.cors import CORSMiddleware
+
+from pathlib import Path
 
 from app.services.stock_alert_service import compute_and_store_alerts
+
+
+def find_front_dist() -> Path:
+  repo_root = Path(__file__).resolve().parents[2]  # ajuste si besoin
+  candidates = [
+    repo_root / "frontend" / "dist",
+    repo_root / "front" / "dist",
+    repo_root / "dist",
+    repo_root / "public" / "browser",
+    ]
+  # direct index.html
+  for c in candidates:
+    if (c / "index.html").exists():
+      return c
+  # Angular 17+: */browser/index.html
+  for c in candidates:
+    for p in c.glob("*/emporium/browser/index.html"):
+      return p.parent
+  # */index.html
+  for c in candidates:
+    for p in c.glob("*/index.html"):
+      return p.parent
+  raise RuntimeError("Build Angular introuvable. Exécute 'ng build' et vérifie outputPath.")
+
+
+
 
 app = FastAPI(title=settings.app_name)
 
@@ -34,8 +51,27 @@ app.add_middleware(
   allow_headers=["*"],
 )
 
-# Montage des routes (équivalent @RestController scan)
+
+# ---- 1) API sous /api
 app.include_router(api_router)
+
+# ---- 2) Angular (SPA) servi à la racine
+REPO_ROOT = Path(__file__).resolve().parents[2]          # => .../pharmaNew
+FRONT_DIST = REPO_ROOT / "dist" / "emporium" / "browser" # => .../pharmaNew/dist/emporium/browser
+
+if not (FRONT_DIST / "index.html").exists():
+  raise RuntimeError(f"index.html introuvable dans {FRONT_DIST}. Lance 'ng build' et vérifie le chemin.")
+
+# Sert TOUS les fichiers statiques (chunks .js/.css) avec le bon Content-Type
+app.mount("/", StaticFiles(directory=str(FRONT_DIST), html=True), name="spa")
+# et un fallback "/" qui renvoie index.html
+
+
+# (Optionnel) fallback explicite (html=True suffit normalement)
+# app.mount("/static", StaticFiles(directory=str(FRONT_DIST), html=False), name="static")
+@app.get("/{full_path:path}")
+async def spa_fallback(full_path: str):
+  return FileResponse(FRONT_DIST / "index.html")
 
 
 scheduler = BackgroundScheduler()
@@ -52,12 +88,10 @@ def start_scheduler():
   scheduler.add_job(job_compute_alerts, "interval", hours=6, id="alerts_job", replace_existing=True)
   scheduler.start()
 
-# Health check
 @app.get("/health")
 def health():
   return {"status": "ok"}
 
-# Ce bloc permet de lancer directement avec "python app/main.py"
 if __name__ == "__main__":
   import uvicorn
-  uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=True)
+  uvicorn.run("app.main:app", host="127.0.0.1", port=8000, reload=True)

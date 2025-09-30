@@ -81,6 +81,38 @@
                 </div>
               </mat-card-content>
             </mat-card>
+
+            <mat-card class="mt-4">
+              <mat-card-header fxLayoutAlign="center">
+                <mat-card-title>Top produits vendus</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="w-100 h-300p" #resizedDiv>
+                  <canvas baseChart
+                          [data]="barChartData"
+                          [legend]="true"
+                          [type]="'bar'">
+                  </canvas>
+                </div>
+              </mat-card-content>
+            </mat-card>
+
+            <div class="mt-4">
+              <app-monthly-sales *ngIf="lineChartData.datasets.length>0" [data]="lineChartData"></app-monthly-sales>
+            </div>
+
+            <div class="mt-4">
+              <app-weekly-seasonality *ngIf="weekly.length>0" [data]="weekly"></app-weekly-seasonality>
+            </div>
+
+            <div class="mt-4">
+              <app-daily-sales *ngIf="daily.length>0" [data]="daily"></app-daily-sales>
+            </div>
+
+            <div class="mt-4">
+              <app-low-stock *ngIf="low.length>0" [items]="low"></app-low-stock>
+            </div>
+
           </div>
           <div fxFlex="100" fxFlex.gt-sm="50" class="p-2">
             <mat-card>
@@ -99,148 +131,118 @@
                 </div>
               </mat-card-content>
             </mat-card>
-          </div>
-          <div fxFlex="100" fxFlex.gt-sm="50" class="p-2">
-            <mat-card>
-              <mat-card-header fxLayoutAlign="center">
-                <mat-card-title>Top produits vendus</mat-card-title>
-              </mat-card-header>
-              <mat-card-content>
-                <div class="w-100 h-300p" #resizedDiv>
-                  <canvas baseChart
-                          [data]="barChartData"
-                          [legend]="true"
-                          [type]="'bar'">
-                  </canvas>
-                </div>
-              </mat-card-content>
-            </mat-card>
-          </div>
-          <div fxFlex="100" fxFlex.gt-sm="50" class="p-2">
-            <mat-accordion >
-              <mat-expansion-panel>
-                <mat-expansion-panel-header>
-                  <mat-panel-title>
-                    <mat-icon color="warn">warning</mat-icon>&nbsp;<h3>10 Produits tendance dans les paniers</h3>
-                  </mat-panel-title>
-                </mat-expansion-panel-header>
-                <ng-scrollbar *ngIf="dataBestSeller.length>0" orientation="vertical" pointerEventsMethod="scrollbar">
-                  @for (b of dataBestSeller; track b.score; let i = $index) {
-                    <mat-card class="m-2">
-                      <div fxLayout="row" fxLayoutAlign="space-between center">
-                        <div fxLayout="row">
-                          <mat-chip-listbox class="list-view">
-                            <mat-chip-option color="warn" highlighted selectable="false">{{ i }}</mat-chip-option>
-                          </mat-chip-listbox>
-                          <div>
-                            <div matLine>{{ b.produit }}</div>
-                            <div matLine class="text-muted">Score: {{ b.score | number:'1.2-2' }}</div>
-                          </div>
 
-                        </div>
+            <div class="mt-4">
+              <app-top-products [items]="top"></app-top-products>
+            </div>
 
-                      </div>
-                    </mat-card>
-                  }
-                </ng-scrollbar>
-              </mat-expansion-panel>
-              <!--   <div fxFlex="100" fxFlex.gt-sm="50" class="p-2">
-                   <mat-expansion-panel expanded>
-                     <mat-expansion-panel-header>
-                       <mat-panel-title>
-                         <mat-icon color="warn">warning</mat-icon>&nbsp;<h3>Stock faible</h3>
-                       </mat-panel-title>
-                     </mat-expansion-panel-header>
-                     <ng-scrollbar orientation="vertical" pointerEventsMethod="scrollbar">
-                       <mat-card>
-                         <table mat-table [dataSource]="lowStockData">
-                           <ng-container matColumnDef="produit">
-                             <th mat-header-cell *matHeaderCellDef>Produit</th>
-                             <td mat-cell *matCellDef="let row">{{ row.produit }}</td>
-                           </ng-container>
-                           <ng-container matColumnDef="stock">
-                             <th mat-header-cell *matHeaderCellDef>Stock</th>
-                             <td mat-cell *matCellDef="let row">{{ row.current_stock }}</td>
-                           </ng-container>
-                           <ng-container matColumnDef="threshold">
-                             <th mat-header-cell *matHeaderCellDef>Seuil</th>
-                             <td mat-cell *matCellDef="let row">{{ row.threshold }}</td>
-                           </ng-container>
-                           <tr mat-header-row *matHeaderRowDef="lowColumns"></tr>
-                           <tr mat-row *matRowDef="let row; columns: lowColumns;"></tr>
-                         </table>
-                       </mat-card>
-
-                     </ng-scrollbar>
-                   </mat-expansion-panel>
-                 </div>-->
-              <!--<div fxFlex="100" fxFlex.gt-sm="50" class="p-2">
+            <div class="mt-4">
+              <mat-accordion >
                 <mat-expansion-panel expanded>
                   <mat-expansion-panel-header>
                     <mat-panel-title>
-                      <mat-icon color="warn">warning</mat-icon>&nbsp;<h3>Réassorts suggérés</h3>
+                      <mat-icon color="warn">warning</mat-icon>&nbsp;<h3>10 Produits tendance dans les paniers</h3>
                     </mat-panel-title>
                   </mat-expansion-panel-header>
-                  <ng-scrollbar orientation="vertical" pointerEventsMethod="scrollbar">
-                    <mat-card>
-                      <table mat-table [dataSource]="reorderData">
-                        <ng-container matColumnDef="produit_id">
-                          <th mat-header-cell *matHeaderCellDef>Nom</th>
-                          <td mat-cell *matCellDef="let row">{{ row.nom }}</td>
-                        </ng-container>
-                        <ng-container matColumnDef="current_stock">
-                          <th mat-header-cell *matHeaderCellDef>Stock actuel</th>
-                          <td mat-cell *matCellDef="let row">{{ row.stock }}</td>
-                        </ng-container>
-                        <ng-container matColumnDef="safety_stock">
-                          <th mat-header-cell *matHeaderCellDef>Stock de securite</th>
-                          <td mat-cell *matCellDef="let row">{{ row.target | number:'1.0-0' }}</td>
-                        </ng-container>
-                        <ng-container matColumnDef="reorder_point">
-                          <th mat-header-cell *matHeaderCellDef>ROP</th>
-                          <td mat-cell *matCellDef="let row">{{ row.rop | number:'1.0-0' }}</td>
-                        </ng-container>
-                        <ng-container matColumnDef="suggested_order_qty">
-                          <th mat-header-cell *matHeaderCellDef>Qté à commander</th>
-                          <td mat-cell *matCellDef="let row">{{ row.qte }}</td>
-                        </ng-container>
-                        <ng-container matColumnDef="avg_daily">
-                          <th mat-header-cell *matHeaderCellDef>Qté à commander</th>
-                          <td mat-cell *matCellDef="let row">{{ row.avg_daily }}</td>
-                        </ng-container>
-                        <tr mat-header-row *matHeaderRowDef="reorderColumns"></tr>
-                        <tr mat-row *matRowDef="let row; columns: reorderColumns;"></tr>
-                      </table>
-                    </mat-card>
+                  <ng-scrollbar *ngIf="dataBestSeller.length>0" orientation="vertical" pointerEventsMethod="scrollbar">
+                    @for (b of dataBestSeller; track b.score; let i = $index) {
+                      <mat-card class="m-2">
+                        <div fxLayout="row" fxLayoutAlign="space-between center">
+                          <div fxLayout="row">
+                            <mat-chip-listbox class="list-view">
+                              <mat-chip-option color="warn" highlighted selectable="false">{{ i }}</mat-chip-option>
+                            </mat-chip-listbox>
+                            <div>
+                              <div matLine>{{ b.produit }}</div>
+                              <div matLine class="text-muted">Score: {{ b.score | number:'1.2-2' }}</div>
+                            </div>
 
+                          </div>
+
+                        </div>
+                      </mat-card>
+                    }
                   </ng-scrollbar>
                 </mat-expansion-panel>
-              </div>-->
-            </mat-accordion>
-          </div>
-          <div fxFlex="100" fxFlex.gt-sm="50" class="p-2">
-            <app-monthly-sales *ngIf="lineChartData.datasets.length>0" [data]="lineChartData"></app-monthly-sales>
+                <!--   <div fxFlex="100" fxFlex.gt-sm="50" class="p-2">
+                     <mat-expansion-panel expanded>
+                       <mat-expansion-panel-header>
+                         <mat-panel-title>
+                           <mat-icon color="warn">warning</mat-icon>&nbsp;<h3>Stock faible</h3>
+                         </mat-panel-title>
+                       </mat-expansion-panel-header>
+                       <ng-scrollbar orientation="vertical" pointerEventsMethod="scrollbar">
+                         <mat-card>
+                           <table mat-table [dataSource]="lowStockData">
+                             <ng-container matColumnDef="produit">
+                               <th mat-header-cell *matHeaderCellDef>Produit</th>
+                               <td mat-cell *matCellDef="let row">{{ row.produit }}</td>
+                             </ng-container>
+                             <ng-container matColumnDef="stock">
+                               <th mat-header-cell *matHeaderCellDef>Stock</th>
+                               <td mat-cell *matCellDef="let row">{{ row.current_stock }}</td>
+                             </ng-container>
+                             <ng-container matColumnDef="threshold">
+                               <th mat-header-cell *matHeaderCellDef>Seuil</th>
+                               <td mat-cell *matCellDef="let row">{{ row.threshold }}</td>
+                             </ng-container>
+                             <tr mat-header-row *matHeaderRowDef="lowColumns"></tr>
+                             <tr mat-row *matRowDef="let row; columns: lowColumns;"></tr>
+                           </table>
+                         </mat-card>
+
+                       </ng-scrollbar>
+                     </mat-expansion-panel>
+                   </div>-->
+                <!--<div fxFlex="100" fxFlex.gt-sm="50" class="p-2">
+                  <mat-expansion-panel expanded>
+                    <mat-expansion-panel-header>
+                      <mat-panel-title>
+                        <mat-icon color="warn">warning</mat-icon>&nbsp;<h3>Réassorts suggérés</h3>
+                      </mat-panel-title>
+                    </mat-expansion-panel-header>
+                    <ng-scrollbar orientation="vertical" pointerEventsMethod="scrollbar">
+                      <mat-card>
+                        <table mat-table [dataSource]="reorderData">
+                          <ng-container matColumnDef="produit_id">
+                            <th mat-header-cell *matHeaderCellDef>Nom</th>
+                            <td mat-cell *matCellDef="let row">{{ row.nom }}</td>
+                          </ng-container>
+                          <ng-container matColumnDef="current_stock">
+                            <th mat-header-cell *matHeaderCellDef>Stock actuel</th>
+                            <td mat-cell *matCellDef="let row">{{ row.stock }}</td>
+                          </ng-container>
+                          <ng-container matColumnDef="safety_stock">
+                            <th mat-header-cell *matHeaderCellDef>Stock de securite</th>
+                            <td mat-cell *matCellDef="let row">{{ row.target | number:'1.0-0' }}</td>
+                          </ng-container>
+                          <ng-container matColumnDef="reorder_point">
+                            <th mat-header-cell *matHeaderCellDef>ROP</th>
+                            <td mat-cell *matCellDef="let row">{{ row.rop | number:'1.0-0' }}</td>
+                          </ng-container>
+                          <ng-container matColumnDef="suggested_order_qty">
+                            <th mat-header-cell *matHeaderCellDef>Qté à commander</th>
+                            <td mat-cell *matCellDef="let row">{{ row.qte }}</td>
+                          </ng-container>
+                          <ng-container matColumnDef="avg_daily">
+                            <th mat-header-cell *matHeaderCellDef>Qté à commander</th>
+                            <td mat-cell *matCellDef="let row">{{ row.avg_daily }}</td>
+                          </ng-container>
+                          <tr mat-header-row *matHeaderRowDef="reorderColumns"></tr>
+                          <tr mat-row *matRowDef="let row; columns: reorderColumns;"></tr>
+                        </table>
+                      </mat-card>
+
+                    </ng-scrollbar>
+                  </mat-expansion-panel>
+                </div>-->
+              </mat-accordion>
+            </div>
+
           </div>
 
-          <div fxFlex="100" fxFlex.gt-sm="50" class="p-2">
-            <app-categorie-pie *ngIf="categories.length>0" [data]="categories"></app-categorie-pie>
-          </div>
 
-          <div fxFlex="100" fxFlex.gt-sm="50" class="p-2">
-            <app-weekly-seasonality *ngIf="weekly.length>0" [data]="weekly"></app-weekly-seasonality>
-          </div>
 
-          <div fxFlex="100" fxFlex.gt-sm="50" class="p-2">
-            <app-daily-sales *ngIf="daily.length>0" [data]="daily"></app-daily-sales>
-          </div>
-
-          <div fxFlex="100" fxFlex.gt-sm="50" class="p-2">
-            <app-top-products [items]="top"></app-top-products>
-          </div>
-
-          <div fxFlex="100" fxFlex.gt-sm="50" class="p-2">
-            <app-low-stock *ngIf="low.length>0" [items]="low"></app-low-stock>
-          </div>
         </div>
 
         <!-- Tables -->
@@ -412,115 +414,118 @@
                 </div>
               </ng-container>
             </mat-expansion-panel>
-          </div>
-          <div fxFlex="100" fxFlex.gt-sm="50" class="p-2">
-            <mat-expansion-panel expanded>
-              <mat-expansion-panel-header>
-                <mat-panel-title>
-                  <mat-icon color="warn">warning</mat-icon>&nbsp;<h3>Top ventes ( 7 jours)</h3>
-                </mat-panel-title>
-              </mat-expansion-panel-header>
-              <ng-scrollbar *ngIf="top7.length>0" orientation="vertical" pointerEventsMethod="scrollbar">
-                <div fxFlex="100" fxFlex.gt-sm="50" class="p-2">
-                  <app-top-products [items]="top7"></app-top-products>
-                </div>
-              </ng-scrollbar>
-              <ng-container *ngIf="top7.length==0">
-                <div fxLayout="row wrap" fxLayoutAlign="center center" class="w-100 p-3">
-                  No data available
-                </div>
-              </ng-container>
-            </mat-expansion-panel>
-          </div>
-          <div fxFlex="100" fxFlex.gt-sm="50" class="p-2">
-            <mat-card>
-              <mat-card-title>Commandes récentes</mat-card-title>
-              <div class="table-container">
-                <table mat-table [dataSource]="ordersRecent" class="mat-elevation-z8">
-
-                  <ng-container matColumnDef="id">
-                    <th mat-header-cell *matHeaderCellDef>ID</th>
-                    <td mat-cell *matCellDef="let r">{{ r.id }}</td>
-                  </ng-container>
-
-                  <ng-container matColumnDef="ref">
-                    <th mat-header-cell *matHeaderCellDef>Réf</th>
-                    <td mat-cell *matCellDef="let r">{{ r.ref || '—' }}</td>
-                  </ng-container>
-
-                  <ng-container matColumnDef="fournisseur">
-                    <th mat-header-cell *matHeaderCellDef>Fournisseur</th>
-                    <td mat-cell *matCellDef="let r">{{ r.fournisseur || '—' }}</td>
-                  </ng-container>
-
-                  <ng-container matColumnDef="montantCmd">
-                    <th mat-header-cell *matHeaderCellDef>Montant</th>
-                    <td mat-cell *matCellDef="let r">{{ formatMoney(r.montantCmd) }}</td>
-                  </ng-container>
-
-                  <ng-container matColumnDef="etat">
-                    <th mat-header-cell *matHeaderCellDef>État</th>
-                    <td mat-cell *matCellDef="let r">{{ r.etat || '—' }}</td>
-                  </ng-container>
-
-                  <ng-container matColumnDef="dateCreation">
-                    <th mat-header-cell *matHeaderCellDef>Créée le</th>
-                    <td mat-cell *matCellDef="let r">{{ r.dateCreation | date:'yyyy-MM-dd' }}</td>
-                  </ng-container>
-
-                  <ng-container matColumnDef="actions">
-                    <th mat-header-cell *matHeaderCellDef></th>
-                    <td mat-cell *matCellDef="let r">
-                      <!--              <button mat-icon-button matTooltip="Détails"><mat-icon>visibility</mat-icon></button>-->
-                      <ng-container *ngIf="isPlatformBrowser">
-                        <button mat-icon-button
-                        >
-                          <mat-icon>fullscreen</mat-icon>
-                        </button>
-                      </ng-container>
-                      <ng-container *ngIf="!isPlatformBrowser"><!--container--></ng-container>
-                    </td>
-                  </ng-container>
-
-                  <tr mat-header-row *matHeaderRowDef="displayedColumnsOrders"></tr>
-                  <tr mat-row *matRowDef="let row; columns: displayedColumnsOrders;"></tr>
-                </table>
-              </div>
-            </mat-card>
-          </div>
-          <div fxFlex="100" fxFlex.gt-sm="50" class="p-2">
-            <mat-accordion>
-              <mat-expansion-panel>
+            <div class="mt-4">
+              <mat-expansion-panel expanded>
                 <mat-expansion-panel-header>
                   <mat-panel-title>
-                    <mat-icon color="warn">warning</mat-icon>
-                    <h3>Top 10 des produits en alerte (stock et peremption)</h3>
+                    <mat-icon color="warn">warning</mat-icon>&nbsp;<h3>Top ventes ( 7 jours)</h3>
                   </mat-panel-title>
                 </mat-expansion-panel-header>
-                <ng-scrollbar orientation="vertical" pointerEventsMethod="scrollbar">
-                  <div class="table-container">
-                    <table mat-table [dataSource]="stockAlerts" class="mat-elevation-z8">
-                      <ng-container matColumnDef="produit">
-                        <th mat-header-cell *matHeaderCellDef>Produit</th>
-                        <td mat-cell *matCellDef="let r">{{ r.produit }}</td>
-                      </ng-container>
-                      <ng-container matColumnDef="quantiteRestante">
-                        <th mat-header-cell *matHeaderCellDef>Qté</th>
-                        <td mat-cell *matCellDef="let r">{{ r.quantiteRestante ?? '—' }}</td>
-                      </ng-container>
-                      <ng-container matColumnDef="datePeremption">
-                        <th mat-header-cell *matHeaderCellDef>Péremption</th>
-                        <td mat-cell *matCellDef="let r">{{ r.datePeremption | date:'yyyy-MM-dd' }}</td>
-                      </ng-container>
-
-                      <tr mat-header-row *matHeaderRowDef="displayedColumnsStock"></tr>
-                      <tr mat-row *matRowDef="let row; columns: displayedColumnsStock;"></tr>
-                    </table>
+                <ng-scrollbar *ngIf="top7.length>0" orientation="vertical" pointerEventsMethod="scrollbar">
+                  <div fxFlex="100" fxFlex.gt-sm="50" class="p-2">
+                    <app-top-products [items]="top7"></app-top-products>
                   </div>
                 </ng-scrollbar>
+                <ng-container *ngIf="top7.length==0">
+                  <div fxLayout="row wrap" fxLayoutAlign="center center" class="w-100 p-3">
+                    No data available
+                  </div>
+                </ng-container>
               </mat-expansion-panel>
-            </mat-accordion>
+            </div>
 
+
+          </div>
+          <div fxFlex="100" fxFlex.gt-sm="50" class="p-2">
+            <div >
+              <mat-card>
+                <mat-card-title>Commandes récentes</mat-card-title>
+                <div class="table-container">
+                  <table mat-table [dataSource]="ordersRecent" class="mat-elevation-z8">
+
+                    <ng-container matColumnDef="id">
+                      <th mat-header-cell *matHeaderCellDef>ID</th>
+                      <td mat-cell *matCellDef="let r">{{ r.id }}</td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="ref">
+                      <th mat-header-cell *matHeaderCellDef>Réf</th>
+                      <td mat-cell *matCellDef="let r">{{ r.ref || '—' }}</td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="fournisseur">
+                      <th mat-header-cell *matHeaderCellDef>Fournisseur</th>
+                      <td mat-cell *matCellDef="let r">{{ r.fournisseur || '—' }}</td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="montantCmd">
+                      <th mat-header-cell *matHeaderCellDef>Montant</th>
+                      <td mat-cell *matCellDef="let r">{{ formatMoney(r.montantCmd) }}</td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="etat">
+                      <th mat-header-cell *matHeaderCellDef>État</th>
+                      <td mat-cell *matCellDef="let r">{{ r.etat || '—' }}</td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="dateCreation">
+                      <th mat-header-cell *matHeaderCellDef>Créée le</th>
+                      <td mat-cell *matCellDef="let r">{{ r.dateCreation | date:'yyyy-MM-dd' }}</td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="actions">
+                      <th mat-header-cell *matHeaderCellDef></th>
+                      <td mat-cell *matCellDef="let r">
+                        <!--              <button mat-icon-button matTooltip="Détails"><mat-icon>visibility</mat-icon></button>-->
+                        <ng-container *ngIf="isPlatformBrowser">
+                          <button mat-icon-button
+                          >
+                            <mat-icon>fullscreen</mat-icon>
+                          </button>
+                        </ng-container>
+                        <ng-container *ngIf="!isPlatformBrowser"><!--container--></ng-container>
+                      </td>
+                    </ng-container>
+
+                    <tr mat-header-row *matHeaderRowDef="displayedColumnsOrders"></tr>
+                    <tr mat-row *matRowDef="let row; columns: displayedColumnsOrders;"></tr>
+                  </table>
+                </div>
+              </mat-card>
+            </div>
+            <div class="mt-4">
+              <mat-accordion>
+                <mat-expansion-panel expanded>
+                  <mat-expansion-panel-header>
+                    <mat-panel-title>
+                      <mat-icon color="warn">warning</mat-icon>
+                      <h3>Top 10 des produits en alerte (stock et peremption)</h3>
+                    </mat-panel-title>
+                  </mat-expansion-panel-header>
+                  <ng-scrollbar orientation="vertical" pointerEventsMethod="scrollbar">
+                    <div class="table-container">
+                      <table mat-table [dataSource]="stockAlerts" class="mat-elevation-z8">
+                        <ng-container matColumnDef="produit">
+                          <th mat-header-cell *matHeaderCellDef>Produit</th>
+                          <td mat-cell *matCellDef="let r">{{ r.produit }}</td>
+                        </ng-container>
+                        <ng-container matColumnDef="quantiteRestante">
+                          <th mat-header-cell *matHeaderCellDef>Qté</th>
+                          <td mat-cell *matCellDef="let r">{{ r.quantiteRestante ?? '—' }}</td>
+                        </ng-container>
+                        <ng-container matColumnDef="datePeremption">
+                          <th mat-header-cell *matHeaderCellDef>Péremption</th>
+                          <td mat-cell *matCellDef="let r">{{ r.datePeremption | date:'yyyy-MM-dd' }}</td>
+                        </ng-container>
+
+                        <tr mat-header-row *matHeaderRowDef="displayedColumnsStock"></tr>
+                        <tr mat-row *matRowDef="let row; columns: displayedColumnsStock;"></tr>
+                      </table>
+                    </div>
+                  </ng-scrollbar>
+                </mat-expansion-panel>
+              </mat-accordion>
+            </div>
           </div>
         </mat-accordion>
       </div>

@@ -1,4 +1,4 @@
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime
 from typing import List, Dict, Any, Tuple, Optional
 
 from sqlalchemy import literal, select
@@ -12,13 +12,16 @@ from app.repositories.en_rayon_repository import EnRayonRepository
 from app.repositories.concerner_repository import ConcernerRepository
 
 
-def get_daily_sales_series(db: Session, produit_id: int, days: int = 180) -> List[Tuple[date, float]]:
+def get_daily_sales_series(db: Session, produit_id: int, days: int = 180,
+                           end: datetime = datetime.now(),
+                           start: datetime = datetime.now().replace(day=1),) -> List[Tuple[date, float]]:
   """
   Retourne [(date, qty_vendue)] par jour pour un produit sur 'days' derniers jours.
   Utilise Vente + Concerner pour agréger les quantités.
   """
   # Idée: réutiliser une méthode existante si tu as déjà un "sales_daily(produit_id, from_date)"
-  from_dt = date.today() - timedelta(days=days)
+  from_dt = end - start
+  # from_dt = date.today() - timedelta(days=days)
   # Exemples de récupération (à remplacer par tes méthodes repos)
   if produit_id > 0:
     rows = ConcernerRepository(db).sum_daily_qty_by_product(produit_id, from_dt)
