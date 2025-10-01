@@ -1,3 +1,6 @@
+import os
+import shutil
+import subprocess
 import sys
 import threading
 import webbrowser
@@ -100,19 +103,89 @@ def start_scheduler():
   scheduler.add_job(job_compute_alerts, "interval", hours=6, id="alerts_job", replace_existing=True)
   scheduler.start()
 
+def _which(exe_name: str):
+  p = shutil.which(exe_name)
+  return p if p else None
+
+def find_browser_exe(name: str) -> str | None:
+  name = (name or "").lower()
+  # chemins probables (Windows)
+  PF  = Path(os.environ.get("PROGRAMFILES", r"C:\Program Files"))
+  PFx = Path(os.environ.get("PROGRAMFILES(X86)", r"C:\Program Files (x86)"))
+
+  CANDIDATES = {
+    "firefox": [
+      PF / "Mozilla Firefox" / "firefox.exe",
+      PFx / "Mozilla Firefox" / "firefox.exe",
+      ],
+    "chrome": [
+      PF / "Google" / "Chrome" / "Application" / "chrome.exe",
+      PFx / "Google" / "Chrome" / "Application" / "chrome.exe",
+      ],
+    "edge": [
+      PF / "Microsoft" / "Edge" / "Application" / "msedge.exe",
+      PFx / "Microsoft" / "Edge" / "Application" / "msedge.exe",
+      ],
+  }
+
+  # 1) chemins connus
+  for p in CANDIDATES.get(name, []):
+    if p.exists():
+      return str(p)
+
+  # 2) PATH
+  exe = _which(f"{name}.exe")
+  if exe:
+    return exe
+
+  return None
+
+def open_url_in_preferred_browser(url: str, preferred: str = None):
+  """
+  preferred peut être: 'firefox', 'chrome', 'edge', 'default' ou None.
+  On peut aussi définir PHARMANET_BROWSER dans l'environnement.
+  """
+  preferred = (preferred or os.environ.get("PHARMANET_BROWSER") or "firefox").lower()
+
+  # cas 'default' → navigateur par défaut Windows
+  if preferred in ("default", "system", "windows-default"):
+    webbrowser.open(url)
+    return
+
+  exe = find_browser_exe(preferred)
+  if exe:
+    try:
+      subprocess.Popen([exe, url], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+      return
+    except Exception:
+      pass  # on retombe sur défaut
+
+  # fallback navigateur par défaut
+  webbrowser.open(url)
+
 @app.get("/health")
 def health():
   return {"status": "ok"}
 
 if __name__ == "__main__":
   import uvicorn
+
+  port = 8000
+  # avant: webbrowser.open("http://127.0.0.1:8000")
+  def delayed_open(url):
+    time.sleep(1.0)
+    open_url_in_preferred_browser(url, preferred="firefox")  # <-- ici tu choisis
+
+  threading.Thread(target=lambda: delayed_open(f"http://127.0.0.1:{port}"), daemon=True).start()
   # ouvre le navigateur automatiquement
-  threading.Thread(target=lambda: (time.sleep(1), webbrowser.open("http://127.0.0.1:8000"))).start()
+  # threading.Thread(target=lambda: (time.sleep(1), webbrowser.open("http://127.0.0.1:8000"))).start()
   # uvicorn.run("app.main:app", host="127.0.0.1", port=8000, reload=True)
   uvicorn.run(
-    app,
+    "app.main:app",
+    # app,
     host="127.0.0.1",
     port=8000,
-    log_config=None,   # <<< kill uvicorn's default console logging
+    reload=True,
+    # log_config=None,   # <<< kill uvicorn's default console logging
     access_log=False   # <<< optional: also silence access logs
   )
