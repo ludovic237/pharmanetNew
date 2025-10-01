@@ -1,3 +1,7 @@
+import sys
+import threading
+import webbrowser
+import time
 from pathlib import Path
 
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -14,30 +18,37 @@ from pathlib import Path
 
 from app.services.stock_alert_service import compute_and_store_alerts
 
+import passlib.handlers.bcrypt  # <-- force l’inclusion dans l’exe
 
-def find_front_dist() -> Path:
-  repo_root = Path(__file__).resolve().parents[2]  # ajuste si besoin
-  candidates = [
-    repo_root / "frontend" / "dist",
-    repo_root / "front" / "dist",
-    repo_root / "dist",
-    repo_root / "public" / "browser",
-    ]
-  # direct index.html
-  for c in candidates:
-    if (c / "index.html").exists():
-      return c
-  # Angular 17+: */browser/index.html
-  for c in candidates:
-    for p in c.glob("*/emporium/browser/index.html"):
-      return p.parent
-  # */index.html
-  for c in candidates:
-    for p in c.glob("*/index.html"):
-      return p.parent
-  raise RuntimeError("Build Angular introuvable. Exécute 'ng build' et vérifie outputPath.")
+# ---------- Localisation du build Angular ----------
+def get_front_dist() -> Path:
+  """
+  - EXE --onefile : .../_MEIPASS/web
+  - EXE --onedir  : <dossier_exe>/web
+  - Dev           : <repo>/dist/emporium/browser
+  """
+  # PyInstaller --onefile
+  if getattr(sys, "frozen", False) and hasattr(sys, "_MEIPASS"):
+    p = Path(sys._MEIPASS) / "web"
+    if (p / "index.html").exists():
+      return p
 
+  # PyInstaller --onedir
+  if getattr(sys, "frozen", False):
+    p = Path(sys.executable).parent / "web"
+    if (p / "index.html").exists():
+      return p
 
+  # Dev
+  repo_root = Path(__file__).resolve().parents[2]
+  p = repo_root / "dist" / "emporium" / "browser"
+  if (p / "index.html").exists():
+    return p
+
+  raise RuntimeError(
+    "index.html introuvable (ni dans 'web' packagé, ni dans dist/emporium/browser). "
+    "Lance 'ng build' et vérifie le --add-data lors du build PyInstaller."
+  )
 
 
 app = FastAPI(title=settings.app_name)
@@ -57,7 +68,8 @@ app.include_router(api_router)
 
 # ---- 2) Angular (SPA) servi à la racine
 REPO_ROOT = Path(__file__).resolve().parents[2]          # => .../pharmaNew
-FRONT_DIST = REPO_ROOT / "dist" / "emporium" / "browser" # => .../pharmaNew/dist/emporium/browser
+# FRONT_DIST = REPO_ROOT / "dist" / "emporium" / "browser" # => .../pharmaNew/dist/emporium/browser
+FRONT_DIST = get_front_dist()
 
 if not (FRONT_DIST / "index.html").exists():
   raise RuntimeError(f"index.html introuvable dans {FRONT_DIST}. Lance 'ng build' et vérifie le chemin.")
@@ -94,4 +106,13 @@ def health():
 
 if __name__ == "__main__":
   import uvicorn
-  uvicorn.run("app.main:app", host="127.0.0.1", port=8000, reload=True)
+  # ouvre le navigateur automatiquement
+  threading.Thread(target=lambda: (time.sleep(1), webbrowser.open("http://127.0.0.1:8000"))).start()
+  # uvicorn.run("app.main:app", host="127.0.0.1", port=8000, reload=True)
+  uvicorn.run(
+    app,
+    host="127.0.0.1",
+    port=8000,
+    log_config=None,   # <<< kill uvicorn's default console logging
+    access_log=False   # <<< optional: also silence access logs
+  )
