@@ -273,7 +273,7 @@ class ProduitService:
     }
 
   def _to_response_dto(self, p) -> Dict[str, Any]:
-    stock = get
+
     return {
       "id": p.id,
       "nom": p.nom or "",
