@@ -106,11 +106,11 @@ def mettre_caisse_en_attente(db: Session = Depends(get_db), employe: Employe = D
 def ouvrir_nouvelle_caisse(request: CaisseOuvertureRequestDto, db: Session = Depends(get_db),
                            employe: Employe = Depends(UserUtils.get_current_employe)):
   service = CaisseService(db)
-  try:
-    caisse_dto = service.ouvrir_nouvelle_caisse(request, employe)
-    return caisse_dto
-  except Exception as e:
-    raise HTTPException(status_code=409, detail=str(e))
+  # try:
+  caisse_dto = service.ouvrir_nouvelle_caisse(request, employe)
+  return caisse_dto
+  # except Exception as e:
+  #   raise HTTPException(status_code=409, detail=str(e))
 
 
 # ----------------------------

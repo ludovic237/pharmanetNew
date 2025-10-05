@@ -79,7 +79,7 @@ class DepenseService:
   def create_depense(self, designation: str, prix_unitaire: int) -> Depense:
     if not self.caisse_service:
       raise HTTPException(status_code=500, detail="CaisseService non injecté")
-    caisse = self.caisse_service.get_caisse_active()
+    caisse = self.caisse_service.get_caisse_active_db(self.db)
     if not caisse:
       raise HTTPException(status_code=400, detail="Aucune caisse active")
 
@@ -101,7 +101,7 @@ class DepenseService:
     caisseService = CaisseService(db)
     if not caisseService:
       raise HTTPException(status_code=500, detail="CaisseService non injecté")
-    caisse = caisseService.get_caisse_active()
+    caisse = self.caisse_service.get_caisse_active_db(self.db)
     caisse_id = str(getattr(caisse, "id", "")) if caisse else None
 
     designation = data.get("designation")

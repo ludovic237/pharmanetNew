@@ -15,6 +15,7 @@ from app.models.facturation import Facturation
 from app.models.facture_electronique import FactureElectronique
 from app.models.facture_espece import FactureEspece
 from app.models.facture_ticket import FactureTicket
+from app.models.malade import Malade
 from app.models.prescripteur import Prescripteur
 from app.models.user import User
 from app.models.vente import Vente
@@ -100,7 +101,7 @@ class VenteService:
   # ---------------------------------------------------------------------
   # creerVenteSansEncaissement(venteRequestDto)
   # ---------------------------------------------------------------------
-  def creer_vente_sans_encaissement(self, dto: VenteRequestDto, currentEmploye : Employe) -> Vente:
+  def creer_vente_sans_encaissement(self, dto: VenteRequestDto, currentEmploye: Employe) -> Vente:
     employe = currentEmploye
     _require(employe, "Impossible de récupérer l'utilisateur connecté.")
 
@@ -109,14 +110,15 @@ class VenteService:
 
     # Client
     client: Optional[User] = None
-    t = (dto.clientInfo or {}).get("type")
+
+    t = (dto.clientInfo.type or {})
     if t == "existing":
-      client_id = _require((dto.clientInfo or {}).get("id"), "Client.id requis")
+      client_id = _require((dto.clientInfo.id or {}), "Client.id requis")
       client = self.user_repo.find_by_id(int(client_id))
       _require(client, f"Client introuvable avec l'ID: {client_id}")
     elif t == "new":
-      name = (dto.clientInfo or {}).get("name") or _require(None, "Nom du client requis")
-      phone = (dto.clientInfo or {}).get("phone") or _require(None, "Téléphone du client requis")
+      name = (dto.clientInfo.nom or {}) or _require(None, "Nom du client requis")
+      phone = (dto.clientInfo.phone or {}) or _require(None, "Téléphone du client requis")
       client = User(nom=name, telephone=phone)
       self.user_repo.save(client)
     elif t == "none":
@@ -126,37 +128,39 @@ class VenteService:
 
     # Prescripteur
     prescripteur: Optional[Prescripteur] = None
-    pt = (dto.prescripteurInfo or {}).get("type")
+    pt = (dto.prescripteurInfo.type or {})
     if pt == "existing":
-      pid = _require((dto.prescripteurInfo or {}).get("id"), "Prescripteur.id requis")
+      pid = _require((dto.prescripteurInfo.id or {}), "Prescripteur.id requis")
       prescripteur = self.prescripteur_repo.find_by_id(int(pid))
       _require(prescripteur, f"Prescripteur introuvable avec l'ID: {pid}")
     elif pt == "new":
-      pname = (dto.prescripteurInfo or {}).get("name")
+      pname = (dto.prescripteurInfo.nom or {})
       if pname:
         prescripteur = Prescripteur(nom=pname)
         self.prescripteur_repo.save(prescripteur)
     elif pt == "none":
-      prescripteur = None
+      prescripteur = Prescripteur()
     else:
       raise HTTPException(status_code=400, detail=f"Type de prescripteur invalide: {pt}")
 
-    active_caisse = self.caisse_service.get_caisse_active()
+    active_caisse = self.caisse_service.get_caisse_active_db(self.db)
     now = _now()
     ref = self.generer_reference(self.vente_repo.count_mois())
 
+    malade = Malade()
     vente = Vente(
-      id=int(now.strftime("%Y%m%d%H%M%S")),
+      id=int(datetime.now().strftime("%y%m%d%H%M%S")),
       employe_id=employe.id,
       reduction=str(dto.prixReduction or 0),
-      caisse=None if dto.etat == "CREDIT" else active_caisse,
+      caisse_id=None if dto.etat == "CREDIT" else active_caisse.id,
       reference=ref,
       date_vente=now,
       etat=dto.etat,
       prix_total=(dto.prixTotal or 0.0) - (dto.prixReduction or 0.0),
       commentaire=dto.commentaire,
       user_id=client.id,
-      prescripteur_id=prescripteur.id,
+      malade_id=malade.id,
+      prescripteur_id=(prescripteur.id or None),
       supprimer=0,
     )
     vente = self.vente_repo.save(vente)
@@ -193,11 +197,11 @@ class VenteService:
           self.enrayon_repo.find_by_id(str(p.rayonId)),
           f"EnRayon introuvable: {p.rayonId}",
         )
-        er.quantiteRestante = _parse_int(er.quantiteRestante) - qte
+        er.quantite_restante = _parse_int(er.quantite_restante) - qte
         self.enrayon_repo.save(er)
 
         prod = _require(
-          self.produit_repo.find_by_id(int(er.produitId)),
+          self.produit_repo.find_by_id(int(er.produit_id)),
           f"Produit introuvable avec l'ID: {p.produitId}",
         )
         prod.stock = _parse_int(prod.stock) - qte
@@ -257,7 +261,7 @@ class VenteService:
         prescripteur = Prescripteur(nom=pname)
         self.prescripteur_repo.save(prescripteur)
 
-    active_caisse = self.caisse_service(self.db).get_caisse_active()
+    active_caisse = self.caisse_service.get_caisse_active_db(self.db)
     now = _now()
     ref = self.generer_reference(self.vente_repo.count_mois())
 
@@ -390,7 +394,7 @@ class VenteService:
     if getattr(vente, "etat", "") != "EN_COURS":
       raise HTTPException(status_code=400, detail="La vente doit être en cours pour être encaissée.")
 
-    caisse = self.caisse_service.get_caisse_active()
+    caisse = self.caisse_service.get_caisse_active_db(self.db)
     fact = Facturation(
       id=int(self.generate_id()),
       vente_id=vente.id,
@@ -440,7 +444,7 @@ class VenteService:
     dto.typeEncaissement = _remove_accents_lower(dto.typeEncaissement)
     vente = _require(self.vente_repo.find_by_id(int(dto.venteId)), "Vente introuvable")
 
-    caisse = self.caisse_service.get_caisse_active()
+    caisse = self.caisse_service.get_caisse_active_db(self.db)
     fact = Facturation(
       id=int(self.generate_id()),
       vente_id=vente.id,
@@ -466,7 +470,8 @@ class VenteService:
       ticket = _require(self.bon_caisse_repo.find_by_codebarre_id(dto.ticket.numeroTicket), "Ticket introuvable")
       ticket.type = "Encaisser"
       ticket.dateEncaisser = _now()
-      ticket.caisseIdEncaisser = (self.caisse_service.get_caisse_active() or {}).id if self.caisse_service else None
+      ticket.caisseIdEncaisser = (
+        self.caisse_service.get_caisse_active_db(self.db) or {}).id if self.caisse_service else None
       self.bon_caisse_repo.save(ticket)
 
       self.facture_ticket_repo.save(
@@ -485,7 +490,8 @@ class VenteService:
         ticket = _require(self.bon_caisse_repo.find_by_codebarre_id(dto.ticket.numeroTicket), "Ticket introuvable")
         ticket.type = "Encaisser"
         ticket.dateEncaisser = _now()
-        ticket.caisseIdEncaisser = (self.caisse_service.get_caisse_active() or {}).id if self.caisse_service else None
+        ticket.caisseIdEncaisser = (
+          self.caisse_service.get_caisse_active_db(self.db) or {}).id if self.caisse_service else None
         self.bon_caisse_repo.save(ticket)
         self.facture_ticket_repo.save(
           FactureTicket(facturation_id=fact.id, ticket_caisse_id=ticket.id, montant=dto.ticket.montantTicket)
@@ -622,13 +628,13 @@ class VenteService:
   def lister_ventes_non_encaissees(self, page: int, size: int, sort: str, direction: str, search: Optional[str]) -> \
     Dict[str, Any]:
     page, size = _page_sizing(page, size)
-    caisse = self.caisse_service.get_caisse_active()
+    caisse = self.caisse_service.get_caisse_active_db(self.db)
     if not caisse:
       return {"content": [], "totalElements": 0, "totalPages": 0, "pageSize": size, "pageNumber": page}
 
-    rows, total = self.vente_repo.filter_ventes(active_caisse=caisse, price_percu=0,
+    rows, total = self.vente_repo.filter_ventes(supprimer=0, active_caisse=caisse, prix_percu=0,
                                                 etat="null", date_vente="null", date_encaissement="null",
-                                                user_id="null", employe_id="null", prescripteurId="null",
+                                                user_id="null", employe_id="null", prescripteur_id="null",
                                                 caisse_id="null",
                                                 page=page, size=size, sort_by="date_vente", direction="DESC")
     content = [{
@@ -648,8 +654,8 @@ class VenteService:
   def lister_ventes_encaissees(self, page: int, size: int, sort: str, direction: str, search: Optional[str]) -> Dict[
     str, Any]:
     page, size = _page_sizing(page, size)
-    caisse = self.caisse_service(self.db).get_caisse_active()
-    rows, total = self.vente_repo.filter_ventes(active_caisse=caisse, price_percu=0, encaisse_mode=1,
+    caisse = self.caisse_service.get_caisse_active_db(self.db)
+    rows, total = self.vente_repo.filter_ventes(supprimer=0, active_caisse=caisse, prix_percu=0,
                                                 etat="null", date_vente="null", date_encaissement="null",
                                                 user_id="null", employe_id="null", prescripteur_id="null",
                                                 caisse_id="null",
@@ -812,7 +818,7 @@ class VenteService:
   # envoyerVentreCreditEnCaisse(venteId)
   # ---------------------------------------------------------------------
   def envoyer_vente_credit_en_caisse(self, vente_id: str) -> Vente:
-    caisse = self.caisse_service.get_caisse_active()
+    caisse = self.caisse_service.get_caisse_active_db(self.db)
     vente = _require(self.vente_repo.find_by_id(int(vente_id)), "Vente introuvable")
     vente.caisse = caisse
     return self.vente_repo.save(vente)
@@ -835,7 +841,7 @@ class VenteService:
     search: Optional[str] = None,
   ) -> Dict[str, Any]:
 
-    active_caisse = CaisseService.get_caisse_active(self)
+    active_caisse = self.caisse_service.get_caisse_active_db(self.db)
     if caisseId == "non":
       active_caisse = None
 
@@ -1001,16 +1007,17 @@ class VenteService:
     prescripteurId: Optional[str] = None, caisseId: Optional[str] = None,
     search: Optional[str] = None,
   ) -> VentePageableCustomlDto:
-    active_caisse = self.caisse_service.get_caisse_active()
+    active_caisse = self.caisse_service.get_caisse_active_db(db=self.db)
     if caisseId == "non":
       active_caisse = None
 
     rows, total = self.vente_repo.filter_ventes_range(
-      active_caisse=active_caisse, price_percu=0, etat=etat,
+      supprimer=0,
+      active_caisse=active_caisse, prix_percu=0, etat=etat,
       start_date_vente=startDateVente, end_date_vente=endDateVente,
       start_date_encaissement=startDateEncaissement, end_date_encaissement=endDateEncaissement,
-      user_Id=userId, employe_Id=employeId, prescripteur_Id=prescripteurId, caisse_Id=caisseId,
-      page=page, size=size, sort="date_vente", direction="DESC"
+      user_id=userId, employe_id=employeId, prescripteur_id=prescripteurId, caisse_id=caisseId,
+      page=page, size=size, sort_by="date_vente", direction="DESC"
     )
     content: List[Dict[str, Any]] = []
     for v in rows:

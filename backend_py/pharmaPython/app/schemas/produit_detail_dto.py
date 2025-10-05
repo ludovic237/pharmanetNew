@@ -134,7 +134,7 @@ class ProduitStockUpdateRequestDto(BaseModel):
   datePeremption: Optional[datetime] = None
 
 class ProduitTarificationUpdateRequestDto(BaseModel):
-  nouveauPrixVente: Decimal
+  nouveauPrixVente: float
   dateDebut: Optional[datetime] = None
 
 class DataDto(BaseModel):

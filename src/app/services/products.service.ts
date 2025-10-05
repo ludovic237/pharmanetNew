@@ -9,6 +9,7 @@ import {environment} from "../../environments/environment";
 })
 export class ProductService {
   private baseUrl = environment.url+'/api/produits';
+  private baseUrlRayon = environment.url+'/api/en-rayon';
 
   constructor(private http: HttpClient) {
   }
@@ -132,11 +133,11 @@ export class ProductService {
   // }
 
   ajouterTousLesProduitsManquantEnRayon(): Observable<any> {
-    return this.http.get<any>(`${this.baseUrl}/ajouter_tous_produits_manquant_en_rayon`, {headers: this.getHeaders()});
+    return this.http.get<any>(`${this.baseUrlRayon}/ajouter_tous_produits_manquant_en_rayon`, {headers: this.getHeaders()});
   }
 
   ajouterUnProduitManquantEnRayon(id: number): Observable<any> {
-    return this.http.get<any>(`${this.baseUrl}/ajouter_produit_manquant_en_rayon?produitId=${id}`, {headers: this.getHeaders()});
+    return this.http.get<any>(`${this.baseUrlRayon}/ajouter_produit_manquant_en_rayon?produitId=${id}`, {headers: this.getHeaders()});
   }
 
 }

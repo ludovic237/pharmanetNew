@@ -20,6 +20,9 @@ class CaisseRepository:
   def find_by_etat_and_supprimer(self, etat: str, supprimer: int = 0) -> List[Caisse]:
     return self.db.query(Caisse).filter(Caisse.etat == etat, Caisse.supprimer == supprimer).all()
 
+  def find_by_etat_and_supprimer_first(self, etat: str, supprimer: int = 0) -> Caisse:
+    return self.db.query(Caisse).filter(Caisse.etat == etat, Caisse.supprimer == supprimer).first()
+
   def exists_by_etat_and_supprimer(self, etat: str, supprimer: int = 0) -> bool:
     return (
       self.db.query(Caisse.id)

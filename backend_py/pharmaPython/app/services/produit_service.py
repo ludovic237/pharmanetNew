@@ -273,6 +273,7 @@ class ProduitService:
     }
 
   def _to_response_dto(self, p) -> Dict[str, Any]:
+    stock = get
     return {
       "id": p.id,
       "nom": p.nom or "",
@@ -281,11 +282,11 @@ class ProduitService:
       "image": "",
       "seuil": p.stock_min or 0,
       "categorieNom": getattr(getattr(p, "categorie", None), "nom", "") or "",
-      "tva": Decimal("0.00"),
-      "prixAchatInitial": Decimal("0.00"),
-      "prixVenteActuel": Decimal("0.00"),
-      "margeBeneficiaire": Decimal("0.00"),
-      "prixVenteConseille": Decimal("0.00"),
+      "tva": float("0.00"),
+      "prixAchatInitial": float("0.00"),
+      "prixVenteActuel": float("0.00"),
+      "margeBeneficiaire": float("0.00"),
+      "prixVenteConseille": float("0.00"),
       "quantiteTotaleEnStock": p.stock or 0,
       "dateCreation": None,
       "dateModification": None,
@@ -514,7 +515,7 @@ class ProduitService:
 
     vente = _require(self.vente_repo.find_by_id(int(vente_id)), f"Vente non trouvée avec l'ID: {vente_id}")
     employe = currentEmploye
-    caisse = self.caisse_service.get_caisse_active()
+    caisse = self.caisse_service.get_caisse_active_db(self.db)
 
     rp = self.retour_produit_repo.model()
     rp.vente, rp.caisse, rp.employe = vente, caisse, employe
@@ -754,11 +755,11 @@ class ProduitService:
       "image": "",
       "seuil": p.stockMin,
       "categorieNom": getattr(getattr(p, "categorie", None), "nom", None),
-      "tva": Decimal("0.20"),
-      "prixAchatInitial": Decimal("0"),
-      "margeBeneficiaire": Decimal("0"),
-      "prixVenteConseille": Decimal("0"),
-      "prixVenteActuel": Decimal("0"),
+      "tva": float("0.20"),
+      "prixAchatInitial": float("0"),
+      "margeBeneficiaire": float("0"),
+      "prixVenteConseille": float("0"),
+      "prixVenteActuel": float("0"),
       "quantiteTotaleEnStock": total_q,
       "dateCreation": None,
       "dateModification": None,

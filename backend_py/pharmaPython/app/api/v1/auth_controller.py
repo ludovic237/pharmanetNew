@@ -88,7 +88,7 @@ def login(username: str, password: str, db: Session = Depends(get_db)):
 
   token = create_access_token({"sub": employe.identifiant})
 
-  active_caisse = CaisseService.get_caisse_active(db)
+  active_caisse = CaisseService.get_caisse_active_db(db)
   caisse_en_cours = CaisseRepository(db).find_by_user_and_etat(employe, "En cours")
   caisse_fermer = CaisseService.get_caisse_fermer(db)
 
@@ -123,8 +123,8 @@ def logout(db: Session = Depends(get_db), employe: Employe = Depends(UserUtils.g
   print(employe)
   if not employe:
     return {"message": "Not user connected"}
-
-  active_caisse = CaisseService.get_caisse_active_db(db)
+  service = CaisseService(db)
+  active_caisse = service.get_caisse_active()
   if active_caisse and active_caisse.user.id == employe.id:
     active_caisse.date_ferme = datetime.now()
     active_caisse.etat = "Clot"

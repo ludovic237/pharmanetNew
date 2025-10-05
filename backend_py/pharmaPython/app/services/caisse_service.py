@@ -61,12 +61,14 @@ class CaisseService:
 
   def get_caisse_active(self):
     return self.db.query(Caisse).filter(Caisse.etat == "Ouvert", Caisse.supprimer == 0).first()
+    # return self.caisse_repo.find_by_etat_and_supprimer_first(etat=etat, supprimer=0)
+    # return db.query(Caisse).filter(Caisse.etat == "Ouvert", Caisse.supprimer == 0).first()
 
   def get_caisse_active_db(db: Session):
     return db.query(Caisse).filter(Caisse.etat == "Ouvert", Caisse.supprimer == 0).first()
 
-  def get_caisse_active_db(db: Session):
-    return db.query(Caisse).filter(Caisse.etat == "Ouvert", Caisse.supprimer == 0).first()
+  # def get_caisse_active_db(db: Session):
+  #   return db.query(Caisse).filter(Caisse.etat == "Ouvert", Caisse.supprimer == 0).first()
 
   def get_caisse_fermer(db: Session):
     return db.query(Caisse).filter(Caisse.etat == "Clot", Caisse.supprimer == 0).first()
@@ -102,7 +104,7 @@ class CaisseService:
     return self.map_to_dto(caisse)
 
   # === Fermer une caisse ===
-  def cloturer_caisse(self, fond_caisse_ferme: float, fermeture_caisse: str, currentEmploye:Employe) -> CaisseDto:
+  def cloturer_caisse(self, fond_caisse_ferme: float, fermeture_caisse: str, currentEmploye: Employe) -> CaisseDto:
     employe_id = currentEmploye.id
     caisse = self.get_caisse_en_cours()
     if not caisse or caisse.user_id != employe_id:
@@ -120,7 +122,8 @@ class CaisseService:
   # === Mettre caisse en attente ===
   def mettre_caisse_en_attente(self, currentEmploye: Employe) -> CaisseDto:
     employe_id = currentEmploye.id
-    caisse = self.get_caisse_active()
+    service = CaisseService(self.db)
+    caisse = service.get_caisse_active()
     if caisse and caisse.user_id == employe_id:
       caisse.etat = "En cours"
       self.db.commit()
@@ -131,7 +134,7 @@ class CaisseService:
   # === Ouvrir une nouvelle caisse ===
   def ouvrir_nouvelle_caisse(self, request: CaisseOuvertureRequestDto, currentEmploye: Employe) -> CaisseDto:
     employe = currentEmploye
-    active = self.get_caisse_active()
+    active = self.caisse_repo.find_by_etat_and_supprimer_first(etat="Ouvert",supprimer=0)
     en_cours = self.db.query(Caisse).filter(
       Caisse.user_id == employe.id, Caisse.etat == "En cours", Caisse.supprimer == 0
     ).first()
@@ -140,8 +143,8 @@ class CaisseService:
 
     caisse = Caisse(
       user_id=employe.id,
-      fond_caisse_ouvert=float(request.fond_caisse_ouvert or 0),
-      ouverture_caisse=request.ouverture_caisse or "",
+      fond_caisse_ouvert=float(request.fondCaisseOuvert or 0),
+      ouverture_caisse=request.ouvertureCaisse or "",
       date_ouvert=datetime.now(),
       session=self.generer_session_id(),
       etat="Ouvert",
@@ -165,7 +168,7 @@ class CaisseService:
     return CaisseDto(
       id=caisse.id,
       employeId=caisse.user_id,
-      employeNom=f"{caisse.user.user.prenom if caisse.user else ''} {caisse.user.user.nom if caisse.user else ''}".strip(),
+      nomEmploye =f"{caisse.user.user.prenom if caisse.user else ''} {caisse.user.user.nom if caisse.user else ''}".strip(),
       dateOuvert=caisse.date_ouvert,
       dateFerme=caisse.date_ferme,
       session=caisse.session,
@@ -242,7 +245,8 @@ class CaisseService:
   def set_caisse_to_pending_closure(
     self, currentEmploye: Employe):
     employe_id = currentEmploye.id
-    caisse = self.get_caisse_active()
+    service = CaisseService(self.db)
+    caisse = service.get_caisse_active()
 
     if not caisse:
       raise HTTPException(status_code=404, detail="Aucune caisse active trouvée")

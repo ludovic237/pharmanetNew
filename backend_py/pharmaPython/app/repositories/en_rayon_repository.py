@@ -363,6 +363,12 @@ class EnRayonRepository:
     self.db.refresh(enRayon)
     return enRayon
 
+  def save_all(self, enRayons: List[EnRayon]) -> List[EnRayon]:
+    self.db.add_all(enRayons)
+    self.db.commit()
+    self.db.refresh(enRayons)
+    return enRayons
+
   # def sum_stock_by_product(
   #   self,
   #   product_ids: Optional[List[int]] = None,

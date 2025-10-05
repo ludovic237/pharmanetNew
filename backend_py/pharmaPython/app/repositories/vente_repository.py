@@ -18,6 +18,12 @@ class VenteRepository:
   def __init__(self, db: Session):
     self.db = db
 
+  def save(self, entity: Vente) -> Vente:
+    self.db.add(entity);
+    self.db.commit();
+    self.db.refresh(entity);
+    return entity
+
   def find_by_id(self, id_: int) -> Optional[Vente]:
     return self.db.query(Vente).get(id_)
 

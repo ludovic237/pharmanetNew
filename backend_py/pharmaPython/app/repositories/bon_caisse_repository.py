@@ -1,5 +1,5 @@
 # repositories/bon_caisse_repository.py
-from typing import List, Optional
+from typing import List, Optional, Type
 from sqlalchemy.orm import Session
 from app.models.bon_caisse import BonCaisse  # adapte
 # repositories/vente_repository.py
@@ -12,6 +12,9 @@ from sqlalchemy.sql.elements import BinaryExpression
 class BonCaisseRepository:
   def __init__(self, db: Session):
     self.db = db
+
+  def find_all(self) -> list[Type[BonCaisse]]:
+    return self.db.query(BonCaisse).all()
 
   def find_by_codebarre_id(self, codebarre_id: str) -> Optional[BonCaisse]:
     return (

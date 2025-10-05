@@ -1,23 +1,26 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Optional
 from datetime import datetime
 from decimal import Decimal
 
 
 class CaisseOuvertureRequestDto(BaseModel):
-  fondCaisseOuvert: Decimal
-  ouvertureCaisse: str
+  fondCaisseOuvert: float = Field(..., alias="fondCaisseOuvert")
+  ouvertureCaisse: str = Field(..., alias="ouvertureCaisse")
+
+  class Config:
+    populate_by_name = True
 
 
 class CaisseDto(BaseModel):
   id: Optional[int]
   employeId: Optional[int]
-  employeNom: Optional[str]  # Pour affichage
+  nomEmploye: Optional[str]  # Pour affichage
   dateOuvert: Optional[datetime]
   dateFerme: Optional[datetime]
   session: Optional[str]
-  fondCaisseOuvert: Optional[Decimal]
-  fondCaisseFerme: Optional[Decimal]
+  fondCaisseOuvert: Optional[float]
+  fondCaisseFerme: Optional[float]
   etat: Optional[str]
 
 
@@ -27,6 +30,6 @@ class CaisseClotureRequestDto(BaseModel):
 
 
 class CaisseFermetureRequestDto(BaseModel):
-  fondCaisseFerme: Decimal
+  fondCaisseFerme: float
   # Ajoutez d'autres champs si nécessaire pour la clôture
   # ex: totalVentesEspeces, totalDepenses
