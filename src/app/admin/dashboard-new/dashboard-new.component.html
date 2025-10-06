@@ -372,14 +372,23 @@
                     <div fxLayout="row" fxLayoutAlign="center center">
                       <mat-icon color="warn">warning</mat-icon>&nbsp;<h3>Ruptures et alertes</h3>
                     </div>
-                    <button mat-raised-button color="warn" highlighted selectable="false">Voir tout</button>
+
                   </div>
                 </mat-panel-title>
               </mat-expansion-panel-header>
               <ng-scrollbar *ngIf="stockCritique.length>0" orientation="vertical" pointerEventsMethod="scrollbar">
                 <mat-toolbar>
-                  <h4>12</h4>
-                  <h6>5 ruptures critiques</h6>
+                  <div fxLayout="row" fxLayoutAlign="space-between center" class="w-100 p-3">
+                    <div fxLayout="row" fxLayoutGap="8px">
+                      <h4>12</h4>
+                      <h6>5 ruptures critiques</h6>
+                    </div>
+                    <div fxLayout="row" fxLayoutGap="8px">
+                      <a  [routerLink]="['/admin/stock/ruptures']" mat-raised-button color="warn">Voir tout</a>
+<!--                      <p class="mt-2"><a routerLink="/wishlist" class="link secondary-color">Wishlist</a></p>-->
+                    </div>
+                  </div>
+
                 </mat-toolbar>
                 <mat-card>
                   <table mat-table [dataSource]="stockCritique">

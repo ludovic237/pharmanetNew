@@ -19,7 +19,7 @@ import {MatNativeDateModule} from "@angular/material/core";
 import {MatDatepickerModule} from "@angular/material/datepicker";
 import {NgxChartsModule} from "@swimlane/ngx-charts";
 import {NgChartsModule} from "ng2-charts";
-import {CommonModule, formatDate, isPlatformBrowser} from '@angular/common';
+import {CommonModule, formatDate, isPlatformBrowser, NgStyle} from '@angular/common';
 import {ChartData, ChartOptions} from "chart.js";
 import {MatPaginatorModule} from "@angular/material/paginator";
 import {MatMenuModule} from "@angular/material/menu";
@@ -57,6 +57,7 @@ import {MonthlySalesComponent} from "../components/monthly-sales/monthly-sales.c
 import {AppService} from "@services/app.service";
 import {NgScrollbarModule} from "ngx-scrollbar";
 import {MatProgressSpinnerModule} from "@angular/material/progress-spinner";
+import {RouterModule} from "@angular/router";
 
 function toIso(dt: Date, endOfDay = false): string {
   if (!dt) return '';
@@ -97,7 +98,9 @@ export class StockStatus {
     MatDatepickerModule, MatNativeDateModule,
     MatButtonModule, MatGridListModule, MatTableModule,
     MatIconModule, MatTooltipModule,
-
+    NgStyle,
+    CommonModule,
+    RouterModule,
     // Charts
     NgChartsModule,
     NgxChartsModule,
@@ -155,7 +158,6 @@ export class StockStatus {
   styleUrls: ['./dashboard-new.component.scss']
 })
 export class DashboardNewComponent implements OnInit, OnDestroy {
-
 
 
   displayedColumnsRupture: string[] = ['id', 'nom', 'stock', 'statut'];
@@ -902,28 +904,28 @@ export class DashboardNewComponent implements OnInit, OnDestroy {
 
   getStockStatus(row: any): StockStatus {
     const stock = Number(row?.stock ?? 0);
-    const min   = row?.min != null ? Number(row.min) : null;
-    const max   = row?.max != null ? Number(row.max) : null;
+    const min = row?.min != null ? Number(row.min) : null;
+    const max = row?.max != null ? Number(row.max) : null;
 
     // Cas 1 : on a min & max -> règles basées sur min/max
     if (Number.isFinite(min as number) && Number.isFinite(max as number) && (max as number) > 0) {
       const minVal = min as number;
       const maxVal = max as number;
-      const mid    = minVal + (maxVal - minVal) * 0.5; // milieu de la plage
+      const mid = minVal + (maxVal - minVal) * 0.5; // milieu de la plage
 
-      if (stock <= 0)                return { label: 'Rupture',   class: 'status-rupture'   };
-      if (stock <= minVal)           return { label: 'Critique',  class: 'status-critique'  };
-      if (stock <= mid)              return { label: 'Bas',       class: 'status-bas'       };
-      if (stock <= maxVal)           return { label: 'OK',        class: 'status-ok'        };
-      return                             { label: 'Surstock',  class: 'status-surstock'  };
+      if (stock <= 0) return {label: 'Rupture', class: 'status-rupture'};
+      if (stock <= minVal) return {label: 'Critique', class: 'status-critique'};
+      if (stock <= mid) return {label: 'Bas', class: 'status-bas'};
+      if (stock <= maxVal) return {label: 'OK', class: 'status-ok'};
+      return {label: 'Surstock', class: 'status-surstock'};
     }
 
     // Cas 2 : fallback (si min/max indisponibles) -> seuils génériques
-    if (stock <= 0)      return { label: 'Rupture',  class: 'status-rupture'  };
-    if (stock <= 5)      return { label: 'Critique', class: 'status-critique' };
-    if (stock <= 20)     return { label: 'Bas',      class: 'status-bas'      };
-    if (stock <= 100)    return { label: 'OK',       class: 'status-ok'       };
-    return                    { label: 'Surstock', class: 'status-surstock' };
+    if (stock <= 0) return {label: 'Rupture', class: 'status-rupture'};
+    if (stock <= 5) return {label: 'Critique', class: 'status-critique'};
+    if (stock <= 20) return {label: 'Bas', class: 'status-bas'};
+    if (stock <= 100) return {label: 'OK', class: 'status-ok'};
+    return {label: 'Surstock', class: 'status-surstock'};
   }
 }
 
