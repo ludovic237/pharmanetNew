@@ -4,7 +4,7 @@ from __future__ import annotations
 from typing import List, Optional, Tuple, Dict, Union, Any, Type
 from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
-from sqlalchemy import func, desc, select, union_all, text
+from sqlalchemy import func, desc, select, union_all, text, update
 from app.models.en_rayon import EnRayon
 from app.models.produit_detail import ProduitDetail
 
@@ -284,7 +284,8 @@ class EnRayonRepository:
         "datePeremption": r["datePeremptionProche"]}
       for r in rows]
 
-  def stock_alerts_paginated_by_quantity_and_peremption(self, low: int, days: int, page: int = 1, page_size: int = 20) -> dict:
+  def stock_alerts_paginated_by_quantity_and_peremption(self, low: int, days: int, page: int = 1,
+                                                        page_size: int = 20) -> dict:
     """
     Retourne une page de produits en alerte (stock faible ou péremption proche).
     """
@@ -544,3 +545,36 @@ class EnRayonRepository:
             """)
     rows = self.db.execute(sql).mappings().all()
     return [{"qty": int(r["qty"]), "total": float(r["total"])} for r in rows]
+
+  def reset_negative_stock_to_zero(self,
+                                   produit_ids: list[int] | None = None,
+                                   reset_all: bool = False,
+                                   only_negative: bool = False):
+    er = EnRayon
+    query = update(er)
+    print("produit_ids");
+    print(produit_ids);
+    print("reset_all");
+    print(reset_all);
+    print("only_negative");
+    print(only_negative);
+    print("len(produit_ids) ");
+    print(len(produit_ids) );
+    if len(produit_ids) > 0:
+      query = query.where(er.produit_id.in_(produit_ids))
+    # elif reset_all:
+    #   pass
+    elif only_negative:
+      query = query.where(er.quantite_restante < 0)
+    else:
+      raise ValueError("Aucun critere")
+    try:
+      q = (
+        self.db.execute(query.values(quantite_restante=0)
+                        )
+      )
+      self.db.commit()
+      return q.rowcount
+    except Exception as e:
+      self.db.rollback()
+      return 0

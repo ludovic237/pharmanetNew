@@ -61,14 +61,20 @@
               <!--                  <span>FCFA {{ product.prixAchatInitial | number : '1.2-2' }}</span>-->
               <!--                }-->
               <!--              </p>-->
-              <p class="new-price">{{ product.categorieNom }}</p>
+<!--              <p class="new-price">{{ product.categorieNom }}</p>-->
+              <div>
+                <span class="status-chip" [ngClass]="getStockStatus(product).class">
+                          {{ product.categorieNom }}
+                        </span>
+                <div class="text-mute">
+                  {{ product.uniteMesure }}
+                </div>
+              </div>
             </div>
             <!--            <app-rating [ratingsCount]="product.ratingsCount" [ratingsValue]="product.ratingsValue" [direction]="'column'"></app-rating>-->
           </div>
           <div class="divider mt-2"></div>
-          <div class="product-name">
-            {{ product.uniteMesure }}
-          </div>
+
           <div class="icons">
             <a (click)="creerEnRayon(product)" *ngIf="product.prixAchatInitial==0 && product.prixVenteActuel==0 && product.datePeremption==0"
                mat-mini-fab color="basic" matTooltip="Detail">

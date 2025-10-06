@@ -2,7 +2,7 @@
 from __future__ import annotations
 from typing import List, Optional, Tuple, Dict, Any, Iterable
 from sqlalchemy.orm import Session
-from sqlalchemy import func, desc, select, union_all, case
+from sqlalchemy import func, desc, select, union_all, case, update
 
 from app.models.commandeout import Commande
 from app.models.concerner import Concerner
@@ -390,7 +390,6 @@ class ProduitRepository:
   #     for pid, nom, stock_max, stock_min, qty, valeur, lead_time in rows
   #   ]
 
-
   def sum_quantites_restantes_en_rayon_pageable(
     self,
     page: int = 0,
@@ -436,50 +435,56 @@ class ProduitRepository:
     ], total
 
   def find_produits_stock_critique_pageable(
-    self,
-    low: int = 0,
-    page: int = 0,
-    size: int = 10,
-    search: Optional[str] = None
+    self, low: int = 0, page: int = 0, size: int = 10, search: Optional[str] = None
   ) -> Tuple[List[Dict[str, Any]], int]:
-    """
-    Retourne les produits dont la somme des quantités restantes est < low (ou négative).
-    Résultats paginés + filtre optionnel sur le nom.
-    """
-    q = self.db.query(
+    er = EnRayon
+
+    stock_sum = func.coalesce(func.sum(
+      case((er.supprimer == 0, er.quantite_restante), else_=0)
+    ), 0)
+
+    valeur_sum = func.coalesce(func.sum(
+      case(
+        (er.supprimer == 0, er.quantite_restante * er.prix_vente), else_=0.0
+      )), 0.0)
+    q = ((((self.db.query(
       Produit.id.label("id"),
       Produit.nom.label("nom"),
       Produit.stock_max.label("stock_max"),
       Produit.stock_min.label("stock_min"),
-      func.coalesce(func.sum(EnRayon.quantite_restante), 0).label("stock")
-    ) \
-      .join(EnRayon, EnRayon.produit_id == Produit.id) \
-      .group_by(Produit.id, Produit.nom, Produit.stock_max, Produit.stock_min) \
-      .having(func.coalesce(func.sum(EnRayon.quantite_restante), 0) < low)
+      stock_sum.label("stock"),
+      valeur_sum.label("valeur"),
+    ).select_from(Produit)
+            .outerjoin(er, er.produit_id == Produit.id))
+           .group_by(Produit.id, Produit.nom, Produit.stock_max, Produit.stock_min))
+          .having(stock_sum < low))
+         .order_by(stock_sum.asc()))
 
-    # 🔎 filtre inséré directement
-    if search:
+    if search != "null":
       q = q.filter(func.lower(Produit.nom).like(f"%{search.lower()}%"))
-
     total = q.count()
-
     rows = (
-      q.order_by(Produit.nom.asc())
+      q.order_by(stock_sum.asc())
       .offset(page * size)
       .limit(size)
       .all()
     )
 
     return [
-      {"id": pid, "nom": nom, "max": stock_max, "min": stock_min, "stock": float(stock or 0)}
-      for pid, nom, stock_max, stock_min, stock in rows
+      {"id": pid,
+       "nom": nom,
+       "max": stock_max,
+       "min": stock_min,
+       "stock": float(stock or 0),
+       "valeur": float(valeur or 0),
+       }
+      for pid, nom, stock_max, stock_min, stock, valeur in rows
     ], total
-
 
   def find_produits_stock_critique(
     self,
     low: int = 0,
-    supprimer: int = 0,   # 0 = actif
+    supprimer: int = 0,  # 0 = actif
     limit: int | None = None,
   ):
     er = EnRayon
@@ -512,11 +517,11 @@ class ProduitRepository:
         stock_sum.label("stock"),
         valeur_sum.label("valeur"),
       )
-      .select_from(Produit)                          # <-- ancrage depuis Produit
-      .outerjoin(er, er.produit_id == Produit.id)    # <-- inclut aussi les produits sans en_rayon
+      .select_from(Produit)  # <-- ancrage depuis Produit
+      .outerjoin(er, er.produit_id == Produit.id)  # <-- inclut aussi les produits sans en_rayon
       .group_by(Produit.id, Produit.nom, Produit.stock_max, Produit.stock_min)
-      .having(stock_sum < low)                       # <-- strictement inférieur ; mets <= si tu veux inclure l'égalité
-      .order_by(stock_sum.asc())                     # <-- les plus bas d'abord
+      .having(stock_sum < low)  # <-- strictement inférieur ; mets <= si tu veux inclure l'égalité
+      .order_by(stock_sum.asc())  # <-- les plus bas d'abord
     )
 
     if limit:

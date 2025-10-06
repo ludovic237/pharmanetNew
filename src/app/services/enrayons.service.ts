@@ -40,8 +40,8 @@ export class EnrayonsService {
     }, {headers: this.getHeaders()});
   }
 
-  getProduitsEnRayonPageable(page: number, size: number, nomProduit: string,    startDate: string,
-                             endDate: string,bientotPerimee: boolean, joursAvantPeremption: number, enStock: boolean): Observable<Page> {
+  getProduitsEnRayonPageable(page: number, size: number, nomProduit: string, startDate: string,
+                             endDate: string, bientotPerimee: boolean, joursAvantPeremption: number, enStock: boolean): Observable<Page> {
     return this.http.get<Page>(this.apiUrl + `/en-rayon/pageable/new?page=${page}&startDate=${startDate}&endDate=${endDate}&nomProduit=${nomProduit}&bientotPerimee=${bientotPerimee}&joursAvantPeremption=${joursAvantPeremption}&enStock=${enStock}&size=${size}`, {headers: this.getHeaders()});
   }
 
@@ -60,4 +60,11 @@ export class EnrayonsService {
     return this.http.delete<void>(`${this.apiUrl}/en-rayon/${id}`, {headers: this.getHeaders()});
   }
 
+  resetNegativeStock(
+    produitIds?: number[],
+    resetAll?: boolean,
+    onlyNegative?: boolean,
+  ): Observable<any> {
+    return this.http.get<any>(this.apiUrl + `/en-rayon/reset_rayon?produit_ids=${produitIds}&reset_all=${resetAll}&only_negative=${onlyNegative}`, {headers: this.getHeaders()});
+  }
 }

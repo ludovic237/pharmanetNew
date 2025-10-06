@@ -137,7 +137,7 @@
             </div>
 
             <div class="mt-4">
-              <mat-accordion >
+              <mat-accordion>
                 <mat-expansion-panel expanded>
                   <mat-expansion-panel-header>
                     <mat-panel-title>
@@ -242,7 +242,6 @@
           </div>
 
 
-
         </div>
 
         <!-- Tables -->
@@ -251,8 +250,6 @@
           <!--          <app-optimize-dashboard-->
           <!--            [dataBestSeller]="dataBestSeller"-->
           <!--          ></app-optimize-dashboard>-->
-
-
 
 
           <!--   Réassort suggéré -->
@@ -270,7 +267,6 @@
           <!--          <div fxFlex="100" fxFlex.gt-sm="50" class="p-2">-->
           <!--            <app-associated-products [productId]="null" [top]="30" [limitBaskets]="5000"></app-associated-products>-->
           <!--          </div>-->
-
 
 
           <!--          suggestion de reapprovisionnement-->
@@ -372,7 +368,12 @@
             <mat-expansion-panel expanded>
               <mat-expansion-panel-header>
                 <mat-panel-title>
-                  <mat-icon color="warn">warning</mat-icon>&nbsp;<h3>Ruptures et alertes  <button mat-raised-button color="warn" highlighted selectable="false">Voir tout</button></h3>
+                  <div fxLayout="row" fxLayoutAlign="space-between center" class="w-100">
+                    <div fxLayout="row" fxLayoutAlign="center center">
+                      <mat-icon color="warn">warning</mat-icon>&nbsp;<h3>Ruptures et alertes</h3>
+                    </div>
+                    <button mat-raised-button color="warn" highlighted selectable="false">Voir tout</button>
+                  </div>
                 </mat-panel-title>
               </mat-expansion-panel-header>
               <ng-scrollbar *ngIf="stockCritique.length>0" orientation="vertical" pointerEventsMethod="scrollbar">
@@ -397,7 +398,7 @@
                     <ng-container matColumnDef="statut">
                       <th mat-header-cell *matHeaderCellDef>Statut</th>
                       <td mat-cell *matCellDef="let row">
-<!--                        {{ row.stock }}-->
+                        <!--                        {{ row.stock }}-->
                         <span class="status-chip" [ngClass]="getStockStatus(row).class">
                           {{ getStockStatus(row).label }}
                         </span>
@@ -437,7 +438,7 @@
 
           </div>
           <div fxFlex="100" fxFlex.gt-sm="50" class="p-2">
-            <div >
+            <div>
               <mat-card>
                 <mat-card-title>Commandes récentes</mat-card-title>
                 <div class="table-container">

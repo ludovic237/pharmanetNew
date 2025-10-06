@@ -63,7 +63,8 @@ export const getFilteredAdminMenuPharmaItems = (key: string) => {
     new AdminMenuPharma(500, 'Stock', null, null, 'inventory', null, true, 0,['Administrateur','Caissier','Vendeur']),
     new AdminMenuPharma(501, 'Entrées', '/admin/stock/entrees', null, 'input', null, false, 500,['Administrateur','Caissier','Vendeur']),
     new AdminMenuPharma(502, 'Sorties', '/admin/stock/sorties', null, 'output', null, false, 500,['Administrateur','Caissier','Vendeur']),
-    new AdminMenuPharma(503, 'Inventaire', '/admin/stock/inventaire', null, 'list_alt', null, false, 500,['Administrateur','Caissier','Vendeur']),
+    new AdminMenuPharma(503, 'Ruptures', '/admin/stock/ruptures', null, 'list_alt', null, false, 500,['Administrateur','Caissier','Vendeur']),
+    new AdminMenuPharma(504, 'Inventaire', '/admin/stock/inventaire', null, 'list_alt', null, false, 500,['Administrateur','Caissier','Vendeur']),
 
     new AdminMenuPharma(600, 'Rapport caisse', '/admin/products/rapport_caisse', null, 'receipt_long', null, false, 0,['Administrateur','Caissier','Vendeur']),
 

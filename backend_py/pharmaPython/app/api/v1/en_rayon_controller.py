@@ -176,3 +176,14 @@ def ajouter_tous_manquants(db: Session = Depends(get_db)):
 @router.get("/ajouter_produit_manquant_en_rayon")
 def ajouter_un_manquant(produitId: str, db: Session = Depends(get_db)):
   return EnRayonService(db).ajouter_un_produit_manquant(int(produitId))
+
+@router.get("/reset_rayon")
+def reset_negative_stock_to_zero(db: Session = Depends(get_db),
+                                 produit_ids: str | None = None,
+                                 reset_all: bool = False,
+                                 only_negative:bool=False):
+  return EnRayonService(db).reset_negative_stock_to_zero(
+    produit_ids=[int(x.strip()) for x in produit_ids.split(",") if x.strip().isdigit()],
+    reset_all=reset_all,
+    only_negative=only_negative,
+  )

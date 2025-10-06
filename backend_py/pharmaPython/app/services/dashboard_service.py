@@ -1,6 +1,6 @@
 from datetime import datetime
 from sqlalchemy.orm import Session
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 from sqlalchemy import text, func
 
 from app.repositories.caisse_repository import CaisseRepository
@@ -193,3 +193,45 @@ class DashboardService:
       else:
         p['classe_abc'] = "C"
     return produits_sorted
+
+  # ----------------------------
+  # Perime stock pageable
+  # ----------------------------
+  def get_critique_actuel_pageable(self, db: Session, low: int = 0, page: int = 0,
+                                   size: int = 10,
+                                   search: Optional[str] = None) -> Dict[str, Any]:
+
+    total_produit = ProduitRepository(db).get_total_count()
+    rows_all, total_all = ProduitRepository(db).sum_quantites_restantes_en_rayon_pageable(page=0, size=total_produit,
+                                                                                          search=None)
+    rows, total = self.produit_repo.find_produits_stock_critique_pageable(low=low, page=page, size=size, search=search)
+    print("get_critique_actuel")
+    print(rows)
+    produits_sorted = sorted(rows, key=lambda x: x['stock'], reverse=True)
+
+    cumul = 0
+    total_valeur = sum(p['valeur'] for p in rows_all)
+    if total_valeur == 0:
+      return []
+
+    print("produits_sorted")
+    print(produits_sorted)
+
+    for p in produits_sorted:
+      contribution = (p["valeur"] / total_valeur) * 100 if total_valeur > 0 else 0
+      cumul += contribution
+      p['contribution'] = round(contribution, 2)
+      p['cumul'] = round(cumul, 2)
+      if cumul <= 80:
+        p['classe_abc'] = "A"
+      elif cumul <= 95:
+        p['classe_abc'] = "B"
+      else:
+        p['classe_abc'] = "C"
+    return {
+      "content": produits_sorted,
+      "totalElements": total,
+      "totalPages": (total + size - 1) // size if size else 1,
+      "pageSize": size,
+      "pageNumber": page,
+    }

@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sklearn.ensemble import IsolationForest
 from sqlalchemy.orm import Session
 from datetime import datetime
-from typing import List
+from typing import List, Optional
 
 from app.api.deps import get_db
 from app.core.db import SessionLocal
@@ -208,3 +208,14 @@ def stock_critique_router(
 ):
   service = DashboardService(db)
   return service.get_critique_actuel(db=db, low=low, limit=limit)
+
+
+@router.get("/stock-critique/pageable")
+def stock_critique_router_pageable(
+  db: Session = Depends(get_db),
+  low: int = 0, page: int = 0,
+  size: int = 10,
+  search: Optional[str] = None
+):
+  service = DashboardService(db)
+  return service.get_critique_actuel_pageable(db=db, low=low, size=size, page=page, search=search)

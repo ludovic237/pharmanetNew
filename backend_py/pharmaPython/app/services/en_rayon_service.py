@@ -658,3 +658,16 @@ class EnRayonService:
       nouveaux.append(er)
     self.enrayon_repo.save_all(nouveaux)
     return {"message": f"Vous avez ajouter {len(nouveaux)} produits en rayon", "type": "success"}
+
+  def reset_negative_stock_to_zero(self,
+                                   produit_ids: list[int] | None = None,
+                                   reset_all: bool = False,
+                                   only_negative=False):
+    nb = self.enrayon_repo.reset_negative_stock_to_zero(
+      produit_ids=produit_ids,
+      reset_all=reset_all,
+      only_negative=only_negative,
+    )
+    print("nb")
+    print(nb)
+    return nb

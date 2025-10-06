@@ -75,4 +75,17 @@ export class DashboardService {
       .set("low", low).set("limit", limit);
     return this.http.get<any[]>(`${this.base}/stock-critique`, {params, headers: this.getHeaders()});
   }
+
+  stockCritiquePageable(low: number = 5,
+                        size: number = 10,
+                        page: number = 0,
+                        search: string
+  ): Observable<any[]> {
+    const params = new HttpParams()
+      .set("search", search)
+      .set("low", low)
+      .set("size", size)
+      .set("page", page);
+    return this.http.get<any[]>(`${this.base}/stock-critique/pageable`, {params, headers: this.getHeaders()});
+  }
 }

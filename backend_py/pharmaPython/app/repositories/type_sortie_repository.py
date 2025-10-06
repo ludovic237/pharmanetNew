@@ -18,10 +18,11 @@ class TypeSortieRepository:
     sort_by: str = "id",
     direction: str = "DESC",
   ) -> Tuple[List[TypeSortie], int]:
-    q = self.db.query(TypeSortie).options(joinedload(TypeSortie.produit))
+    # q = self.db.query(TypeSortie).options(joinedload(TypeSortie.nom))
+    q = self.db.query(TypeSortie)
 
     if nom and nom != "null":
-      q = q.join(TypeSortie.produit).filter(
+      q = q.join(TypeSortie.nom).filter(
         func.lower(Produit.nom).like(f"%{nom.lower()}%")
       )
 
