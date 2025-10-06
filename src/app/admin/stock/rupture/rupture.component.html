@@ -61,14 +61,19 @@
             <button mat-raised-button color="primary" (click)="resetQuantite(row)" >Reinitialiser cette quantite</button>
           </ng-container>
           <ng-container *ngIf="row.stock == 0">
-            <button mat-raised-button color="primary"
-                    [disabled]="isProduitsCommandesSelected(row)"
-                    (click)="commanderProduit(row)">Commander</button>
+            <button mat-raised-button
+                    [color]="isCommanded(row) ? 'warn' : 'primary'"
+                    (click)="toggleCommande(row)">
+              {{ isCommanded(row) ? 'Décommander' : 'Commander' }}
+            </button>
+
           </ng-container>
           <ng-container *ngIf="row.stock > 0 && row.stock < row.min ">
-            <button mat-raised-button color="primary"
-                    [disabled]="isProduitsAISelected(row)"
-                    (click)="proposerAI(row)">Proposition IA</button>
+            <button mat-raised-button
+                    [color]="isAISelected(row) ? 'warn' : 'accent'"
+                    (click)="togglePropositionAI(row)">
+              {{ isAISelected(row) ? 'Annuler' : 'Proposition IA' }}
+            </button>
           </ng-container>
         </div>
 
