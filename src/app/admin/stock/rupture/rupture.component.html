@@ -62,13 +62,11 @@
           </ng-container>
           <ng-container *ngIf="row.stock == 0">
             <button mat-raised-button color="primary"
-                    (change)="changeSelectionProduitsCommande(row)"
                     [disabled]="isProduitsCommandesSelected(row)"
                     (click)="commanderProduit(row)">Commander</button>
           </ng-container>
           <ng-container *ngIf="row.stock > 0 && row.stock < row.min ">
             <button mat-raised-button color="primary"
-                    (change)="changeSelectionProduitsAI(row)"
                     [disabled]="isProduitsAISelected(row)"
                     (click)="proposerAI(row)">Proposition IA</button>
           </ng-container>

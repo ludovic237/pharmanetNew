@@ -127,8 +127,16 @@ export class RuptureComponent implements OnInit {
 
   selection = new SelectionModel<any>(true, [])
   globalSelection: Set<any> = new Set<any>();
-  produitsCommandes: Set<any> = new Set<any>();
-  produitsIA: Set<any> = new Set<any>();
+
+  // === NOUVEAU : états persistants des boutons ===
+  produitsCommande: any[] = [];
+  produitsAI: any[] = [];
+
+  private produitsCommandeIds = new Set<number>();
+  private produitsAIIds = new Set<number>();
+
+  private LS_CMD = 'rupture.produitsCommandeIds';
+  private LS_AI  = 'rupture.produitsAIIds';
 
   @ViewChild(MatPaginator) paginator!: MatPaginator
   @ViewChild(MatSort) sort!: MatSort
@@ -445,12 +453,6 @@ export class RuptureComponent implements OnInit {
       if (this.globalSelection.has(row)) {
         this.selection.select(row)
       }
-      if (this.produitsCommandes.has(row)) {
-        this.selection.select(row)
-      }
-      if (this.produitsIA.has(row)) {
-        this.selection.select(row)
-      }
     })
   }
 
@@ -465,34 +467,8 @@ export class RuptureComponent implements OnInit {
     this.countItemSelect = this.globalSelection.size;
   }
 
-  changeSelectionProduitsCommande(row: any) {
-    if (this.produitsCommandes.has(row)) {
-      this.produitsCommandes.delete(row);
-    } else {
-      this.produitsCommandes.add(row);
-    }
-    this.countItemProduitCommandeSelect = this.produitsCommandes.size;
-  }
-
-  changeSelectionProduitsAI(row: any) {
-    if (this.produitsIA.has(row)) {
-      this.produitsIA.delete(row);
-    } else {
-      this.produitsIA.add(row);
-    }
-    this.countItemProduitAiSelect = this.produitsIA.size;
-  }
-
   isSelected(row: any) {
     return this.globalSelection.has(row)
-  }
-
-  isProduitsCommandesSelected(row: any) {
-    return this.produitsCommandes.has(row)
-  }
-
-  isProduitsAISelected(row: any) {
-    return this.produitsIA.has(row)
   }
 
   hasSelection(): boolean {
@@ -505,21 +481,99 @@ export class RuptureComponent implements OnInit {
     const produitIds = Array.from(this.globalSelection);
   }
 
-  commanderProduit(produit: any) {
-    if (this.produitsCommandes.has(produit)) return;
-    this.produitsCommandes.add(produit)
+// -----------------------
+  //  Actions boutons
+  // -----------------------
+
+  /** Clic sur "Commander" */
+  commanderProduit(row: any): void {
+    if (this.produitsCommandeIds.has(row.id)) return; // déjà commandé
+    this.produitsCommandeIds.add(row.id);
+    this.produitsCommande.push(row);
+    this.saveSelections();
+    // rien d'autre à faire : le binding [disabled] va refléter l'état
   }
 
-  proposerAI(produit: any) {
-    if (this.produitsIA.has(produit)) return;
-    this.produitsIA.add(produit)
+  /** Clic sur "Proposition IA" */
+  proposerAI(row: any): void {
+    if (this.produitsAIIds.has(row.id)) return; // déjà proposé
+    this.produitsAIIds.add(row.id);
+    this.produitsAI.push(row);
+    this.saveSelections();
   }
 
-  estCommande(produit:any): boolean {
-    return this.produitsCommandes.has(produit);
+  // -----------------------
+  //  Helpers de template
+  // -----------------------
+
+  /** Désactiver le bouton "Commander" si déjà sélectionné */
+  isProduitsCommandesSelected(row: any): boolean {
+    return this.produitsCommandeIds.has(row.id);
   }
 
-  estAI(produit:any): boolean {
-    return this.produitsIA.has(produit)
+  /** Désactiver le bouton "Proposition IA" si déjà sélectionné */
+  isProduitsAISelected(row: any): boolean {
+    return this.produitsAIIds.has(row.id);
+  }
+
+  // (Optionnel) si vos (change) existent encore dans le HTML
+  changeSelectionProduitsCommande(row: any): void {
+    // on délègue au même comportement pour éviter les doublons de logique
+    this.commanderProduit(row);
+  }
+  changeSelectionProduitsAI(row: any): void {
+    this.proposerAI(row);
+  }
+
+  // -----------------------
+  //  Persistance locale
+  // -----------------------
+
+  private saveSelections(): void {
+    localStorage.setItem(this.LS_CMD, JSON.stringify([...this.produitsCommandeIds]));
+    localStorage.setItem(this.LS_AI,  JSON.stringify([...this.produitsAIIds]));
+  }
+
+  private restoreSelections(): void {
+    try {
+      const cmd = JSON.parse(localStorage.getItem(this.LS_CMD) || '[]') as number[];
+      const ai  = JSON.parse(localStorage.getItem(this.LS_AI)  || '[]') as number[];
+      this.produitsCommandeIds = new Set(cmd);
+      this.produitsAIIds = new Set(ai);
+
+      // Si vous voulez aussi reconstituer les tableaux d'objets à partir des IDs
+      // dès que stockCritique est chargé, vous pouvez faire :
+      this.rebuildArraysFromTable();
+    } catch { /* ignore */ }
+  }
+
+  /** À appeler après (ré)chargement de stockCritique si besoin */
+  private rebuildArraysFromTable(): void {
+    if (!this.stockCritique?.length) return;
+    const byId = new Map(this.stockCritique.map(r => [r.id, r]));
+    this.produitsCommande = [...this.produitsCommandeIds]
+      .map(id => byId.get(id)).filter(Boolean) as any[];
+    this.produitsAI = [...this.produitsAIIds]
+      .map(id => byId.get(id)).filter(Boolean) as any[];
+  }
+
+  // -----------------------
+  //  (Optionnel) utilitaires
+  // -----------------------
+
+  /** Pour “désélectionner” manuellement un produit commandé */
+  unselectCommande(row: any): void {
+    if (this.produitsCommandeIds.delete(row.id)) {
+      this.produitsCommande = this.produitsCommande.filter(p => p.id !== row.id);
+      this.saveSelections();
+    }
+  }
+
+  /** Pour “désélectionner” manuellement une proposition IA */
+  unselectAI(row: any): void {
+    if (this.produitsAIIds.delete(row.id)) {
+      this.produitsAI = this.produitsAI.filter(p => p.id !== row.id);
+      this.saveSelections();
+    }
   }
 }
