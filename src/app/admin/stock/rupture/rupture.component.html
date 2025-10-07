@@ -9,6 +9,12 @@
       </form>
       <div fxLayout="row" fxLayoutGap="8px">
         <button matBadgePosition="before" matBadgeColor="accent"
+                [matBadge]="countItemProduitAiSelect"
+                mat-raised-button color="primary" >AI</button>
+        <button matBadgePosition="before" matBadgeColor="accent"
+                [matBadge]="countItemProduitCommandeSelect"
+                mat-raised-button color="primary" (click)="openSimpleReaDialog()">P commande</button>
+        <button matBadgePosition="before" matBadgeColor="accent"
                 [matBadge]="countItemSelect"
                 mat-raised-button color="primary" (click)="resetSelected()"
                 [disabled]="!hasSelection()">Réinitialiser les produits selectionnees</button>

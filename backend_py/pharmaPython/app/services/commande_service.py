@@ -4,6 +4,8 @@ from datetime import datetime
 from typing import List, Dict, Any, Optional
 
 from app.models.commandeout import Commande
+from app.models.employe import Employe
+from app.models.en_rayon import EnRayon
 from app.models.produit_cmd import ProduitCmd
 from app.repositories.commande_repository import CommandeRepository
 from app.repositories.employe_repository import EmployeRepository
@@ -12,7 +14,8 @@ from app.repositories.fournisseur_repository import FournisseurRepository
 from app.repositories.produit_cmd_repository import ProduitCmdRepository
 from app.repositories.produit_repository import ProduitRepository
 from app.repositories.user_repository import UserRepository
-from app.schemas.commande_dto import CommandeRequest, CommandePageableCustomlDto, CommandeNewDTO, ProduitCmdRequest
+from app.schemas.commande_dto import CommandeRequest, CommandePageableCustomlDto, CommandeNewDTO, ProduitCmdRequest, \
+  CommandeRuptureRequest
 from app.utility.user_utils import UserUtils
 
 
@@ -53,8 +56,7 @@ class CommandeService:
     )
 
     self.db.add(commande)
-    self.db.commit()
-    self.db.refresh(commande)
+    self.db.flush()
 
     for produit_request in request.produits:
       produit = self.produit_repo.find_by_id(produit_request.id)
@@ -286,25 +288,25 @@ class CommandeService:
     total_pages = (total + size - 1) // size if size else 1
 
     return {
-      "content":{
-        "content":content,
-        "totalElements":total,
-        "totalPages":total_pages,
-        "pageSize":size,
-        "pageNumber":page,
-        "totalAmountRecu":total_amount_recu,
-        "totalAmountCommande":total_amount_cmd,
-        "totalQteRecu":total_qte_recu,
-        "totalQteCommande":total_qte_cmd
+      "content": {
+        "content": content,
+        "totalElements": total,
+        "totalPages": total_pages,
+        "pageSize": size,
+        "pageNumber": page,
+        "totalAmountRecu": total_amount_recu,
+        "totalAmountCommande": total_amount_cmd,
+        "totalQteRecu": total_qte_recu,
+        "totalQteCommande": total_qte_cmd
       },
-      "totalElements":total,
-      "totalPages":total_pages,
-      "pageSize":size,
-      "pageNumber":page,
-      "totalAmountRecu":total_amount_recu,
-      "totalAmountCommande":total_amount_cmd,
-      "totalQteRecu":total_qte_recu,
-      "totalQteCommande":total_qte_cmd
+      "totalElements": total,
+      "totalPages": total_pages,
+      "pageSize": size,
+      "pageNumber": page,
+      "totalAmountRecu": total_amount_recu,
+      "totalAmountCommande": total_amount_cmd,
+      "totalQteRecu": total_qte_recu,
+      "totalQteCommande": total_qte_cmd
     }
 
   def modifier_lignes_commande(self, id_: int, produits: List[ProduitCmdRequest]) -> Commande:
@@ -328,6 +330,42 @@ class CommandeService:
 
   def commande_by_fournisseur(self, fournisseurId: Optional[str], totalAmount: str,
                               produits: List[CommandeNewDTO]) -> Commande:
+    if not produits:
+      raise HTTPException(status_code=400, detail="Aucun produit")
+    fournisseur = None
+    if fournisseurId:
+      try:
+        fournisseur = self.fournisseur_repo.find_by_id(int(fournisseurId))
+      except:
+        fournisseur = None
+
+    cmd = Commande(
+      fournisseur_id=(fournisseur.id if fournisseur else None),
+      date_creation=datetime.utcnow(),
+      ref=self.generer_reference_commande(self.commande_repo.count_mois()),
+      etat="EN_COURS",
+      supprimer=0
+    )
+    self.db.add(cmd);
+    self.db.commit();
+    self.db.refresh(cmd)
+
+    for p in produits:
+      pc = ProduitCmd(
+        commande_id=cmd.id,
+        produit_id=p.id,
+        qtite_cmd=p.stock or 0,
+        pu_cmd=float(p.prixAchat or 0),
+        prix_public=float(p.prix or 0),
+      )
+      self.db.add(pc)
+    self.db.commit()
+
+    self._recalc_totaux(cmd)
+    return cmd
+
+  def commande_by_fournisseur_and_rupture(self, fournisseurId: Optional[str], totalAmount: str,
+                                          produits: List[CommandeNewDTO]) -> Commande:
     if not produits:
       raise HTTPException(status_code=400, detail="Aucun produit")
     fournisseur = None
@@ -629,3 +667,67 @@ class CommandeService:
     # Recalcul des totaux commande
     self._recalc_totaux(cmd)
     return cmd
+
+  def reapprovisionner_rupture(self, request: CommandeRuptureRequest, employe:Employe):
+    quantite_totale = sum([p.quantiteRestante for p in request.produits])
+
+    montant_total = sum([p.quantiteRestante * p.prixAchat for p in request.produits])
+
+    commande = Commande(
+      id= int(datetime.now().strftime("%Y%m%d%H%M%S")),
+      employe_id=employe.id,
+      fournisseur_id=request.fournisseurId,
+      date_creation=datetime.utcnow(),
+      ref=self.generer_reference_commande(self.commande_repo.count_mois()),
+      qtite_cmd=quantite_totale,
+      montant_cmd=montant_total,
+      etat=request.type,
+      supprimer=0
+    )
+    self.db.add(commande)
+
+    for produit_request in request.produits:
+      produit = self.produit_repo.find_by_id(produit_request.productId)
+      fournisseur = self.fournisseur_repo.find_by_id(int(request.fournisseurId))
+      if not produit:
+        raise HTTPException(status_code=404, detail=f"Produit non trouvé {produit_request.id}")
+
+      produit_cmd = ProduitCmd(
+        commande_id=commande.id,
+        produit_id=produit.id,
+        pu_recept=produit_request.prixAchat or 0,
+        qtite_cmd=produit_request.quantiteRestante,
+        qtite_recu=produit_request.quantiteRestante or 0,
+        pu_cmd=produit_request.prixAchat or 0,
+        prix_public=produit_request.prix or 0,
+        unite_gratuite=0
+      )
+      self.db.add(produit_cmd)
+
+      formatted_now = datetime.now().strftime("%Y%m%d%H%M%S")
+      if produit_request.produitEnRayontId is not None:
+        produit_rayon = self.enrayon_repo.find_by_id(produit_request.produitEnRayontId)
+        produit_rayon.quantite_restante = produit_rayon.quantite_restante +produit_request.quantiteRestante
+      else :
+        produit_rayon = EnRayon(
+          id=f"{produit.id}{fournisseur.code}{formatted_now}",
+          produit_id=produit.id,
+          fournisseur_id=request.fournisseurId,
+          commande_id=commande.id,
+          date_livraison=datetime.fromisoformat(produit_request.dateLivraison),
+          date_peremption=datetime.fromisoformat(produit_request.datePeremption),
+          prix_achat=produit_request.prixAchat or 0,
+          prix_vente=produit_request.prix or 0,
+          reduction=produit_request.reduction,
+          quantite=produit_request.quantiteRestante,
+          quantite_restante=produit_request.quantiteRestante,
+          supprimer=0,
+        )
+
+      self.db.add(produit_rayon)
+
+      produit.stock = produit.stock + produit_request.quantiteRestante
+      self.db.add(produit)
+
+    self.db.commit()
+    return commande

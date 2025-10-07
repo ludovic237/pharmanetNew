@@ -43,6 +43,10 @@ import {EnrayonsService} from "@services/enrayons.service";
 import {MatSort} from "@angular/material/sort";
 import {SelectionModel} from "@angular/cdk/collections";
 import {MatBadgeModule} from "@angular/material/badge";
+import {MatDialog} from "@angular/material/dialog";
+import {
+  SimpleReapprovisionnementCommandeDialogComponent
+} from "./simple-reapprovisionnement-commande-dialog/simple-reapprovisionnement-commande-dialog.component";
 
 @Component({
   selector: 'app-rupture',
@@ -136,7 +140,7 @@ export class RuptureComponent implements OnInit {
   private produitsAIIds = new Set<number>();
 
   private LS_CMD = 'rupture.produitsCommandeIds';
-  private LS_AI  = 'rupture.produitsAIIds';
+  private LS_AI = 'rupture.produitsAIIds';
 
   @ViewChild(MatPaginator) paginator!: MatPaginator
   @ViewChild(MatSort) sort!: MatSort
@@ -144,6 +148,7 @@ export class RuptureComponent implements OnInit {
   public form: FormGroup;
 
   constructor(
+    public dialog: MatDialog,
     public loaderService: LoaderService,
     public authService: AuthService,
     public appService: AppService,
@@ -492,6 +497,7 @@ export class RuptureComponent implements OnInit {
       this.produitsCommandeIds.add(row.id);
       this.produitsCommande.push(row);
     }
+    this.countItemProduitCommandeSelect = this.produitsCommande.length
     this.saveSelections();
   }
 
@@ -506,6 +512,7 @@ export class RuptureComponent implements OnInit {
       this.produitsAIIds.add(row.id);
       this.produitsAI.push(row);
     }
+    this.countItemProduitAiSelect = this.produitsAI.length
     this.saveSelections();
   }
 
@@ -521,15 +528,45 @@ export class RuptureComponent implements OnInit {
   // === Persistance locale ===
   private saveSelections(): void {
     localStorage.setItem(this.LS_CMD, JSON.stringify([...this.produitsCommandeIds]));
-    localStorage.setItem(this.LS_AI,  JSON.stringify([...this.produitsAIIds]));
+    localStorage.setItem(this.LS_AI, JSON.stringify([...this.produitsAIIds]));
   }
 
   private restoreSelections(): void {
     try {
       const cmd = JSON.parse(localStorage.getItem(this.LS_CMD) || '[]') as number[];
-      const ai  = JSON.parse(localStorage.getItem(this.LS_AI)  || '[]') as number[];
+      const ai = JSON.parse(localStorage.getItem(this.LS_AI) || '[]') as number[];
       this.produitsCommandeIds = new Set(cmd);
       this.produitsAIIds = new Set(ai);
-    } catch {}
+    } catch {
+    }
+  }
+
+  openSimpleReaDialog() {
+    const dialogRef = this.dialog.open(SimpleReapprovisionnementCommandeDialogComponent, {
+      data: {
+        type: "commande",
+        data: this.produitsCommande
+      },
+      width: "90%",
+      panelClass: ['theme-dialog'],
+      autoFocus: false,
+    });
+    dialogRef.afterClosed().subscribe((data: any) => {
+      console.log('Dialog closed', data);
+      if (data.type=="commande"){
+        localStorage.removeItem(this.LS_CMD)
+        this.produitsCommandeIds = new Set();
+        this.produitsCommande = []
+        this.countItemProduitCommandeSelect = this.produitsCommande.length
+      }
+      if (data.type=="ai"){
+        localStorage.removeItem(this.LS_AI)
+        this.produitsAIIds = new Set();
+        this.produitsAI = []
+        this.countItemProduitAiSelect = this.produitsAI.length
+      }
+      this.page = 1;
+      this.getStockCritique();
+    });
   }
 }

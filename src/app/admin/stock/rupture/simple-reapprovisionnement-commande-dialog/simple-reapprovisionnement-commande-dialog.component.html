@@ -1,0 +1,211 @@
+<mat-toolbar color="primary">
+  <div mat-dialog-actions class="w-100 p-3" fxLayout="row" fxLayoutAlign="space-between center">
+    <h2>Simple reapprovisionnement - ({{modifiedProducts.length}}/{{enRayonList.data.length}})</h2>
+
+
+    <!--    <button mat-icon-button (click)="closeDialog()">-->
+    <!--      <mat-icon>close</mat-icon>-->
+    <!--    </button>-->
+  </div>
+</mat-toolbar>
+<mat-card>
+  <div  fxLayout="row" class="mt-2">
+
+    <div fxFlex="100" fxFlex.gt-sm="40" class="px-1">
+      <mat-form-field appearance="outline" class="w-100">
+        <mat-label>Filtrer par Fournisseur</mat-label>
+        <mat-select [(ngModel)]="fournisseur" name="fournisseurId" required>
+          <mat-option [value]="null">
+            Aucun
+          </mat-option>
+          <mat-option *ngFor="let fournisseur of fournisseurs" [value]="fournisseur">
+            {{ fournisseur.nom }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <!-- Filter by Date Range -->
+  </div>
+</mat-card>
+<mat-dialog-content>
+  <table mat-table [dataSource]="enRayonList" class="mat-elevation-z2 styled-table">
+
+    <!-- Produit -->
+    <ng-container matColumnDef="produit">
+      <th mat-header-cell *matHeaderCellDef>Produit</th>
+      <td mat-cell *matCellDef="let item">
+        <div>{{ item.nom }}</div>
+        <div>
+                <span *ngIf="isExpired(item.datePeremption)" class="badge badge-red">
+                  Expire depuis {{ getDaysAfterExpiration(item.datePeremption) }} jour(s)
+                </span>
+          <span *ngIf="isExpiringSoon(item.datePeremption)"
+                class="badge badge-yellow">
+                  {{ getDaysToExpiration(item.datePeremption) }} jours(s) avant expiration
+                </span>
+          <span *ngIf="isValid(item.datePeremption)" class="badge badge-green">Produit encore valide</span>
+        </div>
+      </td>
+    </ng-container>
+
+    <!-- Quantité en stock -->
+    <ng-container matColumnDef="quantite">
+      <th mat-header-cell *matHeaderCellDef>Quantité actuel</th>
+      <td mat-cell *matCellDef="let item">{{ item.quantiteStock }}</td>
+    </ng-container>
+
+    <!-- Quantité à modifier -->
+    <ng-container matColumnDef="quantiteAdjust">
+      <th mat-header-cell *matHeaderCellDef>Quantité à ajoute</th>
+      <td mat-cell *matCellDef="let item" style="width: 215px;">
+        <div>
+          <bdi fxLayout="row" fxLayoutAlign="start center">
+            <button mat-mini-fab color="primary" (click)="decrement(item, 'quantiteRestante')"
+                    [disabled]="item.quantiteRestante <= 0">
+              <mat-icon>remove</mat-icon>
+            </button>
+            <mat-form-field style="width: 100px; height: 60px;" appearance="outline" class="small-input">
+              <input matInput
+                     type="number"
+                     [(ngModel)]="item.quantiteRestante"
+                     (ngModelChange)="updateTotal(item)"
+                     [min]="0"
+                     [value]="0"
+                     placeholder="0">
+            </mat-form-field>
+            <button mat-mini-fab color="primary" (click)="increment(item, 'quantiteRestante')"
+            >
+              <mat-icon>add</mat-icon>
+            </button>
+          </bdi>
+        </div>
+
+      </td>
+    </ng-container>
+
+    <!-- Prix de Vente -->
+    <ng-container matColumnDef="prixVente">
+      <th mat-header-cell *matHeaderCellDef>Prix de Vente</th>
+      <td mat-cell *matCellDef="let item" style="width: 215px;">
+        <div>
+          <bdi fxLayout="row" fxLayoutAlign="start center">
+            <button mat-mini-fab color="primary" (click)="decrement(item, 'prix')"
+                    [disabled]="item.prix <= 0">
+              <mat-icon>remove</mat-icon>
+            </button>
+            <mat-form-field style="width: 100px; height: 60px;" appearance="outline" class="small-input">
+              <input matInput
+                     type="number"
+                     [(ngModel)]="item.prix"
+                     (ngModelChange)="updateTotal(item)"
+                     placeholder="0">
+            </mat-form-field>
+            <button mat-mini-fab color="primary" (click)="increment(item, 'prix')">
+              <mat-icon>add</mat-icon>
+            </button>
+          </bdi>
+        </div>
+
+      </td>
+    </ng-container>
+
+    <!-- Prix de Vente -->
+    <ng-container matColumnDef="prixAchat">
+      <th mat-header-cell *matHeaderCellDef>Prix de Achat</th>
+      <td mat-cell *matCellDef="let item" >
+        <div>
+          <bdi fxLayout="row" fxLayoutAlign="start center">
+            <button mat-mini-fab color="primary" (click)="decrement(item, 'prixAchat')"
+                    [disabled]="item.prixAchat <= 0">
+              <mat-icon>remove</mat-icon>
+            </button>
+            <mat-form-field style="width: 100px; height: 60px;" appearance="outline" class="small-input">
+              <input matInput
+                     type="number"
+                     [(ngModel)]="item.prixAchat"
+                     (ngModelChange)="updateTotal(item)"
+                     placeholder="0">
+            </mat-form-field>
+            <button mat-mini-fab color="primary" (click)="increment(item, 'prixAchat')">
+              <mat-icon>add</mat-icon>
+            </button>
+          </bdi>
+        </div>
+
+      </td>
+    </ng-container>
+
+    <!-- Date de péremption -->
+    <ng-container matColumnDef="datePeremption">
+      <th mat-header-cell *matHeaderCellDef>Date Péremption</th>
+      <td mat-cell *matCellDef="let item">
+        <bdi fxLayout="row" fxLayoutAlign="start center">
+          <mat-form-field appearance="outline" style="width: 140px; height: 60px">
+            <input matInput [matDatepicker]="datePeremptionPicker" [formControl]="item.datePeremptionControl">
+            <mat-datepicker-toggle matSuffix [for]="datePeremptionPicker"></mat-datepicker-toggle>
+            <mat-datepicker #datePeremptionPicker>
+              <mat-date-range-picker-actions>
+                <button mat-button matDateRangePickerCancel>Annuler</button>
+                <button mat-button matDateRangePickerApply (click)="saveDatePeremtion(item)">Apply
+                </button>
+              </mat-date-range-picker-actions>
+            </mat-datepicker>
+          </mat-form-field>
+        </bdi>
+
+      </td>
+    </ng-container>
+
+    <!-- Dates de livraison -->
+    <ng-container matColumnDef="dateLivraison">
+      <th mat-header-cell *matHeaderCellDef>Date Livraison</th>
+      <td mat-cell *matCellDef="let item" >
+        <mat-form-field appearance="outline" style="width: 140px; height: 60px">
+          <input matInput [matDatepicker]="dateLivraisonPicker" [formControl]="item.dateLivraisonControl">
+          <mat-datepicker-toggle matSuffix [for]="dateLivraisonPicker"></mat-datepicker-toggle>
+          <mat-datepicker #dateLivraisonPicker>
+            <mat-date-range-picker-actions>
+              <button mat-button matDateRangePickerCancel>Annuler</button>
+              <button mat-button matDateRangePickerApply (click)="saveDateLivraison(item)">Apply
+              </button>
+            </mat-date-range-picker-actions>
+          </mat-datepicker>
+        </mat-form-field>
+      </td>
+    </ng-container>
+
+    <!-- Actions -->
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef>Actions</th>
+      <td mat-cell *matCellDef="let item">
+        <!--            <button mat-raised-button color="primary" (click)="saveChanges(item)">Sauvegarder</button>-->
+        <!--            <button mat-raised-button color="warn" (click)="resetValues(item)">Réinitialiser</button>-->
+        <mat-icon *ngIf="item.quantiteRestante > 0" color="primary">check_circle</mat-icon>
+      </td>
+    </ng-container>
+
+    <!-- Header & Rows -->
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+  </table>
+  <mat-paginator
+    #paginator
+    [showFirstLastButtons]="true"
+    [pageSizeOptions]="[5, 10, 25, 100]">
+  </mat-paginator>
+</mat-dialog-content>
+<mat-dialog-actions>
+  <mat-toolbar>
+    <div mat-dialog-actions fxLayout="row" fxLayoutAlign="space-between center" class="w-100 p-3">
+      <button mat-raised-button color="accent"
+              [disabled]="!canCreateCommande"
+              (click)="validateModifiedQuantities()">
+        Valider
+      </button>
+      <div>
+        <h3><strong>Total :</strong> {{ total }} FCFA</h3>
+      </div>
+    </div>
+  </mat-toolbar>
+</mat-dialog-actions>

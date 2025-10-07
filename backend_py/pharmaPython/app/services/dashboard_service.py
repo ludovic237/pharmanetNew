@@ -205,6 +205,19 @@ class DashboardService:
     rows_all, total_all = ProduitRepository(db).sum_quantites_restantes_en_rayon_pageable(page=0, size=total_produit,
                                                                                           search=None)
     rows, total = self.produit_repo.find_produits_stock_critique_pageable(low=low, page=page, size=size, search=search)
+    new_list = []
+    for item in rows:
+      last_item = self.enrayon_repo.find_top_by_produit_id_order_by_date_livraison_desc(item.get('id'))
+      new_objet = item.copy()
+      new_objet['datePeremption'] = datetime.now()
+      new_objet['dateLivraison'] = datetime.now()
+      new_objet['prix'] = last_item.prix_vente
+      new_objet['prixAchat'] = last_item.prix_achat
+      new_objet['quantiteStock'] = item.get('stock')
+      new_objet['quantiteRestante'] = 0
+      new_list.append(new_objet)
+
+    rows = new_list
     print("get_critique_actuel")
     print(rows)
     produits_sorted = sorted(rows, key=lambda x: x['stock'], reverse=True)

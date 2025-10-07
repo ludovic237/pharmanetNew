@@ -1,4 +1,4 @@
-import {HttpClient, HttpHeaders} from '@angular/common/http';
+import {HttpClient, HttpHeaders, HttpParams} from '@angular/common/http';
 import {Injectable} from '@angular/core';
 import {Observable} from 'rxjs';
 import {Page} from "ngx-pagination";
@@ -8,9 +8,9 @@ import {environment} from "../../environments/environment";
   providedIn: 'root'
 })
 export class CommandesService {
-  private url = environment.url+'/api/commandes';
+  private url = environment.url + '/api/commandes';
 
-   constructor(private http: HttpClient) {
+  constructor(private http: HttpClient) {
   }
 
   private getHeaders(): HttpHeaders {
@@ -34,18 +34,18 @@ export class CommandesService {
   }
 
   getCommandeInfoByProduct(page: number, size: number,
-                         produitId: string,
-                         startDate: string,
-                         endDate: string): Observable<any> {
+                           produitId: string,
+                           startDate: string,
+                           endDate: string): Observable<any> {
     return this.http.get<any>(this.url + `/product/paged?produitId=${produitId}&page=${page}&size=${size}&startDate=${startDate}&endDate=${endDate}`, {headers: this.getHeaders()});
   }
 
   fetchCommandesPageablePrint(page: number, size: number,
-                         selectedEtats: string,
-                         selectedFournisseurType: string,
-                         selectedFournisseur: string,
-                         startDate: string,
-                         endDate: string): Observable<Page> {
+                              selectedEtats: string,
+                              selectedFournisseurType: string,
+                              selectedFournisseur: string,
+                              startDate: string,
+                              endDate: string): Observable<Page> {
     return this.http.get<Page>(this.url + `/paged?page=${page}&etat=${selectedEtats}&fournisseurId=${selectedFournisseur}&typeFournisseur=${selectedFournisseurType}&startDate=${startDate}&endDate=${endDate}&size=${size}`, {headers: this.getHeaders()});
   }
 
@@ -178,6 +178,27 @@ export class CommandesService {
   updateCommandeSimple(
     data: any): Observable<any> {
     return this.http.post<any>(`${this.url}/product-commande/update?commandeId=${data.commandeId}&produitCmdId=${data.produitCmdId}&qteRecu=${data.qteRecu}&prixAchat=${data.prixAchat}&prixVente=${data.prixVente}`, null, {headers: this.getHeaders()});
+  }
+
+  commandeByFournisseurRupture(type: string, fournisseurId: string, totalAmount: string, produits: any[]): Observable<any> {
+    console.log("produits")
+    console.log(produits)
+    const data = {
+      type: type,
+      fournisseurId: fournisseurId,
+      produits: produits.map(p => ({
+        productId: p.id,
+        producCmdtId: null,
+        produitEnRayontId: null,
+        reduction: 0,
+        quantiteRestante: p.quantiteRestante,
+        datePeremption: p.datePeremption,
+        dateLivraison: p.dateLivraison,
+        prix: p.prix,
+        prixAchat: p.prixAchat,
+      })),
+    }
+    return this.http.post<any>(`${this.url}/product-commande/rupture`, data, {headers: this.getHeaders()});
   }
 
 }

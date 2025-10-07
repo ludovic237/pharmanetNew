@@ -5,9 +5,12 @@ from typing import List, Optional, Dict, Any
 from app.api.deps import get_db
 
 from app.models.commandeout import CommandeSchema
-from app.schemas.commande_dto import ProduitCmdRequest, CommandeNewDTO, CommandePageableCustomlDto, CommandeRequest
+from app.models.employe import Employe
+from app.schemas.commande_dto import ProduitCmdRequest, CommandeNewDTO, CommandePageableCustomlDto, CommandeRequest, \
+  CommandeRuptureRequest
 from app.services.commande_service import CommandeService
 from app.utility.jwt_authentication import jwt_authentication
+from app.utility.user_utils import UserUtils
 
 router = APIRouter(
   prefix="/commandes",
@@ -88,6 +91,17 @@ def modifier_lignes(id: int, produits: List[ProduitCmdRequest], db: Session = De
 # Créer une commande fournisseur
 # ----------------------------
 @router.post("/commande_par_fournisseur")
+def commande_by_fournisseur(
+  fournisseurId: Optional[str],
+  totalAmount: str,
+  produits: List[CommandeNewDTO],
+  db: Session = Depends(get_db)
+):
+  service = CommandeService(db)
+  return service.commande_by_fournisseur(fournisseurId, totalAmount, produits)
+
+
+@router.post("/commande_par_fournisseur/rupture")
 def commande_by_fournisseur(
   fournisseurId: Optional[str],
   totalAmount: str,
@@ -243,3 +257,8 @@ def update_commande_simple(
 ):
   service = CommandeService(db)
   return service.update_commande_simple(commandeId, produitCmdId, qteRecu, prixAchat, prixVente)
+
+@router.post("/product-commande/rupture")
+def commande_rupture(commande_dto: CommandeRuptureRequest, db: Session = Depends(get_db), employe: Employe = Depends(UserUtils.get_current_employe)):
+  service = CommandeService(db)
+  return service.reapprovisionner_rupture(commande_dto,employe)

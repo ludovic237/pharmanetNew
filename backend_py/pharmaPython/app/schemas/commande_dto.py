@@ -24,6 +24,18 @@ class ProduitCmdRequest(BaseModel):
   prixAchat: Optional[float]
 
 
+class ProduitCmdRuptureRequest(BaseModel):
+      productId: Optional[int] = None
+      producCmdtId: Optional[int] = None
+      produitEnRayontId: Optional[int] =None
+      reduction: Optional[int] = 0
+      quantiteRestante: Optional[int] = 0
+      datePeremption: Optional[str]  # ISO string ou datetime si tu préfères
+      dateLivraison: Optional[str]  # ISO string ou datetime si tu préfères
+      prix: Optional[float]
+      prixAchat: Optional[float]
+
+
 class Produit(BaseModel):
   id: Optional[int]
   nom: str
@@ -61,6 +73,11 @@ class CommandeRequest(BaseModel):
   employeId: int
   fournisseurId: int
   produits: List[ProduitCmdRequest]
+
+class CommandeRuptureRequest(BaseModel):
+  type: str
+  fournisseurId: int
+  produits: List[ProduitCmdRuptureRequest]
 
 
 class CommandePageableCustomlDto(BaseModel):

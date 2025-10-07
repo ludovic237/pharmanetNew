@@ -66,8 +66,8 @@ class CommandeRepository:
       self.db.query(func.count(Commande.id))
       .filter(
         Commande.supprimer == 0,
-        func.extract("year", Commande.dateCreation) == today.year,
-        func.extract("month", Commande.dateCreation) == today.month,
+        func.extract("year", Commande.date_creation) == today.year,
+        func.extract("month", Commande.date_creation) == today.month,
         )
       .scalar() or 0
     )
@@ -102,7 +102,7 @@ class CommandeRepository:
       q = q.filter(Commande.date_creation <= datetime.fromisoformat(end_date.strip()))
 
     total = q.count()
-    col = getattr(Commande, sort_by, Commande.dateCreation)
+    col = getattr(Commande, sort_by, Commande.date_creation)
     col = col.desc() if direction.upper() == "DESC" else col.asc()
     rows = q.order_by(col).offset(page * size).limit(size).all()
     return rows, total
