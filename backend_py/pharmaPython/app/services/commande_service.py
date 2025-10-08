@@ -678,6 +678,7 @@ class CommandeService:
       employe_id=employe.id,
       fournisseur_id=request.fournisseurId,
       date_creation=datetime.utcnow(),
+      date_livraison=datetime.utcnow(),
       ref=self.generer_reference_commande(self.commande_repo.count_mois()),
       qtite_cmd=quantite_totale,
       montant_cmd=montant_total,
