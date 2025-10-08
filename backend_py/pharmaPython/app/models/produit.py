@@ -31,6 +31,9 @@ class Produit(Base):
 
   categorie = relationship("Categorie", lazy="joined")
   forme = relationship("Forme", lazy="joined")
+  fabriquant = relationship("Fabriquant", lazy="joined")
+  rayon = relationship("Rayon", lazy="joined")
+  magasin = relationship("Magasin", lazy="joined")
   # fabriquant = relationship("Fabriquant")
   # rayon = relationship("Rayon")
   # magasin = relationship("Magasin")

@@ -44,8 +44,6 @@ def sales_by_category(db: Session,
   #   db.query(Produit)
   #   .all()
   # )
-  print("rows")
-  print(rows)
   return [{"categorie": n, "ca": float(ca or 0)} for n, ca in rows]
 
 

@@ -91,17 +91,11 @@ class ProduitDetailService:
     # if nom is None or not nom.strip():
     #   # Kotlin retourne Page.empty(pageable) → ici, page vide
     #   return {"content": [], **_page_meta(0, page, size)}
-    print(nom)
     if nom=="undefined":
-      print("ici")
       nom="null"
     # Kotlin: findByNomContainingIgnoreCaseAndSupprimer(nom, 0, pageable)
     rows, total = self.produit_detail_repo.find_by_nom_containing_ignore_case_and_supprimer_is_pageable(nom, 0, page, size)
 
-    print("rows")
-    print(rows)
-    print("total")
-    print(total)
     def _map_row(pd) -> Dict[str, Any]:
       # Kotlin : produitRepository.findByDetailId(pd.id)
       produits = self.produit_repo.find_by_detail_id(pd.id) if pd.id is not None else []

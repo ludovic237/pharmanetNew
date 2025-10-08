@@ -552,14 +552,6 @@ class EnRayonRepository:
                                    only_negative: bool = False):
     er = EnRayon
     query = update(er)
-    print("produit_ids");
-    print(produit_ids);
-    print("reset_all");
-    print(reset_all);
-    print("only_negative");
-    print(only_negative);
-    print("len(produit_ids) ");
-    print(len(produit_ids) );
     if len(produit_ids) > 0:
       query = query.where(er.produit_id.in_(produit_ids))
     # elif reset_all:

@@ -379,9 +379,6 @@ def optimize_dashboard(db: Session = Depends(get_db),
   urgent_rate = 1 - (len(cmd_recos) / max(len(recos), 1))
   health_score = round(0.7 * coverage_rate + 30 * urgent_rate, 1)
 
-  print("recos")
-  print(recos)
-  print(len(recos))
   # 2. Priorisation des produits les plus urgents (sous stock min ou ROP)
   priorities = sorted(
     recos,
@@ -390,9 +387,6 @@ def optimize_dashboard(db: Session = Depends(get_db),
       r.stock_actuel - r.rop
     )
   )[:20]
-
-  print("priorities")
-  print(priorities)
 
   # 3. Formatage de la réponse JSON avec des KPIs clairs
   top_products = [

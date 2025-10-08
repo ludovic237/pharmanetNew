@@ -100,9 +100,6 @@ def _group_daily_sales(db: Session, days: int = 180) -> pd.DataFrame:
     .group_by(Vente.date_vente, EnRayon.produit_id)
     .all()
   )
-  print("len(rows)")
-  print(len(rows))
-  print(rows)
   if not rows:
     return pd.DataFrame(columns=["date", "produit_id", "qty"], dtype=float)
   df = pd.DataFrame(rows, columns=["date", "produit_id", "qty"])
@@ -320,8 +317,6 @@ def generate_purchase_orders(db: Session) -> list[Dict[str, Any]]:
     """
 
   recos = compute_replenishment(db)
-  print("recos")
-  print(recos)
   # Filtrer ceux à commander
   to_order = [r for r in recos if r.qte_suggeree > 0]
   if not to_order:
@@ -329,8 +324,6 @@ def generate_purchase_orders(db: Session) -> list[Dict[str, Any]]:
 
   # Charger produits pour récupérer fournisseur
   produits = {p.id: p for p in db.query(Produit).filter(Produit.id.in_([r.produit_id for r in to_order])).all()}
-  print("produits")
-  print(produits)
   # Groupage par fournisseur
   grouped: dict[int, list[RecoCommande]] = {}
   for r in to_order:
@@ -338,8 +331,6 @@ def generate_purchase_orders(db: Session) -> list[Dict[str, Any]]:
     grouped.setdefault(int(f), []).append(r)
 
   po_list = []
-  print("grouped")
-  print(grouped)
   for fournisseur_id, items in grouped.items():
     lignes = [
       dict(produitId=r.produit_id, nom=r.produit_nom, qte=r.qte_suggeree, raison=r.raison)
@@ -444,14 +435,8 @@ def compute_replenishment_new(db,
                                                   page=page, size=size,
                                                   search=search)  # [{id, nom, lead_time, classe_abc}, ...]
   # basics = get_products_basic(db)  # [{id, nom, lead_time, classe_abc}, ...]
-  print("basics")
-  print(len(basics))
   product_ids = [p["id"] for p in basics]
-  print("product_ids")
-  print(len(product_ids))
   bounds_map = get_stock_bounds_map(db, product_ids)  # {id: {"min":..., "max":...}}
-  print("bounds_map")
-  print(len(bounds_map))
   recos: list[RecoCommande] = []
   if not basics:
     return []

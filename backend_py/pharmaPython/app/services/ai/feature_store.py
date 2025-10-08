@@ -56,8 +56,6 @@ def get_products_basic_with_stock_pageable(db: Session,
                                                                                         search=None)  # À créer si besoin: id, nom
   rows, total = ProduitRepository(db).sum_quantites_restantes_en_rayon_pageable(page=page, size=size,
                                                                                 search=search)  # À créer si besoin: id, nom
-  print("rows")
-  print(rows)
   total_valeur = sum(p['valeur'] for p in rows_all)
   if total_valeur == 0:
     return []

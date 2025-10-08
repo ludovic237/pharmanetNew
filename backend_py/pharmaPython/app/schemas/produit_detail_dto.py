@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Optional, List
+from typing import Optional, List, Any
 from datetime import datetime
 from decimal import Decimal
 
@@ -34,7 +34,6 @@ class ProduitRequestDto(BaseModel):
 class ProduitRequestNewDto(BaseModel):
   id: Optional[int] = None
   ean13: Optional[str] = None
-  codebarre: Optional[str] = None
   codeLaborex: Optional[str] = None
   codeUbipharm: Optional[str] = None
   reference: Optional[str] = None
@@ -45,14 +44,14 @@ class ProduitRequestNewDto(BaseModel):
   contenuDetail: Optional[str] = None
   prixDetail: Optional[str] = None
   produitDetail: Optional[str] = None
-  etat: Optional[str] = None
+  etat: Optional[Any] = None
   reductionMax: Optional[int] = 0
   detailId: Optional[int] = None
   categorieId: Optional[int] = 0
   formeId: Optional[int] = 0
   fabriquantId: Optional[int] = 0
   rayonId: Optional[int] = 0
-  etagere: Optional[str] = None
+  etagere: Optional[Any] = None
   magasinId: Optional[int] = 0
 
 class StockDetailDto(BaseModel):

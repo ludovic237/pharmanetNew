@@ -68,9 +68,6 @@ def get_all_categories_pageable(
     for c in page_obj.items
   ]
   # return page_obj
-  print("content")
-  print(content)
-  print(page_obj)
   return {
     "content": content,
     "totalElements": page_obj.total,  # nb total d’éléments (toutes pages)

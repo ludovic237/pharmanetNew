@@ -28,6 +28,7 @@ from app.repositories.rayon_repository import RayonRepository
 from app.repositories.retour_produit_repository import RetourProduitRepository
 from app.repositories.sortie_stock_repository import SortieStockRepository
 from app.repositories.vente_repository import VenteRepository
+from app.schemas.produit_detail_dto import ProduitRequestNewDto
 from app.services.ai.search_index import semantic_search
 from app.services.caisse_service import CaisseService
 from app.utility.user_utils import UserUtils
@@ -395,7 +396,7 @@ class ProduitService:
     saved = self.produit_repo.save(p)
     return self._map_to_produit_response_dto(saved)
 
-  def add_or_update_produit_new(self, id_: Optional[int], request) -> Dict[str, Any]:
+  def add_or_update_produit_new(self, id_: Optional[int], request: ProduitRequestNewDto) -> Dict[str, Any]:
     if not id_ or id_ == 0:
       p = self.produit_repo.model()
     else:
@@ -753,7 +754,7 @@ class ProduitService:
       "description": "",
       "codebarre": "",
       "image": "",
-      "seuil": p.stockMin,
+      "seuil": p.stock_min,
       "categorieNom": getattr(getattr(p, "categorie", None), "nom", None),
       "tva": float("0.20"),
       "prixAchatInitial": float("0"),
@@ -787,7 +788,6 @@ class ProduitService:
 
     total_q = sum(int(x["quantite"]) for x in stock_details) if stock_details else 0
     fab = getattr(p, "fabriquant", None)
-
     return {
       "id": p.id,
       "nom": p.nom,
@@ -801,15 +801,20 @@ class ProduitService:
       "seuil": p.stock_min or 0,
       "categorieId": getattr(getattr(p, "categorie", None), "id", 0),
       "categorieNom": getattr(getattr(p, "categorie", None), "nom", None),
+
       "rayonId": getattr(getattr(p, "rayon", None), "id", 0),
       "rayonNom": getattr(getattr(p, "rayon", None), "nom", None),
+
       "etagere": getattr(p, "etagere", None),
+
+      "fabriquantNom": getattr(getattr(p, "fabriquant", None), "nom", None),
+      "fabriquantId": getattr(getattr(p, "fabriquant", None), "id", 0),
+
       "magasinNom": getattr(getattr(p, "magasin", None), "nom", None),
       "magasinId": getattr(getattr(p, "magasin", None), "id", 0),
+
       "formeNom": getattr(getattr(p, "forme", None), "nom", None),
       "formeId": getattr(getattr(p, "forme", None), "id", 0),
-      "fabriquantId": getattr(fab, "id", 0),
-      "fabriquantNom": getattr(fab, "nom", None),
       "tva": Decimal("0.20"),
       "prixAchatInitial": Decimal("0"),
       "margeBeneficiaire": Decimal("0"),

@@ -119,8 +119,6 @@ def login(username: str, password: str, db: Session = Depends(get_db)):
 @router.post("/logout")
 def logout(db: Session = Depends(get_db), employe: Employe = Depends(UserUtils.get_current_employe)):
   employe = employe
-  print("employe")
-  print(employe)
   if not employe:
     return {"message": "Not user connected"}
   service = CaisseService(db)

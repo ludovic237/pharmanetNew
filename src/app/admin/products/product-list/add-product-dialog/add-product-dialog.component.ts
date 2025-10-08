@@ -146,28 +146,29 @@ export class AddProductDialogComponent implements OnInit {
     this.title = this.data.title
 
     this.form = this.formBuilder.group({
-      nom: [null, Validators.compose([Validators.required, Validators.minLength(4)])],
-      ean13: [null, Validators.maxLength(16)],
-      codeLaborex: [null, Validators.maxLength(32)],
-      codeUbipharm: [null, Validators.maxLength(32)],
-      reference: [null, Validators.maxLength(32)],
-      stock: [null, Validators.min(0)],
-      stockMax: [null, Validators.min(0)],
-      stockMin: [null, Validators.min(0)],
-      contenuDetail: [null],
-      prixDetail: [null],
-      etat: [null],
-      id: [null],
-      reductionMax: [null, Validators.min(0)],
+      nom: ["", Validators.compose([Validators.required, Validators.minLength(4)])],
+      ean13: ["", Validators.maxLength(16)],
+      codeLaborex: ["", Validators.maxLength(32)],
+      codebarre: ["", Validators.maxLength(32)],
+      codeUbipharm: ["", Validators.maxLength(32)],
+      reference: ["", Validators.maxLength(32)],
+      stock: [0, Validators.min(0)],
+      stockMax: [0, Validators.min(0)],
+      stockMin: [0, Validators.min(0)],
+      contenuDetail: [""],
+      prixDetail: [""],
+      etat: [""],
+      id: [0],
+      reductionMax: [0, Validators.min(0)],
       // grossisteId: [null],
-      detailId: [null],
-      categorieId: [null, Validators.required],
-      formeId: [null],
-      fabriquantId: [null],
-      rayonId: [null],
-      produitDetail: [null],
-      etagere: [null, Validators.maxLength(15)],
-      magasinId: [null]
+      detailId: [0],
+      categorieId: [0, Validators.required],
+      formeId: [0],
+      fabriquantId: [0],
+      rayonId: [0],
+      produitDetail: [""],
+      etagere: ["", Validators.maxLength(15)],
+      magasinId: [0]
     });
 
     combineLatest([
@@ -222,6 +223,14 @@ export class AddProductDialogComponent implements OnInit {
     if (this.form.valid) {
       console.log("this.form.value");
       console.log(this.form.value);
+      if (this.form.value.etagere==null){
+        this.form.value.etagere=""
+      }
+      if (this.form.value.produitDetail==null){
+        this.form.value.produitDetail=""
+      }
+      this.form.value.prixDetail=  this.form.value.prixDetail+"";
+      this.form.value.contenuDetail=  this.form.value.contenuDetail+"";
       if (this.data.type == "create") {
         this.productService.createProducNewt(this.form.value).subscribe({
           next: (data: any) => {

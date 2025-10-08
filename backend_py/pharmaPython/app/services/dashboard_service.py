@@ -67,8 +67,6 @@ class DashboardService:
   # ----------------------------
   def get_sales_monthly(self, from_dt: datetime, to_dt: datetime) -> List[SalesMonthlyPoint]:
     rows = self.vente_repo.sales_monthly(from_dt, to_dt)
-    print("get_sales_monthly")
-    print(rows)
     return [SalesMonthlyPoint(mois=row["mois"], total=row["total"]) for row in rows]
 
   # ----------------------------
@@ -76,8 +74,6 @@ class DashboardService:
   # ----------------------------
   def get_sales_by_category(self, from_dt: datetime, to_dt: datetime) -> List[CategorySales]:
     rows = self.concerner_repo.sales_by_category(from_dt, to_dt)
-    print("get_sales_by_category")
-    print(rows)
     return [
       CategorySales(categorie=(row["categorie"] or "Sans catégorie"), total=row["total"])
       for row in rows
@@ -169,17 +165,12 @@ class DashboardService:
     rows_all, total_all = ProduitRepository(db).sum_quantites_restantes_en_rayon_pageable(page=0, size=total_produit,
                                                                                           search=None)
     rows = self.produit_repo.find_produits_stock_critique(low=low, supprimer=0, limit=limit)
-    print("get_critique_actuel")
-    print(rows)
     produits_sorted = sorted(rows, key=lambda x: x['stock'], reverse=True)
 
     cumul = 0
     total_valeur = sum(p['valeur'] for p in rows_all)
     if total_valeur == 0:
       return []
-
-    print("produits_sorted")
-    print(produits_sorted)
 
     for p in produits_sorted:
       contribution = (p["valeur"] / total_valeur) * 100 if total_valeur > 0 else 0
@@ -218,17 +209,12 @@ class DashboardService:
       new_list.append(new_objet)
 
     rows = new_list
-    print("get_critique_actuel")
-    print(rows)
     produits_sorted = sorted(rows, key=lambda x: x['stock'], reverse=True)
 
     cumul = 0
     total_valeur = sum(p['valeur'] for p in rows_all)
     if total_valeur == 0:
       return []
-
-    print("produits_sorted")
-    print(produits_sorted)
 
     for p in produits_sorted:
       contribution = (p["valeur"] / total_valeur) * 100 if total_valeur > 0 else 0

@@ -681,8 +681,11 @@ class CommandeService:
       date_livraison=datetime.utcnow(),
       ref=self.generer_reference_commande(self.commande_repo.count_mois()),
       qtite_cmd=quantite_totale,
+      qtite_recu=quantite_totale,
       montant_cmd=montant_total,
+      montant_recu=montant_total,
       etat=request.type,
+      unite_gratuite=0,
       supprimer=0
     )
     self.db.add(commande)

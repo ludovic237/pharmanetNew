@@ -735,7 +735,6 @@ class VenteService:
         "id": c.id, "nom": nom, "prixUnitaire": c.prix_unit, "quantite": c.quantite,
         "prixTotal": _parse_int(c.prix_unit) * _parse_int(c.quantite), "reduction": c.reduction,
       })
-    print(vente.id)
     facturation = self.facturation_repo.find_by_vente(vente)
     t = _remove_accents_lower(getattr(facturation, "typePaiement", "") or "")
 
@@ -857,8 +856,6 @@ class VenteService:
 
     def _map(v: Vente) -> Dict[str, Any]:
       produits = []
-      print("v")
-      print(v)
       for c in self.concerner_repo.find_by_vente_id(int(v.id)):
         if c.type == "detail":
           pd = self.produit_detail_repo.find_by_id(int(getattr(c, "en_rayon_id", 0)))
@@ -885,8 +882,6 @@ class VenteService:
 
     content = [_map(v) for v in rows]
 
-    print("content")
-    print(content)
     # totalAmount global (requête complète non paginée)
     total_amount = 0.0
     if total > 0:

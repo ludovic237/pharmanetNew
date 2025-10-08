@@ -44,8 +44,6 @@ class FormeService:
 
   def update_forme(self, id_: int, data: FormeBaseSchema) -> Optional[Forme]:
     f = self.db.query(Forme).filter(Forme.id == id_).first()
-    print("f")
-    print(f)
     if not f: return None
     # mets à jour ici les champs nécessaires de Forme (ex.: nom, code)
     for attr in ["nom", "code"]:

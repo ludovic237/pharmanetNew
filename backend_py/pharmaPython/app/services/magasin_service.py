@@ -20,8 +20,6 @@ class MagasinService:
 
   # createMagasin
   def create_magasin(self, magasin: Magasin) -> Magasin:
-    print("magasin")
-    print(magasin)
     mag = Magasin()
     mag.nom = magasin.nom
     mag.code = magasin.code

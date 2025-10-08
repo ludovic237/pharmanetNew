@@ -1,12 +1,15 @@
 <mat-card>
   <mat-card-content>
-    <div fxLayout="row" fxLayoutAlign="space-between center" class="w-100 p-3">
-      <form [formGroup]="form"  fxLayout="row" fxLayoutGap="8px">
+    <div fxLayout="row" fxLayoutAlign="center" >
+      <form [formGroup]="form" fxFlex="100" fxFlex.gt-sm="40" class="px-1">
         <mat-form-field appearance="outline" class="w-100">
           <mat-label>Nom Produit</mat-label>
           <input matInput formControlName="nomProduit" placeholder="Rechercher un produit">
         </mat-form-field>
       </form>
+    </div>
+    <mat-divider></mat-divider>
+    <div fxLayout="row" fxLayoutAlign="space-between center" class="w-100 p-3">
       <div fxLayout="row" fxLayoutGap="8px">
         <button matBadgePosition="before" matBadgeColor="accent"
                 [matBadge]="countItemProduitAiSelect"

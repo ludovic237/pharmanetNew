@@ -15,10 +15,8 @@ jwt_util = JwtUtil()
 
 @app.middleware("http")
 async def jwt_auth_middleware(request, call_next):
-  print("jwt_auth_middleware")
   logger.info("jwt_auth_middleware")
   token = request.headers.get("Authorization")
-  print(token)
   logger.info(f"token :  {token}")
   if token:
     try:

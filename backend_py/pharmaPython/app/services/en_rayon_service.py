@@ -668,6 +668,4 @@ class EnRayonService:
       reset_all=reset_all,
       only_negative=only_negative,
     )
-    print("nb")
-    print(nb)
     return nb

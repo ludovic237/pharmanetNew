@@ -9,11 +9,11 @@
   </div>
 </mat-toolbar>
 <mat-card>
-  <div  fxLayout="row" class="mt-2">
+  <div  fxLayout="row" class="mt-2"  fxLayoutAlign="center" >
 
     <div fxFlex="100" fxFlex.gt-sm="40" class="px-1">
       <mat-form-field appearance="outline" class="w-100">
-        <mat-label>Filtrer par Fournisseur</mat-label>
+        <mat-label>Choisir un Fournisseur</mat-label>
         <mat-select [(ngModel)]="fournisseur" name="fournisseurId" required>
           <mat-option [value]="null">
             Aucun

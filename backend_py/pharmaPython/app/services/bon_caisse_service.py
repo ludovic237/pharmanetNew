@@ -17,8 +17,6 @@ class BonCaisseService:
 
   def get_all_bons(self) -> list[dict[str, Any]]:
     rows = self.bon_caisse_repository.find_all()
-    print("rows")
-    print(rows)
     mapped: List[Dict[str, Any]] = []
     for d in rows:
       mapped.append({
