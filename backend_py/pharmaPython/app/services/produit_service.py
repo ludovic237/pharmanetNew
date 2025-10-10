@@ -173,8 +173,8 @@ class ProduitService:
 
   def get_produit_by_id_map(self, id_: int) -> Dict[str, Any]:
     p = self.produit_repo.find_by_id(id_)
-    if not p or int(p.supprimer or 0) != 0:
-      raise HTTPException(404, detail=f"Produit non trouvé avec ID: {id_}")
+    # if not p or int(p.supprimer or 0) != 0:
+    #   raise HTTPException(404, detail=f"Produit non trouvé avec ID: {id_}")
     return self._map_to_produit_response_map(p)
 
   # ----------------------------------------------------------------------
@@ -769,16 +769,17 @@ class ProduitService:
     }
 
   def _map_to_produit_response_map(self, p) -> Dict[str, Any]:
-    ers = self.enrayon_repo.find_all_by_produit_id_and_supprimer(p.id)
+    # ers = self.enrayon_repo.find_all_by_produit_id_and_supprimer(p.id)
+    ers = self.produit_detail_repo.find_grossiste_by_produit_id(p.id)
+    print(ers)
+    print("ers")
     stock_details = [{
-      "enRayonId": getattr(er, "id", None),
-      "productNom": "er.produit?.nom!!",
-      "depotNom": "er.produit!!.nom",
+      "reference": getattr(er, "reference", None),
+      "productNom": getattr(er, "nom", None),
+      "prix": getattr(er, "prix", None),
       "rayonNom": getattr(getattr(er, "rayon", None), "nom", None),
-      "quantite": int(er.quantite or 0),
-      "datePeremption": getattr(er, "datePeremption", None),
-      "numeroLot": "",
-    } for er in ers if int(er.quantite or 0) > 0]
+      "quantite": int(er.stock or 0)
+    } for er in ers if int(er.stock or 0) > 0]
 
     produit_detail = None
     contenu_detail = p.contenu_detail

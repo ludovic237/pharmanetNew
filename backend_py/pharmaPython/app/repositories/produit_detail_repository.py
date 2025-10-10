@@ -77,6 +77,12 @@ class ProduitDetailRepository:
   def find_by_id(self, id_: int) -> Optional[ProduitDetail]:
     return self.db.query(ProduitDetail).get(id_)
 
+  # helpers
+  def find_grossiste_by_produit_id(self, id_: int) -> list[ProduitDetail]:
+    q = self.db.query(ProduitDetail)
+    q = q.filter(ProduitDetail.grossiste_list.ilike(f'{str(id_)}%'))
+    return q.all()
+
   def model(self) -> ProduitDetail:
     return ProduitDetail()
 

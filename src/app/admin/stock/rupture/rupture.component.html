@@ -15,6 +15,7 @@
                 [matBadge]="countItemProduitAiSelect"
                 mat-raised-button color="primary" >AI</button>
         <button matBadgePosition="before" matBadgeColor="accent"
+                [disabled]="countItemProduitCommandeSelect==0"
                 [matBadge]="countItemProduitCommandeSelect"
                 mat-raised-button color="primary" (click)="openSimpleReaDialog()">P commande</button>
         <button matBadgePosition="before" matBadgeColor="accent"

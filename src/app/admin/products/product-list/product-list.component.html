@@ -1,7 +1,7 @@
 <form [formGroup]="form" fxLayout="row" fxLayoutAlign="space-between center" class="px-2 py-1">
   <div fxLayout="row">
     <mat-button-toggle-group #controls="matButtonToggleGroup" appearance="legacy" hideSingleSelectionIndicator="true">
-      <mat-button-toggle disabled  (click)="ajouterTousLesProduitsManquantEnRayon()">
+      <mat-button-toggle disabled (click)="ajouterTousLesProduitsManquantEnRayon()">
         <mat-icon>refresh</mat-icon>
       </mat-button-toggle>
       <mat-button-toggle value="add" (click)="openUserDialog(null)">
@@ -50,9 +50,9 @@
         <mat-card class="product-item text-center">
           <img [src]="product.image" alt="">
           <h4 class="category text-muted">{{ (categories | filterById : product.categorieNom)?.name }}</h4>
-          <div class="title text-truncate">
+          <div class="title text-truncate" style="margin-top: 10px">
             <!--            {{ $index }} -->
-            {{ product.nom }} ({{ product.quantiteTotaleEnStock }})
+            {{ product.nom }}
           </div>
           <div fxLayout="row" fxLayoutAlign="space-between center" class="prices">
             <div fxLayout="column" fxLayoutAlign="center start">
@@ -61,7 +61,7 @@
               <!--                  <span>FCFA {{ product.prixAchatInitial | number : '1.2-2' }}</span>-->
               <!--                }-->
               <!--              </p>-->
-<!--              <p class="new-price">{{ product.categorieNom }}</p>-->
+              <!--              <p class="new-price">{{ product.categorieNom }}</p>-->
               <div>
                 <span class="status-chip" [ngClass]="getStockStatus(product).class">
                           {{ product.categorieNom }}
@@ -71,12 +71,15 @@
                 </div>
               </div>
             </div>
+
+
             <!--            <app-rating [ratingsCount]="product.ratingsCount" [ratingsValue]="product.ratingsValue" [direction]="'column'"></app-rating>-->
           </div>
           <div class="divider mt-2"></div>
 
           <div class="icons">
-            <a (click)="creerEnRayon(product)" *ngIf="product.prixAchatInitial==0 && product.prixVenteActuel==0 && product.datePeremption==0"
+            <a (click)="creerEnRayon(product)"
+               *ngIf="product.prixAchatInitial==0 && product.prixVenteActuel==0 && product.datePeremption==0"
                mat-mini-fab color="basic" matTooltip="Detail">
               <mat-icon>refresh</mat-icon>
             </a>
@@ -92,6 +95,12 @@
             <button mat-mini-fab color="warn" matTooltip="Remove" (click)="remove(product)">
               <mat-icon>delete</mat-icon>
             </button>
+            <mat-chip-listbox>
+              <mat-chip-option
+                [color]="product.quantiteTotaleEnStock<=0 ? 'warn' : product.quantiteTotaleEnStock>0 && product.quantiteTotaleEnStock<= product.seuil? 'accent' : 'primary'"
+                highlighted selectable="false">Stock : {{ product.quantiteTotaleEnStock }}
+              </mat-chip-option>
+            </mat-chip-listbox>
           </div>
         </mat-card>
       </div>
@@ -147,7 +156,12 @@
     <ng-container matColumnDef="newPrice">
       <mat-header-cell *matHeaderCellDef> Quantite en stock</mat-header-cell>
       <mat-cell *matCellDef="let product">
-        {{ product.quantiteTotaleEnStock | number : '1.2-2' }}
+        <mat-chip-listbox>
+          <mat-chip-option
+            [color]="product.quantiteTotaleEnStock<=0 ? 'warn' : product.quantiteTotaleEnStock>0 && product.quantiteTotaleEnStock<= product.seuil? 'accent' : 'primary'"
+            highlighted selectable="false">{{ product.quantiteTotaleEnStock | number : '1.2-2' }}
+          </mat-chip-option>
+        </mat-chip-listbox>
       </mat-cell>
     </ng-container>
 
@@ -158,7 +172,8 @@
         <a (click)="getDetailProduit(product)" mat-mini-fab color="basic" matTooltip="Detail">
           <mat-icon>info</mat-icon>
         </a>
-        <a (click)="creerEnRayon(product)" *ngIf="product.prixAchatInitial==0 && product.prixVenteActuel==0 && product.datePeremption==0" mat-mini-fab
+        <a (click)="creerEnRayon(product)"
+           *ngIf="product.prixAchatInitial==0 && product.prixVenteActuel==0 && product.datePeremption==0" mat-mini-fab
            color="basic" matTooltip="Detail">
           <mat-icon>refresh</mat-icon>
         </a>

@@ -56,6 +56,13 @@ export class InsightService {
     return this.http.get<any>(`${this.base}/weekly-seasonality`, {params});
   }
 
+  weeklySeasonalityRange(start: string, end: string): Observable<any> {
+    const params = new HttpParams()
+      .set('start', start)
+      .set('end', end);
+    return this.http.get<any>(`${this.base}/weekly-seasonality/range`, {params});
+  }
+
   salesByCategory(days = 30, from: string, to: string): Observable<any[]> {
     const params = new HttpParams().set('days', days);
     params.set("from", from);

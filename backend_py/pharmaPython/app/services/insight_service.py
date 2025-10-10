@@ -91,6 +91,38 @@ def weekly_seasonality(db, weeks: int = 8):
   ]
 
 
+def weekly_seasonality_between_two_date(db, from_dt: datetime, to_dt: datetime):
+  since = to_dt - from_dt
+
+  # WEEKDAY: 0=Lun ... 6=Dim
+  dow_expr = func.weekday(Vente.date_vente).label("dow")
+
+  rows = (
+    db.query(
+      dow_expr,
+      func.sum(Vente.prix_total).label("total"),
+    )
+    .filter(Vente.date_vente.between(from_dt, to_dt))
+    .group_by(dow_expr)
+    .order_by(dow_expr)
+    .all()
+  )
+
+  dow_labels = {
+    0: "Lundi", 1: "Mardi", 2: "Mercredi", 3: "Jeudi",
+    4: "Vendredi", 5: "Samedi", 6: "Dimanche",
+  }
+
+  return [
+    {
+      "dow": int(r.dow),
+      "label": dow_labels.get(int(r.dow), str(r.dow)),
+      "total": float(r.total or 0),
+    }
+    for r in rows
+  ]
+
+
 def basket_pairs(db: Session, days: int = 30, min_support: int = 10):
   """
   Co-occurrence simple produit-produit (pairs) pour suggérer cross-sell.
@@ -126,7 +158,6 @@ def sales_monthly(db, since: date, until: date):
     .all()
   )
   return [{"year": int(r.year), "month": int(r.month), "total": float(r.total or 0)} for r in rows]
-
 
 
 def sales_daily_all(db, since: date, until: date):

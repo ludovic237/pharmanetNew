@@ -120,6 +120,8 @@ export class AddProductDialogComponent implements OnInit {
   public id: any;
   title: string = ""
 
+  childrenList: any[] = []
+
   info: boolean = false;
 
   constructor(
@@ -216,6 +218,7 @@ export class AddProductDialogComponent implements OnInit {
   public getProductById(id: any) {
     this.productService.getProductById(id).subscribe((data: any) => {
       this.form.patchValue(data);
+      this.childrenList = data.stockDetails;
     });
   }
 

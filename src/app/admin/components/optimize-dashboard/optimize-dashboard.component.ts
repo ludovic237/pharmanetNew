@@ -131,14 +131,14 @@ export class OptimizeDashboardComponent implements OnInit {
   ngOnInit(): void {
 
     this.loading = true;
-    this.ai.optimizeDashboard(0, 10, 100).subscribe({
-      next: res => {
-        this.reorderData.data = res.reorders;
-      },
-      error: () => {
-      },
-      complete: () => this.loading = false
-    });
+    // this.ai.optimizeDashboard(0, 10, 100).subscribe({
+    //   next: res => {
+    //     this.reorderData.data = res.reorders;
+    //   },
+    //   error: () => {
+    //   },
+    //   complete: () => this.loading = false
+    // });
     this.ai.lowStock(5, 10).subscribe({
       next: res => {
         this.lowStockData = res;

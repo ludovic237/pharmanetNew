@@ -579,6 +579,51 @@ export class DashboardNewComponent implements OnInit, OnDestroy {
       }
     });
 
+    this.ins.weeklySeasonalityRange(
+      this.appService.formatDate(new Date(new Date(this.startDateVente).setHours(0, 0, 0, 0)) + ""),
+      this.appService.formatDate(new Date(new Date(this.endDateVente).setHours(23, 59, 59, 999)) + ""),
+    ).subscribe(
+      {
+        next: (data: any[]) => {
+          this.weekly = data
+          const barChartWeeklySeasonality = {
+            labels: data.map(m => m.label),
+            datasets: [{data: data.map(m => m.total), label: 'Ventes'}]
+          }
+        },
+        error: (err) => {
+          if (err.status === 401 || err.status === 403) {
+
+            this.authService.logout().subscribe({
+              next: (data) => {
+
+                localStorage.removeItem('token');
+                localStorage.setItem("lastLink", window.location.href);
+                window.location.href = '/sign-in';
+                this.snackBar.open('Déconnexion réussie.', '×', {
+                  panelClass: 'success',
+                  verticalPosition: 'top',
+                  duration: 3000,
+                });
+              },
+              error: (err) => {
+                if (err.status === 401 || err.status === 403) {
+                  this.authService.logout();
+                  localStorage.removeItem('token');
+                  localStorage.setItem("lastLink", window.location.href);
+                  ;
+                  this.snackBar.open('Déconnexion, une erreur.', '×', {
+                    panelClass: 'success',
+                    verticalPosition: 'top',
+                    duration: 3000,
+                  });
+                  window.location.href = '/sign-in';
+                }
+              }
+            })
+          }
+        }
+      });
   }
 
   loadAll() {
@@ -625,7 +670,10 @@ export class DashboardNewComponent implements OnInit, OnDestroy {
     //       }
     //     }
     //   });
-    this.ins.weeklySeasonality(160).subscribe(
+    this.ins.weeklySeasonalityRange(
+      this.appService.formatDate(new Date(new Date(this.startDateVente).setHours(0, 0, 0, 0)) + ""),
+      this.appService.formatDate(new Date(new Date(this.endDateVente).setHours(23, 59, 59, 999)) + ""),
+    ).subscribe(
       {
         next: (data: any[]) => {
           this.weekly = data
@@ -713,48 +761,48 @@ export class DashboardNewComponent implements OnInit, OnDestroy {
           }
         }
       });
-    this.ins.dailySales().subscribe(
-      {
-        next: (data: any[]) => {
-          this.daily = data
-          // this.categories = {
-          //   labels: data.map(m => m.categorie),
-          //   datasets: [{data: data.map(m => m.ca), label: 'Ventes'}]
-          // }
-        },
-        error: (err) => {
-          if (err.status === 401 || err.status === 403) {
-
-            this.authService.logout().subscribe({
-              next: (data) => {
-
-                localStorage.removeItem('token');
-                localStorage.setItem("lastLink", window.location.href);
-                window.location.href = '/sign-in';
-                this.snackBar.open('Déconnexion réussie.', '×', {
-                  panelClass: 'success',
-                  verticalPosition: 'top',
-                  duration: 3000,
-                });
-              },
-              error: (err) => {
-                if (err.status === 401 || err.status === 403) {
-                  this.authService.logout();
-                  localStorage.removeItem('token');
-                  localStorage.setItem("lastLink", window.location.href);
-                  ;
-                  this.snackBar.open('Déconnexion, une erreur.', '×', {
-                    panelClass: 'success',
-                    verticalPosition: 'top',
-                    duration: 3000,
-                  });
-                  window.location.href = '/sign-in';
-                }
-              }
-            })
-          }
-        }
-      });
+    // this.ins.dailySales().subscribe(
+    //   {
+    //     next: (data: any[]) => {
+    //       this.daily = data
+    //       // this.categories = {
+    //       //   labels: data.map(m => m.categorie),
+    //       //   datasets: [{data: data.map(m => m.ca), label: 'Ventes'}]
+    //       // }
+    //     },
+    //     error: (err) => {
+    //       if (err.status === 401 || err.status === 403) {
+    //
+    //         this.authService.logout().subscribe({
+    //           next: (data) => {
+    //
+    //             localStorage.removeItem('token');
+    //             localStorage.setItem("lastLink", window.location.href);
+    //             window.location.href = '/sign-in';
+    //             this.snackBar.open('Déconnexion réussie.', '×', {
+    //               panelClass: 'success',
+    //               verticalPosition: 'top',
+    //               duration: 3000,
+    //             });
+    //           },
+    //           error: (err) => {
+    //             if (err.status === 401 || err.status === 403) {
+    //               this.authService.logout();
+    //               localStorage.removeItem('token');
+    //               localStorage.setItem("lastLink", window.location.href);
+    //               ;
+    //               this.snackBar.open('Déconnexion, une erreur.', '×', {
+    //                 panelClass: 'success',
+    //                 verticalPosition: 'top',
+    //                 duration: 3000,
+    //               });
+    //               window.location.href = '/sign-in';
+    //             }
+    //           }
+    //         })
+    //       }
+    //     }
+    //   });
     // this.ai.associations(10).subscribe(v => this.assoc = v);
     // this.ai.suggestReplenishment().subscribe(v => this.repl = v);
     /* this.ai.lowStock().subscribe(
@@ -851,7 +899,7 @@ export class DashboardNewComponent implements OnInit, OnDestroy {
         }
       });
 
-    this.ai.optimizeDashboardNew().subscribe(
+   /* this.ai.optimizeDashboardNew().subscribe(
       {
         next: (data: any) => {
 
@@ -888,7 +936,7 @@ export class DashboardNewComponent implements OnInit, OnDestroy {
             })
           }
         }
-      });
+      });*/
   }
 
   protected readonly Plugin = Plugin;

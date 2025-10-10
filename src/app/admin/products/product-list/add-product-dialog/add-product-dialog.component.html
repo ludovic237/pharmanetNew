@@ -179,6 +179,41 @@
             <input [readonly]="info" matInput formControlName="etat">
           </mat-form-field>
         </div>
+        <div fxFlex="100" fxFlex.gt-sm="100" class="px-1">
+          <mat-table [dataSource]="childrenList">
+
+            <!-- Nom Column -->
+            <ng-container matColumnDef="nom">
+              <mat-header-cell *matHeaderCellDef> Nom</mat-header-cell>
+              <mat-cell *matCellDef="let element"> {{ element.productNom }}</mat-cell>
+            </ng-container>
+
+            <!-- Contenu Détail Column -->
+            <ng-container matColumnDef="contenuDetail">
+              <mat-header-cell *matHeaderCellDef> Prix</mat-header-cell>
+              <mat-cell *matCellDef="let element"> {{ element.prix }}</mat-cell>
+            </ng-container>
+
+            <!-- Contenu Détail Column -->
+            <ng-container matColumnDef="quantite">
+              <mat-header-cell *matHeaderCellDef> quantite</mat-header-cell>
+              <mat-cell *matCellDef="let element"> {{ element.quantite }}</mat-cell>
+            </ng-container>
+
+            <!-- Action Column -->
+            <ng-container matColumnDef="action">
+              <mat-header-cell *matHeaderCellDef> Action</mat-header-cell>
+              <mat-cell *matCellDef="let element">
+                <button mat-button type="button" disabled>Modifier</button>
+                <button mat-button type="button" disabled>Supprimer</button>
+              </mat-cell>
+            </ng-container>
+
+            <mat-header-row *matHeaderRowDef="['nom', 'contenuDetail',  'quantite', 'action']"></mat-header-row>
+            <mat-row *matRowDef="let row; columns: ['nom', 'contenuDetail', 'quantite', 'action']"></mat-row>
+
+          </mat-table>
+        </div>
       </div>
     </div>
 

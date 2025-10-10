@@ -61,7 +61,7 @@ def get_all_categories_pageable(
 ) -> Dict[str, Any]:
   # convertir vers Params 1-based attendu par fastapi_pagination
   params = Params(page=zparams.page + 1, size=zparams.size)
-  query = db.query(Categorie).order_by(Categorie.id.desc())
+  query = db.query(Categorie).order_by(Categorie.id.desc()).where(Categorie.supprimer==0)
   page_obj = sa_paginate(db, query, params)
   content: List[Dict[str, Any]] = [
     CategorieSchema.model_validate(c, from_attributes=True).model_dump()

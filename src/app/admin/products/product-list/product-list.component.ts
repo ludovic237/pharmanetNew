@@ -250,21 +250,21 @@ export class ProductListComponent implements OnInit {
   }
 
   public openUserDialog(user: User) {
-        let dialogRef = this.dialog.open(AddProductDialogComponent, {
-          data: {
-            id: null,
-            type: "create",
-            title: "Creation d'un nouveau produit : ",
-          },
-          width: "80%",
-          panelClass: ['theme-dialog'],
-          autoFocus: false,
-        });
-        dialogRef.afterClosed().subscribe((user: User) => {
-          if (user) {
-            // (user.id) ? this.updateUser(user) : this.addUser(user);
-          }
-        });
+    let dialogRef = this.dialog.open(AddProductDialogComponent, {
+      data: {
+        id: null,
+        type: "create",
+        title: "Creation d'un nouveau produit : ",
+      },
+      width: "80%",
+      panelClass: ['theme-dialog'],
+      autoFocus: false,
+    });
+    dialogRef.afterClosed().subscribe((user: User) => {
+      if (user) {
+        // (user.id) ? this.updateUser(user) : this.addUser(user);
+      }
+    });
   }
 
   getDetailProduit(product: any) {
@@ -408,27 +408,27 @@ export class ProductListComponent implements OnInit {
 
   getStockStatus(row: any): StockStatus {
     const stock = Number(row?.stock ?? 0);
-    const min   = row?.min != null ? Number(row.min) : null;
-    const max   = row?.max != null ? Number(row.max) : null;
+    const min = row?.min != null ? Number(row.min) : null;
+    const max = row?.max != null ? Number(row.max) : null;
 
     // Cas 1 : on a min & max -> règles basées sur min/max
     if (Number.isFinite(min as number) && Number.isFinite(max as number) && (max as number) > 0) {
       const minVal = min as number;
       const maxVal = max as number;
-      const mid    = minVal + (maxVal - minVal) * 0.5; // milieu de la plage
+      const mid = minVal + (maxVal - minVal) * 0.5; // milieu de la plage
 
-      if (stock <= 0)                return { label: 'Rupture',   class: 'status-rupture'   };
-      if (stock <= minVal)           return { label: 'Critique',  class: 'status-critique'  };
-      if (stock <= mid)              return { label: 'Bas',       class: 'status-bas'       };
-      if (stock <= maxVal)           return { label: 'OK',        class: 'status-ok'        };
-      return                             { label: 'Surstock',  class: 'status-surstock'  };
+      if (stock <= 0) return {label: 'Rupture', class: 'status-rupture'};
+      if (stock <= minVal) return {label: 'Critique', class: 'status-critique'};
+      if (stock <= mid) return {label: 'Bas', class: 'status-bas'};
+      if (stock <= maxVal) return {label: 'OK', class: 'status-ok'};
+      return {label: 'Surstock', class: 'status-surstock'};
     }
 
     // Cas 2 : fallback (si min/max indisponibles) -> seuils génériques
-    if (stock <= 0)      return { label: 'Rupture',  class: 'status-rupture'  };
-    if (stock <= 5)      return { label: 'Critique', class: 'status-critique' };
-    if (stock <= 20)     return { label: 'Bas',      class: 'status-bas'      };
-    if (stock <= 100)    return { label: 'OK',       class: 'status-ok'       };
-    return                    { label: 'Surstock', class: 'status-surstock' };
+    if (stock <= 0) return {label: 'Rupture', class: 'status-rupture'};
+    if (stock <= 5) return {label: 'Critique', class: 'status-critique'};
+    if (stock <= 20) return {label: 'Bas', class: 'status-bas'};
+    if (stock <= 100) return {label: 'OK', class: 'status-ok'};
+    return {label: 'Surstock', class: 'status-surstock'};
   }
 }
