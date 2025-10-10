@@ -41,7 +41,7 @@ class BonCaisseService:
     return self.bon_caisse_repository.find_by_codebarre_id(self.db, codebarre_id=codebarre_id)
 
   def create_bon(self, bon_data: BonCaisseData) -> BonCaisse:
-    date_code = datetime.now().strftime("%y%m%d%H%M%S")
+    date_code = datetime.now().strftime("%Y%m%d%H%M%S")
     caisse = self.caisse_service.get_caisse_active_db(self.db)
 
     bon = BonCaisse(

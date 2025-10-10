@@ -128,26 +128,60 @@ class CommandeService:
   # ----------------------------
   def get_commande_by_id(self, commande_id: int) -> Dict[str, Any]:
     commande = self.commande_repo.find_by_id(commande_id)
+
+    data = self.produit_cmd_repo.find_by_commande_id(commande_id)
+    print("data")
+    produits: List[Dict[str, Any]] = []
+    for l in data:
+      # produit = self.produit_repo.find_by_id(l.produit_id)
+      produits.append({
+        "produit": {
+          "nom": l.produit.nom,
+          "categorie": {
+            "nom": l.produit.categorie.nom
+          },
+        },
+        "prixAchat": l.pu_cmd,
+        "prixVente": l.prix_public,
+        "qtiteRecu": l.qtite_recu,
+        "uniteGratuite": l.unite_gratuite,
+        "qtiteCmd": l.qtite_cmd,
+        "prixUnitaire": l.pu_recept,
+      })
     if not commande:
       raise HTTPException(status_code=404, detail="Commande non trouvée")
-
+    print(produits)
+    print("commande")
+    print(commande)
     return {
       "id": commande.id,
       "dateCreation": commande.date_creation,
       "dateLivraison": commande.date_livraison,
-      "fournisseur": commande.fournisseur.nom if commande.fournisseur else None,
+      "fournisseur": {
+        "id": commande.fournisseur.id,
+        "code": commande.fournisseur.code,
+        "nom": commande.fournisseur.nom,
+        "statut": commande.fournisseur.statut,
+        "codepostal": commande.fournisseur.codepostal,
+        "adresse": commande.fournisseur.adresse,
+        "telephone": commande.fournisseur.telephone,
+        "email": commande.fournisseur.email,
+        "supprimer": commande.fournisseur.supprimer,
+      } if commande.fournisseur else None,
       "reference": commande.ref,
       "etat": commande.etat,
       "montantTotal": commande.montant_cmd,
       "qtiteRecu": commande.qtite_recu,
       "qtiteCmd": commande.qtite_cmd,
       "uniteGratuite": commande.unite_gratuite,
-      "note": commande.note
+      "note": commande.note,
+      "produits": produits,
     }
 
-  # ----------------------------
-  # Générer une référence unique
-  # ----------------------------
+    # ----------------------------
+    # Générer une référence unique
+    # ----------------------------
+
   def generer_reference_commande(self, num: int) -> str:
     now = datetime.utcnow()
     annee = now.strftime("%Y")
@@ -199,7 +233,8 @@ class CommandeService:
       raise HTTPException(status_code=404, detail="Commande non trouvée")
 
     lignes = {l.id: l for l in self.produit_cmd_repo.find_by_commande_id(commande.id)}
-
+    print("produits")
+    print(produits)
     for item in produits:
       if not item.productCmdId:
         continue
@@ -668,13 +703,13 @@ class CommandeService:
     self._recalc_totaux(cmd)
     return cmd
 
-  def reapprovisionner_rupture(self, request: CommandeRuptureRequest, employe:Employe):
+  def reapprovisionner_rupture(self, request: CommandeRuptureRequest, employe: Employe):
     quantite_totale = sum([p.quantiteRestante for p in request.produits])
 
     montant_total = sum([p.quantiteRestante * p.prixAchat for p in request.produits])
 
     commande = Commande(
-      id= int(datetime.now().strftime("%Y%m%d%H%M%S")),
+      id=int(datetime.now().strftime("%Y%m%d%H%M%S")),
       employe_id=employe.id,
       fournisseur_id=request.fournisseurId,
       date_creation=datetime.utcnow(),
@@ -711,8 +746,8 @@ class CommandeService:
       formatted_now = datetime.now().strftime("%Y%m%d%H%M%S")
       if produit_request.produitEnRayontId is not None:
         produit_rayon = self.enrayon_repo.find_by_id(produit_request.produitEnRayontId)
-        produit_rayon.quantite_restante = produit_rayon.quantite_restante +produit_request.quantiteRestante
-      else :
+        produit_rayon.quantite_restante = produit_rayon.quantite_restante + produit_request.quantiteRestante
+      else:
         produit_rayon = EnRayon(
           id=f"{produit.id}{fournisseur.code}{formatted_now}",
           produit_id=produit.id,

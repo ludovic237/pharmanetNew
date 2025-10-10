@@ -23,7 +23,7 @@ class TicketService:
     return self.ticket_repo.find_by_codebarre(codebarre)
 
   def create_ticket(self, ticket):
-    date_code = datetime.now().strftime("%y%m%d%H%M%S")
+    date_code = datetime.now().strftime("%Y%m%d%H%M%S")
     ticket.codebarre = int(date_code)
     ticket.dateGenere = date.today()
     ticket.supprimer = 0

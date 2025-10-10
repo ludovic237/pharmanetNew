@@ -10,30 +10,30 @@ class ProduitCommandeDTO(BaseModel):
 
 
 class ProduitCmdRequest(BaseModel):
-  codebarre: Optional[str]
-  productId: Optional[int]
-  productCmdId: Optional[int]
-  id: Optional[int]
-  nom: Optional[str]
+  codebarre: Optional[str] = None
+  productId: Optional[int] = None
+  productCmdId: Optional[int] = None
+  id: Optional[int] = None
+  nom: Optional[str] = None
   quantite: Optional[int] = 0
   quantiteRecu: Optional[int] = 0
   uniteGratuite: Optional[int] = 0
-  dateDePeremption: Optional[str]  # ISO string ou datetime si tu préfères
-  prixUnitaire: Optional[float]
-  prixVente: Optional[float]
-  prixAchat: Optional[float]
+  dateDePeremption: Optional[str] = None  # ISO string ou datetime si tu préfères
+  prixUnitaire: Optional[float] = None
+  prixVente: Optional[float] = None
+  prixAchat: Optional[float] = None
 
 
 class ProduitCmdRuptureRequest(BaseModel):
-      productId: Optional[int] = None
-      producCmdtId: Optional[int] = None
-      produitEnRayontId: Optional[int] =None
-      reduction: Optional[int] = 0
-      quantiteRestante: Optional[int] = 0
-      datePeremption: Optional[str]  # ISO string ou datetime si tu préfères
-      dateLivraison: Optional[str]  # ISO string ou datetime si tu préfères
-      prix: Optional[float]
-      prixAchat: Optional[float]
+  productId: Optional[int] = None
+  producCmdtId: Optional[int] = None
+  produitEnRayontId: Optional[int] = None
+  reduction: Optional[int] = 0
+  quantiteRestante: Optional[int] = 0
+  datePeremption: Optional[str]  # ISO string ou datetime si tu préfères
+  dateLivraison: Optional[str]  # ISO string ou datetime si tu préfères
+  prix: Optional[float]
+  prixAchat: Optional[float]
 
 
 class Produit(BaseModel):
@@ -45,7 +45,7 @@ class Produit(BaseModel):
 
 class CommandeDTO(BaseModel):
   id: Optional[int]
-  dateCreation: Optional[str]   # ou datetime si tu veux parser
+  dateCreation: Optional[str]  # ou datetime si tu veux parser
   dateLivraison: Optional[str]
   fournisseurId: Optional[int]
   produits: List[ProduitCommandeDTO]
@@ -73,6 +73,7 @@ class CommandeRequest(BaseModel):
   employeId: int
   fournisseurId: int
   produits: List[ProduitCmdRequest]
+
 
 class CommandeRuptureRequest(BaseModel):
   type: str

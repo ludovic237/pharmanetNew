@@ -51,6 +51,9 @@ import {AuthService} from "@services/auth.service";
 import {GestionCaisseDialogComponent} from "./gestion-caisse-dialog/gestion-caisse-dialog.component";
 import {MatPaginatorModule, PageEvent} from "@angular/material/paginator";
 import {LoaderService} from "@services/loader.service";
+import {jsPDF} from "jspdf";
+import autoTable from "jspdf-autotable";
+import QRCode from "qrcode";
 
 interface LigneHeader {
   netAPayer?: number;
@@ -471,15 +474,7 @@ export class EncaisserVenteComponent implements OnInit {
   }
 
 
-  onAnnuler() {
-    this.montantEncaisse = 0;
-    this.calculateRendu();
-  }
 
-
-  onImprimer() {
-    // logique d'impression
-  }
 
   chargerVente(venteId: number) {
     // recharger les données
@@ -809,6 +804,137 @@ export class EncaisserVenteComponent implements OnInit {
           });
       }
     });
+  }
+
+  onImprimer(): void {
+    if (this.selectedTabIndex === 0 && !this.montantEncaisse) {
+      alert('Veuillez remplir tous les champs.');
+      return;
+    }
+    if (this.selectedTabIndex === 1 && (!this.numeroTelephone || !this.montantElectronique)) {
+      alert('Veuillez remplir tous les champs.');
+      return;
+    }
+    if (this.selectedTabIndex === 2 && (!this.numeroTicket || !this.montantTicket)) {
+      alert('Veuillez remplir tous les champs.');
+      return;
+    }
+    if (this.selectedTabIndex === 3 && (!this.montantEspece || !this.numeroTelephoneMixte || !this.montantElectroniqueMixte || !this.numeroTicketMixte || !this.montantTicketMixte)) {
+      alert('Veuillez remplir tous les champs.');
+      return;
+    }
+
+    const encaissementDetails = {
+      venteId: this.venteId, // Replace with the actual sale ID
+      typeEncaissement: this.selectedTabIndex === 0 ? 'Espèce' :
+        this.selectedTabIndex === 1 ? 'Électronique' :
+          this.selectedTabIndex === 2 ? 'Ticket' : 'Mixte',
+      montantPercu: this.selectedTabIndex === 0 ? this.montantEncaisse :
+        this.selectedTabIndex === 1 ? this.montantElectronique :
+          this.selectedTabIndex === 2 ? this.montantTicket :
+            this.montantEspece + this.montantElectroniqueMixte + this.montantTicketMixte,
+      espece: this.selectedTabIndex === 3 ? this.montantEspece : this.montantEncaisse,
+      electronique: this.selectedTabIndex === 3 ? {
+        numeroTelephone: this.numeroTelephoneMixte,
+        montantElectronique: this.montantElectroniqueMixte
+      } : {
+        numeroTelephone: this.numeroTelephone,
+        montantElectronique: this.montantElectronique
+      },
+      ticket: this.selectedTabIndex === 3 ? {
+        numeroTicket: this.numeroTicketMixte,
+        montantTicket: this.montantTicketMixte
+      } : {
+        numeroTicket: this.numeroTicket,
+        montantTicket: this.montantTicket
+      },
+      montantRendu: this.rendu
+    };
+    // Proceed with validation logic
+    console.log('Validation successful for tab:', this.selectedTabIndex);
+    console.log(encaissementDetails)
+
+    this.ventesService.encaisserVente(this.venteId, encaissementDetails).subscribe({
+      next: () => {
+
+        this.imprimerTicket(this.venteId+"")
+        // Clear the leftDataSource table
+        this.leftDataSource = [];
+
+        // Refresh the data
+        this.onRefresh();
+
+        // Reset encaissementDetails values
+        this.venteId = 0;
+        this.netAPayer = 0;
+        this.montantEncaisse = 0;
+        this.montantElectronique = 0;
+        this.numeroTelephone = '';
+        this.numeroTicket = '';
+        this.montantTicket = 0;
+        this.montantEspece = 0;
+        this.numeroTelephoneMixte = '';
+        this.montantElectroniqueMixte = 0;
+        this.numeroTicketMixte = '';
+        this.montantTicketMixte = 0;
+        this.totalEncaisse = 0;
+        this.rendu = 0;
+
+        // Show success message
+        this.snackBar.open("Vente successfully", '×', {
+          panelClass: 'success',
+          verticalPosition: 'top',
+          duration: 3000
+        });
+
+      },
+      error: (err: any) => {
+
+        console.error('Failed to fetch BonCaisse list:', err);
+        if (err.status === 401 || err.status === 403) {
+
+          this.authService.logout().subscribe({
+            next: (data) => {
+              localStorage.removeItem('token');
+              localStorage.setItem("lastLink", window.location.href);
+              window.location.href = '/sign-in';
+              this.snackBar.open('Déconnexion réussie.', '×', {
+                panelClass: 'success',
+                verticalPosition: 'top',
+                duration: 3000,
+              });
+
+            },
+            error: (err) => {
+
+              console.error('Error  subscription:', err);
+              if (err.status === 401 || err.status === 403) {
+                this.authService.logout();
+                localStorage.removeItem('token');
+                localStorage.setItem("lastLink", window.location.href);
+                ;
+                this.snackBar.open('Déconnexion, une erreur.', '×', {
+                  panelClass: 'success',
+                  verticalPosition: 'top',
+                  duration: 3000,
+                });
+                window.location.href = '/sign-in';
+              }
+            }
+          })
+        } else
+          this.snackBar.open('Erreur lors de la récupération des bons de caisse.', '×', {
+            panelClass: 'error',
+            verticalPosition: 'top',
+            duration: 3000,
+          });
+      }
+    });
+  }
+
+  onAnnuler() {
+    this.montantEncaisse = 0;
+    this.calculateRendu();
   }
 
   onTicketInputChange(event: Event): void {
@@ -1391,4 +1517,134 @@ export class EncaisserVenteComponent implements OnInit {
   }
 
 
+  imprimerTicket(venteId: string): void {
+    this.ventesService.chargerVentesEncaisser(Number(venteId)).subscribe({
+      next: (vente: any) => {
+        this.generateTicket(vente).then(() => {
+          this.snackBar.open(`Ticket imprimé pour la référence: ${vente.vente.reference}`, '×', {
+            panelClass: 'success',
+            duration: 3000,
+          });
+        });
+      },
+      error: (err: any) => {
+        console.error('Erreur lors de la récupération des informations de la vente:', err);
+        if (err.status === 401 || err.status === 403) {
+          this.authService.logout().subscribe({
+            next: (data) => {
+              localStorage.removeItem('token');
+              localStorage.setItem("lastLink", window.location.href);
+              window.location.href = '/sign-in';
+              this.snackBar.open('Déconnexion réussie.', '×', {
+                panelClass: 'success',
+                verticalPosition: 'top',
+                duration: 3000,
+              });
+            },
+            error: (err) => {
+              console.error('Error  subscription:', err);
+              if (err.status === 401 || err.status === 403) {
+                this.authService.logout();
+                localStorage.removeItem('token');
+                localStorage.setItem("lastLink", window.location.href);
+                ;
+                this.snackBar.open('Déconnexion, une erreur.', '×', {
+                  panelClass: 'success',
+                  verticalPosition: 'top',
+                  duration: 3000,
+                });
+                window.location.href = '/sign-in';
+              }
+            }
+          })
+        }
+      },
+    });
+  }
+
+  async generateTicket(data: any): Promise<void> {
+
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.width
+
+    // Header
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(12);
+    doc.text('Pharmacie ALSAS', 10, 10);
+    doc.text('Dr GAMWO Sandrine', 10, 15);
+    doc.text('BP 38 FOUMBOT', 10, 20);
+    doc.text('Tel : (+237) 233 267 487', 10, 25);
+    doc.text(`Ticket N°: ${data.vente.reference}`, 10, 30);
+    doc.text(`Vendu le: ${data.vente.dateVente}`, 10, 35);
+    doc.text(`Encaisser le: ${data.vente.dateEncaissement}`, 10, 40);
+    doc.text(`Vendeur: ${data.vente.employe.user ? data.vente.employe.user.nom : "N/A"} ${data.vente.employe.user ? data.vente.employe.user.prenom : ""}`, 10, 45);
+    doc.text(`Acheteur: ${data.vente.user ? data.vente.user.nom : "N/A"} ${data.vente.user ? data.vente.user.prenom : ""}`, 10, 50);
+
+    const columns = [
+      {header: 'Libellé', dataKey: 'nom'},
+      {header: 'Prix U', dataKey: 'prixUnitaire'},
+      {header: 'Qte', dataKey: 'quantite'},
+      {header: 'Total', dataKey: 'prixTotal'},
+      {header: 'Rd(%)', dataKey: 'reduction'},
+    ];
+
+    autoTable(doc, {
+      columns,
+      body: data.produits,
+      headStyles: {fillColor: [22, 160, 133]},
+      margin: {top: 20},
+      startY: 60
+    })
+
+    const totalPrixProduits = data.produits.reduce((sum: number, produit: any) => sum + produit.prixTotal, 0);
+
+    const prixRemise = totalPrixProduits - data.vente.prixTotal;
+    const pourcentageRemise = (prixRemise / totalPrixProduits) * 100;
+
+    // Summary
+    let y = (doc as any).lastAutoTable.finalY
+    y += 5;
+    doc.text(`Montant: ${totalPrixProduits} FCFA`, 10, y);
+    y += 5;
+    doc.text(`Total: ${data.vente.prixTotal} FCFA`, 10, y);
+    y += 5;
+    doc.text(`Remise: ${pourcentageRemise} %`, 10, y);
+    y += 5;
+    doc.text(`Net à payer: ${data.vente.prixTotal} FCFA`, 10, y);
+
+    // Payment Details
+    y += 10;
+    doc.text(`Montant Espèce: ${data.montantEspece} FCFA`, 10, y);
+    y += 5;
+    doc.text(`Montant Electronique: ${data.montantElectronique} FCFA`, 10, y);
+    y += 5;
+    doc.text(`Montant Ticket: ${data.montantTicket} FCFA`, 10, y);
+
+    // Footer
+    y += 10;
+    doc.text(`Montant total encaissé: ${data.vente.prixPercu} FCFA`, 10, y);
+    y += 5;
+    doc.text(`Montant rendu: ${(data.vente.prixPercu - data.vente.prixTotal)} FCFA`, 10, y);
+    y += 5;
+    doc.text('Ce ticket vaut facture', 10, y);
+    y += 5;
+    doc.text('Merci et bonne santé', 10, y);
+    y += 5;
+    doc.text('NoCT / POS85127004888', 10, y);
+
+    // QR Code
+    if (data.vente.reference) {
+      const qrCodeDataUrl = await QRCode.toDataURL(data.vente.id + "");
+      doc.addImage(qrCodeDataUrl, 'PNG', pageWidth - 40, y - 30, 30, 30);
+    } else {
+      console.error('Erreur: La référence de la vente est manquante.');
+      this.snackBar.open('Erreur: La référence de la vente est manquante.', '×', {
+        panelClass: 'error',
+        duration: 3000,
+      });
+    }
+
+    // Save PDF
+    doc.save(`Ticket_${data.vente.reference}.pdf`);
+  }
 }

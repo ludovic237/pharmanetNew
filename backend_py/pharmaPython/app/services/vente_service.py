@@ -38,6 +38,7 @@ from app.repositories.vente_repository import VenteRepository
 from app.schemas.vente_dto import VenteRequestDto, EncaissementDirectDto, EncaissementDto, VentePageableCustomlDto, \
   EncaissementRequestDto
 from app.services.caisse_service import CaisseService
+from app.utility.convert import to_camel_dict
 from app.utility.user_utils import UserUtils
 
 
@@ -117,10 +118,11 @@ class VenteService:
       client = self.user_repo.find_by_id(int(client_id))
       _require(client, f"Client introuvable avec l'ID: {client_id}")
     elif t == "new":
-      name = (dto.clientInfo.nom or {}) or _require(None, "Nom du client requis")
-      phone = (dto.clientInfo.phone or {}) or _require(None, "Téléphone du client requis")
+      name = (dto.clientInfo.nom or {})
+      phone = (dto.clientInfo.phone or {})
       client = User(nom=name, telephone=phone)
-      self.user_repo.save(client)
+      if dto.clientInfo.nom != "" and dto.clientInfo.phone != "":
+        self.user_repo.save(client)
     elif t == "none":
       client = None
     else:
@@ -149,7 +151,7 @@ class VenteService:
 
     malade = Malade()
     vente = Vente(
-      id=int(datetime.now().strftime("%y%m%d%H%M%S")),
+      id=int(datetime.now().strftime("%Y%m%d%H%M%S")),
       employe_id=employe.id,
       reduction=str(dto.prixReduction or 0),
       caisse_id=None if dto.etat == "CREDIT" else active_caisse.id,
@@ -158,7 +160,7 @@ class VenteService:
       etat=dto.etat,
       prix_total=(dto.prixTotal or 0.0) - (dto.prixReduction or 0.0),
       commentaire=dto.commentaire,
-      user_id=client.id,
+      user_id=None if client == None else client.id,
       malade_id=malade.id,
       prescripteur_id=(prescripteur.id or None),
       supprimer=0,
@@ -167,7 +169,7 @@ class VenteService:
 
     # Si réduction utilisée, décrémente le quota d'employé
     if dto.reductionEnabled:
-      employe.faireReductionMax = _parse_int(employe.faireReductionMax) - _parse_int(dto.prixReduction)
+      employe.faire_reduction_max = _parse_int(employe.faire_reduction_max) - _parse_int(dto.prixReduction)
       self.employe_repo.save(employe)
 
     # Détail des produits vendus
@@ -239,8 +241,8 @@ class VenteService:
       client = self.user_repo.find_by_id(int(cid))
       _require(client, f"Client introuvable avec l'ID: {cid}")
     elif t == "new":
-      name = (vdto.clientInfo or {}).get("name") or _require(None, "Nom du client requis")
-      phone = (vdto.clientInfo or {}).get("phone") or _require(None, "Téléphone du client requis")
+      name = (vdto.clientInfo or {}).get("name")
+      phone = (vdto.clientInfo or {}).get("phone")
       client = User(nom=name, telephone=phone)
       self.user_repo.save(client)
     elif t == "none":
@@ -452,7 +454,7 @@ class VenteService:
       type_paiement=dto.typeEncaissement,
       montant_percu=dto.montantPercu,
       reste=dto.montantRendu,
-      montant_ttc=int(vente.prixTotal or 0),
+      montant_ttc=int(vente.prix_total or 0),
       date_facture=_now(),
       supprimer=0,
     )
@@ -469,8 +471,8 @@ class VenteService:
     elif dto.typeEncaissement == "ticket" and dto.ticket:
       ticket = _require(self.bon_caisse_repo.find_by_codebarre_id(dto.ticket.numeroTicket), "Ticket introuvable")
       ticket.type = "Encaisser"
-      ticket.dateEncaisser = _now()
-      ticket.caisseIdEncaisser = (
+      ticket.date_encaisser = _now()
+      ticket.caisse_id_encaisser = (
         self.caisse_service.get_caisse_active_db(self.db) or {}).id if self.caisse_service else None
       self.bon_caisse_repo.save(ticket)
 
@@ -489,8 +491,8 @@ class VenteService:
       if dto.ticket:
         ticket = _require(self.bon_caisse_repo.find_by_codebarre_id(dto.ticket.numeroTicket), "Ticket introuvable")
         ticket.type = "Encaisser"
-        ticket.dateEncaisser = _now()
-        ticket.caisseIdEncaisser = (
+        ticket.date_encaisser = _now()
+        ticket.caisse_id_encaisser = (
           self.caisse_service.get_caisse_active_db(self.db) or {}).id if self.caisse_service else None
         self.bon_caisse_repo.save(ticket)
         self.facture_ticket_repo.save(
@@ -499,8 +501,8 @@ class VenteService:
     else:
       raise HTTPException(status_code=400, detail=f"Type de paiement non pris en charge: {dto.typeEncaissement}")
 
-    vente.prixPercu = float(dto.montantPercu or 0.0)
-    vente.dateEncaissement = _now()
+    vente.prix_percu = float(dto.montantPercu or 0.0)
+    vente.date_encaissement = _now()
     vente.caisse = caisse
     self.vente_repo.save(vente)
     return fact
@@ -513,8 +515,28 @@ class VenteService:
   # chargerVentesEnCoursNonEncaisser(venteId)
   # ---------------------------------------------------------------------
   def charger_ventes_en_cours_non_encaisser(self, vente_id: int) -> Dict[str, Any]:
-    vente = _require(self.vente_repo.find_by_id(int(vente_id)), "Vente introuvable")
-    if vente.prixPercu is not None and vente.prixPercu > 0:
+    vente = to_camel_dict(_require(self.vente_repo.find_by_id(int(vente_id)), "Vente introuvable"))
+    print("vente")
+    print(vente)
+    data = {
+      "id": vente.id,
+      "prixTotal": vente.prix_total,
+      "prixPercu": vente.prix_percu,
+      "dateVente": vente.date_vente,
+      "dateEncaissement": vente.date_encaissement,
+      "commentaire": vente.commentaire,
+      "maladeId": vente.malade_id,
+      "etat": vente.etat,
+      "reference": vente.reference,
+      "nouveauInfo": vente.nouveau_info,
+      "userId": vente.user_id,
+      "prescripteurId": vente.prescripteur_id,
+      "employeId": vente.employe_id,
+      "reduction": vente.reduction,
+      "caisseId": vente.caisse_id,
+      "supprimer": vente.supprimer,
+    }
+    if vente.prix_percu is not None and vente.prix_percu > 0:
       raise HTTPException(status_code=400, detail="La vente est déjà encaissée.")
 
     produits = []
@@ -526,7 +548,7 @@ class VenteService:
         nom, pid = pd.nom, pd.id
       else:
         er = _require(self.enrayon_repo.find_by_id(str(c.en_rayon_id)), "EnRayon introuvable")
-        p = _require(self.produit_repo.find_by_id(int(er.produitId)), "Produit introuvable")
+        p = _require(self.produit_repo.find_by_id(int(er.produit_id)), "Produit introuvable")
         nom, pid = p.nom, p.id
       produits.append({
         "id": c.id,
@@ -537,7 +559,7 @@ class VenteService:
         "reduction": c.reduction,
         "type": c.type,
       })
-    return {"vente": vente, "produits": produits}
+    return {"vente": data, "produits": produits}
 
   # ---------------------------------------------------------------------
   # supprimerVente(venteId) → suppression logique + lignes
@@ -719,6 +741,28 @@ class VenteService:
   # ---------------------------------------------------------------------
   def charger_ventes_encaisser(self, vente_id: int) -> Dict[str, Any]:
     vente = _require(self.vente_repo.find_by_id(int(vente_id)), "Vente introuvable")
+    data = {
+      "id": vente.id,
+      "prixTotal": vente.prix_total,
+      "prixPercu": vente.prix_percu,
+      "dateVente": vente.date_vente,
+      "dateEncaissement": vente.date_encaissement,
+      "commentaire": vente.commentaire,
+      "maladeId": vente.malade_id,
+      "etat": vente.etat,
+      "reference": vente.reference,
+      "nouveauInfo": vente.nouveau_info,
+      "userId": vente.user_id,
+      "prescripteurId": vente.prescripteur_id,
+      "employeId": vente.employe_id,
+      "reduction": vente.reduction,
+      "caisseId": vente.caisse_id,
+      "supprimer": vente.supprimer,
+      "user": vente.user,
+      "caisse": vente.caisse,
+      "prescripteur": vente.prescripteur,
+      "employe": vente.employe,
+    }
     if vente.prix_percu is None or vente.prix_percu <= 0:
       # NB: le code Kotlin a une condition inversée / message ambigu
       raise HTTPException(status_code=400, detail="La vente n'est pas encore encaissée.")
@@ -747,7 +791,7 @@ class VenteService:
     montant_ticket = getattr(tk, "montant", 0)
 
     return {
-      "vente": vente,
+      "vente": data,
       "produits": produits,
       "montantFacturation": getattr(facturation, "montantTtc", 0),
       "montantEspece": montant_espece,
@@ -846,16 +890,21 @@ class VenteService:
 
     rows, total = self.vente_repo.filter_ventes_range(
       supprimer=0,
-      active_caisse=active_caisse, prix_percu=0, etat=etat,
+      active_caisse=active_caisse, prix_percu=None, etat=etat,
       start_date_vente=startDateVente, end_date_vente=endDateVente,
       start_date_encaissement=startDateEncaissement, end_date_encaissement=endDateEncaissement,
       user_id=userId, employe_id=employeId, prescripteur_id=prescripteurId, caisse_id=caisseId,
       page=page, size=size,
       sort_by="dateVente", direction="DESC",
     )
+    print("rows")
+    print(rows)
 
     def _map(v: Vente) -> Dict[str, Any]:
       produits = []
+      print("v")
+      print(v.date_encaissement)
+      print(v.date_vente)
       for c in self.concerner_repo.find_by_vente_id(int(v.id)):
         if c.type == "detail":
           pd = self.produit_detail_repo.find_by_id(int(getattr(c, "en_rayon_id", 0)))

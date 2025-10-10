@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Body
 from sqlalchemy.orm import Session
 from typing import Any, Dict, List
 from app.api.deps import get_db
@@ -23,7 +23,7 @@ def get_param(key: str, db: Session = Depends(get_db)):
 
 
 @router.post("/{key}", response_model=AppSettingSchema)
-def set_param(key: str, value: str, db: Session = Depends(get_db)):
+def set_param(key: str, value: str = Body(...), db: Session = Depends(get_db)):
   service = AppSettingService(db)
   return service.update_param(key, value)
 

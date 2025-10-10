@@ -8,7 +8,7 @@ class FacturationRepository:
     self.db = db
 
   def find_by_vente(self, vente_id: int) -> Optional[Facturation]:
-    return self.db.query(Facturation).filter(Facturation.vente_id == vente_id).first()
+    return self.db.query(Facturation).filter(Facturation.vente_id == str(vente_id)).first()
 
   def find_by_caisse(self, caisse_id: int) -> List[Facturation]:
     return self.db.query(Facturation).filter(Facturation.caisse_id == caisse_id).all()

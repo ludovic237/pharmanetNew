@@ -1,5 +1,5 @@
-import {Component, Inject, OnInit} from '@angular/core';
-import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
+import {Component, Inject, OnInit, ViewChild} from '@angular/core';
+import {FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
 import {Settings, SettingsService} from "@services/settings.service";
 import {AuthService} from "@services/auth.service";
 import {MatSnackBar} from "@angular/material/snack-bar";
@@ -16,7 +16,7 @@ import {MatCheckboxModule} from "@angular/material/checkbox";
 import {MatButtonModule} from "@angular/material/button";
 import {MatDividerModule} from "@angular/material/divider";
 import {MatIconModule} from "@angular/material/icon";
-import {MatTableModule} from "@angular/material/table";
+import {MatTableDataSource, MatTableModule} from "@angular/material/table";
 import {MatToolbarModule} from "@angular/material/toolbar";
 import {MatAutocompleteModule} from "@angular/material/autocomplete";
 import {FlexLayoutModule} from "@ngbracket/ngx-layout";
@@ -24,6 +24,10 @@ import {VentesService} from "@services/ventes.service";
 import {FournisseursService} from "@services/fournisseurs.service";
 import {CommandesService} from "@services/commandes.service";
 import {LoaderService} from "@services/loader.service";
+import {MatDatepickerModule} from "@angular/material/datepicker";
+import {MatNativeDateModule, provideNativeDateAdapter} from "@angular/material/core";
+import {MatPaginator} from "@angular/material/paginator";
+import {MatSort} from "@angular/material/sort";
 
 @Component({
   selector: 'app-simple-reapprovisionnement-commande-dialog',
@@ -41,8 +45,11 @@ import {LoaderService} from "@services/loader.service";
     MatTableModule,
     MatToolbarModule,
     MatAutocompleteModule,
-    FlexLayoutModule
+    FlexLayoutModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
   ],
+  providers: [provideNativeDateAdapter()],
   templateUrl: './simple-reapprovisionnement-commande-dialog.component.html',
   styleUrl: './simple-reapprovisionnement-commande-dialog.component.scss'
 })
@@ -50,10 +57,14 @@ export class SimpleReapprovisionnementCommandeDialogComponent implements OnInit 
   public selectedFournisseur: string | null = null;
   public jour: number = 14;
   fournisseurs: any[] = [];
+  fournisseur: any = null;
   public form: FormGroup;
   total: number = 0
   type = "detail"
-  public enRayonList: any[] = [];
+  public enRayonList = new MatTableDataSource<any>([]);
+  @ViewChild(MatPaginator) paginator!: MatPaginator
+  @ViewChild(MatSort) sort!: MatSort
+
   public modifiedProducts: any[] = [];
   public displayedColumns: string[] = [
     'produit',
@@ -92,7 +103,7 @@ export class SimpleReapprovisionnementCommandeDialogComponent implements OnInit 
   }
 
   validateModifiedQuantities(): void {
-    this.modifiedProducts = this.enRayonList.filter(item => item.quantiteRestante > 0);
+    this.modifiedProducts = this.enRayonList.data.filter(item => item.quantiteRestante > 0);
     this.snackBar.open(`${this.modifiedProducts.length} produits modifiés.`, '×', {
       panelClass: 'success',
       verticalPosition: 'top',
@@ -101,8 +112,10 @@ export class SimpleReapprovisionnementCommandeDialogComponent implements OnInit 
     console.log("this.modifiedProducts")
     console.log(this.modifiedProducts)
     // this.dialogRef.close(this.modifiedProducts);
-
-    this.commandesService.commandeByFournisseur(this.selectedFournisseur, this.total + "", this.modifiedProducts).subscribe({
+    this.modifiedProducts = this.modifiedProducts.map(({datePeremptionControl, dateLivraisonControl, ...rest}) => rest)
+    console.log("this.modifiedProducts")
+    console.log(this.modifiedProducts)
+    this.commandesService.commandeByFournisseur(this.fournisseur.id, this.total + "", this.modifiedProducts).subscribe({
       next: (data) => {
         this.dialogRef.close(data);
         this.snackBar.open(`Commande cree.`, '×', {
@@ -163,7 +176,7 @@ export class SimpleReapprovisionnementCommandeDialogComponent implements OnInit 
   }
 
   updateTotal(item: any) {
-    this.modifiedProducts = this.enRayonList.filter(item => item.quantiteRestante > 0);
+    this.modifiedProducts = this.enRayonList.data.filter(item => item.quantiteRestante > 0);
     this.total = 0
     this.modifiedProducts.forEach((product: any) => {
       this.total = this.total + (product.quantiteRestante * product.prixAchat)
@@ -172,7 +185,7 @@ export class SimpleReapprovisionnementCommandeDialogComponent implements OnInit 
 
   increment(item: any, field: 'quantiteRestante' | 'prixAchat') {
     item[field]++;
-    this.modifiedProducts = this.enRayonList.filter(item => item.quantiteRestante > 0);
+    this.modifiedProducts = this.enRayonList.data.filter(item => item.quantiteRestante > 0);
     this.total = 0
     this.modifiedProducts.forEach((product: any) => {
       this.total = this.total + (product.quantiteRestante * product.prixAchat)
@@ -183,7 +196,7 @@ export class SimpleReapprovisionnementCommandeDialogComponent implements OnInit 
     if (item[field] > 0) {
       item[field]--;
     }
-    this.modifiedProducts = this.enRayonList.filter(item => item.quantiteRestante > 0);
+    this.modifiedProducts = this.enRayonList.data.filter(item => item.quantiteRestante > 0);
     this.total = 0
     this.modifiedProducts.forEach((product: any) => {
       this.total = this.total + (product.quantiteRestante * product.prixAchat)
@@ -226,12 +239,16 @@ export class SimpleReapprovisionnementCommandeDialogComponent implements OnInit 
 
   getDataVente() {
     if (this.form.valid) {
-
-      this.ventesService.listerVenteParNombreDeJourEtFournisseur(this.form.value.fournisseur, this.form.value.jour + "").subscribe({
+      this.fournisseur = this.form.value.fournisseur;
+      this.ventesService.listerVenteParNombreDeJourEtFournisseur(this.fournisseur.id, this.form.value.jour + "").subscribe({
         next: (data: any[]) => {
           console.log("getDataVente")
           console.log(data)
-          this.enRayonList = data;
+          this.enRayonList = new MatTableDataSource<any, MatPaginator>(data.map((produit: any) => {
+            produit.datePeremptionControl = new FormControl(new Date(produit.datePeremption))
+            produit.dateLivraisonControl = new FormControl(new Date(produit.dateLivraison))
+            return produit
+          }))
           this.total = 0;
 
         },
@@ -268,4 +285,39 @@ export class SimpleReapprovisionnementCommandeDialogComponent implements OnInit 
     });
   }
 
+  saveDatePeremtion(item: any) {
+    console.log("save date")
+    console.log(item)
+    if (item.datePeremptionControl) {
+      const nouvelleDate = item.datePeremptionControl.value;
+      console.log("nouvelleDate")
+      console.log(nouvelleDate)
+      const dateIsoPourBackend = nouvelleDate.toISOString();
+      if (nouvelleDate) {
+        console.log("dateIsoPourBackend")
+        console.log(dateIsoPourBackend)
+        item.datePeremption = dateIsoPourBackend
+      } else {
+        item.datePeremption = null
+      }
+    }
+  }
+
+  saveDateLivraison(item: any) {
+    console.log("save date")
+    console.log(item)
+    if (item.dateLivraisonControl) {
+      const nouvelleDate = item.dateLivraisonControl.value;
+      console.log("nouvelleDate")
+      console.log(nouvelleDate)
+      const dateIsoPourBackend = nouvelleDate.toISOString();
+      if (nouvelleDate) {
+        console.log("dateIsoPourBackend")
+        console.log(dateIsoPourBackend)
+        item.dateLivraison = dateIsoPourBackend
+      } else {
+        item.dateLivraison = null
+      }
+    }
+  }
 }

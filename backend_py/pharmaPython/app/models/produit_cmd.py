@@ -31,6 +31,7 @@ class ProduitCmd(Base):
   # Si Commande définit: produits_cmd = relationship("ProduitCmd", back_populates="commande")
   commande = relationship("Commande", back_populates="produits_cmd")
 
+  produit = relationship("Produit")
   # Si Produit définit: produits_cmd = relationship("ProduitCmd", back_populates="produit")
   # produit = relationship("Produit", back_populates="produits_cmd")
 

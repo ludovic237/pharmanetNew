@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Body
 from sqlalchemy.orm import Session
 from typing import List, Optional, Dict, Any
 
@@ -31,11 +31,11 @@ def creer_commande(commande_dto: CommandeRequest, db: Session = Depends(get_db))
 # ----------------------------
 # Réceptionner une commande
 # ----------------------------
-@router.post("/{id}/reception", response_model=CommandeSchema)
+@router.post("/{id}/reception")
 def receptionner_commande(
   id: int,
   receptionType: str,
-  produits: List[ProduitCmdRequest],
+  produits: List[ProduitCmdRequest]=Body(),
   db: Session = Depends(get_db)
 ):
   service = CommandeService(db)
