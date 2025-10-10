@@ -78,11 +78,11 @@
           <div class="divider mt-2"></div>
 
           <div class="icons">
-            <a (click)="creerEnRayon(product)"
-               *ngIf="product.prixAchatInitial==0 && product.prixVenteActuel==0 && product.datePeremption==0"
-               mat-mini-fab color="basic" matTooltip="Detail">
-              <mat-icon>refresh</mat-icon>
-            </a>
+<!--            <a (click)="creerEnRayon(product)"-->
+<!--               *ngIf="product.prixAchatInitial==0 && product.prixVenteActuel==0 && product.datePeremption==0"-->
+<!--               mat-mini-fab color="basic" matTooltip="Detail">-->
+<!--              <mat-icon>refresh</mat-icon>-->
+<!--            </a>-->
             <a (click)="getDetailProduit(product)" mat-mini-fab color="basic" matTooltip="Detail">
               <mat-icon>info</mat-icon>
             </a>
@@ -172,11 +172,11 @@
         <a (click)="getDetailProduit(product)" mat-mini-fab color="basic" matTooltip="Detail">
           <mat-icon>info</mat-icon>
         </a>
-        <a (click)="creerEnRayon(product)"
-           *ngIf="product.prixAchatInitial==0 && product.prixVenteActuel==0 && product.datePeremption==0" mat-mini-fab
-           color="basic" matTooltip="Detail">
-          <mat-icon>refresh</mat-icon>
-        </a>
+<!--        <a (click)="creerEnRayon(product)"-->
+<!--           *ngIf="product.prixAchatInitial==0 && product.prixVenteActuel==0 && product.datePeremption==0" mat-mini-fab-->
+<!--           color="basic" matTooltip="Detail">-->
+<!--          <mat-icon>refresh</mat-icon>-->
+<!--        </a>-->
         <a (click)="updateProduit(product)" mat-mini-fab color="accent" matTooltip="Edit">
           <mat-icon>edit</mat-icon>
         </a>

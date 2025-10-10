@@ -71,7 +71,7 @@
                      [(ngModel)]="item.quantiteRestante"
                      (ngModelChange)="updateTotal(item)"
                      [min]="0"
-                     [value]="0"
+                     [value]="item.quantiteStock"
                      placeholder="0">
             </mat-form-field>
             <button mat-mini-fab color="primary" (click)="increment(item, 'quantiteRestante')"

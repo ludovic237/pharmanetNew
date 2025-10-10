@@ -495,6 +495,7 @@ export class RuptureComponent implements OnInit {
     } else {
       // Commander
       this.produitsCommandeIds.add(row.id);
+      row.qteSuggere= row.max - row.stock;
       this.produitsCommande.push(row);
     }
     this.countItemProduitCommandeSelect = this.produitsCommande.length

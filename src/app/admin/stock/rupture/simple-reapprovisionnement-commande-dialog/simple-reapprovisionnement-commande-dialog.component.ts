@@ -106,6 +106,7 @@ export class SimpleReapprovisionnementCommandeDialogComponent implements OnInit 
     this.enRayonList = new MatTableDataSource<any, MatPaginator>(this.data.data.map((produit: any) => {
       produit.datePeremptionControl = new FormControl(new Date(produit.datePeremption))
       produit.dateLivraisonControl = new FormControl(new Date(produit.dateLivraison))
+      produit.quantiteRestante = produit.max - produit.stock
       return produit
     }))
   }

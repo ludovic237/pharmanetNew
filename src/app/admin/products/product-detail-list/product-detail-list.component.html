@@ -40,9 +40,9 @@
         <mat-card class="product-item text-center">
           <img [src]="product.image" alt="">
           <h4 class="category text-muted">{{ (categories | filterById : product.categorieNom)?.name }}</h4>
-          <div class="title text-truncate">
+          <div class="title text-truncate" style="margin-top: 10px">
 <!--            {{ $index }}-->
-            {{ product.nom }} ({{product.stock}})</div>
+            {{ product.nom }}</div>
           <div fxLayout="row" fxLayoutAlign="space-between center" class="prices">
             <div fxLayout="column" fxLayoutAlign="center start">
 <!--              <p class="old-price text-muted">-->
@@ -72,6 +72,12 @@
             <button mat-mini-fab color="warn" matTooltip="Remove" (click)="remove(product)">
               <mat-icon>delete</mat-icon>
             </button>
+            <mat-chip-listbox>
+              <mat-chip-option
+                [color]="product.stock<=0 ? 'warn' : product.stock>0 && product.stock<= product.seuil? 'accent' : 'primary'"
+                highlighted selectable="false">Stock : {{ product.stock }}
+              </mat-chip-option>
+            </mat-chip-listbox>
           </div>
         </mat-card>
       </div>

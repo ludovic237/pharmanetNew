@@ -11,9 +11,9 @@
     <mat-divider></mat-divider>
     <div fxLayout="row" fxLayoutAlign="space-between center" class="w-100 p-3">
       <div fxLayout="row" fxLayoutGap="8px">
-        <button matBadgePosition="before" matBadgeColor="accent"
-                [matBadge]="countItemProduitAiSelect"
-                mat-raised-button color="primary" >AI</button>
+<!--        <button matBadgePosition="before" matBadgeColor="accent"-->
+<!--                [matBadge]="countItemProduitAiSelect"-->
+<!--                mat-raised-button color="primary" >AI</button>-->
         <button matBadgePosition="before" matBadgeColor="accent"
                 [disabled]="countItemProduitCommandeSelect==0"
                 [matBadge]="countItemProduitCommandeSelect"
@@ -78,13 +78,13 @@
             </button>
 
           </ng-container>
-          <ng-container *ngIf="row.stock > 0 && row.stock < row.min ">
+          <!--<ng-container *ngIf="row.stock > 0 && row.stock < row.min ">
             <button mat-raised-button
                     [color]="isAISelected(row) ? 'warn' : 'accent'"
                     (click)="togglePropositionAI(row)">
               {{ isAISelected(row) ? 'Annuler' : 'Proposition IA' }}
             </button>
-          </ng-container>
+          </ng-container>-->
         </div>
 
 <!--        <button mat-raised-button color="primary" >Sortir le stock</button>-->
