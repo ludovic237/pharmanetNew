@@ -134,7 +134,7 @@ class CaisseService:
   # === Ouvrir une nouvelle caisse ===
   def ouvrir_nouvelle_caisse(self, request: CaisseOuvertureRequestDto, currentEmploye: Employe) -> CaisseDto:
     employe = currentEmploye
-    active = self.caisse_repo.find_by_etat_and_supprimer_first(etat="Ouvert",supprimer=0)
+    active = self.caisse_repo.find_by_etat_and_supprimer_first(etat="Ouvert", supprimer=0)
     en_cours = self.db.query(Caisse).filter(
       Caisse.user_id == employe.id, Caisse.etat == "En cours", Caisse.supprimer == 0
     ).first()
@@ -168,7 +168,7 @@ class CaisseService:
     return CaisseDto(
       id=caisse.id,
       employeId=caisse.user_id,
-      nomEmploye =f"{caisse.user.user.prenom if caisse.user else ''} {caisse.user.user.nom if caisse.user else ''}".strip(),
+      nomEmploye=f"{caisse.user.user.prenom if caisse.user else ''} {caisse.user.user.nom if caisse.user else ''}".strip(),
       dateOuvert=caisse.date_ouvert,
       dateFerme=caisse.date_ferme,
       session=caisse.session,
@@ -264,6 +264,20 @@ class CaisseService:
   def generate_caisse_report(self, caisse_id: int) -> Dict[str, Any]:
     # ---------- Récup caisse ----------
     caisse = self.caisse_repo.find_by_id(caisse_id)
+    caisseData = {
+      "id": caisse.id,
+      "userId": caisse.user_id,
+      "user": caisse.user,
+      "ouvertureCaisse": caisse.ouverture_caisse,
+      "fermetureCaisse": caisse.fermeture_caisse,
+      "dateOuvert": caisse.date_ouvert,
+      "dateFerme": caisse.date_ferme,
+      "session": caisse.session,
+      "fondCaisseOuvert": caisse.fond_caisse_ouvert,
+      "fondCaisseFerme": caisse.fond_caisse_ferme,
+      "etat": caisse.etat,
+      "supprimer": caisse.supprimer,
+    }
     if not caisse:
       raise ValueError("Caisse not found")
 
@@ -554,7 +568,7 @@ class CaisseService:
       "totalRetourProduits": total_retour_produits,
       "montantSystem": montant_system,
       "difference": difference,
-      "caisse": caisse,
+      "caisse": caisseData,
       "prixTotalEncaissementVente": prix_total_encaissement_vente,
       "prixTotalGrossiste": prix_total_grossiste,
       "prixTotalDetaillant": prix_total_detaillant,

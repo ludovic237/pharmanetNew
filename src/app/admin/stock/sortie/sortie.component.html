@@ -30,16 +30,21 @@
 </div>
 <div class="p-2">
   <mat-card>
-    <mat-form-field class="search-field" appearance="outline">
-      <mat-label>Rechercher produit detail</mat-label>
-      <input matInput [formControl]="produitDetailSearchControl" [matAutocomplete]="produitDetailAuto">
-      <mat-autocomplete #produitDetailAuto="matAutocomplete" >
-        <mat-option *ngFor="let produitDetail of produitDetailOptions" [value]="produitDetail.nom" (click)="openProduitDetailInfoDialog(produitDetail)">
-          {{ produitDetail.nom }}
-        </mat-option>
-      </mat-autocomplete>
-      <mat-icon matSuffix>search</mat-icon>
-    </mat-form-field>
+    <div fxLayout="row" fxLayoutAlign="center" >
+      <div  fxFlex="100" fxFlex.gt-sm="40" class="px-1">
+        <mat-form-field class="search-field w-100" appearance="outline" >
+          <mat-label>Rechercher produit detail</mat-label>
+          <input matInput [formControl]="produitDetailSearchControl" [matAutocomplete]="produitDetailAuto">
+          <mat-autocomplete #produitDetailAuto="matAutocomplete" >
+            <mat-option *ngFor="let produitDetail of produitDetailOptions" [value]="produitDetail.nom" (click)="openProduitDetailInfoDialog(produitDetail)">
+              {{ produitDetail.nom }}
+            </mat-option>
+          </mat-autocomplete>
+          <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+      </div>
+    </div>
+
   </mat-card>
 </div>
 <div fxLayout="row wrap" fxLayoutAlign="space-between center" class="w-100 p-3">

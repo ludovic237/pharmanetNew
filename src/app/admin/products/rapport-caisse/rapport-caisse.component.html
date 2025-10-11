@@ -2,7 +2,7 @@
   <div fxLayout="row wrap" fxLayoutAlign="space-between center" class="w-100 p-3">
     <h2>Rechercher les dernières sessions de caisse</h2>
     <div>
-      <button class="p-2" mat-raised-button color="primary" (click)="generatePdf()">Imprimer rapport</button>
+      <button class="p-2" mat-raised-button color="primary" [disabled]="dataCaisse==null" (click)="generatePdf()">Imprimer rapport</button>
     </div>
   </div>
 </mat-toolbar>

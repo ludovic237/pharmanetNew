@@ -149,7 +149,15 @@ export class ListerAjouterCommandeComponent implements OnInit {
   selection = new SelectionModel<any>(true, []);
   filteredCommandes: any[] = [];
   fournisseurs: any[] = [];
-  etats: string[] = ['all', 'en_attente', 'livree', 'en_cours', 'annulee'];
+  // etats: string[] = ['all', 'en_attente', 'livree', 'en_cours', 'annulee'];
+  etats: any[] = [
+    {data:'Tous',value:'all'},
+    {data:'En attente',value:'en_attente'},
+    {data:'Livree',value:'livree'},
+    {data:'En cours',value:'en_cours'},
+    {data:'Cloturee',value:'cloturee'},
+    {data:'Annuler', value:'annulee'}
+  ];
   typeFournisseur: string[] = ['all', 'Detaillant', 'Grossiste'];
   selectedEtats: string = 'all'; // Default to "All"
 
@@ -169,7 +177,8 @@ export class ListerAjouterCommandeComponent implements OnInit {
 
   }
 
-  displayedColumns: string[] = ['select', 'id', 'ref', 'dateCreation', 'etat', 'qtiteCmd', 'qtiteRecu', 'uniteGratuite', 'montantCmd', 'montantRecu', 'fournisseur', 'info', 'action'];
+  // displayedColumns: string[] = ['select', 'id', 'ref', 'dateCreation', 'etat', 'qtiteCmd', 'qtiteRecu', 'uniteGratuite', 'montantCmd', 'montantRecu', 'fournisseur', 'info', 'action'];
+  displayedColumns: string[] = [ 'id', 'ref', 'dateCreation', 'etat', 'qtiteCmd', 'qtiteRecu', 'uniteGratuite', 'montantCmd', 'montantRecu', 'fournisseur', 'info', 'action'];
   commandes: any[] = [];
 
 
@@ -400,6 +409,8 @@ export class ListerAjouterCommandeComponent implements OnInit {
         return 'en-attente';
       case 'cloturee':
         return 'cloturee';
+      case 'commandé':
+        return 'commande';
       case 'livree':
         return 'livree';
       case 'en_cours':

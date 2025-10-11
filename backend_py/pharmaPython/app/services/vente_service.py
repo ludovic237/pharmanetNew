@@ -196,7 +196,7 @@ class VenteService:
                 self.concerner_repo.save(con)
             else:
                 er = _require(
-                    self.enrayon_repo.find_by_id(str(p.rayonId)),
+                    self.enrayon_repo.find_by_id(int(p.rayonId)),
                     f"EnRayon introuvable: {p.rayonId}",
                 )
                 er.quantite_restante = _parse_int(er.quantite_restante) - qte
@@ -305,7 +305,7 @@ class VenteService:
                     prix_unit=p.prixUnit, type=p.type, reduction=p.reduction,
                 ))
             else:
-                er = _require(self.enrayon_repo.find_by_id(str(p.rayonId)), f"EnRayon introuvable: {p.rayonId}")
+                er = _require(self.enrayon_repo.find_by_id(int(p.rayonId)), f"EnRayon introuvable: {p.rayonId}")
                 er.quantiteRestante = _parse_int(er.quantiteRestante) - qte
                 self.enrayon_repo.save(er)
 
@@ -326,7 +326,7 @@ class VenteService:
             type_paiement=(dto.encaissementDto or {}).get("typeEncaissement"),
             montant_percu=(dto.encaissementDto or {}).get("montantPercu"),
             reste=(dto.encaissementDto or {}).get("montantRendu"),
-            montant_ttc=int(vente.prixTotal or 0),
+            montant_ttc=int(vente.prix_total or 0),
             date_facture=now,
             supprimer=0,
         )
@@ -551,7 +551,7 @@ class VenteService:
                 _require(pd, "ProduitDetail introuvable")
                 nom, pid = pd.nom, pd.id
             else:
-                er = _require(self.enrayon_repo.find_by_id(str(c.en_rayon_id)), "EnRayon introuvable")
+                er = _require(self.enrayon_repo.find_by_id(int(c.en_rayon_id)), "EnRayon introuvable")
                 p = _require(self.produit_repo.find_by_id(int(er.produit_id)), "Produit introuvable")
                 nom, pid = p.nom, p.id
             produits.append({
@@ -1082,13 +1082,13 @@ class VenteService:
                     "etat": v.etat,
                     "date": v.date_vente,
                     "dateEncaissement": v.date_encaissement,
-                    "produits": [{"quantite": c.quantite, "prix_unitaire": c.prixUnit, "reduction": c.reduction}
+                    "produits": [{"quantite": c.quantite, "prix_unitaire": c.prix_unit, "reduction": c.reduction}
                                  for c in concerner_list],
                     "quantite": sum(_parse_int(c.quantite) for c in concerner_list),
-                    "prixUnitaire": sum(_parse_int(c.prixUnit) for c in concerner_list),
+                    "prixUnitaire": sum(_parse_int(c.prix_unit) for c in concerner_list),
                     "reduction": sum(_parse_int(c.reduction) for c in concerner_list),
                     "prixVente": v.prix_total,
-                    "prixTotal": sum(_parse_int(c.quantite) * _parse_int(c.prixUnit) for c in concerner_list),
+                    "prixTotal": sum(_parse_int(c.quantite) * _parse_int(c.prix_unit) for c in concerner_list),
                     "infoClients": f"{v.user.nom} ({v.user.telephone})" if v.user else "Aucun client",
                     "vendeur": (getattr(getattr(v.employe, "user", None), "nom", None) or "Invonnu"),
                     "actions": "edit,delete",

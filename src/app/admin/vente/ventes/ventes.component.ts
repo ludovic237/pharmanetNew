@@ -43,6 +43,7 @@ import {AuthService} from "@services/auth.service";
 import {EmployesService} from "@services/employes.service";
 import autoTable from "jspdf-autotable";
 import {LoaderService} from "@services/loader.service";
+import html2canvas from "html2canvas";
 
 @Component({
   selector: 'app-ventes',
@@ -240,10 +241,10 @@ export class VentesComponent implements OnInit {
       this.page - 1,
       this.count,
       this.selectedEtat,
-      formatDate(new Date(new Date(this.startDateVente).setHours(0,0,0,0)) + ""),
-      formatDate(new Date(new Date(this.endDateVente).setHours(23,59,59,999)) + ""),
-      formatDate(new Date(new Date(this.startDateEncaissement).setHours(0,0,0,0)) + ""),
-      formatDate(new Date(new Date(this.endDateEncaissement).setHours(23,59,59,999)) + ""),
+      formatDate(new Date(new Date(this.startDateVente).setHours(0, 0, 0, 0)) + ""),
+      formatDate(new Date(new Date(this.endDateVente).setHours(23, 59, 59, 999)) + ""),
+      formatDate(new Date(new Date(this.startDateEncaissement).setHours(0, 0, 0, 0)) + ""),
+      formatDate(new Date(new Date(this.endDateEncaissement).setHours(23, 59, 59, 999)) + ""),
       this.selectedUtilisateur + "",
       this.selectedEmploye + "",
       this.selectedPrescripteur + "",
@@ -341,21 +342,30 @@ export class VentesComponent implements OnInit {
 
   async generateTicket(data: any): Promise<void> {
 
-    const doc = new jsPDF();
+    // const doc = new jsPDF();
+    // let doc: jsPDF = new jsPDF('p', 'mm', 'a1')
+    // const doc = new jsPDF({orientation: 'landscape', unit: 'cm', format: [30, 20]});
+    // const doc = new jsPDF({orientation: 'landscape', unit: 'cm'});
+    const doc = new jsPDF({
+      orientation: 'portrait', unit: 'mm',
+      // format: [data.produits.length+100,100]
+      format: [10 * 10, ((data.produits.length + 14) * 10)]
+      // format: [100, (data.produits.length * 30 + 150)]
+    });
     const pageWidth = doc.internal.pageSize.width
 
     // Header
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(12);
-    doc.text('Pharmacie ALSAS', 10, 10);
-    doc.text('Dr GAMWO Sandrine', 10, 15);
-    doc.text('BP 38 FOUMBOT', 10, 20);
-    doc.text('Tel : (+237) 233 267 487', 10, 25);
-    doc.text(`Ticket N°: ${data.vente.reference}`, 10, 30);
-    doc.text(`Vendu le: ${data.vente.dateVente}`, 10, 35);
-    doc.text(`Encaisser le: ${data.vente.dateEncaissement}`, 10, 40);
-    doc.text(`Vendeur: ${data.vente.employe.user ? data.vente.employe.user.nom : "N/A"} ${data.vente.employe.user ? data.vente.employe.user.prenom : ""}`, 10, 45);
-    doc.text(`Acheteur: ${data.vente.user ? data.vente.user.nom : "N/A"} ${data.vente.user ? data.vente.user.prenom : ""}`, 10, 50);
+    doc.setFontSize(9);
+    doc.text('Pharmacie ALSAS', 2, 10);
+    doc.text('Dr GAMWO Sandrine', 2, 15);
+    doc.text('BP 38 FOUMBOT', 2, 20);
+    doc.text('Tel : (+237) 233 267 487', 2, 25);
+    doc.text(`Ticket N°: ${data.vente.reference}`, 2, 30);
+    doc.text(`Vendu le: ${data.vente.dateVente}`, 2, 35);
+    doc.text(`Encaisser le: ${data.vente.dateEncaissement}`, 2, 40);
+    doc.text(`Vendeur: ${data.vente.employe.user ? data.vente.employe.user.nom : "N/A"} ${data.vente.employe.user ? data.vente.employe.user.prenom : ""}`, 2, 45);
+    doc.text(`Acheteur: ${data.vente.user ? data.vente.user.nom : "N/A"} ${data.vente.user ? data.vente.user.prenom : ""}`, 2, 50);
 
     const columns = [
       {header: 'Libellé', dataKey: 'nom'},
@@ -369,8 +379,11 @@ export class VentesComponent implements OnInit {
       columns,
       body: data.produits,
       headStyles: {fillColor: [22, 160, 133]},
-      margin: {top: 20},
-      startY: 60
+      margin: {top: 0, left: 0, right: 0},
+      startY: 60,
+      styles: {
+        fontSize: 7
+      }
     })
 
     const totalPrixProduits = data.produits.reduce((sum: number, produit: any) => sum + produit.prixTotal, 0);
@@ -381,33 +394,34 @@ export class VentesComponent implements OnInit {
     // Summary
     let y = (doc as any).lastAutoTable.finalY
     y += 5;
-    doc.text(`Montant: ${totalPrixProduits} FCFA`, 10, y);
+    doc.text(`Montant: ${totalPrixProduits} FCFA`, 2, y);
     y += 5;
-    doc.text(`Total: ${data.vente.prixTotal} FCFA`, 10, y);
+    doc.text(`Total: ${data.vente.prixTotal} FCFA`, 2, y);
     y += 5;
-    doc.text(`Remise: ${pourcentageRemise} %`, 10, y);
+    doc.text(`Remise: ${pourcentageRemise} %`, 2, y);
     y += 5;
-    doc.text(`Net à payer: ${data.vente.prixTotal} FCFA`, 10, y);
+    doc.text(`Net à payer: ${data.vente.prixTotal} FCFA`, 2, y);
 
     // Payment Details
-    y += 10;
-    doc.text(`Montant Espèce: ${data.montantEspece} FCFA`, 10, y);
+    y += 7.5;
+    doc.text(`Montant Espèce: ${data.montantEspece} FCFA`, 2, y);
     y += 5;
-    doc.text(`Montant Electronique: ${data.montantElectronique} FCFA`, 10, y);
+    doc.text(`Montant Electronique: ${data.montantElectronique} FCFA`, 2, y);
     y += 5;
-    doc.text(`Montant Ticket: ${data.montantTicket} FCFA`, 10, y);
+    doc.text(`Montant Ticket: ${data.montantTicket} FCFA`, 2, y);
 
     // Footer
-    y += 10;
-    doc.text(`Montant total encaissé: ${data.vente.prixPercu} FCFA`, 10, y);
+    y += 7.5;
+    doc.text(`Montant total encaissé: ${data.vente.prixPercu} FCFA`, 2, y);
     y += 5;
-    doc.text(`Montant rendu: ${(data.vente.prixPercu - data.vente.prixTotal)} FCFA`, 10, y);
+    doc.text(`Montant rendu: ${(data.vente.prixPercu - data.vente.prixTotal)} FCFA`, 2, y);
     y += 5;
-    doc.text('Ce ticket vaut facture', 10, y);
+    doc.text('Ce ticket vaut facture', 2, y);
     y += 5;
-    doc.text('Merci et bonne santé', 10, y);
+    doc.text('Merci et bonne santé', 2, y);
     y += 5;
-    doc.text('NoCT / POS85127004888', 10, y);
+    doc.text('NoCT / POS85127004888', 2, y);
+
 
     // QR Code
     if (data.vente.reference) {
@@ -420,8 +434,22 @@ export class VentesComponent implements OnInit {
         duration: 3000,
       });
     }
+    const height = y + 5
+    // const height = doc.getLineHeight()
+    // const width = doc.getLineWidth()
+    // console.log("height")
+    // console.log(height)
+    // console.log("width")
+    // console.log(width)
+    // console.log(doc.un)
 
+    // let newdoc = new jsPDF('p', 'mm', [1000, height])
+    // const temp = await html2canvas(document.body, {scale: 2})
+    // const img = temp.toDataURL('image/png')
+    // newdoc = doc
     // Save PDF
+
+    // newdoc.save(`Ticket_${data.vente.reference}.pdf`);
     doc.save(`Ticket_${data.vente.reference}.pdf`);
   }
 
