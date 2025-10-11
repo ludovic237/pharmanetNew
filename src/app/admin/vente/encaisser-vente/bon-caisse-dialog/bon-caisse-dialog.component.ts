@@ -1,4 +1,4 @@
-import {Component, ElementRef, Inject, ViewChild} from '@angular/core';
+import {Component, ElementRef, Inject, OnInit, ViewChild} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogModule, MatDialogRef} from "@angular/material/dialog";
 import {EnrayonsService} from "@services/enrayons.service";
 import {MatSnackBar} from "@angular/material/snack-bar";
@@ -22,6 +22,7 @@ import QRCode from "qrcode";
 import JsBarcode from "jsbarcode";
 import {AuthService} from "@services/auth.service";
 import {LoaderService} from "@services/loader.service";
+import {MatPaginatorModule, PageEvent} from "@angular/material/paginator";
 
 @Component({
   selector: 'app-bon-caisse-dialog',
@@ -40,12 +41,13 @@ import {LoaderService} from "@services/loader.service";
     MatButtonModule, MatDividerModule, MatIconModule,
     MatTableModule,
     MatAutocompleteModule,
-    FlexLayoutModule
+    FlexLayoutModule,
+    MatPaginatorModule
   ],
   templateUrl: './bon-caisse-dialog.component.html',
   styleUrl: './bon-caisse-dialog.component.scss'
 })
-export class BonCaisseDialogComponent {
+export class BonCaisseDialogComponent implements OnInit{
 
   @ViewChild('barcode', {static: false}) barcodeElement!: ElementRef;
   selectedTabIndex: number = 0;
@@ -53,6 +55,11 @@ export class BonCaisseDialogComponent {
   displayedColumns: string[] = ['id', 'nomClient', 'codebarreId', 'dateGenerer', 'dateEncaisser', 'type', 'montant', 'actions'];
   codeBon: string = ''; // For encaisser bon
   bonForm: FormGroup; // Form for creating bon
+
+  public totalItemsDepense = 0;  // Default to 10 if undefined
+  public countDepense = 10;
+  public pageDepense: number = 1; // Default to 0 if undefined
+  public sizeDepense = 5;  // Default to 10 if undefined
 
   constructor(
     public loaderService: LoaderService,
@@ -70,12 +77,7 @@ export class BonCaisseDialogComponent {
   }
 
   ngOnInit(): void {
-    this.loadBons();
-  }
-
-  loadBons(): void {
-    // Simulate loading bons from a service
-    this.bons = this.data;
+    this.loadBonCaisse()
   }
 
   encaisserBon(codebarreId: string): void {
@@ -88,7 +90,7 @@ export class BonCaisseDialogComponent {
             verticalPosition: 'top',
             duration: 3000,
           });
-          this.loadBons(); // Refresh the list of bons
+          this.loadBonCaisse(); // Refresh the list of bons
           this.showBonCaisse()
 
         },
@@ -139,7 +141,7 @@ export class BonCaisseDialogComponent {
           this.bonForm.markAsPristine();
           this.bonForm.markAsUntouched();
           this.bonForm.updateValueAndValidity();
-          this.loadBons(); // Refresh the list of bons
+          this.loadBonCaisse(); // Refresh the list of bons
           this.showBonCaisse()
           this.selectedTabIndex = 0; // Switch to "Lister Bon" tab
 
@@ -279,6 +281,63 @@ export class BonCaisseDialogComponent {
 
     // Save PDF
     doc.save(`Bon_${bon.codebarreId}.pdf`);
+  }
+
+  public onPageChangedDepenses(event: PageEvent) {
+    this.pageDepense = event.pageIndex + 1;
+    this.countDepense = event.pageSize
+    this.loadBonCaisse();
+  }
+
+  loadBonCaisse() {
+    this.bonCaisseService.getAllBonsPageable(this.pageDepense - 1, this.countDepense).subscribe({
+      next: (data: any) => {
+        this.bons = data.content;
+        this.countDepense = data.pageable.pageSize;
+        this.totalItemsDepense = data.totalElements;
+      },
+      error: (err: any) => {
+
+        console.error('Failed to fetch BonCaisse list:', err);
+        if (err.status === 401 || err.status === 403) {
+
+          this.authService.logout().subscribe({
+            next: (data) => {
+              localStorage.removeItem('token');
+              localStorage.setItem("lastLink", window.location.href);
+              window.location.href = '/sign-in';
+              this.snackBar.open('Déconnexion réussie.', '×', {
+                panelClass: 'success',
+                verticalPosition: 'top',
+                duration: 3000,
+              });
+
+            },
+            error: (err) => {
+
+              console.error('Error  subscription:', err);
+              if (err.status === 401 || err.status === 403) {
+                this.authService.logout();
+                localStorage.removeItem('token');
+                localStorage.setItem("lastLink", window.location.href);
+                ;
+                this.snackBar.open('Déconnexion, une erreur.', '×', {
+                  panelClass: 'success',
+                  verticalPosition: 'top',
+                  duration: 3000,
+                });
+                window.location.href = '/sign-in';
+              }
+            }
+          })
+        } else
+          this.snackBar.open('Erreur lors de la récupération des bons de caisse.', '×', {
+            panelClass: 'error',
+            verticalPosition: 'top',
+            duration: 3000,
+          });
+      }
+    });
   }
 
 }

@@ -24,8 +24,12 @@ class FactureElectroniqueRepository:
 
   # helpers
   def save(self, entity: FactureElectronique) -> FactureElectronique:
-    self.db.add(entity); self.db.commit(); self.db.refresh(entity); return entity
+    self.db.add(entity); self.db.commit();
+    self.db.refresh(entity);
+    return entity
+
   def find_by_id(self, id_: int) -> Optional[FactureElectronique]:
     return self.db.query(FactureElectronique).get(id_)
+
   def delete(self, entity: FactureElectronique) -> None:
     self.db.delete(entity); self.db.commit()

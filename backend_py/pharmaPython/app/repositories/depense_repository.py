@@ -4,6 +4,8 @@ from datetime import datetime
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 from app.models.depense import Depense
+from app.services.inventaire_service import _order_by
+
 
 class DepenseRepository:
   def __init__(self, db: Session):
@@ -12,8 +14,8 @@ class DepenseRepository:
   def find_all(self) -> List[Depense]:
     return self.db.query(Depense).all()
 
-  def find_all_pageable(self, page: int, size: int) -> Tuple[List[Depense], int]:
-    q = self.db.query(Depense)
+  def find_all_pageable(self, page: int, size: int, sort: str, direction: str) -> Tuple[List[Depense], int]:
+    q = self.db.query(Depense).order_by(_order_by(Depense, sort, direction))
     total = q.count()
     rows = q.offset(page * size).limit(size).all()
     return rows, total

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from typing import List
 
@@ -32,6 +32,13 @@ router = APIRouter(
 def get_all_bons(db: Session = Depends(get_db)):
   service = BonCaisseService(db)
   return service.get_all_bons()
+
+@router.get("/pageable")
+def get_all_bons_pageable(  page: int = Query(0, ge=0),
+                            size: int = Query(10, ge=1),
+                            sortBy: str = Query("dateGenerer"),db: Session = Depends(get_db)):
+  service = BonCaisseService(db)
+  return service.get_all_bons_pageable(page=page, size=size, sort=sortBy, direction="desc")
 
 
 # ----------------------------

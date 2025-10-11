@@ -9,6 +9,9 @@ from datetime import datetime, date
 from sqlalchemy.orm import Session
 from sqlalchemy.sql.elements import BinaryExpression
 
+from app.services.inventaire_service import _order_by
+
+
 class BonCaisseRepository:
   def __init__(self, db: Session):
     self.db = db
@@ -44,6 +47,12 @@ class BonCaisseRepository:
     return self.db.query(BonCaisse).get(id_)
   def delete(self, entity: BonCaisse) -> None:
     self.db.delete(entity); self.db.commit()
+
+  def find_all_pageable(self, page: int, size: int, sort: str, direction: str) -> Tuple[List[BonCaisse], int]:
+    q = self.db.query(BonCaisse).order_by(_order_by(BonCaisse, sort, direction))
+    total = q.count()
+    rows = q.offset(page * size).limit(size).all()
+    return rows, total
 
   def find_all_pageable_spec(
     self,

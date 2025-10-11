@@ -10,24 +10,22 @@
       <div class="p-2">
         <!-- Filtre période -->
         <mat-card fxLayout="row" fxLayoutAlign="center">
-          <div fxFlex="100" >
-            <div fxFlex="100" fxFlex.gt-sm="40" class="px-1">
-              <mat-form-field appearance="outline">
-                <mat-label>Entrer date vente</mat-label>
-                <mat-date-range-input [rangePicker]="picker">
-                  <input matStartDate placeholder="Start date" [(ngModel)]="startDateVente">
-                  <input matEndDate placeholder="End date" [(ngModel)]="endDateVente">
-                </mat-date-range-input>
-                <!--            <mat-hint>MM/DD/YYYY - MM/DD/YYYY</mat-hint>-->
-                <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-                <mat-date-range-picker #picker>
-                  <mat-date-range-picker-actions>
-                    <button mat-button matDateRangePickerCancel>Annuler</button>
-                    <button mat-button matDateRangePickerApply (click)="fetchVentesPageable()">Apply</button>
-                  </mat-date-range-picker-actions>
-                </mat-date-range-picker>
-              </mat-form-field>
-            </div>
+          <div fxFlex="100" fxFlex.gt-sm="40" class="px-1">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>Entrer date vente</mat-label>
+              <mat-date-range-input [rangePicker]="picker">
+                <input matStartDate placeholder="Start date" [(ngModel)]="startDateVente">
+                <input matEndDate placeholder="End date" [(ngModel)]="endDateVente">
+              </mat-date-range-input>
+              <!--            <mat-hint>MM/DD/YYYY - MM/DD/YYYY</mat-hint>-->
+              <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+              <mat-date-range-picker #picker>
+                <mat-date-range-picker-actions>
+                  <button mat-button matDateRangePickerCancel>Annuler</button>
+                  <button mat-button matDateRangePickerApply (click)="fetchVentesPageable()">Apply</button>
+                </mat-date-range-picker-actions>
+              </mat-date-range-picker>
+            </mat-form-field>
           </div>
 
         </mat-card>

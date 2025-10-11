@@ -15,7 +15,7 @@ router = APIRouter(
   dependencies=[Depends(jwt_authentication)]  # équivalent de @PreAuthorize("isAuthenticated()")
 )
 
-@router.get("/", response_model=List[DepenseIn])
+@router.get("/")
 def list_depenses(db: Session = Depends(get_db)):
   return DepenseService(db).get_all_depenses()
 
@@ -31,21 +31,9 @@ def list_depenses_pageable(
   Équivalent de: Page<Map<String, Any?>> avec tri DESC sur dateDepense par défaut.
   On renvoie un objet de pagination simple et la liste mappée.
   """
-  full = DepenseService(db).get_all_depenses_pageable(skip=page * size, limit=size)
+  full = DepenseService(db).get_all_depenses_pageable(page=page, size=size, sort=sortBy, direction="desc")
 
-  # Si tu veux un vrai total/nb pages, rajoute une méthode count() côté service/repo :
-  total_elements = len(full) if len(full) < size else (page + 1) * size  # approximation si pas de count
-  total_pages = page + (1 if len(full) == size else 0)
-
-  return {
-    "content": full,                 # List[Dict[str, Any]]
-    "totalElements": total_elements,
-    "totalPages": total_pages,
-    "pageSize": size,
-    "pageNumber": page,
-    "sortBy": sortBy,
-    "sortDir": "DESC",
-  }
+  return full
 
 
 @router.post("/", response_model=DepenseIn)

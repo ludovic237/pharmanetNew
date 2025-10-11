@@ -1096,7 +1096,7 @@ export class AjouterVenteComponent implements OnInit {
     ).subscribe({
       next: (data: any) => {
 
-        this.countCredit = data.pageable.pageSize;
+        this.countCredit = data.pageSize;
         this.totalItemsCredit = data.totalElements;
         this.ventesCredit = data.content;
       },

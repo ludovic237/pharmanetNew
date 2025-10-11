@@ -40,7 +40,7 @@ class DepenseService:
   def __init__(self, db: Session, caisse_service=None):
     self.db = db
     self.depense_repo = DepenseRepository(db)  # optionnel: pour get_caisse_active()
-    self.caisse_service = caisse_service  # optionnel: pour get_caisse_active()
+    self.caisse_service = CaisseService
 
   # ---------------------------
   # Récupération simple
@@ -52,8 +52,9 @@ class DepenseService:
   # Récupération paginée "mappée"
   # (équivalent Page<Map<String, Any?>> côté Kotlin)
   # ---------------------------
-  def get_all_depenses_pageable(self, skip: int = 0, limit: int = 10) -> [Dict[str, Any]]:
-    rows, total = self.depense_repo.find_all_pageable(page=skip, size=limit)
+  def get_all_depenses_pageable(self, page: int = 0, size: int = 10, sort: str = "dateDepense",
+                                direction: str = "desc") -> [Dict[str, Any]]:
+    rows, total = self.depense_repo.find_all_pageable(page=page, size=size, sort=sort, direction=direction)
     mapped: List[Dict[str, Any]] = []
     for d in rows:
       mapped.append({
@@ -71,7 +72,18 @@ class DepenseService:
         "typeDepense": getattr(d, "type_depense", None),
         "supprimer": getattr(d, "supprimer", None),
       })
-    return mapped
+    # return mapped
+    return {
+      "content": mapped,
+      "totalElements": total,
+      "totalPages": (total + size - 1) // size if size else 1,
+      "pageable": {
+        "pageSize": size,
+      },
+      "pageNumber": page,
+      # "sortBy": sort,
+      # "sortDir": direction.upper(),
+    }
 
   # ---------------------------
   # Création simple (designation + prixUnitaire)

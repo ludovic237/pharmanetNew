@@ -4,11 +4,16 @@
       <mat-card-title>Reference vente</mat-card-title>
     </mat-card-header>
     <mat-card-content>
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Saisir reference produit</mat-label>
-        <input matInput [formControl]="searchReferenceControl"
-               placeholder="Saisir reference produit" id="search-reference-produit">
-      </mat-form-field>
+      <div fxLayout="row" fxLayoutAlign="center" >
+        <div fxFlex="100" fxFlex.gt-sm="40" class="px-1">
+          <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Saisir reference produit</mat-label>
+            <input matInput [formControl]="searchReferenceControl"
+                   placeholder="Saisir reference produit" id="search-reference-produit">
+          </mat-form-field>
+        </div>
+      </div>
+
     </mat-card-content>
   </mat-card>
 

@@ -20,19 +20,49 @@ class BonCaisseService:
     mapped: List[Dict[str, Any]] = []
     for d in rows:
       mapped.append({
-        "id": getattr(d,"id",None),
-        "codebarreId": getattr(d,"codebarre_id",None),
-        "montant": getattr(d,"montant",None),
-        "nomClient": getattr(d,"nom_client",None),
-        "statut": getattr(d,"statut",None),
-        "validite": getattr(d,"validite",None),
-        "type": getattr(d,"type",None),
-        "dateGenerer": getattr(d,"date_generer",None),
-        "dateEncaisser": getattr(d,"date_encaisser",None) or "0000-00-00T00:00:00",
-        "caisseIdEncaisser": getattr(d,"caisse_id_encaisser",None),
-        "supprimer": getattr(d,"supprimer",None)
+        "id": getattr(d, "id", None),
+        "codebarreId": getattr(d, "codebarre_id", None),
+        "montant": getattr(d, "montant", None),
+        "nomClient": getattr(d, "nom_client", None),
+        "statut": getattr(d, "statut", None),
+        "validite": getattr(d, "validite", None),
+        "type": getattr(d, "type", None),
+        "dateGenerer": getattr(d, "date_generer", None),
+        "dateEncaisser": getattr(d, "date_encaisser", None) or "0000-00-00T00:00:00",
+        "caisseIdEncaisser": getattr(d, "caisse_id_encaisser", None),
+        "supprimer": getattr(d, "supprimer", None)
       })
     return mapped
+
+  def get_all_bons_pageable(self, page: int = 0, size: int = 10, sort: str = "dateGenerer",
+                            direction: str = "desc") -> [Dict[str, Any]]:
+    rows, total = self.bon_caisse_repository.find_all_pageable(page=page, size=size, sort=sort, direction=direction)
+    mapped: List[Dict[str, Any]] = []
+    for d in rows:
+      mapped.append({
+        "id": getattr(d, "id", None),
+        "codebarreId": getattr(d, "codebarre_id", None),
+        "montant": getattr(d, "montant", None),
+        "nomClient": getattr(d, "nom_client", None),
+        "statut": getattr(d, "statut", None),
+        "validite": getattr(d, "validite", None),
+        "type": getattr(d, "type", None),
+        "dateGenerer": getattr(d, "date_generer", None),
+        "dateEncaisser": getattr(d, "date_encaisser", None) or "0000-00-00T00:00:00",
+        "caisseIdEncaisser": getattr(d, "caisse_id_encaisser", None),
+        "supprimer": getattr(d, "supprimer", None)
+      })
+    return {
+      "content": mapped,
+      "totalElements": total,
+      "totalPages": (total + size - 1) // size if size else 1,
+      "pageable": {
+        "pageSize": size,
+      },
+      "pageNumber": page,
+      # "sortBy": sort,
+      # "sortDir": direction.upper(),
+    }
 
   def get_bon_by_id(self, bon_id: int) -> BonCaisse:
     return self.bon_caisse_repository.find_by_id(self.db, bon_id)

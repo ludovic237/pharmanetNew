@@ -34,6 +34,10 @@ export class BonCaisseService {
     return this.http.get<BonCaisse[]>(this.url, {headers: this.getHeaders()});
   }
 
+  getAllBonsPageable(page: number, size: number): Observable<any[]> {
+    return this.http.get<any[]>(this.url+`/pageable?page=${page}&size=${size}`, {headers: this.getHeaders()});
+  }
+
   getBonById(id: number): Observable<BonCaisse> {
     return this.http.get<BonCaisse>(`${this.url}/${id}`, {headers: this.getHeaders()});
   }
