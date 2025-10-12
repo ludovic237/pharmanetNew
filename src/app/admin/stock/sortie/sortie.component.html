@@ -137,6 +137,7 @@
             <mat-icon>edit</mat-icon>
           </button>
           <button mat-icon-button disabled
+                  *ngIf="element.supprimer==0"
                   color="warn"
                   (click)="onDelete(element)"
                   matTooltip="Supprimer">

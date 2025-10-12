@@ -157,10 +157,7 @@ export class FabriquantsComponent implements OnInit {
 
         this.fabriquantService.deleteFabriquant(category.id).subscribe({
           next: (data) => {
-            const index: number = this.fabriquants.indexOf(category);
-            if (index !== -1) {
-              this.fabriquants.splice(index, 1);
-            }
+            this.getFabriquants()
 
           },
           error: (err) => {

@@ -319,7 +319,7 @@ class CommandeService:
     # elif any((l.qtite_recu or 0) > 0 for l in toutes):
     #   commande.etat = "RECEP_PARCIALE"
     # else:
-    commande.etat = "LIVREE"
+    commande.etat = "LIVREE".lower()
 
     commande.date_livraison = datetime.utcnow()
     self.db.commit();

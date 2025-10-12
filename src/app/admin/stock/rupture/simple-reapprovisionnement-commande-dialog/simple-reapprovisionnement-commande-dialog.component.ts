@@ -28,6 +28,7 @@ import {MatDatepickerModule} from "@angular/material/datepicker";
 import {MatNativeDateModule, provideNativeDateAdapter} from "@angular/material/core";
 import {MatPaginator, MatPaginatorModule} from "@angular/material/paginator";
 import {MatSort} from "@angular/material/sort";
+import {ConfirmDialogComponent} from "@shared-components/confirm-dialog/confirm-dialog.component";
 
 @Component({
   selector: 'app-simple-reapprovisionnement-commande-dialog',
@@ -117,77 +118,89 @@ export class SimpleReapprovisionnementCommandeDialogComponent implements OnInit 
   }
 
   validateModifiedQuantities(): void {
-    this.modifiedProducts = this.enRayonList.data.filter(item => item.quantiteRestante > 0);
-    console.log("this.fournisseur")
-    console.log(this.fournisseur)
-    this.snackBar.open(`${this.modifiedProducts.length} produits modifiés.`, '×', {
-      panelClass: 'success',
-      verticalPosition: 'top',
-      duration: 3000
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      maxWidth: "400px",
+      data: {
+        title: "Confirm Action",
+        message: "Etes vous sur de vouloir valider cette commande ?"
+      }
     });
-    console.log("this.modifiedProducts")
-    console.log(this.modifiedProducts)
-    // this.dialogRef.close(this.modifiedProducts);
-
-    this.commandesService.commandeByFournisseurRupture(this.typeCommande, this.fournisseur.id, this.total + "", this.modifiedProducts).subscribe({
-      next: (data) => {
-        this.dialogRef.close({type:"commande"});
-        this.snackBar.open(`Commande cree.`, '×', {
+    dialogRef.afterClosed().subscribe(dialogResult => {
+      if (dialogResult) {
+        this.modifiedProducts = this.enRayonList.data.filter(item => item.quantiteRestante > 0);
+        console.log("this.fournisseur")
+        console.log(this.fournisseur)
+        this.snackBar.open(`${this.modifiedProducts.length} produits modifiés.`, '×', {
           panelClass: 'success',
           verticalPosition: 'top',
           duration: 3000
         });
+        console.log("this.modifiedProducts")
+        console.log(this.modifiedProducts)
+        // this.dialogRef.close(this.modifiedProducts);
 
-      },
-      error: (err: any) => {
+        this.commandesService.commandeByFournisseurRupture(this.typeCommande, this.fournisseur.id, this.total + "", this.modifiedProducts).subscribe({
+          next: (data) => {
+            this.dialogRef.close({type:"commande"});
+            this.snackBar.open(`Commande cree.`, '×', {
+              panelClass: 'success',
+              verticalPosition: 'top',
+              duration: 3000
+            });
 
-        if (err.status === 401 || err.status === 403) {
+          },
+          error: (err: any) => {
 
-          this.authService.logout().subscribe({
-            next: (data) => {
+            if (err.status === 401 || err.status === 403) {
 
+              this.authService.logout().subscribe({
+                next: (data) => {
+
+                  localStorage.removeItem('token');
+                  localStorage.setItem("lastLink", window.location.href);
+                  window.location.href = '/sign-in';
+                  this.snackBar.open('Déconnexion réussie.', '×', {
+                    panelClass: 'success',
+                    verticalPosition: 'top',
+                    duration: 3000,
+                  });
+                },
+                error: (err) => {
+
+                  console.error('Error  subscription:', err);
+                  if (err.status === 401 || err.status === 403) {
+                    this.authService.logout();
+                    localStorage.removeItem('token');
+                    localStorage.setItem("lastLink", window.location.href);
+                    ;
+                    this.snackBar.open('Déconnexion, une erreur.', '×', {
+                      panelClass: 'success',
+                      verticalPosition: 'top',
+                      duration: 3000,
+                    });
+                    window.location.href = '/sign-in';
+                  }
+                }
+              })
+            }
+            if (err.status === 500) {
+              this.authService.logout();
               localStorage.removeItem('token');
               localStorage.setItem("lastLink", window.location.href);
-              window.location.href = '/sign-in';
-              this.snackBar.open('Déconnexion réussie.', '×', {
+              ;
+              this.snackBar.open(err.message, '×', {
                 panelClass: 'success',
                 verticalPosition: 'top',
                 duration: 3000,
               });
-            },
-            error: (err) => {
-
-              console.error('Error  subscription:', err);
-              if (err.status === 401 || err.status === 403) {
-                this.authService.logout();
-                localStorage.removeItem('token');
-                localStorage.setItem("lastLink", window.location.href);
-                ;
-                this.snackBar.open('Déconnexion, une erreur.', '×', {
-                  panelClass: 'success',
-                  verticalPosition: 'top',
-                  duration: 3000,
-                });
-                window.location.href = '/sign-in';
-              }
             }
-          })
-        }
-        if (err.status === 500) {
-          this.authService.logout();
-          localStorage.removeItem('token');
-          localStorage.setItem("lastLink", window.location.href);
-          ;
-          this.snackBar.open(err.message, '×', {
-            panelClass: 'success',
-            verticalPosition: 'top',
-            duration: 3000,
-          });
-        }
-        console.error('Error deleting user:', err);
+            console.error('Error deleting user:', err);
+          }
+        });
+
       }
     });
-  }
+   }
 
   updateTotal(item: any) {
     this.modifiedProducts = this.enRayonList.data.filter(item => item.quantiteRestante > 0);

@@ -206,7 +206,7 @@
                 <mat-icon color="primary">edit</mat-icon>
                 <span>Receptionner commande</span>
               </button>
-              <button mat-menu-item matTooltip="Supprimer la commande" (click)="supprimerCommande(commande)">
+              <button *ngIf="commande.supprimer==0"mat-menu-item matTooltip="Supprimer la commande" (click)="supprimerCommande(commande)">
                 <mat-icon color="warn">delete</mat-icon>
                 <span>Supprimer</span>
               </button>

@@ -41,7 +41,7 @@ import {MatPaginatorModule, PageEvent} from "@angular/material/paginator";
   styleUrl: './rayons.component.scss'
 })
 export class RayonsComponent implements OnInit {
-  public rayons: Rayon[] = [];
+  public rayons: any[] = [];
   // public rayons: any[] = [];
   public page: number = 1;
   public totalItems: number = 0;
@@ -139,10 +139,48 @@ export class RayonsComponent implements OnInit {
     });
     dialogRef.afterClosed().subscribe(dialogResult => {
       if (dialogResult) {
-        const index: number = this.rayons.indexOf(rayon);
-        if (index !== -1) {
-          this.rayons.splice(index, 1);
-        }
+        this.rayonService.deleteRayon(rayon.id).subscribe({
+          next: (data) => {
+            this.getRayons()
+
+          },
+          error: (err) => {
+
+            console.error('Error  subscription:', err);
+            if (err.status === 401 || err.status === 403) {
+
+              this.authService.logout().subscribe({
+                next: (data) => {
+                  localStorage.removeItem('token');
+                  localStorage.setItem("lastLink", window.location.href);
+                  window.location.href = '/sign-in';
+                  this.snackBar.open('Déconnexion réussie.', '×', {
+                    panelClass: 'success',
+                    verticalPosition: 'top',
+                    duration: 3000,
+                  });
+
+                },
+                error: (err) => {
+                  console.error('Error  subscription:', err);
+
+                  if (err.status === 401 || err.status === 403) {
+                    this.authService.logout();
+                    localStorage.removeItem('token');
+                    localStorage.setItem("lastLink", window.location.href);
+                    ;
+                    this.snackBar.open('Déconnexion, une erreur.', '×', {
+                      panelClass: 'success',
+                      verticalPosition: 'top',
+                      duration: 3000,
+                    });
+                    window.location.href = '/sign-in';
+                  }
+                }
+              })
+            }
+          }
+        });
       }
     });
   }

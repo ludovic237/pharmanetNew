@@ -158,10 +158,7 @@ export class MagasinsComponent implements OnInit {
 
         this.magasinsService.deleteMagasin(magasin.id).subscribe({
           next: (data) => {
-            const index: number = this.magasins.indexOf(magasin);
-            if (index !== -1) {
-              this.magasins.splice(index, 1);
-            }
+            this.getMagasins()
 
           },
           error: (err) => {

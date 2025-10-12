@@ -158,10 +158,7 @@ export class CategoriesComponent implements OnInit {
 
         this.categorieService.deleteCategorie(category.id).subscribe({
           next: (data) => {
-            const index: number = this.categories.indexOf(category);
-            if (index !== -1) {
-              this.categories.splice(index, 1);
-            }
+            this.getCategories()
 
           },
           error: (err) => {

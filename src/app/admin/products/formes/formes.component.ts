@@ -155,10 +155,7 @@ export class FormesComponent implements OnInit {
 
         this.formeService.deleteForme(form.id).subscribe({
           next: (data) => {
-            const index: number = this.formes.indexOf(form);
-            if (index !== -1) {
-              this.formes.splice(index, 1);
-            }
+            this.getFormes()
 
           },
           error: (err) => {
