@@ -325,31 +325,35 @@ export class RetourProduitComponent implements OnInit {
   }
 
   async generateTicket(vente: any): Promise<void> {
-    const baseWidth = 10; // Width in cm
-    const baseHeight = 10; // Base height for header and footer
-    const contentHeight = vente.produitsRetournes.length * 0.5; // Each product row takes 0.5 cm
-    const totalHeight = baseHeight + contentHeight;
+    // const baseWidth = 10; // Width in cm
+    // const baseHeight = 10; // Base height for header and footer
+    // const contentHeight = vente.produitsRetournes.length * 0.5; // Each product row takes 0.5 cm
+    // const totalHeight = baseHeight + contentHeight;
+    //
+    // const doc = new jsPDF({
+    //   orientation: 'portrait',
+    //   unit: 'cm'
+    // });
 
     const doc = new jsPDF({
-      orientation: 'portrait',
-      unit: 'cm'
+      orientation: 'portrait', unit: 'mm',
+      // format: [data.produits.length+100,100]
+      format: [10 * 10, ((vente.produitsRetournes.length + 14) * 10)]
+      // format: [100, (data.produits.length * 30 + 150)]
     });
+
     const pageWidth = doc.internal.pageSize.width
-
-    const margin = 1; // Margin in cm
-    const columnWidth = baseWidth / 5; // Divide width into 5 columns
-
     // Header
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(10); // Fixed font size for header
-    doc.text('Pharmacie ALSAS', margin, margin);
-    doc.text('Dr GAMWO Sandrine', margin, margin + 0.5);
-    doc.text('BP 38 FOUMBOT', margin, margin + 1);
-    doc.text('Tel : (+237) 233 267 487', margin, margin + 1.5);
-    doc.text(`Ticket N°: ${vente.venteReference}`, margin, margin + 2);
-    doc.text(`Vendu le: ${vente.dateRetour}`, margin, margin + 2.5);
-    doc.text(`Caissier: ${vente.caissier}`, margin, margin + 3);
-    doc.text(`Employee: ${vente.nomEmploye}`, margin, margin + 3.5);
+    doc.setFontSize(9); // Fixed font size for header
+    doc.text('Pharmacie ALSAS', 2, 10);
+    doc.text('Dr GAMWO Sandrine', 2, 15);
+    doc.text('BP 38 FOUMBOT', 2, 20);
+    doc.text('Tel : (+237) 233 267 487', 2, 25);
+    doc.text(`Ticket N°: ${vente.venteReference}`, 2,  30);
+    doc.text(`Vendu le: ${vente.dateRetour}`, 2,  35);
+    doc.text(`Caissier: ${vente.caissier}`, 2,  40);
+    doc.text(`Employee: ${vente.nomEmploye}`, 2,  45);
 
 
     // Table Content
@@ -365,27 +369,34 @@ export class RetourProduitComponent implements OnInit {
     autoTable(doc, {
       head: [['Libellé', 'Prix U.', 'Quantité', 'Total', 'Réduction']],
       body: rows,
-      startY: margin + 4.5,
+      /*startY: margin + 4.5,
       // margin: { top: 1, left: margin, right: margin },
       margin: {top: 0, left: margin, right: margin},
       styles: {
         fontSize: 8, // Reduce font size for table
         // cellPadding: 1, // Adjust cell padding
-      },
+      },*/
+      headStyles: {fillColor: [22, 160, 133]},
+      margin: {top: 0, left: 0, right: 0},
+      startY: 50,
+      styles: {
+        fontSize: 7
+      }
     });
 
-    let y = (doc as any).lastAutoTable.finalY + 1; // Get the position after the tablet the position after the table
-    doc.setFontSize(8); // Smaller font size for footer
-    doc.text('Ce ticket vaut facture', margin, y);
-    y += 0.5;
-    doc.text('Merci et bonne santé', margin, y);
-    y += 0.5;
-    doc.text('NoCT / POS85127004888', margin, y);
+    let y = (doc as any).lastAutoTable.finalY ; // Get the position after the tablet the position after the table
+    // doc.setFontSize(8); // Smaller font size for footer
+    y += 5;
+    doc.text('Ce ticket vaut facture', 2, y);
+    y += 5;
+    doc.text('Merci et bonne santé', 2, y);
+    y += 5;
+    doc.text('NoCT / POS85127004888', 2, y);
 
     // QR Code
     if (vente.venteReference) {
       const qrCodeDataUrl = await QRCode.toDataURL(vente.venteReference);
-      doc.addImage(qrCodeDataUrl, 'PNG', pageWidth - 40, y - 1, 2, 2); // Position QR code proportionally
+      doc.addImage(qrCodeDataUrl, 'PNG', pageWidth - 40, y - 15, 25, 25);
     } else {
       console.error('Erreur: La référence de la vente est manquante.');
       this.snackBar.open('Erreur: La référence de la vente est manquante.', '×', {
