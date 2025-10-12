@@ -54,7 +54,8 @@ class FormeService:
     return f
 
   def delete_forme(self, id_: int) -> None:
-    f = self.db.query(Forme).filter(Forme.id == id_).first()
+    f:Forme = self.db.query(Forme).filter(Forme.id == id_).first()
     if not f: raise HTTPException(status_code=404, detail="Forme non trouvée")
-    self.db.delete(f);
+    # self.db.delete(f);
+    f.supprimer = 1
     self.db.commit()

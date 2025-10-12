@@ -166,8 +166,5 @@ class DepenseService:
     dep: Optional[Depense] = self.db.query(Depense).filter(Depense.id == depense_id).first()
     if not dep:
       raise HTTPException(status_code=404, detail=f"Depense {depense_id} non trouvée")
-
-    # Suppression physique comme dans le Kotlin (depenseRepository.delete)
-    # Si tu veux une suppression logique, remplace par: dep.supprimer = 1 ; commit
-    self.db.delete(dep)
+    dep.supprimer = 1
     self.db.commit()

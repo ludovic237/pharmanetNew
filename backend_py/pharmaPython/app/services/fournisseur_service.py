@@ -30,7 +30,8 @@ class FournisseurService:
     return f
 
   def delete_fournisseur(self, id_: int) -> None:
-    f = self.db.query(Fournisseur).filter(Fournisseur.id == id_).first()
+    f:Fournisseur = self.db.query(Fournisseur).filter(Fournisseur.id == id_).first()
     if not f: raise HTTPException(status_code=404, detail="Fournisseur non trouvé")
-    self.db.delete(f);
+    # self.db.delete(f);
+    f.supprimer = 1
     self.db.commit()

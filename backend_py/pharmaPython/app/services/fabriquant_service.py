@@ -43,8 +43,8 @@ class FabriquantService:
     return f
 
   def delete_fabriquant(self, id_: int) -> None:
-    f = self.db.query(Fabriquant).filter(Fabriquant.id == id_).first()
+    f:Fabriquant = self.db.query(Fabriquant).filter(Fabriquant.id == id_).first()
     if not f:
       raise HTTPException(status_code=404, detail="Fabriquant non trouvé")
-    self.db.delete(f)
+    f.supprimer = 1
     self.db.commit()
