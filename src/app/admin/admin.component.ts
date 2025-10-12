@@ -25,6 +25,7 @@ import {AdminMenu} from "@models/admin-menu.model";
 import {ConfirmationDialogComponent} from "./vente/encaisser-vente/confirmation-dialog/confirmation-dialog.component";
 import {MatDialog} from "@angular/material/dialog";
 import {LoaderService} from "@services/loader.service";
+import {join} from "node:path";
 
 @Component({
   selector: 'app-admin',
@@ -202,4 +203,7 @@ export class AdminComponent implements OnInit {
     });
   }
 
+  getInitials(name:string){
+    return name.trim().split(/\s+/).slice(0,2).map(w => w.charAt(0).toUpperCase()).join('')
+  }
 }
