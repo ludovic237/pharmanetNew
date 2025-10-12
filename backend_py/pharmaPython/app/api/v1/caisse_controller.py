@@ -138,9 +138,13 @@ def get_caisse_report(caisse_id: int, db: Session = Depends(get_db)):
 # Toutes les caisses (pagination)
 # ----------------------------
 @router.get("/all/pageable")
-def get_all_caisses(page: int = Query(0), size: int = Query(10), db: Session = Depends(get_db)):
+def get_all_caisses(page: int = Query(0),
+                    size: int = Query(10),
+                    start_date: Optional[str] = None,
+                    end_date: Optional[str] = None,
+                    db: Session = Depends(get_db)):
   service = CaisseService(db)
-  return service.get_all_caisses(page=page, size=size)
+  return service.get_all_caisses(page=page, size=size,start_date=start_date,end_date=end_date)
 
 
 # ----------------------------

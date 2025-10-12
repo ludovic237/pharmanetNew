@@ -181,8 +181,17 @@ class CaisseService:
     # Récupérer toutes les caisses (avec pagination)
     # ----------------------------
 
-  def get_all_caisses(self, page: int = 0, size: int = 10) -> Dict[str, Any]:
+  def get_all_caisses(self, page: int = 0,
+                      size: int = 10,
+                      start_date: Optional[str] = None,
+                      end_date: Optional[str] = None,
+                      ) -> Dict[str, Any]:
     query = self.db.query(Caisse).order_by(Caisse.date_ouvert.desc())
+    if start_date is not None and end_date is not None:
+      start_dt = datetime.fromisoformat(start_date.strip())
+      end_dt = datetime.fromisoformat(end_date.strip())
+      query = self.db.query(Caisse).filter(Caisse.date_ouvert.between(start_dt, end_dt)).order_by(
+        Caisse.date_ouvert.desc())
     params = Params(page=page + 1, size=size)
     page_obj = sa_paginate(self.db, query, params)
     # return paginate(query.all())

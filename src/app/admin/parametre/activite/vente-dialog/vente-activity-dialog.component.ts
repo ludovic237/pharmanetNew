@@ -24,7 +24,7 @@ import {LoaderService} from "@services/loader.service";
 import autoTable from "jspdf-autotable";
 
 @Component({
-  selector: 'app-vente-dialog',
+  selector: 'app-vente-activity-dialog',
   imports: [
     MatPaginatorModule,
     CommonModule,
@@ -43,10 +43,10 @@ import autoTable from "jspdf-autotable";
     MatAutocompleteModule,
     FlexLayoutModule
   ],
-  templateUrl: './vente-dialog.component.html',
-  styleUrl: './vente-dialog.component.scss'
+  templateUrl: './vente-activity-dialog.component.html',
+  styleUrl: './vente-activity-dialog.component.scss'
 })
-export class VenteDialogComponent implements OnInit {
+export class VenteActivityDialogComponent implements OnInit {
 
   public page: number = 1; // Default to 0 if undefined
   public size = 0;  // Default to 10 if undefined
@@ -59,8 +59,8 @@ export class VenteDialogComponent implements OnInit {
   constructor(
     public loaderService: LoaderService,
     public authService: AuthService,
-    public dialogRef: MatDialogRef<VenteDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: any[],
+    public dialogRef: MatDialogRef<VenteActivityDialogComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: any,
     public venteService: VentesService, // Replace with actual VenteService
     private snackBar: MatSnackBar
   ) {
@@ -80,7 +80,7 @@ export class VenteDialogComponent implements OnInit {
     this.venteService.listerVentesEncaissees(
       this.page - 1,
       this.count,
-      null
+      this.data
     ).subscribe({
       next: (ventes: any) => {
         this.count = ventes.pageable.pageSize;

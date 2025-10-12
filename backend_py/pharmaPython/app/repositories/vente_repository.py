@@ -134,6 +134,8 @@ class VenteRepository:
     # activeCaisse (même logique que Kotlin)
     if active_caisse is not None:
       q = q.filter(Vente.caisse_id == active_caisse.id)
+    elif caisse_id is not None:
+      q = q.filter(Vente.caisse_id == caisse_id)
     else:
       q = q.filter(Vente.caisse_id.is_(None))
 

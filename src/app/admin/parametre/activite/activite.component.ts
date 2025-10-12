@@ -52,6 +52,7 @@ import {MatRadioModule} from "@angular/material/radio";
 import {RapportCaisseDialogComponent} from "../../../dialog/rapport-caisse-dialog/rapport-caisse-dialog.component";
 import {AppService} from "@services/app.service";
 import {LoaderService} from "@services/loader.service";
+import {VenteActivityDialogComponent} from "./vente-dialog/vente-activity-dialog.component";
 
 @Component({
   selector: 'app-activite',
@@ -137,7 +138,7 @@ export class ActiviteComponent implements OnInit {
 
   constructor(
     public dialog: MatDialog,
-     public loaderService: LoaderService,
+    public loaderService: LoaderService,
     public authService: AuthService,
     public caisseService: CaisseService,
     public appSettings: SettingsService,
@@ -201,8 +202,8 @@ export class ActiviteComponent implements OnInit {
       this.page - 1,
       this.count,
       null,
-      this.appService.formatDate(new Date(new Date(this.rechercheForm.get("dateDebut").value).setHours(0,0,0,0))+""),
-      this.appService.formatDate(new Date(new Date(this.rechercheForm.get("dateFin").value).setHours(23,59,59,999))+""),
+      this.appService.formatDate(new Date(new Date(this.rechercheForm.get("dateDebut").value).setHours(0, 0, 0, 0)) + ""),
+      this.appService.formatDate(new Date(new Date(this.rechercheForm.get("dateFin").value).setHours(23, 59, 59, 999)) + ""),
       null,
       null,
       null,
@@ -263,8 +264,8 @@ export class ActiviteComponent implements OnInit {
       null,
       null,
       null,
-      this.appService.formatDate(new Date(new Date(this.rechercheForm.get("dateDebut").value).setHours(0,0,0,0))+""),
-      this.appService.formatDate(new Date(new Date(this.rechercheForm.get("dateFin").value).setHours(23,59,59,999))+"")
+      this.appService.formatDate(new Date(new Date(this.rechercheForm.get("dateDebut").value).setHours(0, 0, 0, 0)) + ""),
+      this.appService.formatDate(new Date(new Date(this.rechercheForm.get("dateFin").value).setHours(23, 59, 59, 999)) + "")
     ).subscribe({
       next: (data: any) => {
         this.count = data.pageSize;
@@ -313,7 +314,7 @@ export class ActiviteComponent implements OnInit {
   loadDepenses(): void {
 
     this.depenseService.getAllDepensesPageable(this.page - 1, this.count).subscribe({
-      next: (data:any) => {
+      next: (data: any) => {
         this.resultatsDepense = data.content;
         this.count = data.pageable.pageSize;
         this.totalItems = data.totalElements;
@@ -401,7 +402,13 @@ export class ActiviteComponent implements OnInit {
 
   loadCaisses(): void {
 
-    this.caisseService.getAllCaisses(this.page - 1, this.count, 'id').subscribe({
+    this.caisseService.getAllCaisses(
+      this.page - 1,
+      this.count,
+      'id',
+      this.appService.formatDate(new Date(new Date(this.rechercheForm.get("dateDebut").value).setHours(0, 0, 0, 0)) + ""),
+      this.appService.formatDate(new Date(new Date(this.rechercheForm.get("dateFin").value).setHours(23, 59, 59, 999)) + "")
+    ).subscribe({
       next: (data: any) => {
         this.count = data.pageable.pageSize;
         this.totalItems = data.totalElements;
@@ -524,7 +531,15 @@ export class ActiviteComponent implements OnInit {
   }
 
   showVente(caisseId: number) {
-
+    const dialogRef = this.dialog.open(VenteActivityDialogComponent, {
+      data: caisseId,
+      width: "90%",
+      panelClass: ['theme-dialog'],
+      autoFocus: false,
+    });
+    dialogRef.afterClosed().subscribe((data: any) => {
+      console.log('Dialog closed', data);
+    });
   }
 
 }

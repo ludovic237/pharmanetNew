@@ -382,7 +382,7 @@ export class RapportCaisseComponent implements OnInit {
 
   loadCaisses(): void {
 
-    this.caisseService.getAllCaisses(0, 10, 'id').subscribe({
+    this.caisseService.getAllCaisses(0, 10, 'id', null, null).subscribe({
       next: (data: any) => {
 
         this.caisses = data.content; // Assuming the API returns a pageable response
@@ -432,7 +432,7 @@ export class RapportCaisseComponent implements OnInit {
     console.log(`Recherche des ${nombre} dernières sessions de caisse`);
     // Exemple : this.sessionService.getDernieresSessions(nombre).subscribe(...)
 
-    this.caisseService.getAllCaisses(0, nombre, 'id').subscribe({
+    this.caisseService.getAllCaisses(0, nombre, 'id', null, null).subscribe({
       next: (data: any) => {
 
         this.caisses = data.content; // Assuming the API returns a pageable response

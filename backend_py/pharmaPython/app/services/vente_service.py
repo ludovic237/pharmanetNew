@@ -677,16 +677,25 @@ class VenteService:
   # ---------------------------------------------------------------------
   # listerVentesEncaissees(pageable) -> Page<Map>
   # ---------------------------------------------------------------------
-  def lister_ventes_encaissees(self, page: int, size: int, sort: str, direction: str, search: Optional[str]) -> Dict[
+  def lister_ventes_encaissees(self,
+                               caisseId: Optional[str],
+                               page: int,
+                               size: int, sort: str, direction: str, search: Optional[str]) -> Dict[
     str, Any]:
     page, size = _page_sizing(page, size)
     caisse = self.caisse_service.get_caisse_active_db(self.db)
+    print("caisseId")
+    print(caisseId)
+    # if caisseId is not None:
+    #   caisse = None
+    if caisseId != "null":
+      caisse = None
     print("caisse")
-    print(caisse.id)
+    print(caisse)
     rows, total = self.vente_repo.filter_ventes(supprimer=0, active_caisse=caisse, prix_percu=None,
                                                 etat="null", date_vente="null", date_encaissement="null",
                                                 user_id="null", employe_id="null", prescripteur_id="null",
-                                                caisse_id="null",
+                                                caisse_id=caisseId,
                                                 page=page, size=size, sort_by="date_vente", direction="DESC")
     content = [{
       "id": v.id, "prixPercu": v.prix_percu, "netAPayer": v.prix_total, "reduction": v.reduction,

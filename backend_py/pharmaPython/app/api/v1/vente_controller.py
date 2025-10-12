@@ -232,12 +232,13 @@ def lister_ventes_encaissees(
   page: str = "0",
   size: str = "10",
   sortBy: str = "id",
+  caisseId: Optional[str] = None,
   search: Optional[str] = None,
   db: Session = Depends(get_db),
 ):
   p, s = _page_size(page, size)
   return VenteService(db).lister_ventes_encaissees(
-    page=p, size=s, sort="dateVente", direction="DESC", search=search
+    page=p, size=s, sort="dateVente", direction="DESC", search=search, caisseId=caisseId
   )
 
 

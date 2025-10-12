@@ -55,11 +55,17 @@ export class CaisseService {
     return this.http.get<any>(this.url + `/${caisseId}/rapport`, {headers: this.getHeaders()});
   }
 
-  getAllCaisses(page: number, size: number, sortBy: string): Observable<any> {
+  getAllCaisses(page: number,
+                size: number,
+                sortBy: string,
+                startDate: string,
+                endDate: string): Observable<any> {
     const params = new HttpParams()
       .set('page', page.toString())
       .set('size', size.toString())
-      .set('sortBy', sortBy);
+      .set('sortBy', sortBy)
+      .set('start_date', startDate)
+      .set('end_date', endDate);
 
     return this.http.get<any>(`${this.url}/all/pageable`, {
       headers: this.getHeaders(),
@@ -71,18 +77,18 @@ export class CaisseService {
   // Missing getFilteredCaisses method in CaisseService
 
   // After
-/*  getFilteredCaisses(filters: {
-    caisseId: number | null;
-    startDate: Date | null;
-    endDate: Date | null
-  }): Observable<any> {
-    const params = new HttpParams()
-      .set('caisseId', filters.caisseId ? filters.caisseId.toString() : '')
-      .set('startDate', filters.startDate ? filters.startDate.toISOString() : '')
-      .set('endDate', filters.endDate ? filters.endDate.toISOString() : '');
+  /*  getFilteredCaisses(filters: {
+      caisseId: number | null;
+      startDate: Date | null;
+      endDate: Date | null
+    }): Observable<any> {
+      const params = new HttpParams()
+        .set('caisseId', filters.caisseId ? filters.caisseId.toString() : '')
+        .set('startDate', filters.startDate ? filters.startDate.toISOString() : '')
+        .set('endDate', filters.endDate ? filters.endDate.toISOString() : '');
 
-    return this.http.get<any>(`${this.url}/all/filter?caisseId=${caisseId}&startDate=${startDate}&endDate=${endDate}&page=${page}&size=${size}`, {headers: this.getHeaders()});
-  }*/
+      return this.http.get<any>(`${this.url}/all/filter?caisseId=${caisseId}&startDate=${startDate}&endDate=${endDate}&page=${page}&size=${size}`, {headers: this.getHeaders()});
+    }*/
 
   getFilteredCaisses(
     caisseId: number | null,

@@ -8,9 +8,9 @@ import {environment} from "../../environments/environment";
   providedIn: 'root'
 })
 export class VentesService {
-  private apiUrl = environment.url+'/api/ventes';
+  private apiUrl = environment.url + '/api/ventes';
 
-   constructor(private http: HttpClient) {
+  constructor(private http: HttpClient) {
   }
 
   private getHeaders(): HttpHeaders {
@@ -34,6 +34,7 @@ export class VentesService {
   chargerVentesEnCoursNonEncaisser(venteId: number): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/${venteId}/non-encaissee`, {headers: this.getHeaders()});
   }
+
   // Load ongoing unpaid sales
   supprimerVente(venteId: number): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/${venteId}/supprimer`, {headers: this.getHeaders()});
@@ -60,53 +61,53 @@ export class VentesService {
   }
 
   fetchVentesPageable(page: number, size: number,
-                         etat: string,
-                         dateVente: string,
-                         dateEncaissement: string,
-                         userId: string,
-                         employeId: string,
-                         prescripteurId: string,
-                         caisseId: string): Observable<Page> {
+                      etat: string,
+                      dateVente: string,
+                      dateEncaissement: string,
+                      userId: string,
+                      employeId: string,
+                      prescripteurId: string,
+                      caisseId: string): Observable<Page> {
     return this.http.get<Page>(this.apiUrl + `/pageable/lister?page=${page}&etat=${etat}&dateVente=${dateVente}&dateEncaissement=${dateEncaissement}&userId=${userId}&employeId=${employeId}&prescripteurId=${prescripteurId}&caisseId=${caisseId}&size=${size}`, {headers: this.getHeaders()});
   }
 
   fetchVentesPageableRange(page: number, size: number,
-                         etat: string,
-                         startDateVente: string,
-                         endDateVente: string,
-                         startDateEncaissement: string,
-                         endDateEncaissement: string,
-                         userId: string,
-                         employeId: string,
-                         prescripteurId: string,
-                         caisseId: string): Observable<Page> {
+                           etat: string,
+                           startDateVente: string,
+                           endDateVente: string,
+                           startDateEncaissement: string,
+                           endDateEncaissement: string,
+                           userId: string,
+                           employeId: string,
+                           prescripteurId: string,
+                           caisseId: string): Observable<Page> {
     return this.http.get<Page>(this.apiUrl + `/pageable/lister?page=${page}&etat=${etat}&startDateVente=${startDateVente}&endDateVente=${endDateVente}&startDateEncaissement=${startDateEncaissement}&endDateEncaissement=${endDateEncaissement}&userId=${userId}&employeId=${employeId}&prescripteurId=${prescripteurId}&caisseId=${caisseId}&size=${size}`, {headers: this.getHeaders()});
   }
 
   fetchVentesPageableRangeProduct(page: number, size: number,
-                         etat: string,
-                         produitId: string,
-                         startDateVente: string,
-                         endDateVente: string,
-                         startDateEncaissement: string,
-                         endDateEncaissement: string,
-                         userId: string,
-                         employeId: string,
-                         prescripteurId: string,
-                         caisseId: string): Observable<any> {
+                                  etat: string,
+                                  produitId: string,
+                                  startDateVente: string,
+                                  endDateVente: string,
+                                  startDateEncaissement: string,
+                                  endDateEncaissement: string,
+                                  userId: string,
+                                  employeId: string,
+                                  prescripteurId: string,
+                                  caisseId: string): Observable<any> {
     return this.http.get<any>(this.apiUrl + `/product/pageable/lister?page=${page}&produitId=${produitId}&etat=${etat}&startDateVente=${startDateVente}&endDateVente=${endDateVente}&startDateEncaissement=${startDateEncaissement}&endDateEncaissement=${endDateEncaissement}&userId=${userId}&employeId=${employeId}&prescripteurId=${prescripteurId}&caisseId=${caisseId}&size=${size}`, {headers: this.getHeaders()});
   }
 
   fetchVentesPageableRangePrint(page: number, size: number,
-                         etat: string,
-                         startDateVente: string,
-                         endDateVente: string,
-                         startDateEncaissement: string,
-                         endDateEncaissement: string,
-                         userId: string,
-                         employeId: string,
-                         prescripteurId: string,
-                         caisseId: string): Observable<Page> {
+                                etat: string,
+                                startDateVente: string,
+                                endDateVente: string,
+                                startDateEncaissement: string,
+                                endDateEncaissement: string,
+                                userId: string,
+                                employeId: string,
+                                prescripteurId: string,
+                                caisseId: string): Observable<Page> {
     return this.http.get<Page>(this.apiUrl + `/pageable/lister/print?page=${page}&etat=${etat}&startDateVente=${startDateVente}&endDateVente=${endDateVente}&startDateEncaissement=${startDateEncaissement}&endDateEncaissement=${endDateEncaissement}&userId=${userId}&employeId=${employeId}&prescripteurId=${prescripteurId}&caisseId=${caisseId}&size=${size}`, {headers: this.getHeaders()});
   }
 
@@ -117,8 +118,8 @@ export class VentesService {
   }
 
   // Load ongoing unpaid sales
-  listerVentesEncaissees(page: number, size: number): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/vente-encaissee?page=${page}&size=${size}`, {headers: this.getHeaders()});
+  listerVentesEncaissees(page: number, size: number, caisseId: string): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/vente-encaissee?page=${page}&size=${size}&caisseId=${caisseId}`, {headers: this.getHeaders()});
   }
 
   // Load ongoing unpaid sales
@@ -130,7 +131,6 @@ export class VentesService {
   chargerVentesEncaisser(venteId: number): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/${venteId}/encaissee`, {headers: this.getHeaders()});
   }
-
 
 
   getUtilisateurs(): Observable<any[]> {
@@ -150,32 +150,32 @@ export class VentesService {
   }
 
   getVentesPageable(filters: any): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/pageable`, { params: filters });
+    return this.http.get<any>(`${this.apiUrl}/pageable`, {params: filters});
   }
 
   // Get purchased products for a sale
   getProduitsAchetes(venteId: number): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/${venteId}/achetes`, { headers: this.getHeaders() });
+    return this.http.get<any[]>(`${this.apiUrl}/${venteId}/achetes`, {headers: this.getHeaders()});
   }
 
   // Get returned products for a sale
   getProduitsRetournes(venteId: number): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/${venteId}/retournes`, { headers: this.getHeaders() });
+    return this.http.get<any[]>(`${this.apiUrl}/${venteId}/retournes`, {headers: this.getHeaders()});
   }
 
   // Get the list of all returned products
   getProduitsRetournesListe(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/liste`, { headers: this.getHeaders() });
+    return this.http.get<any[]>(`${this.apiUrl}/liste`, {headers: this.getHeaders()});
   }
 
   // Get the list of all returned products
-  searchVenteByReference(reference:string): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/details/`+reference, { headers: this.getHeaders() });
+  searchVenteByReference(reference: string): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/details/` + reference, {headers: this.getHeaders()});
   }
 
   // Validate the return of products
-  validerRetour(venteId:number,produitsRetour: any[]): Observable<any> {
-    return this.http.post(`${this.apiUrl}/retour/`+venteId, produitsRetour, { headers: this.getHeaders() });
+  validerRetour(venteId: number, produitsRetour: any[]): Observable<any> {
+    return this.http.post(`${this.apiUrl}/retour/` + venteId, produitsRetour, {headers: this.getHeaders()});
   }
 
   encaisserVenteDirect(encaissementDirectData: any): Observable<any> {
@@ -184,6 +184,6 @@ export class VentesService {
 
 
   envoyerVentreCreditEnCaisse(venteId: string): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/${venteId}/envoyer_caisse`, { headers: this.getHeaders() });
+    return this.http.get<any[]>(`${this.apiUrl}/${venteId}/envoyer_caisse`, {headers: this.getHeaders()});
   }
 }
