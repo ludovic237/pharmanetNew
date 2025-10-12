@@ -126,12 +126,20 @@
               <ng-container matColumnDef="prixAchat">
                 <th mat-header-cell *matHeaderCellDef>Prix d'Achat</th>
                 <td mat-cell *matCellDef="let produit">
-                  <mat-form-field appearance="outline" class="full-width"
-                                  style=" margin-top: 10px; width: 100px;">
-                    <input matInput type="number" [(ngModel)]="produit.prixAchat"
-                           [min]="0"
-                           [value]="produit.prixAchat"/>
-                  </mat-form-field>
+                  <div *ngIf="type === 'partiel' || type === 'complementaire' ; else displayPrixAchat ">
+                    <div fxLayout="row" fxLayoutAlign="center center">
+                      <mat-form-field appearance="outline" class="full-width"
+                                      style=" margin-top: 10px; width: 100px;">
+                        <input matInput type="number" [(ngModel)]="produit.prixAchat"
+                               [min]="0"
+                               [value]="produit.prixAchat"/>
+                      </mat-form-field>
+                    </div>
+                  </div>
+                  <ng-template #displayPrixAchat>
+                    {{ produit.prixAchat }}
+                  </ng-template>
+
                 </td>
               </ng-container>
 
@@ -139,19 +147,27 @@
               <ng-container matColumnDef="prixVente">
                 <th mat-header-cell *matHeaderCellDef>Prix de Vente</th>
                 <td mat-cell *matCellDef="let produit">
-                  <mat-form-field appearance="outline" class="full-width"
-                                  style=" margin-top: 10px; width: 100px;">
-                    <input matInput type="number" [(ngModel)]="produit.prixVente"
-                           [min]="0"
-                           [value]="produit.prixVente"/>
-                  </mat-form-field>
+                  <div *ngIf="type === 'partiel' || type === 'complementaire' ; else displayPrixVente ">
+                    <div fxLayout="row" fxLayoutAlign="center center">
+                      <mat-form-field appearance="outline" class="full-width"
+                                      style=" margin-top: 10px; width: 100px;">
+                        <input matInput type="number" [(ngModel)]="produit.prixVente"
+                               [min]="0"
+                               [value]="produit.prixVente"/>
+                      </mat-form-field>
+                    </div>
+                  </div>
+
+                  <ng-template #displayPrixVente>
+                    {{ produit.prixVente }}
+                  </ng-template>
                 </td>
               </ng-container>
 
               <!-- Quantity Ordered Column -->
               <ng-container matColumnDef="qtiteRecu">
                 <th mat-header-cell *matHeaderCellDef>Quantité reçue</th>
-                <td mat-cell *matCellDef="let produit"  style="width: 80px;">
+                <td mat-cell *matCellDef="let produit" style="width: 80px;">
                   <div *ngIf="type === 'partiel' || type === 'complementaire' ; else displayQtiteRecu ">
                     <div fxLayout="row" fxLayoutAlign="center center">
                       <mat-form-field appearance="outline"
@@ -171,7 +187,7 @@
 
               <!-- Quantity Received Column -->
               <ng-container
-                            matColumnDef="qtiteCmd">
+                matColumnDef="qtiteCmd">
                 <th mat-header-cell *matHeaderCellDef style="width: 150px;">Quantité commande</th>
                 <td mat-cell *matCellDef="let produit" style="width: 80px;">
                   <div *ngIf="type === 'partiel' || type === 'complementaire' ; else displayQtiteCmd ">
@@ -213,12 +229,13 @@
               <!-- Quantity Received Column -->
               <ng-container matColumnDef="datePeremption">
                 <th mat-header-cell *matHeaderCellDef style="width: 140px;">Date permptiom</th>
-                <td mat-cell *matCellDef="let produit" >
+                <td mat-cell *matCellDef="let produit">
                   <div *ngIf="type === 'partiel' || type === 'complementaire'; else displaydatePeremption">
                     <div fxLayout="row" fxLayoutAlign="center center">
                       <mat-form-field appearance="outline" class="full-width"
                                       style=" margin-top: 10px; width: 140px;">
-                        <input matInput [matDatepicker]="pickerPeremption" [(ngModel)]="produit.datePeremption" [value]="produit.datePeremption">
+                        <input matInput [matDatepicker]="pickerPeremption" [(ngModel)]="produit.datePeremption"
+                               [value]="produit.datePeremption">
                         <mat-datepicker-toggle matIconSuffix [for]="pickerPeremption"></mat-datepicker-toggle>
                         <mat-datepicker #pickerPeremption></mat-datepicker>
                         <!-- <mat-error *ngIf="detailForm.get('datePeremption')?.hasError('required')">

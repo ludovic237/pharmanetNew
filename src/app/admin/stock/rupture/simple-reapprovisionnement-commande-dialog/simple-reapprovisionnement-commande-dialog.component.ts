@@ -57,6 +57,7 @@ import {MatSort} from "@angular/material/sort";
 export class SimpleReapprovisionnementCommandeDialogComponent implements OnInit {
   public selectedFournisseur: string | null = null;
   public jour: number = 14;
+  typeCommande: string = 'en_attente';
   fournisseurs: any[] = [];
   public form: FormGroup;
   total: number = 0
@@ -128,7 +129,7 @@ export class SimpleReapprovisionnementCommandeDialogComponent implements OnInit 
     console.log(this.modifiedProducts)
     // this.dialogRef.close(this.modifiedProducts);
 
-    this.commandesService.commandeByFournisseurRupture("", this.fournisseur.id, this.total + "", this.modifiedProducts).subscribe({
+    this.commandesService.commandeByFournisseurRupture(this.typeCommande, this.fournisseur.id, this.total + "", this.modifiedProducts).subscribe({
       next: (data) => {
         this.dialogRef.close({type:"commande"});
         this.snackBar.open(`Commande cree.`, '×', {
@@ -302,7 +303,7 @@ export class SimpleReapprovisionnementCommandeDialogComponent implements OnInit 
   }
 
   get canCreateCommande(): boolean {
-    return this.fournisseur != null &&
+    return this.fournisseur != null && this.typeCommande != null &&
       this.modifiedProducts.length > 0;
   }
 

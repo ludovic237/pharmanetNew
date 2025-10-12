@@ -10,7 +10,15 @@
 </mat-toolbar>
 <mat-card>
   <div  fxLayout="row" class="mt-2"  fxLayoutAlign="center" >
-
+    <div fxFlex="100" fxFlex.gt-sm="50"  class="px-1" >
+      <mat-form-field appearance="outline" class="w-100">
+        <mat-label>Type de Commande</mat-label>
+        <mat-select [(ngModel)]="typeCommande"  name="typeCommande" required>
+          <mat-option value="en_attente">En attente</mat-option>
+          <mat-option value="livree">Livree</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
     <div fxFlex="100" fxFlex.gt-sm="40" class="px-1">
       <mat-form-field appearance="outline" class="w-100">
         <mat-label>Choisir un Fournisseur</mat-label>

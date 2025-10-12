@@ -89,7 +89,7 @@ class CommandeService:
           fournisseur_id=commande.fournisseur_id,
           commande_id=commande.id,
           date_livraison=datetime.now(),
-          date_peremption= _parse_iso_dt(produit_request.datePeremption),
+          date_peremption=_parse_iso_dt(produit_request.datePeremption),
           prix_achat=int(produit_request.prixAchat),
           prix_vente=int(produit_request.prixVente),
           reduction=0,
@@ -297,7 +297,7 @@ class CommandeService:
           fournisseur_id=commande.fournisseur_id,
           commande_id=ligne.commande_id,
           date_livraison=datetime.now(),
-          date_peremption= _parse_iso_dt(item.datePeremption),
+          date_peremption=_parse_iso_dt(item.datePeremption),
           prix_achat=int(ligne.pu_recept),
           prix_vente=int(ligne.prix_public),
           reduction=0,
@@ -359,6 +359,7 @@ class CommandeService:
         "dateCreation": c.date_creation,
         "dateLivraison": c.date_livraison,
         "fournisseur": c.fournisseur.nom if getattr(c, "fournisseur", None) else None,
+        "uniteGratuite": c.unite_gratuite or 0,
         "montantCmd": c.montant_cmd,
         "montantRecu": c.montant_recu,
         "qtiteCmd": c.qtite_cmd,
@@ -769,7 +770,7 @@ class CommandeService:
       qtite_recu=quantite_totale,
       montant_cmd=montant_total,
       montant_recu=montant_total,
-      etat="livree",
+      etat=request.type,
       unite_gratuite=0,
       supprimer=0
     )
@@ -794,29 +795,27 @@ class CommandeService:
       self.db.add(produit_cmd)
 
       formatted_now = datetime.now().strftime("%Y%m%d%H%M%S")
-      if produit_request.produitEnRayontId is not None:
-        produit_rayon = self.enrayon_repo.find_by_id(produit_request.produitEnRayontId)
-        produit_rayon.quantite_restante = produit_rayon.quantite_restante + produit_request.quantiteRestante
-      else:
-        produit_rayon = EnRayon(
-          id=f"{produit.id}{fournisseur.code}{formatted_now}",
-          produit_id=produit.id,
-          fournisseur_id=request.fournisseurId,
-          commande_id=commande.id,
-          date_livraison=datetime.fromisoformat(produit_request.dateLivraison),
-          date_peremption=datetime.fromisoformat(produit_request.datePeremption),
-          prix_achat=produit_request.prixAchat or 0,
-          prix_vente=produit_request.prix or 0,
-          reduction=produit_request.reduction,
-          quantite=produit_request.quantiteRestante,
-          quantite_restante=produit_request.quantiteRestante,
-          supprimer=0,
-        )
-
-      self.db.add(produit_rayon)
-
-      produit.stock = produit.stock + produit_request.quantiteRestante
-      self.db.add(produit)
-
+      if request.type == "livree":
+        if produit_request.produitEnRayontId is not None:
+          produit_rayon = self.enrayon_repo.find_by_id(produit_request.produitEnRayontId)
+          produit_rayon.quantite_restante = produit_rayon.quantite_restante + produit_request.quantiteRestante
+        else:
+          produit_rayon = EnRayon(
+            id=f"{produit.id}{fournisseur.code}{formatted_now}",
+            produit_id=produit.id,
+            fournisseur_id=request.fournisseurId,
+            commande_id=commande.id,
+            date_livraison=datetime.fromisoformat(produit_request.dateLivraison),
+            date_peremption=datetime.fromisoformat(produit_request.datePeremption),
+            prix_achat=produit_request.prixAchat or 0,
+            prix_vente=produit_request.prix or 0,
+            reduction=produit_request.reduction,
+            quantite=produit_request.quantiteRestante,
+            quantite_restante=produit_request.quantiteRestante,
+            supprimer=0,
+          )
+        self.db.add(produit_rayon)
+        produit.stock = produit.stock + produit_request.quantiteRestante
+        self.db.add(produit)
     self.db.commit()
     return commande

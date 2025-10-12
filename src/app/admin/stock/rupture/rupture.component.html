@@ -70,7 +70,7 @@
           <ng-container  *ngIf="row.stock < 0">
             <button mat-raised-button color="primary" (click)="resetQuantite(row)" >Reinitialiser cette quantite</button>
           </ng-container>
-          <ng-container *ngIf="row.stock == 0">
+          <ng-container *ngIf="row.stock >= 0">
             <button mat-raised-button
                     [color]="isCommanded(row) ? 'warn' : 'primary'"
                     (click)="toggleCommande(row)">
