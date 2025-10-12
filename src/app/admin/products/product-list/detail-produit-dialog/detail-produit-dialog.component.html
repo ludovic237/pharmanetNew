@@ -435,7 +435,7 @@
                   <button mat-icon-button color="accent" matTooltip="Print Label" (click)="printLabel(s)">
                     <mat-icon>print</mat-icon>
                   </button>
-                  <button mat-icon-button color="warn" matTooltip="Delete" (click)="deleteProduct(s.id)">
+                  <button *ngIf="s.supprimer==0" mat-icon-button color="warn" matTooltip="Delete" (click)="deleteProduct(s.id)">
                     <mat-icon>delete</mat-icon>
                   </button>
                 </td>

@@ -3,7 +3,6 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from typing import Any, Dict, List
 
-
 from app.api.deps import get_db
 from app.models.depense import Depense, DepenseIn
 from app.services.depense_service import DepenseService
@@ -14,6 +13,7 @@ router = APIRouter(
   tags=["Depenses"],
   dependencies=[Depends(jwt_authentication)]  # équivalent de @PreAuthorize("isAuthenticated()")
 )
+
 
 @router.get("/")
 def list_depenses(db: Session = Depends(get_db)):
@@ -50,7 +50,7 @@ def create(depenseData: Dict[str, Any], db: Session = Depends(get_db)):
     raise HTTPException(status_code=422, detail="Missing or invalid 'prixUnitaire'")
 
   if len(depenseData) > 3:
-    return DepenseService(db).create_depense_map(db,depenseData)
+    return DepenseService(db).create_depense_map(db, depenseData)
   else:
     return DepenseService(db).create_depense(designation, prix_unitaire)
 
@@ -71,9 +71,9 @@ def update(id: int, depenseData: Dict[str, Any], db: Session = Depends(get_db)):
 @router.delete("/{id}", status_code=204)
 def delete(id: int, db: Session = Depends(get_db)):
   # tu peux faire une suppression logique si ton modèle la supporte
-  dep = db.query(Depense).filter(Depense.id == id).first()
+  dep:Depense = db.query(Depense).get(id)
+  dep.supprimer = 1
   if not dep:
     raise HTTPException(status_code=404, detail="Dépense introuvable")
-  db.delete(dep)
   db.commit()
   return {"message": "Deleted"}
