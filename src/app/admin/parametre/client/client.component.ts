@@ -228,8 +228,7 @@ export class ClientComponent {
 
     this.usersService.deleteUser(userId).subscribe({
       next: () => {
-
-        this.users = this.users.filter(user => user.id !== userId);
+        this.getClients();
       },
       error: (err: any) => {
 

@@ -221,11 +221,9 @@ export class EmployeComponent implements OnInit {
 
 
   deleteUser(userId: number): void {
-
     this.employeService.deleteEmploye(userId).subscribe({
       next: () => {
-
-        this.users = this.users.filter(user => user.id !== userId);
+        this.getEmployes()
       },
       error: (err: any) => {
 
