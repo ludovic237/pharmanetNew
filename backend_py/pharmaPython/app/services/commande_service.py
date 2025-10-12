@@ -541,7 +541,8 @@ class CommandeService:
     lignes = self.produit_cmd_repo.find_by_commande_id(cmd.id)
     header = "produit_id;qtite_cmd;qtite_recu;unite_gratuite;pu_cmd;pu_recept;prix_public;date_peremption"
     rows = [
-      f"{l.produit_id};{l.qtite_cmd};{l.qtite_recu};{l.unite_gratuite};{l.pu_cmd};{l.pu_recept};{l.prix_public};{l.date_peremption or ''}"
+      f"{l.produit_id};{l.qtite_cmd};{l.qtite_recu};{l.unite_gratuite};{l.pu_cmd};{l.pu_recept};{l.prix_public}"
+      # f"{l.produit_id};{l.qtite_cmd};{l.qtite_recu};{l.unite_gratuite};{l.pu_cmd};{l.pu_recept};{l.prix_public};{l.date_peremption or ''}"
       for l in lignes
     ]
     return header + "\n" + "\n".join(rows)
