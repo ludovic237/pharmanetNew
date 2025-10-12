@@ -22,7 +22,7 @@ router = APIRouter(
 # ----------------------------
 # Créer une commande
 # ----------------------------
-@router.post("/", response_model=CommandeSchema)
+@router.post("/")
 def creer_commande(commande_dto: CommandeRequest, db: Session = Depends(get_db)):
   service = CommandeService(db)
   return service.create_commande(commande_dto)

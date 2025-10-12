@@ -16,6 +16,7 @@ from app.repositories.produit_repository import ProduitRepository
 from app.repositories.user_repository import UserRepository
 from app.schemas.commande_dto import CommandeRequest, CommandePageableCustomlDto, CommandeNewDTO, ProduitCmdRequest, \
   CommandeRuptureRequest
+from app.services.en_rayon_service import _parse_iso_dt
 from app.utility.user_utils import UserUtils
 
 
@@ -41,16 +42,22 @@ class CommandeService:
     if not request.produits:
       raise HTTPException(status_code=400, detail="La commande doit contenir au moins un produit.")
 
-    quantite_totale = sum([p.quantite for p in request.produits])
+    quantite_totale_gratuit = sum([(p.uniteGratuite) for p in request.produits])
+    quantite_totale = sum([(p.quantite) for p in request.produits])
     montant_total = sum([p.quantite * p.prixAchat for p in request.produits])
+    montant_total_gratuit = sum([(p.uniteGratuite) * p.prixAchat for p in request.produits])
 
     commande = Commande(
       employe_id=request.employeId,
       fournisseur_id=request.fournisseurId,
-      date_creation=datetime.utcnow(),
+      date_creation=datetime.now(),
+      date_livraison=datetime.now(),
       ref=self.generer_reference_commande(self.commande_repo.count_mois()),
+      unite_gratuite=quantite_totale_gratuit,
       qtite_cmd=quantite_totale,
+      qtite_recu=quantite_totale,
       montant_cmd=montant_total,
+      montant_recu=montant_total_gratuit,
       etat=request.type,
       supprimer=0
     )
@@ -68,12 +75,29 @@ class CommandeService:
         produit_id=produit.id,
         pu_recept=produit_request.prixUnitaire or 0,
         qtite_cmd=produit_request.quantite,
-        qtite_recu=produit_request.quantiteRecu or 0,
+        qtite_recu=produit_request.quantite or 0,
         pu_cmd=produit_request.prixAchat or 0,
         prix_public=produit_request.prixVente or 0,
         unite_gratuite=produit_request.uniteGratuite or 0
       )
       self.db.add(produit_cmd)
+      if request.type.lower() == "livree":
+        formatted_now = datetime.now().strftime("%Y%m%d%H%M%S")
+        en_rayon = EnRayon(
+          id=f"{produit.id}{commande.fournisseur.code}{formatted_now}",
+          produit_id=produit.id,
+          fournisseur_id=commande.fournisseur_id,
+          commande_id=commande.id,
+          date_livraison=datetime.now(),
+          date_peremption= _parse_iso_dt(produit_request.datePeremption),
+          prix_achat=int(produit_request.prixAchat),
+          prix_vente=int(produit_request.prixVente),
+          reduction=0,
+          quantite=produit_request.quantite,
+          quantite_restante=produit_request.quantite,
+          supprimer=0
+        )
+        self.db.add(en_rayon)
 
     self.db.commit()
     return commande
@@ -147,6 +171,7 @@ class CommandeService:
         "uniteGratuite": l.unite_gratuite,
         "qtiteCmd": l.qtite_cmd,
         "prixUnitaire": l.pu_recept,
+        "productCmdId": l.id,
       })
     if not commande:
       raise HTTPException(status_code=404, detail="Commande non trouvée")
@@ -198,6 +223,7 @@ class CommandeService:
     # Montants: cmd (PU commande * qte_cmd), recu (PU réception * qte_recu)
     commande.montant_cmd = float(sum((l.pu_cmd or 0) * (l.qtite_cmd or 0) for l in lignes))
     commande.montant_recu = float(sum((l.pu_recept or 0) * (l.qtite_recu or 0) for l in lignes))
+    self.db.add(commande)
     self.db.commit()
     self.db.refresh(commande)
 
@@ -243,20 +269,43 @@ class CommandeService:
         raise HTTPException(status_code=404, detail=f"Ligne commande {item.productCmdId} introuvable")
 
       # Mises à jour des quantités et prix de réception
-      if item.quantiteRecu is not None:
-        ligne.qtite_recu = (ligne.qtite_recu or 0) + int(item.quantiteRecu)
+      if item.qtiteCmd is not None:
+        ligne.qtite_cmd = (ligne.qtite_cmd or 0) + int(item.qtiteCmd)
+      if item.quantite is not None:
+        ligne.qtite_recu = (ligne.qtite_recu or 0) + int(item.quantite)
       if item.prixAchat is not None:
         ligne.pu_recept = float(item.prixAchat)
-      if item.dateDePeremption:
-        ligne.date_peremption = item.dateDePeremption
+      if item.prixVente is not None:
+        ligne.prix_public = float(item.prixVente)
+      if item.datePeremption:
+        ligne.date_peremption = _parse_iso_dt(item.datePeremption)
       if item.uniteGratuite is not None:
-        ligne.unite_gratuite = int(item.uniteGratuite)
+        ligne.unite_gratuite = int(item.uniteGratuite) or 0
 
       self.db.add(ligne)
 
       # Mouvement stock
       if ligne.qtite_recu and ligne.qtite_recu > 0:
-        self.enrayon_repo.add_mouvement(ligne.produit_id, ligne.qtite_recu)
+        produit = self.produit_repo.find_by_id(ligne.produit_id)
+        produit.stock = produit.stock + ligne.qtite_recu
+        self.db.add(produit)
+
+        formatted_now = datetime.now().strftime("%Y%m%d%H%M%S")
+        en_rayon = EnRayon(
+          id=f"{produit.id}{commande.fournisseur.code}{formatted_now}",
+          produit_id=ligne.produit_id,
+          fournisseur_id=commande.fournisseur_id,
+          commande_id=ligne.commande_id,
+          date_livraison=datetime.now(),
+          date_peremption= _parse_iso_dt(item.datePeremption),
+          prix_achat=int(ligne.pu_recept),
+          prix_vente=int(ligne.prix_public),
+          reduction=0,
+          quantite=ligne.qtite_recu,
+          quantite_restante=ligne.qtite_recu,
+          supprimer=0
+        )
+        self.db.add(en_rayon)
 
     self.db.commit()
 
@@ -265,12 +314,12 @@ class CommandeService:
 
     # Etat
     toutes = self.produit_cmd_repo.find_by_commande_id(commande.id)
-    if all((l.qtite_recu or 0) >= (l.qtite_cmd or 0) for l in toutes):
-      commande.etat = "RECEP_TOTALE"
-    elif any((l.qtite_recu or 0) > 0 for l in toutes):
-      commande.etat = "RECEP_PARCIALE"
-    else:
-      commande.etat = "EN_COURS"
+    # if all((l.qtite_recu or 0) >= (l.qtite_cmd or 0) for l in toutes):
+    #   commande.etat = "RECEP_TOTALE"
+    # elif any((l.qtite_recu or 0) > 0 for l in toutes):
+    #   commande.etat = "RECEP_PARCIALE"
+    # else:
+    commande.etat = "LIVREE"
 
     commande.date_livraison = datetime.utcnow()
     self.db.commit();
@@ -720,7 +769,7 @@ class CommandeService:
       qtite_recu=quantite_totale,
       montant_cmd=montant_total,
       montant_recu=montant_total,
-      etat=request.type,
+      etat="livree",
       unite_gratuite=0,
       supprimer=0
     )

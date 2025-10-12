@@ -57,6 +57,9 @@ import {
   SimpleReapprovisionnementCommandeDialogComponent
 } from "./simple-reapprovisionnement-commande-dialog/simple-reapprovisionnement-commande-dialog.component";
 import {LoaderService} from "@services/loader.service";
+import {jsPDF} from "jspdf";
+import autoTable from "jspdf-autotable";
+import QRCode from "qrcode";
 
 interface Commande {
   id: string;
@@ -151,12 +154,12 @@ export class ListerAjouterCommandeComponent implements OnInit {
   fournisseurs: any[] = [];
   // etats: string[] = ['all', 'en_attente', 'livree', 'en_cours', 'annulee'];
   etats: any[] = [
-    {data:'Tous',value:'all'},
-    {data:'En attente',value:'en_attente'},
-    {data:'Livree',value:'livree'},
-    {data:'En cours',value:'en_cours'},
-    {data:'Cloturee',value:'cloturee'},
-    {data:'Annuler', value:'annulee'}
+    {data: 'Tous', value: 'all'},
+    {data: 'En attente', value: 'en_attente'},
+    {data: 'Livree', value: 'livree'},
+    {data: 'En cours', value: 'en_cours'},
+    {data: 'Cloturee', value: 'cloturee'},
+    {data: 'Annuler', value: 'annulee'}
   ];
   typeFournisseur: string[] = ['all', 'Detaillant', 'Grossiste'];
   selectedEtats: string = 'all'; // Default to "All"
@@ -178,7 +181,7 @@ export class ListerAjouterCommandeComponent implements OnInit {
   }
 
   // displayedColumns: string[] = ['select', 'id', 'ref', 'dateCreation', 'etat', 'qtiteCmd', 'qtiteRecu', 'uniteGratuite', 'montantCmd', 'montantRecu', 'fournisseur', 'info', 'action'];
-  displayedColumns: string[] = [ 'id', 'ref', 'dateCreation', 'etat', 'qtiteCmd', 'qtiteRecu', 'uniteGratuite', 'montantCmd', 'montantRecu', 'fournisseur', 'info', 'action'];
+  displayedColumns: string[] = ['id', 'ref', 'dateCreation', 'etat', 'qtiteCmd', 'qtiteRecu', 'uniteGratuite', 'montantCmd', 'montantRecu', 'fournisseur', 'info', 'action'];
   commandes: any[] = [];
 
 
@@ -259,8 +262,8 @@ export class ListerAjouterCommandeComponent implements OnInit {
       return `${parsedDate.getFullYear()}-${String(parsedDate.getMonth() + 1).padStart(2, '0')}-${String(parsedDate.getDate()).padStart(2, '0')}T${String(parsedDate.getHours()).padStart(2, '0')}:${String(parsedDate.getMinutes()).padStart(2, '0')}:${String(parsedDate.getSeconds()).padStart(2, '0')}`;
     };
     console.log("fetchCommandesPageable")
-    const formattedStartDate = formatDate((new Date(new Date(this.startDate).setHours(0,0,0,0))) + "");
-    const formattedEndDate = formatDate((new Date(new Date(this.endDate).setHours(23,59,59,999))) + "");
+    const formattedStartDate = formatDate((new Date(new Date(this.startDate).setHours(0, 0, 0, 0))) + "");
+    const formattedEndDate = formatDate((new Date(new Date(this.endDate).setHours(23, 59, 59, 999))) + "");
     this.commandesService.fetchCommandesPageable(
       this.page - 1,
       this.count,
@@ -326,8 +329,8 @@ export class ListerAjouterCommandeComponent implements OnInit {
       return `${parsedDate.getFullYear()}-${String(parsedDate.getMonth() + 1).padStart(2, '0')}-${String(parsedDate.getDate()).padStart(2, '0')}T${String(parsedDate.getHours()).padStart(2, '0')}:${String(parsedDate.getMinutes()).padStart(2, '0')}:${String(parsedDate.getSeconds()).padStart(2, '0')}`;
     };
 
-    const formattedStartDate = formatDate(new Date(new Date(this.startDate).setHours(0,0,0,0)) + "");
-    const formattedEndDate = formatDate(new Date(new Date(this.endDate).setHours(23,59,59,999)) + "");
+    const formattedStartDate = formatDate(new Date(new Date(this.startDate).setHours(0, 0, 0, 0)) + "");
+    const formattedEndDate = formatDate(new Date(new Date(this.endDate).setHours(23, 59, 59, 999)) + "");
 
     this.commandesService.fetchCommandesPageablePrint(
       this.page - 1,
@@ -646,16 +649,27 @@ export class ListerAjouterCommandeComponent implements OnInit {
 
   imprimerBon(commande: any): void {
 
-    this.commandesService.imprimerBonPdf(commande.id).subscribe({
-      next: () => {
-
-        this.snackBar.open('Bon imprimé avec succès.', 'Fermer', {duration: 3000});
+    this.commandesService.getCommandeInfo(commande.id).subscribe({
+      next: (data: any) => {
+        this.generateBonCommande(data)
       },
       error: (err) => {
+        console.error('Error fetching commandes:', err)
 
-        console.error('Erreur lors de l\'impression du bon:', err);
-        this.snackBar.open('Échec de l\'impression du bon.', 'Fermer', {duration: 3000});
+      }
+    });
+  }
+
+  imprimerBonReception(commande: any): void {
+
+    this.commandesService.getCommandeInfo(commande.id).subscribe({
+      next: (data: any) => {
+        this.generateBonReception(data)
       },
+      error: (err) => {
+        console.error('Error fetching commandes:', err)
+
+      }
     });
   }
 
@@ -716,7 +730,7 @@ export class ListerAjouterCommandeComponent implements OnInit {
   cloturerManuellement(commande: any): void {
 
     this.commandesService.cloturerCommande(commande.id).subscribe({
-      next: (data:any) => {
+      next: (data: any) => {
 
         this.snackBar.open('Commande clôturée avec succès.', 'Fermer', {duration: 3000});
         this.fetchCommandesPageable();
@@ -837,5 +851,126 @@ export class ListerAjouterCommandeComponent implements OnInit {
         }
       }
     });
+  }
+
+  async generateBonCommande(vente: any): Promise<void> {
+    // const doc = new jsPDF({
+    //   orientation: 'portrait', unit: 'mm',
+    //   // format: [data.produits.length+100,100]
+    //   format: [10 * 10, ((vente.produitsRetournes.length + 14) * 10)]
+    //   // format: [100, (data.produits.length * 30 + 150)]
+    // });
+    // const doc = new jsPDF();
+    let doc: jsPDF = new jsPDF('p', 'mm', 'a4')
+    // const doc = new jsPDF({orientation: 'landscape', unit: 'cm', format: [30, 20]});
+    // const doc = new jsPDF({orientation: 'landscape', unit: 'cm'});
+
+    const pageWidth = doc.internal.pageSize.width
+    // Header
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(9); // Fixed font size for header
+    doc.text('Pharmacie ALSAS', 2, 10);
+    doc.text(`Bon de commande: ${vente.id}`, 2, 15);
+    doc.text(`Numero de commande : ${vente.reference}`, 2, 20);
+
+
+    // Table Content
+    const rows = vente.produits.map((produit: any) => [
+      produit.produit.nom,
+      produit.prixAchat ?? 0,
+      produit.qtiteCmd ?? 0,
+      (produit.prixAchat ?? 0) * (produit.qtiteCmd ?? 0),
+    ]);
+
+
+    autoTable(doc, {
+      head: [['Designation.', 'Quantité', 'Prix achat', 'Total']],
+      body: rows,
+      headStyles: {fillColor: [22, 160, 133]},
+      margin: {top: 0, left: 0, right: 0},
+      startY: 30,
+      styles: {
+        fontSize: 7
+      }
+    });
+
+    const totalQte = vente.produits.reduce((sum: number, item: any) => sum + (item.qtiteCmd * 1), 0);
+    const article = rows.length;
+
+    let y = (doc as any).lastAutoTable.finalY; // Get the position after the tablet the position after the table
+    // doc.setFontSize(8); // Smaller font size for footer
+    y += 5;
+    doc.text('Total : ' + vente.montantTotal + ' FCFA', 2, y);
+    y += 5;
+    doc.text('Nombre d article commande : ' + article, 2, y);
+    y += 5;
+    doc.text('Nombre de produit commande : ' + totalQte, 2, y);
+
+    // Save PDF
+    doc.save(`bon${vente.reference}.pdf`);
+  }
+
+  async generateBonReception(vente: any): Promise<void> {
+    // const doc = new jsPDF({
+    //   orientation: 'portrait', unit: 'mm',
+    //   // format: [data.produits.length+100,100]
+    //   format: [10 * 10, ((vente.produitsRetournes.length + 14) * 10)]
+    //   // format: [100, (data.produits.length * 30 + 150)]
+    // });
+    // const doc = new jsPDF();
+    let doc: jsPDF = new jsPDF('p', 'mm', 'a4')
+    // const doc = new jsPDF({orientation: 'landscape', unit: 'cm', format: [30, 20]});
+    // const doc = new jsPDF({orientation: 'landscape', unit: 'cm'});
+
+    const pageWidth = doc.internal.pageSize.width
+    // Header
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(9); // Fixed font size for header
+    doc.text('Pharmacie ALSAS', 2, 10);
+    doc.text(`Bordereau de reception: ${vente.id}`, 2, 15);
+    doc.text(`Numero de bon de commande : ${vente.reference}`, 2, 20);
+    doc.text(`Numero de bon de reception : ${vente.reference}`, 2, 25);
+    doc.text(`Numero de bordereau livraison : ${vente.reference}`, 2, 30);
+    doc.text(`Date commande : ${vente.reference}`, 2, 35);
+    doc.text(`Fournisseur :  : ${vente.reference}`, 2, 40);
+
+
+    // Table Content
+    const rows = vente.produits.map((produit: any) => [
+      produit.produit.nom,
+      produit.qtiteCmd ?? 0,
+      produit.qtiteRecu ?? 0,
+      produit.prixAchat ?? 0,
+      produit.prixVente ?? 0,
+      (produit.prixAchat ?? 0) * (produit.qtiteCmd ?? 0),
+      (produit.prixVente ?? 0) * (produit.qtiteRecu ?? 0),
+    ]);
+
+
+    autoTable(doc, {
+      head: [['Designation.', 'Quantité commande', 'Quantité recu', 'Prix achat', 'Prix vente', 'Total Achat']],
+      body: rows,
+      headStyles: {fillColor: [22, 160, 133]},
+      margin: {top: 0, left: 0, right: 0},
+      startY: 40,
+      styles: {
+        fontSize: 7
+      }
+    });
+
+    const totalQte = vente.produits.reduce((sum: number, item: any) => sum + (item.qtiteCmd * 1), 0);
+    const article = rows.length;
+
+    let y = (doc as any).lastAutoTable.finalY; // Get the position after the tablet the position after the table
+    // doc.setFontSize(8); // Smaller font size for footer
+    y += 5;
+    doc.text('Total achat: ' + vente.montantTotal + ' FCFA', 2, y);
+    y += 5;
+    doc.text('Nombre d article commande : ' + article, 2, y);
+    y += 5;
+    doc.text('Nombre de produit commande : ' + totalQte, 2, y);
+
+    // Save PDF
+    doc.save(`bon${vente.reference}.pdf`);
   }
 }

@@ -16,9 +16,9 @@ class ProduitCmdRequest(BaseModel):
   id: Optional[int] = None
   nom: Optional[str] = None
   quantite: Optional[int] = 0
-  quantiteRecu: Optional[int] = 0
+  qtiteCmd: Optional[int] = 0
   uniteGratuite: Optional[int] = 0
-  dateDePeremption: Optional[str] = None  # ISO string ou datetime si tu préfères
+  datePeremption: Optional[str] = None  # ISO string ou datetime si tu préfères
   prixUnitaire: Optional[float] = None
   prixVente: Optional[float] = None
   prixAchat: Optional[float] = None

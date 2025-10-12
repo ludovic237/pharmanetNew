@@ -27,11 +27,13 @@ import {MatExpansionModule} from "@angular/material/expansion";
 import {MatToolbarModule} from "@angular/material/toolbar";
 import {MatTabsModule} from "@angular/material/tabs";
 import {MatDatepickerModule} from "@angular/material/datepicker";
-import {MatNativeDateModule} from "@angular/material/core";
+import {MatNativeDateModule, provideNativeDateAdapter} from "@angular/material/core";
 import {MatStepperModule} from "@angular/material/stepper";
 import {MatTooltip} from "@angular/material/tooltip";
 import {AuthService} from "@services/auth.service";
 import {LoaderService} from "@services/loader.service";
+import {MatPaginatorModule} from "@angular/material/paginator";
+import {products} from "../../../../common/data/dashboard.data";
 
 @Component({
   selector: 'app-detail-commande-dialog',
@@ -89,14 +91,18 @@ import {LoaderService} from "@services/loader.service";
     MatRadioModule,
     MatIconModule,
     MatCardModule,
-    MatSnackBarModule
+    MatSnackBarModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatPaginatorModule
   ],
+  providers: [provideNativeDateAdapter()],
   templateUrl: './detail-commande-dialog.component.html',
   styleUrl: './detail-commande-dialog.component.scss'
 })
 export class DetailCommandeDialogComponent implements OnInit {
 
-  columnsDisplay: string[] = ['nom', 'categorie', 'prixAchat', 'prixVente', 'qtiteCmd', 'qtiteDejaRecu', 'qtiteRecu', 'uniteGratuiteDejaRecu', 'uniteGratuite'];
+  columnsDisplay: string[] = ['nom', 'prixAchat', 'prixVente', 'qtiteCmd', 'qtiteRecu', 'uniteGratuite', 'datePeremption'];
   commandeForm: FormGroup;
   type: string;
   reference: string;
@@ -124,7 +130,7 @@ export class DetailCommandeDialogComponent implements OnInit {
 
   ngOnInit(): void {
     if (this.data.type == null) {
-      this.columnsDisplay = ['nom', 'categorie', 'prixAchat', 'prixVente', 'qtiteCmd', 'qtiteRecu', 'uniteGratuite']
+      this.columnsDisplay = ['nom', 'prixAchat', 'prixVente', 'qtiteCmd', 'qtiteRecu', 'uniteGratuite']
     }
     this.reference = this.data.data.reference;
     this.etat = this.data.data.etat;
@@ -132,7 +138,12 @@ export class DetailCommandeDialogComponent implements OnInit {
     console.log(this.data)
     this.type = this.data.type;
     this.commande = this.data.data;
-    this.products = this.data.produits || [];
+    this.commande.produits = this.commande.produits.map((item: any) => {
+      item.datePeremption = new Date();
+      return item
+    });
+    console.log("his.commande")
+    console.log(this.commande)
   }
 
   public getInfoCommande(commande: any): void {
@@ -243,21 +254,28 @@ export class DetailCommandeDialogComponent implements OnInit {
   }
 
   canSubmitReception(): boolean {
+    console.log("canSubmitReception")
+    console.log(this.commande.produits)
+    console.log(this.type)
     if (this.type !== 'partiel' && this.type !== 'complementaire') {
       return false;
     }
     return this.commande.produits.every((produit: any) =>
-      produit.newQtiteRecu !== undefined && produit.newQtiteRecu <= produit.qtiteCmd
+      produit.datePeremption !== undefined &&
+      produit.qtiteRecu !== undefined &&
+      produit.qtiteRecu > 0 &&
+      produit.qtiteRecu <= produit.qtiteCmd
     );
   }
 
   submitReception(): void {
-    const receptionPayload = this.commande.produits.map((produit: any) => ({
-      productCmdId: produit.produit.id,
-      productId: produit.produit.id,
-      quantite: produit.newQtiteRecu || 0,
-      uniteGratuite: produit.newUniteGratuite || 0,
-    }));
+    console.log("this.commande.produits");
+    console.log(this.commande.produits);
+
+    const receptionPayload = this.commande.produits = this.commande.produits.map((item: any) => {
+      item.quantite = item.qtiteRecu || 0
+      return item
+    });
 
     // const payload = this.commande.produits.map((produit: any) => ({
     //   id: produit.id,
@@ -291,7 +309,7 @@ export class DetailCommandeDialogComponent implements OnInit {
   submitCloture(): void {
 
     this.commandesService.cloturerCommande(this.commande.id).subscribe({
-      next: (response:any) => {
+      next: (response: any) => {
         this.snackBar.open('Cloturation enregistrée avec succès', '×', {
           panelClass: 'success',
           verticalPosition: 'top',
