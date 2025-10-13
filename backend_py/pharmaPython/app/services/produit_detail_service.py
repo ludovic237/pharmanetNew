@@ -110,6 +110,7 @@ class ProduitDetailService:
         "grossisteList": produit_grossiste,
         "stockMin": pd.stock_min,
         "stockMax": pd.stock_max,
+        "supprimer": pd.supprimer,
       }
 
     content = [_map_row(pd) for pd in rows]
@@ -145,6 +146,7 @@ class ProduitDetailService:
         "grossisteList": produit_grossiste,
         "stockMin": pd.stock_min,
         "stockMax": pd.stock_max,
+        "supprimer": pd.supprimer,
       }
 
     content = [_map_row(pd) for pd in rows]
@@ -195,6 +197,7 @@ class ProduitDetailService:
       "nom": p.nom,
       "stock": p.stock,
       "contenuDetail": p.contenu_detail,
+      "supprimer": p.supprimer,
     } for p in produits]
 
     return {

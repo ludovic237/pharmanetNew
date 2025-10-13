@@ -102,7 +102,7 @@
               <mat-header-cell *matHeaderCellDef> Action</mat-header-cell>
               <mat-cell *matCellDef="let element">
                 <button mat-button (click)="edit(element)">Modifier</button>
-                <button *ngIf="element.supprimer==0" mat-button (click)="delete(element)">Supprimer</button>
+                <button [disabled]="element.supprimer==0" mat-button (click)="delete(element)">Supprimer</button>
               </mat-cell>
             </ng-container>
 

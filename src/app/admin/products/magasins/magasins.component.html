@@ -20,7 +20,7 @@
                             <button mat-mini-fab color="primary" matTooltip="Edit" (click)="openMagasinDialog(cat)">
                                 <mat-icon>edit</mat-icon>
                             </button>
-                            <button *ngIf="cat.supprimer==0" mat-mini-fab color="warn" matTooltip="Delete" class="mx-1" (click)="remove(cat)">
+                            <button [disabled]="cat.supprimer==0" mat-mini-fab color="warn" matTooltip="Delete" class="mx-1" (click)="remove(cat)">
                                 <mat-icon>delete</mat-icon>
                             </button>
                         </div>
