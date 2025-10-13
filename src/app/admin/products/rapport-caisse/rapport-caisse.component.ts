@@ -99,7 +99,8 @@ import {LoaderService} from "@services/loader.service";
     MatCardModule,
     MatSnackBarModule,
     MatChipsModule,
-    NgxPaginationModule
+    NgxPaginationModule,
+    CommonModule
   ],
   templateUrl: './rapport-caisse.component.html',
   styleUrl: './rapport-caisse.component.scss'

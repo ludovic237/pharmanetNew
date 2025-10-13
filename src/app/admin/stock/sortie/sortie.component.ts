@@ -107,7 +107,8 @@ import {AppService} from "@services/app.service";
     MatCardModule,
     MatSnackBarModule,
     MatChipsModule,
-    NgxPaginationModule
+    NgxPaginationModule,
+    CommonModule
   ],
   templateUrl: './sortie.component.html',
   styleUrl: './sortie.component.scss'

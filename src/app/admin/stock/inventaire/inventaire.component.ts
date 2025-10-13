@@ -89,6 +89,7 @@ import {AppService} from "@services/app.service";
     MatChipsModule,
     NgxPaginationModule,
     MatPaginator,
+    CommonModule
   ],
   templateUrl: './inventaire.component.html',
   styleUrl: './inventaire.component.scss'

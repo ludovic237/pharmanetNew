@@ -106,7 +106,8 @@ import {ConfirmDialogComponent} from "@shared-components/confirm-dialog/confirm-
     NgxPaginationModule,
     NgScrollbarModule,
     MatProgressSpinnerModule,
-    MatBadgeModule
+    MatBadgeModule,
+    CommonModule
   ],
   templateUrl: './rupture.component.html',
   styleUrl: './rupture.component.scss'

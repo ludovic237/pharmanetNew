@@ -121,7 +121,8 @@ enum CaisseStatus {
     MatDatepickerModule,
     MatNativeDateModule,
     MatSelectModule,
-    FlexLayoutModule
+    FlexLayoutModule,
+    CommonModule
   ],
   templateUrl: './encaisser-vente.component.html',
   styleUrl: './encaisser-vente.component.scss'

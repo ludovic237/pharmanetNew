@@ -93,6 +93,7 @@ import {LoaderService} from "@services/loader.service";
     MatSnackBarModule,
     MatChipsModule,
     NgxPaginationModule,
+    CommonModule
   ],
   templateUrl: './retour-produit.component.html',
   styleUrl: './retour-produit.component.scss'

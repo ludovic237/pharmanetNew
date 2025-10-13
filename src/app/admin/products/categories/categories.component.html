@@ -1,56 +1,57 @@
 <div class="p-2">
-    <mat-card>
-        <div fxLayout="row wrap" fxLayoutAlign="space-between center" class="w-100 p-3">
-            <h2>Category List</h2>
-            <button mat-raised-button color="primary" (click)="openCategoryDialog(null)">Ajouter une categorie</button>
-        </div>
-        <mat-divider></mat-divider>
-        <div class="mat-mdc-table admin-table">
-            <div class="mat-mdc-header-row">
-                <div class="mat-mdc-header-cell">Name</div>
-<!--                <div class="mat-mdc-header-cell">Has SubCategory</div> -->
-<!--                <div class="mat-mdc-header-cell">Parent Category</div> -->
-                <div class="mat-mdc-header-cell"></div>
+  <mat-card>
+    <div fxLayout="row wrap" fxLayoutAlign="space-between center" class="w-100 p-3">
+      <h2>Category List</h2>
+      <button mat-raised-button color="primary" (click)="openCategoryDialog(null)">Ajouter une categorie</button>
+    </div>
+    <mat-divider></mat-divider>
+    <div class="mat-mdc-table admin-table">
+      <div class="mat-mdc-header-row">
+        <div class="mat-mdc-header-cell">Name</div>
+        <!--                <div class="mat-mdc-header-cell">Has SubCategory</div> -->
+        <!--                <div class="mat-mdc-header-cell">Parent Category</div> -->
+        <div class="mat-mdc-header-cell"></div>
+      </div>
+      @for (cat of categories; track cat.id) {
+        <div class="mat-mdc-row">
+          <div class="mat-mdc-cell">{{ cat.nom }}</div>
+          <!--                    <div class="mat-mdc-cell">-->
+          <!--                        <mat-icon class="text-muted">{{ (cat.hasSubCategory) ? 'check_box' : 'check_box_outline_blank'}}</mat-icon> -->
+          <!--                    </div>  -->
+          <!--                    <div class="mat-mdc-cell">-->
+          <!--                        {{ ( categories | filterById : cat.parentId )?.nom }}-->
+          <!--                    </div>   -->
+          <div class="mat-mdc-cell">
+            <div class="p-2 actions">
+              <button mat-mini-fab color="primary" matTooltip="Edit" (click)="openCategoryDialog(cat)">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button *ngIf="cat.supprimer==0" mat-mini-fab color="warn" matTooltip="Delete" class="mx-1"
+                      (click)="remove(cat)">
+                <mat-icon>delete</mat-icon>
+              </button>
             </div>
-            @for (cat of categories; track cat.id) {
-                <div class="mat-mdc-row">
-                    <div class="mat-mdc-cell">{{cat.nom}}</div>
-<!--                    <div class="mat-mdc-cell">-->
-<!--                        <mat-icon class="text-muted">{{ (cat.hasSubCategory) ? 'check_box' : 'check_box_outline_blank'}}</mat-icon> -->
-<!--                    </div>  -->
-<!--                    <div class="mat-mdc-cell">-->
-<!--                        {{ ( categories | filterById : cat.parentId )?.nom }}-->
-<!--                    </div>   -->
-                    <div class="mat-mdc-cell">
-                        <div class="p-2 actions">
-                            <button mat-mini-fab color="primary" matTooltip="Edit" (click)="openCategoryDialog(cat)">
-                                <mat-icon>edit</mat-icon>
-                            </button>
-                            <button *ngIf="cat.supprimer==0" mat-mini-fab color="warn" matTooltip="Delete" class="mx-1" (click)="remove(cat)">
-                                <mat-icon>delete</mat-icon>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            }
+          </div>
         </div>
-    </mat-card>
+      }
+    </div>
+  </mat-card>
 
-    @if (categories.length) {
-        <div fxLayout="row wrap">
-            <div fxFlex="100">
-                <mat-card class="p-0 text-center">
-                  <mat-paginator
-                    [length]="totalItems"
-                    [pageSize]="count"
-                    (page)="onPageChanged($event)"
-                    [pageSizeOptions]="[5, 10, 25, 100]">
+  @if (categories.length) {
+    <div fxLayout="row wrap">
+      <div fxFlex="100">
+        <mat-card class="p-0 text-center">
+          <mat-paginator
+            [length]="totalItems"
+            [pageSize]="count"
+            (page)="onPageChanged($event)"
+            [pageSizeOptions]="[5, 10, 25, 100]">
 
-                  </mat-paginator>
+          </mat-paginator>
 
-                </mat-card>
-            </div>
-        </div>
-    }
+        </mat-card>
+      </div>
+    </div>
+  }
 
 </div>

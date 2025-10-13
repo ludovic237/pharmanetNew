@@ -93,6 +93,7 @@ import html2canvas from "html2canvas";
     MatSnackBarModule,
     MatChipsModule,
     NgxPaginationModule,
+    CommonModule
   ],
   templateUrl: './ventes.component.html'
 })

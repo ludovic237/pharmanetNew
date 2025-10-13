@@ -53,7 +53,8 @@ import {StockStatus} from "../../dashboard-new/dashboard-new.component";
     FormsModule,
     NgxPaginationModule,
     PipesModule,
-    DecimalPipe
+    DecimalPipe,
+    CommonModule
   ],
   templateUrl: './product-list.component.html',
   styleUrl: './product-list.component.scss'

@@ -19,6 +19,7 @@ import {FabriquantService} from "@services/fabriquants.service";
 import {Fabriquant} from "@models/product";
 import {LoaderService} from "@services/loader.service";
 import {MatPaginatorModule, PageEvent} from "@angular/material/paginator";
+import {CommonModule} from "@angular/common";
 
 @Component({
   selector: 'app-fabriquants',
@@ -30,7 +31,8 @@ import {MatPaginatorModule, PageEvent} from "@angular/material/paginator";
     MatDividerModule,
     PipesModule,
     NgxPaginationModule,
-    MatPaginatorModule
+    MatPaginatorModule,
+    CommonModule
   ],
   templateUrl: './fabriquants.component.html',
   styleUrl: './fabriquants.component.scss'

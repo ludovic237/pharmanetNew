@@ -96,6 +96,7 @@ import {LoaderService} from "@services/loader.service";
     MatChipsModule,
     NgxPaginationModule,
     MatPaginator,
+    CommonModule
   ],
   templateUrl: './entree.component.html',
   standalone: true,

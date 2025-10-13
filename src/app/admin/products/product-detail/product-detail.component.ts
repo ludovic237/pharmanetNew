@@ -20,7 +20,7 @@ import {MatListModule} from '@angular/material/list';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {MatInputModule} from '@angular/material/input';
 import {PipesModule} from '../../../theme/pipes/pipes.module';
-import {DecimalPipe} from '@angular/common';
+import {CommonModule, DecimalPipe} from '@angular/common';
 import {AuthService} from "@services/auth.service";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {LoaderService} from "@services/loader.service";
@@ -42,7 +42,8 @@ import {LoaderService} from "@services/loader.service";
     MatTooltipModule,
     MatInputModule,
     PipesModule,
-    DecimalPipe
+    DecimalPipe,
+    CommonModule
   ],
   templateUrl: './product-detail.component.html',
   styleUrl: './product-detail.component.scss'

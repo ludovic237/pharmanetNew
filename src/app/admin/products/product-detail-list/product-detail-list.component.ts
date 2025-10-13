@@ -51,7 +51,8 @@ import {LoaderService} from "@services/loader.service";
     FormsModule,
     NgxPaginationModule,
     PipesModule,
-    DecimalPipe
+    DecimalPipe,
+    CommonModule
   ],
   templateUrl: './product-detail-list.component.html',
   styleUrl: './product-detail-list.component.scss'

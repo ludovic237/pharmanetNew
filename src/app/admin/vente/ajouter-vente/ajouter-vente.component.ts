@@ -94,7 +94,8 @@ interface VenteLigne {
     MatSelectModule,
     FlexLayoutModule,
     MatDialogActions,
-    MatPaginator
+    MatPaginator,
+    CommonModule
   ],
   templateUrl: './ajouter-vente.component.html',
   styleUrl: './ajouter-vente.component.scss'

@@ -35,7 +35,8 @@ import {MatPaginatorModule, PageEvent} from "@angular/material/paginator";
     MatIconModule,
     MatDividerModule,
     PipesModule,
-    NgxPaginationModule
+    NgxPaginationModule,
+    CommonModule
   ],
   templateUrl: './rayons.component.html',
   styleUrl: './rayons.component.scss'
