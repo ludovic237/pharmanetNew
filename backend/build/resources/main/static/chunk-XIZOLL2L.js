@@ -1,0 +1,1 @@
+function n(r){let t=/[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,3}$/;return r.value&&!t.test(r.value)?{invalidEmail:!0}:null}function o(r,t){return a=>{let s=a.controls[r],e=a.controls[t];if(s.value!==e.value)return e.setErrors({mismatchedPasswords:!0})}}export{n as a,o as b};
