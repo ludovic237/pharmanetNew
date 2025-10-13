@@ -39,7 +39,7 @@ def get_produit_details_list(
   sortBy: str = Query("id"),
   db: Session = Depends(get_db),
 ):
-  return ProduitDetailService(db).get_produit_details_by_name_pageable(query, page + 1, size)
+  return ProduitDetailService(db).get_produit_details_by_name_pageable(query, page, size)
 
 
 @router.post("/add")

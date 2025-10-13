@@ -60,6 +60,7 @@ import {LoaderService} from "@services/loader.service";
 import {jsPDF} from "jspdf";
 import autoTable from "jspdf-autotable";
 import QRCode from "qrcode";
+import {it} from "node:test";
 
 interface Commande {
   id: string;
@@ -181,7 +182,7 @@ export class ListerAjouterCommandeComponent implements OnInit {
   }
 
   // displayedColumns: string[] = ['select', 'id', 'ref', 'dateCreation', 'etat', 'qtiteCmd', 'qtiteRecu', 'uniteGratuite', 'montantCmd', 'montantRecu', 'fournisseur', 'info', 'action'];
-  displayedColumns: string[] = ['id', 'ref', 'dateCreation', 'etat', 'qtiteCmd', 'qtiteRecu', 'uniteGratuite', 'montantCmd', 'montantRecu', 'fournisseur', 'info', 'action'];
+  displayedColumns: string[] = ['id', 'ref', 'dateCreation', 'etat', 'qtiteCmd', 'qtiteRecu', 'uniteGratuite', 'montantCmd', 'montantRecu', 'fournisseur', 'action'];
   commandes: any[] = [];
 
 
@@ -973,4 +974,101 @@ export class ListerAjouterCommandeComponent implements OnInit {
     // Save PDF
     doc.save(`bon${vente.reference}.pdf`);
   }
+
+  exporterAllTicket(commande: any) {
+    this.commandesService.getCommandeInfo(commande.id).subscribe({
+      next: (data: any) => {
+        this.generateAllTicketCommande(data)
+      },
+      error: (err) => {
+        console.error('Error fetching commandes:', err)
+
+      }
+    });
+  }
+
+  async generateAllTicketCommande(commande: any): Promise<void> {
+    const doc = new jsPDF({orientation: 'landscape', unit: 'mm', format: [30, 20]});
+    console.log("commande")
+    console.log(commande)
+    console.log(commande.produits)
+    const today = new Date();
+    const todayFormatted = today.toLocaleDateString('en-GB').replace(/\//g, '-');
+
+    let i = 0;
+    // commande.produits.forEach((data: any) => {
+    for (const data of commande.produits) {
+      const qrcode = await QRCode.toDataURL(data.enRayonId);
+      console.log("ici")
+      for (let j = 0; j < (data.qtiteRecu+data.uniteGratuite); j++) {
+        doc.addImage(qrcode, 'JPEG', -2, -2, 22, 22);
+        doc.setFontSize(7).text(`${data.prixVente || ''} F`, 18, 6);
+        doc.setFontSize(5).text(`${commande.fournisseur.code || ''}`, 18, 9);
+        doc.setFontSize(4).text(new Date(data.datePeremption || '').toLocaleString('fr-FR', {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          // hour: '2-digit',
+          // minute: '2-digit'
+        }).replaceAll('/', '-'), 18, 12)
+        doc.setFontSize(4).text(todayFormatted, 18, 15)
+        doc.setFontSize(4).text(data.produit.nom || '', 1, 19);
+          doc.addPage()
+      }
+      i++
+    }
+    doc.deletePage((commande.qtiteRecu+commande.uniteGratuite)+1)
+    doc.save('ticket_commande_'+commande.reference+'.pdf')
+    console.log(i)
+  }
+
+  // generatePDF(commande: any): Promise<void> {
+  //   return new Promise((resolve) => {
+  //     const {data: etiquetteData} = this.data;
+  //     console.log("this.quantiteEtiquette")
+  //     console.log(this.etiquetteForm.get('quantiteEtiquette')?.value)
+  //     const qte = this.etiquetteForm.get('quantiteEtiquette')?.value || 1;
+  //     const base64Image = etiquetteData.codeBarre || 'https://example.com/default-image.jpg';
+  //     this.isLoading = true;
+  //
+  //     const doc = new jsPDF({orientation: 'landscape', unit: 'mm', format: [30, 20]});
+  //
+  //     // Precompute reusable values
+  //     const today = new Date();
+  //     const todayFormatted = today.toLocaleDateString('en-GB').replace(/\//g, '-');
+  //     const todayCode = todayFormatted.replace(/-/g, '');
+  //
+  //     const qrCodePromises = Array.from({length: qte}, async (_, index) => {
+  //       const code = `${etiquetteData.id}`;
+  //       return QRCode.toDataURL(code);
+  //     });
+  //
+  //     Promise.all(qrCodePromises).then((qrCodes) => {
+  //       qrCodes.forEach((qrCodeDataUrl, index) => {
+  //         // Add content to the PDF
+  //         doc.cell(0, 0, 30, 20, ' ', 0, 'center');
+  //         doc.addImage(qrCodeDataUrl, 'JPEG', -2, -2, 22, 22);
+  //         doc.setFontSize(7).text(`${etiquetteData.prixVente || ''} F`, 19, 6);
+  //         doc.setFontSize(5).text(`${etiquetteData.codeFournisseur || ''}`, 19, 8);
+  //         doc.setFontSize(4)
+  //           .text(new Date(etiquetteData.datePeremption || '').toLocaleString('fr-FR', {
+  //             year: 'numeric',
+  //             month: '2-digit',
+  //             day: '2-digit',
+  //             // hour: '2-digit',
+  //             // minute: '2-digit'
+  //           }).replaceAll('/', '-'), 19, 10)
+  //           .text(todayFormatted, 19, 12);
+  //         doc.text(etiquetteData.nom || '', 1, 19);
+  //
+  //         // Add a new page unless it's the last iteration
+  //         if (index < qte - 1) doc.addPage([30, 20], 'l');
+  //       });
+  //
+  //       this.isLoading = false;
+  //       doc.save(`${etiquetteData.nom || 'Document'}.pdf`);
+  //       resolve();
+  //     });
+  //   });
+  // }
 }

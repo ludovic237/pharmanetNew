@@ -145,10 +145,10 @@ export class ProduitRayonInfoDialogComponent {
       Promise.all(qrCodePromises).then((qrCodes) => {
         qrCodes.forEach((qrCodeDataUrl, index) => {
           // Add content to the PDF
-          doc.cell(0, 0, 30, 20, ' ', 0, 'center');
+          // doc.cell(0, 0, 30, 20, ' ', 0, 'center');
           doc.addImage(qrCodeDataUrl, 'JPEG', -2, -2, 22, 22);
-          doc.setFontSize(7).text(`${etiquetteData.prixVente || ''} F`, 19, 6);
-          doc.setFontSize(5).text(`${etiquetteData.codeFournisseur || ''}`, 19, 8);
+          doc.setFontSize(7).text(`${etiquetteData.prixVente || ''} F`, 18, 6);
+          doc.setFontSize(5).text(`${etiquetteData.codeFournisseur || ''}`, 18, 9);
           doc.setFontSize(4)
             .text(new Date(etiquetteData.datePeremption || '').toLocaleString('fr-FR', {
               year: 'numeric',
@@ -156,8 +156,8 @@ export class ProduitRayonInfoDialogComponent {
               day: '2-digit',
               // hour: '2-digit',
               // minute: '2-digit'
-            }).replaceAll('/', '-'), 19, 10)
-            .text(todayFormatted, 19, 12);
+            }).replaceAll('/', '-'), 18, 12)
+            .text(todayFormatted, 18, 15);
           doc.text(etiquetteData.nom || '', 1, 19);
 
           // Add a new page unless it's the last iteration

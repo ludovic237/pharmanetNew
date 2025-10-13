@@ -158,6 +158,7 @@ class CommandeService:
     produits: List[Dict[str, Any]] = []
     for l in data:
       # produit = self.produit_repo.find_by_id(l.produit_id)
+      en_rayon = self.enrayon_repo.find_by_produit_id_and_commande(produit_id=l.produit_id, commande_id=commande.id)
       produits.append({
         "produit": {
           "nom": l.produit.nom,
@@ -165,6 +166,9 @@ class CommandeService:
             "nom": l.produit.categorie.nom
           },
         },
+        "enRayonId": en_rayon.id or None,
+        "dateLivraison": en_rayon.date_livraison or None,
+        "datePeremption": en_rayon.date_peremption or None,
         "prixAchat": l.pu_cmd,
         "prixVente": l.prix_public,
         "qtiteRecu": l.qtite_recu,

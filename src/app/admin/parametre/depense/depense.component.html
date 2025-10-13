@@ -38,7 +38,7 @@
             <ng-container matColumnDef="actions">
               <th mat-header-cell *matHeaderCellDef>Actions</th>
               <td mat-cell *matCellDef="let depense">
-                <button [disabled]="depense.supprimer==0" mat-raised-button color="warn" (click)="deleteDepense(depense.id)">Supprimer</button>
+                <button [disabled]="depense.supprimer==1" mat-raised-button color="warn" (click)="deleteDepense(depense.id)">Supprimer</button>
               </td>
             </ng-container>
             <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>

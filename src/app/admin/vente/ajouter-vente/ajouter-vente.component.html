@@ -78,7 +78,7 @@
   <ng-container matColumnDef="action">
     <th mat-header-cell *matHeaderCellDef>Action</th>
     <td mat-cell *matCellDef="let row">
-      <button [disabled]="row.supprimer==0" mat-icon-button color="warn" (click)="deleteProduct(row)">
+      <button [disabled]="row.supprimer==1" mat-icon-button color="warn" (click)="deleteProduct(row)">
         <mat-icon>delete</mat-icon>
       </button>
     </td>

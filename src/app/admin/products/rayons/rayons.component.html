@@ -23,7 +23,7 @@
             <button mat-mini-fab color="primary" matTooltip="Edit" (click)="openRayonDialog(rayon)">
               <mat-icon>edit</mat-icon>
             </button>
-            <button [disabled]="rayon.supprimer==0" mat-mini-fab color="warn" matTooltip="Delete" class="mx-1" (click)="remove(rayon)">
+            <button [disabled]="rayon.supprimer==1" mat-mini-fab color="warn" matTooltip="Delete" class="mx-1" (click)="remove(rayon)">
               <mat-icon>delete</mat-icon>
             </button>
           </div>

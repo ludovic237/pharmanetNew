@@ -101,7 +101,7 @@
         </button>
 
         <!-- Delete button: always visible -->
-        <button [disabled]="element.supprimer==0" mat-mini-fab color="warn"  class="ml-2"
+        <button [disabled]="element.supprimer==1" mat-mini-fab color="warn"  class="ml-2"
                 (click)="deleteItem(element.id)">
           <mat-icon>delete</mat-icon>
         </button>

@@ -92,7 +92,7 @@
             <a (click)="getInfoProduit(product)" mat-mini-fab color="primary" matTooltip="View">
               <mat-icon>remove_red_eye</mat-icon>
             </a>
-            <button [disabled]="product.supprimer==0" mat-mini-fab color="warn" matTooltip="Remove" (click)="remove(product)">
+            <button [disabled]="product.supprimer==1" mat-mini-fab color="warn" matTooltip="Remove" (click)="remove(product)">
               <mat-icon>delete</mat-icon>
             </button>
             <mat-chip-listbox>
@@ -183,7 +183,7 @@
         <a (click)="getInfoProduit(product)" mat-mini-fab color="primary" matTooltip="View">
           <mat-icon>remove_red_eye</mat-icon>
         </a>
-        <button mat-mini-fab color="warn" matTooltip="Remove" (click)="remove(product)">
+        <button [disabled]="product.supprimer==1" mat-mini-fab color="warn" matTooltip="Remove" (click)="remove(product)">
           <mat-icon>delete</mat-icon>
         </button>
       </mat-cell>

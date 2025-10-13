@@ -26,6 +26,16 @@ class EnRayonRepository:
       q = q.filter(EnRayon.commande_id == commande_id)
     return q.first()
 
+  def find_by_produit_id_and_commande(
+    self, produit_id: int, commande_id: Optional[int]
+  ) -> Optional[EnRayon]:
+    q = self.db.query(EnRayon).filter(EnRayon.produit_id == produit_id)
+    if commande_id is None:
+      q = q.filter(EnRayon.commande_id.is_(None))
+    else:
+      q = q.filter(EnRayon.commande_id == commande_id)
+    return q.first()
+
   def find_by_produit_id_and_supprimer(self, produit_id: int, supprimer: int = 0) -> List[EnRayon]:
     return self.db.query(EnRayon).filter(EnRayon.produit_id == produit_id, EnRayon.supprimer == supprimer).all()
 
