@@ -25,7 +25,10 @@ import {AdminMenu} from "@models/admin-menu.model";
 import {ConfirmationDialogComponent} from "./vente/encaisser-vente/confirmation-dialog/confirmation-dialog.component";
 import {MatDialog} from "@angular/material/dialog";
 import {LoaderService} from "@services/loader.service";
+import {TranslateModule, TranslateService} from '@ngx-translate/core';
 import {join} from "node:path";
+import {MatMenuModule} from "@angular/material/menu";
+import {CommonModule} from "@angular/common";
 
 @Component({
   selector: 'app-admin',
@@ -37,9 +40,13 @@ import {join} from "node:path";
     MatIconModule,
     MatSidenavModule,
     NgScrollbarModule,
+    TranslateModule,
     BreadcrumbComponent,
     FullScreenComponent,
-    AdminMenuComponent
+    AdminMenuComponent,
+    MatMenuModule,
+    MatIconModule,
+    CommonModule,
   ],
   templateUrl: './admin.component.html',
   styleUrl: './admin.component.scss'
@@ -61,6 +68,7 @@ export class AdminComponent implements OnInit {
     public authService: AuthService,
     public snackBar: MatSnackBar, public settingsService: SettingsService,
     public router: Router,
+    public translateService: TranslateService,
     private adminMenuService: AdminMenuService,
     private appSettingsService: AppSettingsService,
     private appService: AppService,
@@ -205,5 +213,23 @@ export class AdminComponent implements OnInit {
 
   getInitials(name:string){
     return name.trim().split(/\s+/).slice(0,2).map(w => w.charAt(0).toUpperCase()).join('')
+  }
+
+  public getLangText(lang: string) {
+    if (lang == 'de') {
+      return 'German';
+    } else if (lang == 'fr') {
+      return 'French';
+    } else if (lang == 'ru') {
+      return 'Russian';
+    } else if (lang == 'tr') {
+      return 'Turkish';
+    } else {
+      return 'English';
+    }
+  }
+
+  public changeLang(lang: string) {
+    this.translateService.use(lang);
   }
 }

@@ -5,6 +5,7 @@
         <a routerLink="/admin" fxLayout="row" fxLayoutAlign="start center" class="logo">
           <span>ALSA</span>
         </a>
+
       </div>
       <button mat-icon-button (click)="toggleSidenav()">
         <mat-icon>menu</mat-icon>
@@ -32,6 +33,21 @@
       <!--      </a>-->
     </div>
     <div fxLayout="row" fxLayoutAlign="end center">
+      <a mat-button [matMenuTriggerFor]="langMenu" #langMenuTrigger="matMenuTrigger">
+        <img [src]="'images/flags/'+translateService.currentLang+'.svg'" width="18" [alt]="translateService.currentLang">
+        <span fxShow="false" fxShow.gt-sm class="flag-menu-title">{{ getLangText(translateService.currentLang) }}</span>
+        <mat-icon class="mat-icon-sm caret" iconPositionEnd>arrow_drop_down</mat-icon>
+      </a>
+      <mat-menu #langMenu="matMenu" [overlapTrigger]="false" xPosition="before" class="app-dropdown">
+                <span (mouseleave)="langMenuTrigger.closeMenu()">
+                    @for (lang of translateService.getLangs(); track lang) {
+                      <button mat-menu-item (click)="changeLang(lang)">
+                            <img [src]="'images/flags/'+lang+'.svg'" width="18" [alt]="lang" class="mat-elevation-z1">
+                            <span class="px-2">{{ getLangText(lang) }}</span>
+                        </button>
+                    }
+                </span>
+      </mat-menu>
       <!--      <div fxLayout="row" fxLayoutAlign="start center" fxShow="false" fxShow.gt-xs class="search-bar">-->
       <!--        <form method="get" fxLayoutAlign="start center">-->
       <!--          <input type="text" placeholder="Type to search..." class="mat-elevation-z3" [class.show]="toggleSearchBar">-->

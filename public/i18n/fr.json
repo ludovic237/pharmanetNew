@@ -1,14 +1,36 @@
-{  
-  "WELCOME": "Bienvenue sur notre marché!",  
-  "LOGIN": "S'identifier", 
+{
+  "SALES_SUMMARY_BY_SUPPLIER": "Récap vente par fournisseur",
+  "SALES_SUMMARY_BY_TYPE": "Récap vente par type",
+  "SALES_COLLECTION": "Encaissement des ventes",
+  "CREDIT_INVOICE_COLLECTION": "Encaissement facture à crédit",
+  "GENERATED_CASH_VOUCHER": "Bon de caisse généré",
+  "CASH_RECEIPT_CASHED": "Bon de caisse encaissé",
+  "CASH_STATUS": "Etat de caisse",
+
+  "WHOLSALER": "Grossiste",
+  "REDUCTION": "Reduction",
+  "TOTAL": "Total",
+  "RETAILER": "Detaillant",
+  "PRODUCT_DETAIL": "Produits detailles",
+
+  "CREDIT": "Credit",
+  "INSURANCE": "Assurance",
+
+  "CASH": "Espèce",
+  "ELECTRONIC": "Électronique",
+  "CASH_VOUCHER": "Bon de caisse",
+  "RETURNED": "Rendu",
+
+  "WELCOME": "Bienvenue sur notre marché!",
+  "LOGIN": "S'identifier",
   "LOGOUT": "Se déconnecter",
-  "REGISTER": "S'inscrire", 
-  "ACCOUNT": "Compte", 
+  "REGISTER": "S'inscrire",
+  "ACCOUNT": "Compte",
   "COMPARE": "Comparer",
   "WISHLIST": "Liste de souhaits",
-  "NAV": {  
-    "HOME": "Accueil",  
-    "PAGES": "Des pages",  
+  "NAV": {
+    "HOME": "Accueil",
+    "PAGES": "Des pages",
     "SHOP": "Boutique",
     "ALL_PRODUCTS": "Tous les produits",
     "PRODUCT_DETAIL": "Détail du produit",
@@ -17,7 +39,7 @@
     "FAQS": "Faqs",
     "PRICING": "Pricing",
     "TERMS_CONDITIONS": "Terms & Conditions",
-    "LANDING": "Page de destination", 
+    "LANDING": "Page de destination",
     "404_PAGE": "404 Page",
     "OTHERS": "Others",
     "EXTERNAL_LINK": "Lien Externe",
@@ -26,26 +48,49 @@
     "ABOUT_US": "Sur",
     "ADMIN": "Admin"
   },
-  "ADMIN_NAV": {  
-    "DASHBOARD": "Tableau de bord",  
-    "PRODUCTS": "Produits", 
+  "ADMIN_NAV": {
+    "DASHBOARD": "Tableau de bord",
+    "PRODUCTS": "Produits",
+    "FORMS": "Formes",
+    "MANUFACTURERS": "Fabriquants",
     "CATEGORIES": "Catégories",
-    "PRODUCT_LIST": "Liste de produit", 
+    "DEPARTMENT": "Rayons",
+    "STORES": "Magasins",
+    "PRODUCT_LIST": "Liste de produit",
     "PRODUCT_DETAIL": "Détail de produit",
-    "ADD_PRODUCT": "Ajouter un produit",
+    "PRODUCT_DETAIL_LIST": "Liste de produit detai",
+    "ADD_PRODUCT": "Ajouter Produit",
+    "ADD_ORDER": "Ajouter Commande",
+    "ORDER_LIST": "Liste Commande",
     "SALES": "Ventes",
-    "ORDERS": "Ordres",
+    "SALES_LIST": "Liste des ventes",
+    "COLLECT_SALE": "encaisser vente",
+    "ADD_SALE": "Ajouter vente",
+    "PRODUCT_RETURN": "Retour produit",
+    "ORDERS": "Commande",
+    "STOCK": "Stock",
+    "ENTRIES": "Entrées",
+    "EXIT": "Sorties",
+    "OUT_OF_STOCK": "Ruptures",
+    "INVENTORY": "Inventaire",
+    "CASH_REPORT": "Rapport caisse",
+    "PARAMETER": "Parametre",
+    "GENERAL": "General",
+    "EMPLOYEE": "Employe",
+    "CUSTOMER": "Client",
+    "EXPENSE": "Depense",
+    "ACTIVITY": "Activite",
     "TRANSACTIONS": "Transactions",
-    "USERS": "Utilisateurs", 
-    "CUSTOMERS": "Les clients", 
+    "USERS": "Utilisateurs",
+    "CUSTOMERS": "Les clients",
     "COUPONS": "Coupons",
     "WITHDRAWAL": "Retrait",
     "ANALYTICS": "Analytique",
     "REFUND": "Rembourser",
     "FOLLOWERS": "Suiveurs",
     "SUPPORT": "Soutien",
-    "REVIEWS": "Commentaires", 
-    "EXTERNAL_LINK": "Lien Externe" 
+    "REVIEWS": "Commentaires",
+    "EXTERNAL_LINK": "Lien Externe"
   },
   "BTN": {
     "ADD": "Ajouter",
@@ -62,10 +107,10 @@
     "SURE_DELETE": "Etes-vous sûr que vous voulez supprimer?",
     "FILE_SIZE": "La taille du fichier ne peut pas dépasser {{param}} ko."
   },
-  "FIELD": { 
-    "NAME": "Nom" 
+  "FIELD": {
+    "NAME": "Nom"
   },
-  "PAGINATION":{
+  "PAGINATION": {
     "ITEMS_PER_PAGE": "Objets par page:",
     "NEXT_PAGE": "Page suivante",
     "PREV_PAGE": "Page précédente",

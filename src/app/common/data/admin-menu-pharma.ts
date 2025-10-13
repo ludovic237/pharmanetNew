@@ -1,4 +1,3 @@
-
 /*
 export const adminMenuPharmaItems = [
     new AdminMenu(10, 'ADMIN_NAV.DASHBOARD', '/admin', null, 'dashboard', null, false, 0),
@@ -35,44 +34,44 @@ import {AdminMenuPharma} from "@models/admin-menu-pharma.model";
 
 export const getFilteredAdminMenuPharmaItems = (key: string) => {
   return [
-    new AdminMenuPharma(10, 'ADMIN_NAV.DASHBOARD', '/admin', null, 'dashboard', null, false, 0,['Administrateur','Caissier','Vendeur']),
+    new AdminMenuPharma(10, 'ADMIN_NAV.DASHBOARD', '/admin', null, 'dashboard', null, false, 0, ['Administrateur', 'Caissier', 'Vendeur']),
 
-    new AdminMenuPharma(20, 'Catalogue', null, null, 'inventory_2', null, true, 0,['Administrateur','Caissier','Vendeur']),
-    new AdminMenuPharma(21, 'Categories', '/admin/products/categories', null, 'category', null, false, 20,['Administrateur','Caissier','Vendeur']),
-    new AdminMenuPharma(22, 'ADMIN_NAV.PRODUCT_LIST', '/admin/products/product_list', null, 'view_list', null, false, 20,['Administrateur','Caissier','Vendeur']),
-    new AdminMenuPharma(23, 'Produit detail list', '/admin/products/product_detail_list', null, 'list_alt', null, false, 20,['Administrateur','Caissier','Vendeur']),
+    new AdminMenuPharma(20, 'Catalogue', null, null, 'inventory_2', null, true, 0, ['Administrateur', 'Caissier', 'Vendeur']),
+    new AdminMenuPharma(21, 'ADMIN_NAV.CATEGORIES', '/admin/products/categories', null, 'category', null, false, 20, ['Administrateur', 'Caissier', 'Vendeur']),
+    new AdminMenuPharma(22, 'ADMIN_NAV.PRODUCT_LIST', '/admin/products/product_list', null, 'view_list', null, false, 20, ['Administrateur', 'Caissier', 'Vendeur']),
+    new AdminMenuPharma(23, 'ADMIN_NAV.PRODUCT_DETAIL', '/admin/products/product_detail_list', null, 'list_alt', null, false, 20, ['Administrateur', 'Caissier', 'Vendeur']),
 // new AdminMenuPharma(23, 'ADMIN_NAV.PRODUCT_DETAIL', '/admin/products/product_detail', null, 'visibility', null, false, 20,['Administrateur','Caissier','Vendeur']),
     // new AdminMenuPharma(24, 'ADMIN_NAV.ADD_PRODUCT', '/admin/products/add_product', null, 'add', null, false, 20,['Administrateur','Caissier','Vendeur']),
-    new AdminMenuPharma(25, 'Formes', '/admin/products/formes', null, 'shape_line', null, false, 20,['Administrateur','Caissier','Vendeur']),
-    new AdminMenuPharma(26, 'Fabriquants', '/admin/products/fabriquants', null, 'factory', null, false, 20,['Administrateur','Caissier','Vendeur']),
-    new AdminMenuPharma(27, 'Rayons', '/admin/products/rayons', null, 'storefront', null, false, 20,['Administrateur','Caissier','Vendeur']),
-    new AdminMenuPharma(28, 'magasins', '/admin/products/magasins', null, 'store', null, false, 20,['Administrateur','Caissier','Vendeur']),
+    new AdminMenuPharma(25, 'ADMIN_NAV.FORMS', '/admin/products/formes', null, 'shape_line', null, false, 20, ['Administrateur', 'Caissier', 'Vendeur']),
+    new AdminMenuPharma(26, 'ADMIN_NAV.MANUFACTURERS', '/admin/products/fabriquants', null, 'factory', null, false, 20, ['Administrateur', 'Caissier', 'Vendeur']),
+    new AdminMenuPharma(27, 'ADMIN_NAV.DEPARTMENT', '/admin/products/rayons', null, 'storefront', null, false, 20, ['Administrateur', 'Caissier', 'Vendeur']),
+    new AdminMenuPharma(28, 'ADMIN_NAV.STORES', '/admin/products/magasins', null, 'store', null, false, 20, ['Administrateur', 'Caissier', 'Vendeur']),
 
     // Vente menu and submenus
-    new AdminMenuPharma(300, 'ventes', null, null, 'shopping_cart', null, true, 0,['Administrateur','Caissier','Vendeur']),
-    new AdminMenuPharma(301, 'liste ventes', '/admin/ventes/list', null, 'list', null, false, 300,['Administrateur','Caissier','Vendeur']),
+    new AdminMenuPharma(300, 'ADMIN_NAV.SALES', null, null, 'shopping_cart', null, true, 0, ['Administrateur', 'Caissier', 'Vendeur']),
+    new AdminMenuPharma(301, 'ADMIN_NAV.SALES_LIST', '/admin/ventes/list', null, 'list', null, false, 300, ['Administrateur', 'Caissier', 'Vendeur']),
     ...(key === 'differe' ?
       [
-        new AdminMenuPharma(302, 'encaisser vente', '/admin/ventes/encaisser_vente', null, 'payment', null, false, 300,['Administrateur','Caissier'])] : []),
-    new AdminMenuPharma(303, 'ajouter vente', '/admin/ventes/ajouter_vente', null, 'add_shopping_cart', null, false, 300,['Administrateur','Caissier','Vendeur']),
-    new AdminMenuPharma(304, 'retour produit', '/admin/ventes/retour_produit', null, 'undo', null, false, 300,['Administrateur','Caissier','Vendeur']),
+        new AdminMenuPharma(302, 'ADMIN_NAV.COLLECT_SALE', '/admin/ventes/encaisser_vente', null, 'payment', null, false, 300, ['Administrateur', 'Caissier'])] : []),
+    new AdminMenuPharma(303, 'ADMIN_NAV.ADD_SALE ', '/admin/ventes/ajouter_vente', null, 'add_shopping_cart', null, false, 300, ['Administrateur', 'Caissier', 'Vendeur']),
+    new AdminMenuPharma(304, 'ADMIN_NAV.PRODUCT_RETURN ', '/admin/ventes/retour_produit', null, 'undo', null, false, 300, ['Administrateur', 'Caissier', 'Vendeur']),
 
-    new AdminMenuPharma(400, 'commande', '/admin/commandes/lister_ajouter_commande', null, 'assignment', null, false, 0,['Administrateur']),
+    new AdminMenuPharma(400, 'ADMIN_NAV.ORDERS', '/admin/commandes/lister_ajouter_commande', null, 'assignment', null, false, 0, ['Administrateur']),
 
     // Stock menu and submenus
-    new AdminMenuPharma(500, 'Stock', null, null, 'inventory', null, true, 0,['Administrateur','Caissier','Vendeur']),
-    new AdminMenuPharma(501, 'Entrées', '/admin/stock/entrees', null, 'input', null, false, 500,['Administrateur','Caissier','Vendeur']),
-    new AdminMenuPharma(502, 'Sorties', '/admin/stock/sorties', null, 'output', null, false, 500,['Administrateur','Caissier','Vendeur']),
-    new AdminMenuPharma(503, 'Ruptures', '/admin/stock/ruptures', null, 'do_not_disturb', null, false, 500,['Administrateur','Caissier','Vendeur']),
-    new AdminMenuPharma(504, 'Inventaire', '/admin/stock/inventaire', null, 'list_alt', null, false, 500,['Administrateur','Caissier','Vendeur']),
+    new AdminMenuPharma(500, 'ADMIN_NAV.STOCK', null, null, 'inventory', null, true, 0, ['Administrateur', 'Caissier', 'Vendeur']),
+    new AdminMenuPharma(501, 'ADMIN_NAV.ENTRIES', '/admin/stock/entrees', null, 'input', null, false, 500, ['Administrateur', 'Caissier', 'Vendeur']),
+    new AdminMenuPharma(502, 'ADMIN_NAV.EXIT', '/admin/stock/sorties', null, 'output', null, false, 500, ['Administrateur', 'Caissier', 'Vendeur']),
+    new AdminMenuPharma(503, 'ADMIN_NAV.OUT_OF_STOCK', '/admin/stock/ruptures', null, 'do_not_disturb', null, false, 500, ['Administrateur', 'Caissier', 'Vendeur']),
+    new AdminMenuPharma(504, 'ADMIN_NAV.INVENTORY', '/admin/stock/inventaire', null, 'list_alt', null, false, 500, ['Administrateur', 'Caissier', 'Vendeur']),
 
-    new AdminMenuPharma(600, 'Rapport caisse', '/admin/products/rapport_caisse', null, 'receipt_long', null, false, 0,['Administrateur','Caissier','Vendeur']),
+    new AdminMenuPharma(600, 'ADMIN_NAV.CASH_REPORT', '/admin/products/rapport_caisse', null, 'receipt_long', null, false, 0, ['Administrateur', 'Caissier', 'Vendeur']),
 
-    new AdminMenuPharma(700, 'Parametre', null, null, 'settings', null, true, 0,['Administrateur','Caissier']),
-    new AdminMenuPharma(701, 'General', '/admin/setting/setting', null, 'tune', null, false, 700,['Administrateur','Caissier']),
-    new AdminMenuPharma(702, 'Employe', '/admin/setting/employe', null, 'badge', null, false, 700,['Administrateur','Caissier']),
-    new AdminMenuPharma(703, 'Client', '/admin/setting/client', null, 'person', null, false, 700,['Administrateur','Caissier']),
-    new AdminMenuPharma(704, 'Depense', '/admin/setting/depense', null, 'account_balance_wallet', null, false, 700,['Administrateur','Caissier']),
-    new AdminMenuPharma(705, 'Activite', '/admin/setting/activite', null, 'trending_up', null, false, 700,['Administrateur','Caissier']),
+    new AdminMenuPharma(700, 'ADMIN_NAV.PARAMETER', null, null, 'settings', null, true, 0, ['Administrateur', 'Caissier']),
+    new AdminMenuPharma(701, 'ADMIN_NAV.GENERAL', '/admin/setting/setting', null, 'tune', null, false, 700, ['Administrateur', 'Caissier']),
+    new AdminMenuPharma(702, 'ADMIN_NAV.EMPLOYEE', '/admin/setting/employe', null, 'badge', null, false, 700, ['Administrateur', 'Caissier']),
+    new AdminMenuPharma(703, 'ADMIN_NAV.CUSTOMER', '/admin/setting/client', null, 'person', null, false, 700, ['Administrateur', 'Caissier']),
+    new AdminMenuPharma(704, 'ADMIN_NAV.EXPENDITURE', '/admin/setting/depense', null, 'account_balance_wallet', null, false, 700, ['Administrateur', 'Caissier']),
+    new AdminMenuPharma(705, 'ADMIN_NAV.ACTIVITY', '/admin/setting/activite', null, 'trending_up', null, false, 700, ['Administrateur', 'Caissier']),
   ];
 };
