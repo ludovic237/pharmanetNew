@@ -24,8 +24,8 @@ export class FabriquantService {
     return this.http.get<Fabriquant[]>(this.url, {headers: this.getHeaders()});
   }
 
-  getFabriquantsPage(page: number, size: number): Observable<any> {
-    return this.http.get<any>(this.url+`/pageable?page=${page}&size=${size}`, {headers: this.getHeaders()});
+  getFabriquantsPage(page: number, size: number, search: string): Observable<any> {
+    return this.http.get<any>(this.url+`/pageable?page=${page}&size=${size}&search=${search}`, {headers: this.getHeaders()});
   }
 
   addFabriquant(fabriquant: Fabriquant): Observable<Fabriquant> {

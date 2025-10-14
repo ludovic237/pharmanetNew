@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
-from typing import List, Dict, Any, Tuple
+from typing import List, Dict, Any, Tuple, Optional
 
 from app.api.deps import get_db
 from app.models.forme import Forme, FormeIn, FormeSchema, FormCreateSchema, FormeBaseSchema
@@ -32,6 +32,7 @@ def get_all_formes_pageable(
   page: str = Query("0", ge="0"),
   size: int = Query(10, ge=1),
   sortBy: str = Query("id"),
+  search: Optional[str] = None,
   db: Session = Depends(get_db),
 ):
   """
@@ -41,7 +42,7 @@ def get_all_formes_pageable(
   if page == "NaN":
     page = "0"
   service = FormeService(db)
-  return service.get_all_formes_page(page=int(page), size=size, sort_by=sortBy, direction="DESC")
+  return service.get_all_formes_page(page=int(page), size=size, search=search, sort_by=sortBy, direction="DESC")
 
 
 

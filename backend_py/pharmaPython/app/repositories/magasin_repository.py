@@ -1,5 +1,7 @@
 # repositories/magasin_repository.py
 from typing import List, Optional, Tuple
+
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 from app.models.magasin import Magasin
 
@@ -10,8 +12,10 @@ class MagasinRepository:
   def find_all(self) -> List[Magasin]:
     return self.db.query(Magasin).all()
 
-  def find_all_pageable(self, page: int, size: int) -> Tuple[List[Magasin], int]:
+  def find_all_pageable(self, page: int, size: int, search: str) -> Tuple[List[Magasin], int]:
     q = self.db.query(Magasin)
+    if search != "null":
+      q = q.filter(func.lower(Magasin.nom).like(f"%{search.lower()}%"))
     total = q.count()
     rows = q.offset(page * size).limit(size).all()
     return rows, total

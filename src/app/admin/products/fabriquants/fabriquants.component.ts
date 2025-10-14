@@ -1,7 +1,7 @@
 import {Component, OnInit, inject} from '@angular/core';
 import {AuthService} from "@services/auth.service";
 import {MatSnackBar} from "@angular/material/snack-bar";
-import {MatDialog} from '@angular/material/dialog';
+import {MatDialog, MatDialogActions} from '@angular/material/dialog';
 import {Category} from '@models/category';
 import {AppService} from '@services/app.service';
 import {DomHandlerService} from '@services/dom-handler.service';
@@ -18,12 +18,29 @@ import {MatButtonModule} from '@angular/material/button';
 import {FabriquantService} from "@services/fabriquants.service";
 import {Fabriquant} from "@models/product";
 import {LoaderService} from "@services/loader.service";
-import {MatPaginatorModule, PageEvent} from "@angular/material/paginator";
+import {MatPaginator, MatPaginatorModule, PageEvent} from "@angular/material/paginator";
+import {MatFormFieldModule} from "@angular/material/form-field";
+import {MatAutocompleteModule} from "@angular/material/autocomplete";
+import {MatRadioButton, MatRadioGroup, MatRadioModule} from "@angular/material/radio";
+import {MatSlideToggleModule} from "@angular/material/slide-toggle";
+import {FormsModule, ReactiveFormsModule} from "@angular/forms";
+import {MatInputModule} from "@angular/material/input";
+import {MatAccordion, MatExpansionModule} from "@angular/material/expansion";
+import {CommonModule} from "@angular/common";
+import {MatToolbarModule} from "@angular/material/toolbar";
+import {MatTabsModule} from "@angular/material/tabs";
+import {MatTableModule} from "@angular/material/table";
+import {MatCheckboxModule} from "@angular/material/checkbox";
+import {MatDatepickerModule} from "@angular/material/datepicker";
+import {MatNativeDateModule} from "@angular/material/core";
+import {MatSelectModule} from "@angular/material/select";
 
 
 @Component({
   selector: 'app-fabriquants',
   imports: [
+    MatFormFieldModule,
+    MatAutocompleteModule,
     FlexLayoutModule,
     MatCardModule,
     MatButtonModule,
@@ -31,13 +48,45 @@ import {MatPaginatorModule, PageEvent} from "@angular/material/paginator";
     MatDividerModule,
     PipesModule,
     NgxPaginationModule,
-    MatPaginatorModule
+    MatPaginatorModule,
+    MatRadioGroup,
+    MatRadioModule,
+    MatSlideToggleModule,
+    FormsModule,
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatDividerModule,
+    MatRadioButton,
+    MatAccordion,
+    MatExpansionModule,
+    FormsModule,
+    ReactiveFormsModule,
+    CommonModule,
+    // Material
+    MatToolbarModule,
+    MatTabsModule,
+    MatIconModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatAutocompleteModule,
+    MatTableModule,
+    MatCardModule,
+    MatCheckboxModule,
+    MatButtonModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatSelectModule,
+    FlexLayoutModule,
+    MatDialogActions,
+    MatPaginator
 ],
   templateUrl: './fabriquants.component.html',
   styleUrl: './fabriquants.component.scss'
 })
 export class FabriquantsComponent implements OnInit {
   public fabriquants: any[] = [];
+  public fabriquantNom: string = "";
   // public fabriquants: Fabriquant[] = [];
   public page: number = 1;
   public totalItems = 0;
@@ -54,15 +103,22 @@ export class FabriquantsComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.getFabriquants();
+    this.getFabriquants(null);
   }
 
-  public getFabriquants() {
+  searchFonction(){
+    if (this.fabriquantNom==""){
+      this.fabriquantNom=null
+    }
+    this.getFabriquants(this.fabriquantNom)
+  }
 
-    this.fabriquantService.getFabriquantsPage(this.page - 1, this.count).subscribe({
+  public getFabriquants(search:string) {
+
+    this.fabriquantService.getFabriquantsPage(this.page - 1, this.count, search).subscribe({
       next: (data: any) => {
         this.fabriquants = data.content;
-        this.count = data.pageable.pageSize;
+        this.count = data.pageSize;
         this.totalItems = data.totalElements;
 
       },
@@ -109,7 +165,7 @@ export class FabriquantsComponent implements OnInit {
     this.page = event.pageIndex+1;
     this.count = event.pageSize;
     this.domHandlerService.winScroll(0, 0);
-    this.getFabriquants()
+    this.getFabriquants(this.fabriquantNom)
   }
 
   public openCategoryDialog(data: any) {
@@ -141,7 +197,7 @@ export class FabriquantsComponent implements OnInit {
           this.fabriquants.push(category);
         }
       }
-      this.getFabriquants();
+      this.getFabriquants(null);
     });
   }
 
@@ -158,7 +214,7 @@ export class FabriquantsComponent implements OnInit {
 
         this.fabriquantService.deleteFabriquant(category.id).subscribe({
           next: (data) => {
-            this.getFabriquants()
+            this.getFabriquants(null)
 
           },
           error: (err) => {

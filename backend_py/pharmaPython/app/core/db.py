@@ -2,7 +2,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 
 # DATABASE_URL = "mysql+pymysql://root:root@localhost:3306/pharmanet1?charset=utf8mb4"
-DATABASE_URL = "mysql+pymysql://root:@localhost:3306/pharmanet1?charset=utf8mb4"
+DATABASE_URL = "mysql+pymysql://root:root@localhost:3306/pharmanet1?charset=utf8mb4"
 
 try:
   engine = create_engine(

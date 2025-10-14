@@ -1,5 +1,5 @@
 import {Component, OnInit, inject} from '@angular/core';
-import {MatDialog} from '@angular/material/dialog';
+import {MatDialog, MatDialogActions} from '@angular/material/dialog';
 // import { Category } from '@models/form';
 import {AppService} from '@services/app.service';
 import {DomHandlerService} from '@services/dom-handler.service';
@@ -17,7 +17,22 @@ import {FormeService} from "@services/formes.service";
 import {AuthService} from "@services/auth.service";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {LoaderService} from "@services/loader.service";
-import {MatPaginatorModule} from "@angular/material/paginator";
+import {MatPaginator, MatPaginatorModule} from "@angular/material/paginator";
+import {MatFormFieldModule} from "@angular/material/form-field";
+import {MatAutocompleteModule} from "@angular/material/autocomplete";
+import {MatRadioButton, MatRadioGroup, MatRadioModule} from "@angular/material/radio";
+import {MatSlideToggleModule} from "@angular/material/slide-toggle";
+import {FormsModule, ReactiveFormsModule} from "@angular/forms";
+import {MatInputModule} from "@angular/material/input";
+import {MatAccordion, MatExpansionModule} from "@angular/material/expansion";
+import {CommonModule} from "@angular/common";
+import {MatToolbarModule} from "@angular/material/toolbar";
+import {MatTabsModule} from "@angular/material/tabs";
+import {MatTableModule} from "@angular/material/table";
+import {MatCheckboxModule} from "@angular/material/checkbox";
+import {MatDatepickerModule} from "@angular/material/datepicker";
+import {MatNativeDateModule} from "@angular/material/core";
+import {MatSelectModule} from "@angular/material/select";
 
 
 @Component({
@@ -30,16 +45,58 @@ import {MatPaginatorModule} from "@angular/material/paginator";
     MatIconModule,
     MatDividerModule,
     PipesModule,
-    NgxPaginationModule
+    NgxPaginationModule,
+    MatFormFieldModule,
+    MatAutocompleteModule,
+    FlexLayoutModule,
+    MatCardModule,
+    MatButtonModule,
+    MatIconModule,
+    MatDividerModule,
+    PipesModule,
+    NgxPaginationModule,
+    MatPaginatorModule,
+    MatRadioGroup,
+    MatRadioModule,
+    MatSlideToggleModule,
+    FormsModule,
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatDividerModule,
+    MatRadioButton,
+    MatAccordion,
+    MatExpansionModule,
+    FormsModule,
+    ReactiveFormsModule,
+    CommonModule,
+    // Material
+    MatToolbarModule,
+    MatTabsModule,
+    MatIconModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatAutocompleteModule,
+    MatTableModule,
+    MatCardModule,
+    MatCheckboxModule,
+    MatButtonModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatSelectModule,
+    FlexLayoutModule,
+    MatDialogActions,
+    MatPaginator
 ],
   templateUrl: './formes.component.html',
   styleUrl: './formes.component.scss'
 })
 export class FormesComponent implements OnInit {
   public formes: any[] = [];
+  public formeNom: string = "";
   public totalItems = 0;
   // public formes: Category[] = [];
-  public page: any;
+  public page: number = 1;
   public count = 6;
   domHandlerService = inject(DomHandlerService);
   public settings: Settings;
@@ -52,12 +109,19 @@ export class FormesComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.getFormes();
+    this.getFormes(this.formeNom);
   }
 
-  public getFormes() {
+  searchFonction(){
+    if (this.formeNom==""){
+      this.formeNom=null
+    }
+    this.getFormes(this.formeNom)
+  }
 
-    this.formeService.getFormesPage(this.page-1,this.count).subscribe({
+  public getFormes(search:string) {
+
+    this.formeService.getFormesPage(this.page-1,this.count,search).subscribe({
       next: (data:any) => {
         this.formes = data.content;
         this.count = data.pageable.pageSize;
@@ -107,7 +171,7 @@ export class FormesComponent implements OnInit {
     this.page = event.pageIndex+1;
     this.count = event.pageSize;
     this.domHandlerService.winScroll(0, 0);
-    this.getFormes()
+    this.getFormes(this.formeNom)
   }
 
   public openCategoryDialog(data: any) {
@@ -139,7 +203,7 @@ export class FormesComponent implements OnInit {
           this.formes.push(form);
         }
       }
-      this.getFormes();
+      this.getFormes(this.formeNom);
     });
   }
 
@@ -156,7 +220,7 @@ export class FormesComponent implements OnInit {
 
         this.formeService.deleteForme(form.id).subscribe({
           next: (data) => {
-            this.getFormes()
+            this.getFormes(this.formeNom)
 
           },
           error: (err) => {

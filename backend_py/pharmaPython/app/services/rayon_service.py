@@ -28,9 +28,9 @@ class RayonService:
     return self.rayon_repo.find_all()
 
   # getAllRayonsPage(pageable)
-  def get_all_rayons_page(self, page: int, size: int, sort_by: str = "id") -> Dict[str, Any]:
+  def get_all_rayons_page(self, page: int, size: int, sort_by: str = "id", search: str = None) -> Dict[str, Any]:
     p, s = _page_norm(page, size)
-    rows, total = self.rayon_repo.find_all_pageable(page=p, size=s)
+    rows, total = self.rayon_repo.find_all_pageable(page=p,search=search, size=s)
     return {
       "content": rows,
       "totalElements": total,

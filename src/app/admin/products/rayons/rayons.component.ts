@@ -1,5 +1,5 @@
 import {Component, OnInit, inject} from '@angular/core';
-import {MatDialog} from '@angular/material/dialog';
+import {MatDialog, MatDialogActions} from '@angular/material/dialog';
 // import { Rayon } from '@models/rayon';
 import {AppService} from '@services/app.service';
 import {DomHandlerService} from '@services/dom-handler.service';
@@ -20,11 +20,66 @@ import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {AuthService} from "@services/auth.service";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {LoaderService} from "@services/loader.service";
-import {MatPaginatorModule, PageEvent} from "@angular/material/paginator";
+import {MatPaginator, MatPaginatorModule, PageEvent} from "@angular/material/paginator";
+import {MatFormFieldModule} from "@angular/material/form-field";
+import {MatAutocompleteModule} from "@angular/material/autocomplete";
+import {MatRadioButton, MatRadioGroup, MatRadioModule} from "@angular/material/radio";
+import {MatSlideToggleModule} from "@angular/material/slide-toggle";
+import {MatInputModule} from "@angular/material/input";
+import {MatAccordion, MatExpansionModule} from "@angular/material/expansion";
+import {CommonModule} from "@angular/common";
+import {MatToolbarModule} from "@angular/material/toolbar";
+import {MatTabsModule} from "@angular/material/tabs";
+import {MatTableModule} from "@angular/material/table";
+import {MatCheckboxModule} from "@angular/material/checkbox";
+import {MatDatepickerModule} from "@angular/material/datepicker";
+import {MatNativeDateModule} from "@angular/material/core";
+import {MatSelectModule} from "@angular/material/select";
 
 @Component({
   selector: 'app-rayons',
   imports: [
+    MatFormFieldModule,
+    MatAutocompleteModule,
+    FlexLayoutModule,
+    MatCardModule,
+    MatButtonModule,
+    MatIconModule,
+    MatDividerModule,
+    PipesModule,
+    NgxPaginationModule,
+    MatPaginatorModule,
+    MatRadioGroup,
+    MatRadioModule,
+    MatSlideToggleModule,
+    FormsModule,
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatDividerModule,
+    MatRadioButton,
+    MatAccordion,
+    MatExpansionModule,
+    FormsModule,
+    ReactiveFormsModule,
+    CommonModule,
+    // Material
+    MatToolbarModule,
+    MatTabsModule,
+    MatIconModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatAutocompleteModule,
+    MatTableModule,
+    MatCardModule,
+    MatCheckboxModule,
+    MatButtonModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatSelectModule,
+    FlexLayoutModule,
+    MatDialogActions,
+    MatPaginator,
     MatPaginatorModule,
     ReactiveFormsModule,
     FormsModule,
@@ -35,12 +90,13 @@ import {MatPaginatorModule, PageEvent} from "@angular/material/paginator";
     MatDividerModule,
     PipesModule,
     NgxPaginationModule
-],
+  ],
   templateUrl: './rayons.component.html',
   styleUrl: './rayons.component.scss'
 })
 export class RayonsComponent implements OnInit {
   public rayons: any[] = [];
+  public rayonNom: string = "";
   // public rayons: any[] = [];
   public page: number = 1;
   public totalItems: number = 0;
@@ -59,13 +115,20 @@ export class RayonsComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.getRayons();
+    this.getRayons(this.rayonNom);
   }
 
-  public getRayons() {
+  searchFonction(){
+    if (this.rayonNom==""){
+      this.rayonNom=null
+    }
+    this.getRayons(this.rayonNom)
+  }
 
-    this.rayonService.getRayonsPage(this.page-1,this.count).subscribe({
-      next: (data:any) => {
+  public getRayons(search: string) {
+
+    this.rayonService.getRayonsPage(this.page - 1, this.count, search).subscribe({
+      next: (data: any) => {
         this.rayons = data.content;
         this.count = data.pageable.pageSize;
         this.totalItems = data.totalElements;
@@ -110,10 +173,10 @@ export class RayonsComponent implements OnInit {
   }
 
   public onPageChanged(event: PageEvent) {
-    this.page = event.pageIndex+1;
+    this.page = event.pageIndex + 1;
     this.count = event.pageSize;
     this.domHandlerService.winScroll(0, 0);
-    this.getRayons()
+    this.getRayons(this.rayonNom)
   }
 
   public openRayonDialog(data: any) {
@@ -124,7 +187,7 @@ export class RayonsComponent implements OnInit {
       direction: (this.settings.rtl) ? 'rtl' : 'ltr'
     });
     dialogRef.afterClosed().subscribe(rayon => {
-      this.getRayons();
+      this.getRayons(this.rayonNom);
     });
   }
 
@@ -140,7 +203,7 @@ export class RayonsComponent implements OnInit {
       if (dialogResult) {
         this.rayonService.deleteRayon(rayon.id).subscribe({
           next: (data) => {
-            this.getRayons()
+            this.getRayons(this.rayonNom)
 
           },
           error: (err) => {

@@ -4,6 +4,21 @@
             <h2>Forme List</h2>
             <button mat-raised-button color="primary" (click)="openCategoryDialog(null)">Ajouter forme</button>
         </div>
+      <mat-divider></mat-divider>
+      <mat-card>
+        <div fxLayout="row" fxLayoutAlign="center">
+          <div fxFlex="100" fxFlex.gt-sm="40" class="px-1">
+            <mat-form-field class="w-100 mt-2" appearance="outline">
+              <mat-label>Rechercher forme</mat-label>
+              <input type="text"
+                     matInput
+                     [(ngModel)]="formeNom"
+                     (ngModelChange)="searchFonction()"
+              >
+            </mat-form-field>
+          </div>
+        </div>
+      </mat-card>
         <mat-divider></mat-divider>
         <div class="mat-mdc-table admin-table">
             <div class="mat-mdc-header-row">

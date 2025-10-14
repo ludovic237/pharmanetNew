@@ -8,10 +8,10 @@ class Forme(Base):
   __tablename__ = "forme"
   __table_args__ = {"extend_existing": True}
 
-  id : Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-  code : Mapped[str]
-  nom : Mapped[str]
-  supprimer : Mapped[int] = mapped_column(default=0)
+  id = Column(Integer, primary_key=True)
+  code = Column(String(16))
+  nom = Column(String(32))
+  supprimer = Column(Integer, default=0)
 
 class FormeBaseSchema(BaseModel):
   # code : str

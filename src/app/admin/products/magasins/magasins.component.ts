@@ -1,7 +1,7 @@
 import {Component, OnInit, inject} from '@angular/core';
 import {AuthService} from "@services/auth.service";
 import {MatSnackBar} from "@angular/material/snack-bar";
-import {MatDialog} from '@angular/material/dialog';
+import {MatDialog, MatDialogActions} from '@angular/material/dialog';
 // import { Magasin } from '@models/magasin';
 import {AppService} from '@services/app.service';
 import {DomHandlerService} from '@services/dom-handler.service';
@@ -17,12 +17,69 @@ import {MatDividerModule} from '@angular/material/divider';
 import {MatButtonModule} from '@angular/material/button';
 import {MagasinService} from "@services/magasins.service";
 import {LoaderService} from "@services/loader.service";
-import {MatPaginatorModule, PageEvent} from "@angular/material/paginator";
+import {MatPaginator, MatPaginatorModule, PageEvent} from "@angular/material/paginator";
+import * as sea from "node:sea";
+import {MatFormFieldModule} from "@angular/material/form-field";
+import {MatAutocompleteModule} from "@angular/material/autocomplete";
+import {MatRadioButton, MatRadioGroup, MatRadioModule} from "@angular/material/radio";
+import {MatSlideToggleModule} from "@angular/material/slide-toggle";
+import {FormsModule, ReactiveFormsModule} from "@angular/forms";
+import {MatInputModule} from "@angular/material/input";
+import {MatAccordion, MatExpansionModule} from "@angular/material/expansion";
+import {CommonModule} from "@angular/common";
+import {MatToolbarModule} from "@angular/material/toolbar";
+import {MatTabsModule} from "@angular/material/tabs";
+import {MatTableModule} from "@angular/material/table";
+import {MatCheckboxModule} from "@angular/material/checkbox";
+import {MatDatepickerModule} from "@angular/material/datepicker";
+import {MatNativeDateModule} from "@angular/material/core";
+import {MatSelectModule} from "@angular/material/select";
 
 
 @Component({
   selector: 'app-magasins',
   imports: [
+    MatFormFieldModule,
+    MatAutocompleteModule,
+    FlexLayoutModule,
+    MatCardModule,
+    MatButtonModule,
+    MatIconModule,
+    MatDividerModule,
+    PipesModule,
+    NgxPaginationModule,
+    MatPaginatorModule,
+    MatRadioGroup,
+    MatRadioModule,
+    MatSlideToggleModule,
+    FormsModule,
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatDividerModule,
+    MatRadioButton,
+    MatAccordion,
+    MatExpansionModule,
+    FormsModule,
+    ReactiveFormsModule,
+    CommonModule,
+    // Material
+    MatToolbarModule,
+    MatTabsModule,
+    MatIconModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatAutocompleteModule,
+    MatTableModule,
+    MatCardModule,
+    MatCheckboxModule,
+    MatButtonModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatSelectModule,
+    FlexLayoutModule,
+    MatDialogActions,
+    MatPaginator,
     MatPaginatorModule,
     FlexLayoutModule,
     MatCardModule,
@@ -38,6 +95,7 @@ import {MatPaginatorModule, PageEvent} from "@angular/material/paginator";
 export class MagasinsComponent implements OnInit {
   // public magasins: Magasin[] = [];
   public magasins: any[] = [];
+  public magasinNom: string = "";
   public totalItems = 0;  // Default to 10 if undefined
   // public categories: Category[] = [];
   public page: number = 1;
@@ -55,12 +113,19 @@ export class MagasinsComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.getMagasins();
+    this.getMagasins(this.magasinNom);
   }
 
-  public getMagasins() {
+  searchFonction(){
+    if (this.magasinNom==""){
+      this.magasinNom=null
+    }
+    this.getMagasins(this.magasinNom)
+  }
 
-    this.magasinsService.getMagasinsPage(this.page-1,this.count).subscribe({
+  public getMagasins(search:string) {
+
+    this.magasinsService.getMagasinsPage(this.page-1,this.count,search).subscribe({
       next: (data) => {
         this.magasins = data.content;
         this.count = data.pageable.pageSize;
@@ -110,7 +175,7 @@ export class MagasinsComponent implements OnInit {
     this.page = event.pageIndex+1;
     this.count = event.pageSize;
     this.domHandlerService.winScroll(0, 0);
-    this.getMagasins()
+    this.getMagasins(this.magasinNom)
   }
 
   public openMagasinDialog(data: any) {
@@ -142,7 +207,7 @@ export class MagasinsComponent implements OnInit {
           this.magasins.push(magasin);
         }
       }
-      this.getMagasins();
+      this.getMagasins(this.magasinNom);
     });
   }
 
@@ -159,7 +224,7 @@ export class MagasinsComponent implements OnInit {
 
         this.magasinsService.deleteMagasin(magasin.id).subscribe({
           next: (data) => {
-            this.getMagasins()
+            this.getMagasins(this.magasinNom)
 
           },
           error: (err) => {

@@ -42,9 +42,13 @@ class MagasinService:
     size: int,
     sort_by: str = "id",
     direction: str = "DESC",
+    search: str = None
   )  -> Dict[str, Any]:
     page, size = _page_tuple(page, size)
+    print("search")
+    print(search)
     rows, total = self.magasin_repo.find_all_pageable(
+      search=search,
       page=page,
       size=size)
     content = rows

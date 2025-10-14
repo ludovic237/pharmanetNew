@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, Query, Path
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Optional
 
 from app.api.deps import get_db
 from app.models.rayon import Rayon, RayonSchema, RayonIn
@@ -25,9 +25,10 @@ def get_all_rayons_pageable(
   page: int = Query(0, ge=0),
   size: int = Query(10, ge=1),
   sortBy: str = Query("id"),
+  search: Optional[str] = None,
   db: Session = Depends(get_db)
 ):
-  return RayonService(db).get_all_rayons_page(page, size, sortBy)
+  return RayonService(db).get_all_rayons_page(page, size, sortBy, search=search)
 
 
 @router.put("/{id}", response_model=RayonSchema)

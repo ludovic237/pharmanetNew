@@ -1,6 +1,6 @@
 # services/fabriquant_service.py
 from sqlalchemy.orm import Session
-from sqlalchemy import desc, asc
+from sqlalchemy import desc, asc, func
 from typing import List, Tuple, Optional
 from fastapi import HTTPException
 
@@ -22,11 +22,16 @@ class FabriquantService:
   def get_all_fabriquants(self) -> List[Fabriquant]:
     return self.db.query(Fabriquant).all()
 
-  def get_all_fabriquants_page(self, skip: int, limit: int, sort_by: str = "id", direction: str = "DESC") -> Tuple[List[Fabriquant], int]:
+  def get_all_fabriquants_page(self, skip: int, limit: int, sort_by: str = "id", search: str = None,
+                               direction: str = "DESC") -> Tuple[List[Fabriquant], int]:
     q = self.db.query(Fabriquant)
     total = q.count()
     order_col = getattr(Fabriquant, sort_by, Fabriquant.id)
     q = q.order_by(desc(order_col) if direction.upper() == "DESC" else asc(order_col))
+    print("search")
+    print(search)
+    if search != "null":
+      q = q.filter(func.lower(Fabriquant.nom).like(f"%{search.lower()}%"))
     rows = q.offset(skip).limit(limit).all()
     return rows, total
 
@@ -43,7 +48,7 @@ class FabriquantService:
     return f
 
   def delete_fabriquant(self, id_: int) -> None:
-    f:Fabriquant = self.db.query(Fabriquant).filter(Fabriquant.id == id_).first()
+    f: Fabriquant = self.db.query(Fabriquant).filter(Fabriquant.id == id_).first()
     if not f:
       raise HTTPException(status_code=404, detail="Fabriquant non trouvé")
     f.supprimer = 1

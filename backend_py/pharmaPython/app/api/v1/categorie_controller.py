@@ -1,7 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import Field
+from sqlalchemy import func
 from sqlalchemy.orm import Session
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 from fastapi_pagination import Page, paginate, Params
 from fastapi_pagination.ext.sqlalchemy import paginate as sa_paginate
 
@@ -57,11 +58,15 @@ class ZeroParams(Params):
 @router.get("/pageable", response_model=PageCustom[CategorieSchema])
 def get_all_categories_pageable(
   zparams: ZeroParams = Depends(),  # <- accepte page>=0
+  search: Optional[str] = None,
   db: Session = Depends(get_db),
 ) -> Dict[str, Any]:
   # convertir vers Params 1-based attendu par fastapi_pagination
   params = Params(page=zparams.page + 1, size=zparams.size)
-  query = db.query(Categorie).order_by(Categorie.id.desc()).where(Categorie.supprimer==0)
+  query = db.query(Categorie)
+  if search != "null":
+    query = query.filter(func.lower(Categorie.nom).like(f"%{search.lower()}%"))
+  query = query.order_by(Categorie.id.desc()).where(Categorie.supprimer==0)
   page_obj = sa_paginate(db, query, params)
   content: List[Dict[str, Any]] = [
     CategorieSchema.model_validate(c, from_attributes=True).model_dump()

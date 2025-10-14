@@ -24,8 +24,8 @@ export class FormeService {
     return this.http.get<Forme[]>(this.url, {headers: this.getHeaders()});
   }
 
-  getFormesPage(page: number, size: number): Observable<any[]> {
-    return this.http.get<any[]>(this.url+`/pageable?page=${page}&size=${size}`, {headers: this.getHeaders()});
+  getFormesPage(page: number, size: number, search: string): Observable<any[]> {
+    return this.http.get<any[]>(this.url+`/pageable?page=${page}&size=${size}&search=${search}`, {headers: this.getHeaders()});
   }
 
   addForme(forme: Forme): Observable<Forme> {

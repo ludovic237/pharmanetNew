@@ -19,8 +19,10 @@ class RayonRepository:
       .first()
     )
 
-  def find_all_pageable(self, page: int, size: int) -> Tuple[List[Rayon], int]:
+  def find_all_pageable(self, page: int, size: int, search: str) -> Tuple[List[Rayon], int]:
     q = self.db.query(Rayon)
+    if search != "null":
+      q = q.filter(func.lower(Rayon.nom).like(f"%{search.lower()}%"))
     total = q.count()
     rows = q.offset(page * size).limit(size).all()
     return rows, total

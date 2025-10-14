@@ -1,49 +1,65 @@
 <div class="p-2">
+  <mat-card>
+    <div fxLayout="row wrap" fxLayoutAlign="space-between center" class="w-100 p-3">
+      <h2>Fabriquant List</h2>
+      <button mat-raised-button color="primary" (click)="openCategoryDialog(null)">Add frabriquant</button>
+    </div>
+    <mat-divider></mat-divider>
     <mat-card>
-        <div fxLayout="row wrap" fxLayoutAlign="space-between center" class="w-100 p-3">
-            <h2>Fabriquant List</h2>
-            <button mat-raised-button color="primary" (click)="openCategoryDialog(null)">Add frabriquant</button>
+      <div fxLayout="row" fxLayoutAlign="center">
+        <div fxFlex="100" fxFlex.gt-sm="40" class="px-1">
+          <mat-form-field class="w-100 mt-2" appearance="outline">
+            <mat-label>Rechercher fabriquant</mat-label>
+            <input type="text"
+                   matInput
+                   [(ngModel)]="fabriquantNom"
+                   (ngModelChange)="searchFonction()"
+            >
+          </mat-form-field>
         </div>
-        <mat-divider></mat-divider>
-        <div class="mat-mdc-table admin-table">
-            <div class="mat-mdc-header-row">
-                <div class="mat-mdc-header-cell">Nom</div>
-
-                <div class="mat-mdc-header-cell"></div>
-            </div>
-            @for (cat of fabriquants | paginate: { itemsPerPage: count, currentPage: page }; track cat.id) {
-                <div class="mat-mdc-row">
-                    <div class="mat-mdc-cell">{{cat.nom}}</div>
-<!--                    </div>-->
-                    <div class="mat-mdc-cell">
-                        <div class="p-2 actions">
-                            <button mat-mini-fab color="primary" matTooltip="Edit" (click)="openCategoryDialog(cat)">
-                                <mat-icon>edit</mat-icon>
-                            </button>
-                            <button [disabled]="cat.supprimer==1" mat-mini-fab color="warn" matTooltip="Delete" class="mx-1" (click)="remove(cat)">
-                                <mat-icon>delete</mat-icon>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            }
-        </div>
+      </div>
     </mat-card>
+    <mat-divider></mat-divider>
+    <div class="mat-mdc-table admin-table">
+      <div class="mat-mdc-header-row">
+        <div class="mat-mdc-header-cell">Nom</div>
 
-    @if (fabriquants.length) {
-        <div fxLayout="row wrap">
-            <div fxFlex="100">
-                <mat-card class="p-0 text-center">
-                  <mat-paginator
-                    [length]="totalItems"
-                    [pageSize]="count"
-                    (page)="onPageChanged($event)"
-                    [pageSizeOptions]="[5, 10, 25, 100]">
-
-                  </mat-paginator>
-                </mat-card>
+        <div class="mat-mdc-header-cell"></div>
+      </div>
+      @for (cat of fabriquants | paginate: {itemsPerPage: count, currentPage: page}; track cat.id) {
+        <div class="mat-mdc-row">
+          <div class="mat-mdc-cell">{{ cat.nom }}</div>
+          <!--                    </div>-->
+          <div class="mat-mdc-cell">
+            <div class="p-2 actions">
+              <button mat-mini-fab color="primary" matTooltip="Edit" (click)="openCategoryDialog(cat)">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button [disabled]="cat.supprimer==1" mat-mini-fab color="warn" matTooltip="Delete" class="mx-1"
+                      (click)="remove(cat)">
+                <mat-icon>delete</mat-icon>
+              </button>
             </div>
+          </div>
         </div>
-    }
+      }
+    </div>
+  </mat-card>
+
+  @if (fabriquants.length) {
+    <div fxLayout="row wrap">
+      <div fxFlex="100">
+        <mat-card class="p-0 text-center">
+          <mat-paginator
+            [length]="totalItems"
+            [pageSize]="count"
+            (page)="onPageChanged($event)"
+            [pageSizeOptions]="[5, 10, 25, 100]">
+
+          </mat-paginator>
+        </mat-card>
+      </div>
+    </div>
+  }
 
 </div>

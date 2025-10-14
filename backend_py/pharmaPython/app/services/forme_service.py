@@ -25,10 +25,11 @@ class FormeService:
   def get_all_formes(self) -> List[Forme]:
     return self.db.query(Forme).all()
 
-  def get_all_formes_page(self, page: int, size: int, sort_by: str = "id", direction: str = "DESC") -> Dict[str, Any]:
+  def get_all_formes_page(self, page: int, size: int,search: str = None, sort_by: str = "id", direction: str = "DESC") -> Dict[str, Any]:
     page, size = _page_tuple(page, size)
     rows, total = self.forme_repo.find_all_pageable(
       page=page,
+      search=search,
       size=size)
     content = rows
     return {

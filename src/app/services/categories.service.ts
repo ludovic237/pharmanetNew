@@ -25,8 +25,8 @@ export class CategorieService {
   }
 
 
-  getCategoriesPage(page: number, size: number): Observable<any> {
-    return this.http.get<any>(this.url+`/pageable?page=${page}&size=${size}`, {headers: this.getHeaders()});
+  getCategoriesPage(page: number, size: number, search: string): Observable<any> {
+    return this.http.get<any>(this.url+`/pageable?page=${page}&size=${size}&search=${search}`, {headers: this.getHeaders()});
   }
 
   addCategorie(categorie: any): Observable<Categorie> {

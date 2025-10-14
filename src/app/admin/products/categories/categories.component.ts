@@ -1,7 +1,7 @@
 import {Component, OnInit, inject} from '@angular/core';
 import {AuthService} from "@services/auth.service";
 import {MatSnackBar} from "@angular/material/snack-bar";
-import {MatDialog} from '@angular/material/dialog';
+import {MatDialog, MatDialogActions} from '@angular/material/dialog';
 import {Category} from '@models/category';
 import {AppService} from '@services/app.service';
 import {DomHandlerService} from '@services/dom-handler.service';
@@ -17,7 +17,22 @@ import {MatDividerModule} from '@angular/material/divider';
 import {MatButtonModule} from '@angular/material/button';
 import {CategorieService} from "@services/categories.service";
 import {LoaderService} from "@services/loader.service";
-import {MatPaginatorModule, PageEvent} from "@angular/material/paginator";
+import {MatPaginator, MatPaginatorModule, PageEvent} from "@angular/material/paginator";
+import {MatFormFieldModule} from "@angular/material/form-field";
+import {MatAutocompleteModule} from "@angular/material/autocomplete";
+import {MatRadioButton, MatRadioGroup, MatRadioModule} from "@angular/material/radio";
+import {MatSlideToggleModule} from "@angular/material/slide-toggle";
+import {FormsModule, ReactiveFormsModule} from "@angular/forms";
+import {MatInputModule} from "@angular/material/input";
+import {MatAccordion, MatExpansionModule} from "@angular/material/expansion";
+import {CommonModule} from "@angular/common";
+import {MatToolbarModule} from "@angular/material/toolbar";
+import {MatTabsModule} from "@angular/material/tabs";
+import {MatTableModule} from "@angular/material/table";
+import {MatCheckboxModule} from "@angular/material/checkbox";
+import {MatDatepickerModule} from "@angular/material/datepicker";
+import {MatNativeDateModule} from "@angular/material/core";
+import {MatSelectModule} from "@angular/material/select";
 
 
 @Component({
@@ -30,13 +45,55 @@ import {MatPaginatorModule, PageEvent} from "@angular/material/paginator";
     MatIconModule,
     MatDividerModule,
     PipesModule,
-    NgxPaginationModule
-],
+    NgxPaginationModule,
+    MatFormFieldModule,
+    MatAutocompleteModule,
+    FlexLayoutModule,
+    MatCardModule,
+    MatButtonModule,
+    MatIconModule,
+    MatDividerModule,
+    PipesModule,
+    NgxPaginationModule,
+    MatPaginatorModule,
+    MatRadioGroup,
+    MatRadioModule,
+    MatSlideToggleModule,
+    FormsModule,
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatDividerModule,
+    MatRadioButton,
+    MatAccordion,
+    MatExpansionModule,
+    FormsModule,
+    ReactiveFormsModule,
+    CommonModule,
+    // Material
+    MatToolbarModule,
+    MatTabsModule,
+    MatIconModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatAutocompleteModule,
+    MatTableModule,
+    MatCardModule,
+    MatCheckboxModule,
+    MatButtonModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatSelectModule,
+    FlexLayoutModule,
+    MatDialogActions,
+    MatPaginator
+  ],
   templateUrl: './categories.component.html',
   styleUrl: './categories.component.scss'
 })
 export class CategoriesComponent implements OnInit {
   public categories: any[] = [];
+  public categorieNom: string = "";
   public totalItems = 0;  // Default to 10 if undefined
   // public categories: Category[] = [];
   public page: number = 1;
@@ -52,13 +109,20 @@ export class CategoriesComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.getCategories();
+    this.getCategories(this.categorieNom);
   }
 
-  public getCategories() {
+  searchFonction(){
+    if (this.categorieNom==""){
+      this.categorieNom=null
+    }
+    this.getCategories(this.categorieNom)
+  }
 
-    this.categorieService.getCategoriesPage(this.page-1,this.count).subscribe({
-      next: (data:any) => {
+  public getCategories(search:string) {
+
+    this.categorieService.getCategoriesPage(this.page - 1, this.count,search).subscribe({
+      next: (data: any) => {
         this.categories = data.content;
         this.count = data.pageable.pageSize;
         this.totalItems = data.totalElements;
@@ -107,10 +171,10 @@ export class CategoriesComponent implements OnInit {
   }
 
   public onPageChanged(event: PageEvent) {
-    this.page = event.pageIndex+1;
+    this.page = event.pageIndex + 1;
     this.count = event.pageSize;
     this.domHandlerService.winScroll(0, 0);
-    this.getCategories()
+    this.getCategories(this.categorieNom)
   }
 
   public openCategoryDialog(data: any) {
@@ -142,7 +206,7 @@ export class CategoriesComponent implements OnInit {
           this.categories.push(category);
         }
       }
-      this.getCategories();
+      this.getCategories(this.categorieNom);
     });
   }
 
@@ -159,7 +223,7 @@ export class CategoriesComponent implements OnInit {
 
         this.categorieService.deleteCategorie(category.id).subscribe({
           next: (data) => {
-            this.getCategories()
+            this.getCategories(this.categorieNom)
 
           },
           error: (err) => {
