@@ -53,8 +53,8 @@ export const getFilteredAdminMenuPharmaItems = (key: string) => {
     ...(key === 'differe' ?
       [
         new AdminMenuPharma(302, 'ADMIN_NAV.COLLECT_SALE', '/admin/ventes/encaisser_vente', null, 'payment', null, false, 300, ['Administrateur', 'Caissier'])] : []),
-    new AdminMenuPharma(303, 'ADMIN_NAV.ADD_SALE ', '/admin/ventes/ajouter_vente', null, 'add_shopping_cart', null, false, 300, ['Administrateur', 'Caissier', 'Vendeur']),
-    new AdminMenuPharma(304, 'ADMIN_NAV.PRODUCT_RETURN ', '/admin/ventes/retour_produit', null, 'undo', null, false, 300, ['Administrateur', 'Caissier', 'Vendeur']),
+    new AdminMenuPharma(303, 'ADMIN_NAV.ADD_SALE', '/admin/ventes/ajouter_vente', null, 'add_shopping_cart', null, false, 300, ['Administrateur', 'Caissier', 'Vendeur']),
+    new AdminMenuPharma(304, 'ADMIN_NAV.PRODUCT_RETURN', '/admin/ventes/retour_produit', null, 'undo', null, false, 300, ['Administrateur', 'Caissier', 'Vendeur']),
 
     new AdminMenuPharma(400, 'ADMIN_NAV.ORDERS', '/admin/commandes/lister_ajouter_commande', null, 'assignment', null, false, 0, ['Administrateur']),
 
