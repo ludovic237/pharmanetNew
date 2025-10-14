@@ -231,7 +231,7 @@ export class SortieRayonDialogComponent implements OnInit {
     // On retourne les données du tableau au composant parent
 
     let dataSave = this.dataSource.map((product: any) => ({
-      contenuDetail: null,
+      // contenuDetail: null,
       id: product.id ?? 0,
       quantite: product.quantite ?? 0,
       rayonId: product.rayonId ?? 0,

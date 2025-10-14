@@ -258,7 +258,7 @@ export class SortieSimpleProductDetailRayonDialogComponent implements OnInit {
 
   executerSortie() {
     let dataSave = this.modifiedProducts.map((product: any) => ({
-      contenuDetail: null,
+      // contenuDetail: null,
       id: product.id ?? 0,
       quantite: product.quantiteRestante ?? 0,
       rayonId: product.rayonId ?? 0,

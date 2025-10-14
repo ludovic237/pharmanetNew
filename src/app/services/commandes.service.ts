@@ -186,10 +186,10 @@ export class CommandesService {
     const data = {
       type: type,
       fournisseurId: fournisseurId,
-      produits: produits.map(p => ({
+      produits: produits.map((p:any) => ({
         productId: p.id,
-        producCmdtId: null,
-        produitEnRayontId: null,
+        // producCmdtId: null,
+        // produitEnRayontId: null,
         reduction: 0,
         quantiteRestante: p.quantiteRestante,
         datePeremption: p.datePeremption,
