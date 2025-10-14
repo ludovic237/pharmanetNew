@@ -26,7 +26,7 @@
         <table mat-table [dataSource]="produitsAchetes" class="mat-elevation-z8">
           <ng-container matColumnDef="nom">
             <th mat-header-cell *matHeaderCellDef> Nom</th>
-            <td mat-cell *matCellDef="let produit"> {{ produit.nom }}</td>
+            <td mat-cell *matCellDef="let produit"> {{ produit.nom }} ({{ produit.rayonId }})</td>
           </ng-container>
           <ng-container matColumnDef="prixUnitaire">
             <th mat-header-cell *matHeaderCellDef> Prix Unitaire</th>
@@ -74,7 +74,7 @@
         <table mat-table [dataSource]="produitsRetournes" class="mat-elevation-z8">
           <ng-container matColumnDef="nom">
             <th mat-header-cell *matHeaderCellDef> Nom</th>
-            <td mat-cell *matCellDef="let produit"> {{ produit.nom }}</td>
+            <td mat-cell *matCellDef="let produit"> {{ produit.nom }} ({{ produit.rayonId }})</td>
           </ng-container>
           <ng-container matColumnDef="prixUnitaire">
             <th mat-header-cell *matHeaderCellDef> Prix Unitaire</th>

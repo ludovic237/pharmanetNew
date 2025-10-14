@@ -279,7 +279,7 @@ export class RetourProduitComponent implements OnInit {
     produit.quantite -= quantiteRetour;
 
     // Check if the product already exists in produitsRetournes
-    const existingProduct = this.produitsRetournes.find(p => p.nom === produit.nom);
+    const existingProduct = this.produitsRetournes.find(p => p.rayonId === produit.rayonId);
     if (existingProduct) {
       // Add the returned quantity to the existing product
       existingProduct.quantite += quantiteRetour;

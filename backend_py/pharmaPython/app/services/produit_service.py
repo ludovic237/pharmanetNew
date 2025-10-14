@@ -527,7 +527,7 @@ class ProduitService:
 
     rp = RetourProduit()
     rp.vente, rp.caisse, rp.employe = vente, caisse, employe
-    rp.dateRetour = datetime.now()
+    rp.date_retour = datetime.now()
     rp = self.retour_produit_repo.save(rp)
 
     for pr in produits_retour:
@@ -549,7 +549,7 @@ class ProduitService:
 
       # Ligne de retour
       pr_line = ProduitRetour()
-      pr_line.retourProduit = rp
+      pr_line.retour_produit = rp
       pr_line.concerner = concerner
       pr_line.quantite = q_retour
       self.produit_retour_repo.save(pr_line)
@@ -560,7 +560,7 @@ class ProduitService:
       self.produit_repo.save(p)
 
       er = _require(self.enrayon_repo.find_by_id(rayon_id), "EnRayon introuvable")
-      er.quantiteRestante = int(er.quantiteRestante or 0) + q_retour
+      er.quantite_restante = int(er.quantite_restante or 0) + q_retour
       self.enrayon_repo.save(er)
 
     return rp
