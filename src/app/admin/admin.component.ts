@@ -215,15 +215,10 @@ export class AdminComponent implements OnInit {
   }
 
   public getLangText(lang: string) {
-    if (lang == 'de') {
-      return 'German';
-    } else if (lang == 'fr') {
+    if (lang == 'fr') {
       return 'French';
-    } else if (lang == 'ru') {
-      return 'Russian';
-    } else if (lang == 'tr') {
-      return 'Turkish';
-    } else {
+    }
+    else {
       return 'English';
     }
   }
