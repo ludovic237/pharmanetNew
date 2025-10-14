@@ -76,6 +76,9 @@ export class AdminComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.translateService.setDefaultLang('fr');
+    this.translateService.langs = ['fr','en']
+    this.translateService.use('fr');
     this.nom = localStorage.getItem("nom")
     this.role = localStorage.getItem("role") ? localStorage.getItem("role") : "N/A";
 
