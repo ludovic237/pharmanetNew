@@ -71,7 +71,7 @@ export const getFilteredAdminMenuPharmaItems = (key: string) => {
     new AdminMenuPharma(701, 'ADMIN_NAV.GENERAL', '/admin/setting/setting', null, 'tune', null, false, 700, ['Administrateur', 'Caissier']),
     new AdminMenuPharma(702, 'ADMIN_NAV.EMPLOYEE', '/admin/setting/employe', null, 'badge', null, false, 700, ['Administrateur', 'Caissier']),
     new AdminMenuPharma(703, 'ADMIN_NAV.CUSTOMER', '/admin/setting/client', null, 'person', null, false, 700, ['Administrateur', 'Caissier']),
-    new AdminMenuPharma(704, 'ADMIN_NAV.EXPENDITURE', '/admin/setting/depense', null, 'account_balance_wallet', null, false, 700, ['Administrateur', 'Caissier']),
+    new AdminMenuPharma(704, 'ADMIN_NAV.EXPENSE', '/admin/setting/depense', null, 'account_balance_wallet', null, false, 700, ['Administrateur', 'Caissier']),
     new AdminMenuPharma(705, 'ADMIN_NAV.ACTIVITY', '/admin/setting/activite', null, 'trending_up', null, false, 700, ['Administrateur', 'Caissier']),
   ];
 };
