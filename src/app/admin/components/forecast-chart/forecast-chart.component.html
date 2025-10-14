@@ -8,19 +8,18 @@
     <ng-scrollbar orientation="vertical" pointerEventsMethod="scrollbar">
       <mat-card>
         <mat-card-content style="height:320px">
-          <ng-container *ngIf="!loading && lineChartData; else loadingTpl">
-                  <canvas baseChart
-                          [data]="lineChartData"
-                          [options]="lineChartOptions"
-                          >
-            <!--              [type]="line">-->
-                  </canvas>
-          </ng-container>
-          <ng-template #loadingTpl>
+          @if (!loading && lineChartData) {
+            <canvas baseChart
+              [data]="lineChartData"
+              [options]="lineChartOptions"
+              >
+              <!--              [type]="line">-->
+            </canvas>
+          } @else {
             <div class="center">
               <mat-progress-spinner diameter="40" mode="indeterminate"></mat-progress-spinner>
             </div>
-          </ng-template>
+          }
         </mat-card-content>
       </mat-card>
     </ng-scrollbar>

@@ -17,7 +17,7 @@ import {MatFormFieldModule} from "@angular/material/form-field";
 import {MatInputModule} from "@angular/material/input";
 import {MatDividerModule} from "@angular/material/divider";
 import {MatExpansionModule} from "@angular/material/expansion";
-import {CommonModule} from "@angular/common";
+
 import {MatToolbarModule} from "@angular/material/toolbar";
 import {MatTabsModule} from "@angular/material/tabs";
 import {MatIconModule} from "@angular/material/icon";
@@ -70,8 +70,6 @@ import {MatProgressSpinnerModule} from "@angular/material/progress-spinner";
     MatExpansionModule,
     FormsModule,
     ReactiveFormsModule,
-    CommonModule,
-    // Material
     MatToolbarModule,
     MatTabsModule,
     MatIconModule,
@@ -88,7 +86,6 @@ import {MatProgressSpinnerModule} from "@angular/material/progress-spinner";
     FormsModule,
     ReactiveFormsModule,
     FlexLayoutModule,
-    // Material
     MatStepperModule,
     MatTableModule,
     MatFormFieldModule,
@@ -102,7 +99,7 @@ import {MatProgressSpinnerModule} from "@angular/material/progress-spinner";
     NgxPaginationModule,
     MatDialogModule,
     MatProgressSpinnerModule
-  ],
+],
   templateUrl: './loader-dialog.component.html',
   styleUrl: './loader-dialog.component.scss'
 })

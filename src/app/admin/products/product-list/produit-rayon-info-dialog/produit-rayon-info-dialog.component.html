@@ -11,7 +11,7 @@
           <input matInput type="number" formControlName="quantiteEtiquette" min="1">
         </mat-form-field>
         <button mat-raised-button color="primary" type="submit"
-                [disabled]="etiquetteForm.get('quantiteEtiquette')?.value <= 0">
+          [disabled]="etiquetteForm.get('quantiteEtiquette')?.value <= 0">
           <mat-icon>print</mat-icon>
           Imprimer
         </button>
@@ -86,18 +86,20 @@
           <mat-form-field appearance="outline">
             <mat-label>Réduction(%)</mat-label>
             <input matInput [readonly]="data.type === 'info'" type="number" formControlName="reduction" min="0"
-                   max="100">
-          </mat-form-field>
-        </div>
-      </form>
+              max="100">
+            </mat-form-field>
+          </div>
+        </form>
 
-    </div>
-  </mat-dialog-content>
+      </div>
+    </mat-dialog-content>
 
-  <mat-dialog-actions align="end" *ngIf="data.type !== 'info'">
-    <button mat-button (click)="onNoClick()">Fermer</button>
-    <button mat-raised-button color="primary" (click)="onSave()" [disabled]="!productForm.valid">
-      Sauvegarder
-    </button>
-  </mat-dialog-actions>
-</div>
+    @if (data.type !== 'info') {
+      <mat-dialog-actions align="end">
+        <button mat-button (click)="onNoClick()">Fermer</button>
+        <button mat-raised-button color="primary" (click)="onSave()" [disabled]="!productForm.valid">
+          Sauvegarder
+        </button>
+      </mat-dialog-actions>
+    }
+  </div>

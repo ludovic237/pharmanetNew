@@ -9,7 +9,7 @@ import {MatChipsModule} from "@angular/material/chips";
 import {MatButtonModule} from "@angular/material/button";
 import {MatButtonToggleModule} from "@angular/material/button-toggle";
 import {MatIconModule} from "@angular/material/icon";
-import {CommonModule, DecimalPipe} from "@angular/common";
+import { DecimalPipe } from "@angular/common";
 import {FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
 import {MatInputModule} from "@angular/material/input";
 import {MatSelectModule} from "@angular/material/select";
@@ -45,7 +45,6 @@ import {LoaderService} from "@services/loader.service";
   imports: [
     MatDialogModule,
     MatToolbarModule,
-    CommonModule,
     FormsModule,
     MatToolbarModule,
     ReactiveFormsModule,
@@ -70,8 +69,6 @@ import {LoaderService} from "@services/loader.service";
     MatExpansionModule,
     FormsModule,
     ReactiveFormsModule,
-    CommonModule,
-    // Material
     MatToolbarModule,
     MatTabsModule,
     MatIconModule,
@@ -88,7 +85,6 @@ import {LoaderService} from "@services/loader.service";
     FormsModule,
     ReactiveFormsModule,
     FlexLayoutModule,
-    // Material
     MatStepperModule,
     MatTableModule,
     MatFormFieldModule,
@@ -100,7 +96,7 @@ import {LoaderService} from "@services/loader.service";
     MatSnackBarModule,
     MatChipsModule,
     NgxPaginationModule
-  ],
+],
   templateUrl: './product-detail-info-dialog.component.html',
   styleUrl: './product-detail-info-dialog.component.scss'
 })

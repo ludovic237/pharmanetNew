@@ -4,7 +4,7 @@
       <h2>Ventes List</h2>
       <div fxLayout="row" fxLayoutGap="8px">
         <div>Total : <h1>{{ totalAmount }} FCFA</h1></div>
-         <mat-divider vertical></mat-divider>
+        <mat-divider vertical></mat-divider>
         <button mat-raised-button color="primary" (click)="fetchVentesPageablePrint()">Imprimer</button>
 
       </div>
@@ -17,9 +17,11 @@
           <mat-label>Filtrer par État</mat-label>
           <mat-select [(value)]="selectedEtat" (selectionChange)="fetchVentesPageable()">
             <mat-option [value]="null">Tous</mat-option>
-            <mat-option *ngFor="let etat of etats" [value]="etat">
-              {{ etat }}
-            </mat-option>
+            @for (etat of etats; track etat) {
+              <mat-option [value]="etat">
+                {{ etat }}
+              </mat-option>
+            }
           </mat-select>
         </mat-form-field>
 
@@ -28,9 +30,11 @@
           <mat-label>Filtrer par Utilisateur</mat-label>
           <mat-select [(value)]="selectedUtilisateur" (selectionChange)="fetchVentesPageable()">
             <mat-option [value]="null">Tous</mat-option>
-            <mat-option *ngFor="let utilisateur of utilisateurs" [value]="utilisateur.id">
-              {{ utilisateur.nom }}
-            </mat-option>
+            @for (utilisateur of utilisateurs; track utilisateur) {
+              <mat-option [value]="utilisateur.id">
+                {{ utilisateur.nom }}
+              </mat-option>
+            }
           </mat-select>
         </mat-form-field>
 
@@ -39,9 +43,11 @@
           <mat-label>Filtrer par Employé</mat-label>
           <mat-select [(value)]="selectedEmploye" (selectionChange)="fetchVentesPageable()">
             <mat-option [value]="null">Tous</mat-option>
-            <mat-option *ngFor="let employe of employes" [value]="employe.id">
-              {{ employe.user.nom }}   {{ employe.user.prenom }}
-            </mat-option>
+            @for (employe of employes; track employe) {
+              <mat-option [value]="employe.id">
+                {{ employe.user.nom }}   {{ employe.user.prenom }}
+              </mat-option>
+            }
           </mat-select>
         </mat-form-field>
 
@@ -50,9 +56,11 @@
           <mat-label>Filtrer par Prescripteur</mat-label>
           <mat-select [(value)]="selectedPrescripteur" (selectionChange)="fetchVentesPageable()">
             <mat-option [value]="null">Tous</mat-option>
-            <mat-option *ngFor="let prescripteur of prescripteurs" [value]="prescripteur.id">
-              {{ prescripteur.nom }}
-            </mat-option>
+            @for (prescripteur of prescripteurs; track prescripteur) {
+              <mat-option [value]="prescripteur.id">
+                {{ prescripteur.nom }}
+              </mat-option>
+            }
           </mat-select>
         </mat-form-field>
 
@@ -61,9 +69,11 @@
           <mat-label>Caisse active</mat-label>
           <mat-select [(value)]="selectedCaisse" (selectionChange)="fetchVentesPageable()">
             <mat-option [value]="null">Tous</mat-option>
-            <mat-option *ngFor="let caisse of caisses" [value]="caisse">
-              {{ caisse }}
-            </mat-option>
+            @for (caisse of caisses; track caisse) {
+              <mat-option [value]="caisse">
+                {{ caisse }}
+              </mat-option>
+            }
           </mat-select>
         </mat-form-field>
 
@@ -115,9 +125,11 @@
                 </mat-expansion-panel-header>
                 <div>
                   <ul>
-                    <li *ngFor="let produit of vente.produits">
-                      {{ produit.nom }} ({{ produit.quantite }})
-                    </li>
+                    @for (produit of vente.produits; track produit) {
+                      <li>
+                        {{ produit.nom }} ({{ produit.quantite }})
+                      </li>
+                    }
                   </ul>
                 </div>
               </mat-expansion-panel>
@@ -173,7 +185,7 @@
       <mat-card class="text-center">
         <mat-paginator
           [showFirstLastButtons]="true" [length]="totalItems" [pageSize]="count" [pageSizeOptions]="[5, 10, 25, 100]"
-                       (page)="onPageChanged($event)">
+          (page)="onPageChanged($event)">
         </mat-paginator>
       </mat-card>
     </div>

@@ -27,7 +27,7 @@ import {MatCheckboxModule} from "@angular/material/checkbox";
 import {MatFormFieldModule} from "@angular/material/form-field";
 import {MatInputModule} from "@angular/material/input";
 import {MatExpansionModule} from "@angular/material/expansion";
-import {CommonModule} from "@angular/common";
+
 import {MatToolbarModule} from "@angular/material/toolbar";
 import {MatTabsModule} from "@angular/material/tabs";
 import {MatAutocompleteModule} from "@angular/material/autocomplete";
@@ -63,8 +63,6 @@ import {LoaderService} from "@services/loader.service";
     MatExpansionModule,
     FormsModule,
     ReactiveFormsModule,
-    CommonModule,
-    // Material
     MatToolbarModule,
     MatTabsModule,
     MatIconModule,
@@ -81,7 +79,6 @@ import {LoaderService} from "@services/loader.service";
     FormsModule,
     ReactiveFormsModule,
     FlexLayoutModule,
-    // Material
     MatStepperModule,
     MatTableModule,
     MatFormFieldModule,
@@ -92,9 +89,8 @@ import {LoaderService} from "@services/loader.service";
     MatCardModule,
     MatSnackBarModule,
     MatChipsModule,
-    NgxPaginationModule,
-    CommonModule
-  ],
+    NgxPaginationModule
+],
   templateUrl: './retour-produit.component.html',
   styleUrl: './retour-produit.component.scss'
 })

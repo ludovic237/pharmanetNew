@@ -18,7 +18,7 @@ import {AuthService} from "@services/auth.service";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {LoaderService} from "@services/loader.service";
 import {MatPaginatorModule} from "@angular/material/paginator";
-import {CommonModule} from "@angular/common";
+
 
 @Component({
   selector: 'app-formes',
@@ -30,9 +30,8 @@ import {CommonModule} from "@angular/common";
     MatIconModule,
     MatDividerModule,
     PipesModule,
-    NgxPaginationModule,
-    CommonModule
-  ],
+    NgxPaginationModule
+],
   templateUrl: './formes.component.html',
   styleUrl: './formes.component.scss'
 })

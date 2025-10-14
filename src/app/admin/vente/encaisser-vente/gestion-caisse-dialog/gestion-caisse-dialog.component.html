@@ -1,14 +1,14 @@
 <mat-toolbar color="{{ data.type === 'open' ? 'primary' : data.type === 'close' ? 'warn' : 'warn' }}">
   <div fxLayout="row" fxLayoutAlign="space-between center" class="user-info">
     <h2>{{ data.type === 'open' ? 'Ouvrir Caisse' : data.type === 'close' ? 'Fermer Caisse' : 'Caisse en attente de clôture' }}
-      - session : {{ data.session }} - caissier : {{ data.caissierName }}</h2>
+    - session : {{ data.session }} - caissier : {{ data.caissierName }}</h2>
   </div>
 </mat-toolbar>
 
 
 <mat-dialog-content>
   <form [formGroup]="caisseForm">
-<!--    <h3>Fond de caisse</h3>-->
+    <!--    <h3>Fond de caisse</h3>-->
     <div class="fond-caisse" fxLayout="row" fxLayoutGap="16px">
       <!-- Pieces Column -->
       <mat-card fxFlex="50">
@@ -81,24 +81,26 @@
     <!--    <mat-toolbar color="primary">-->
     <!--      <div fxLayout="row" fxLayoutAlign="center" class="user-info">-->
     <!--        <p></p>-->
-    <!--      </div>-->
-    <!--    </mat-toolbar>-->
+  <!--      </div>-->
+<!--    </mat-toolbar>-->
 
-    <div fxLayout="row" fxLayoutGap="16px" class="autres" formGroupName="autres" *ngIf="data.type !== 'open'">
-      <div class="p-4" fxFlex="50">
-        <mat-form-field class="w-100 mt-2" appearance="outline" color="primary">
-          <mat-label>OM / MOMO</mat-label>
-          <input matInput type="number" formControlName="electronique" (input)="calculateTotals()">
-        </mat-form-field>
-      </div>
-      <div class="p-4" fxFlex="50">
-        <mat-form-field class="w-100 mt-2" appearance="outline">
-          <mat-label>Bon de caisse</mat-label>
-          <input matInput type="number" formControlName="ticket" (input)="calculateTotals()">
-        </mat-form-field>
-      </div>
+@if (data.type !== 'open') {
+  <div fxLayout="row" fxLayoutGap="16px" class="autres" formGroupName="autres">
+    <div class="p-4" fxFlex="50">
+      <mat-form-field class="w-100 mt-2" appearance="outline" color="primary">
+        <mat-label>OM / MOMO</mat-label>
+        <input matInput type="number" formControlName="electronique" (input)="calculateTotals()">
+      </mat-form-field>
     </div>
-  </form>
+    <div class="p-4" fxFlex="50">
+      <mat-form-field class="w-100 mt-2" appearance="outline">
+        <mat-label>Bon de caisse</mat-label>
+        <input matInput type="number" formControlName="ticket" (input)="calculateTotals()">
+      </mat-form-field>
+    </div>
+  </div>
+}
+</form>
 </mat-dialog-content>
 
 <mat-card-footer>

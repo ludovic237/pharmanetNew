@@ -8,7 +8,7 @@ import {MatButtonModule} from "@angular/material/button";
 import {FlexLayoutModule} from "@ngbracket/ngx-layout";
 import {EnrayonsService} from "@services/enrayons.service";
 import {MatCardModule} from "@angular/material/card";
-import {CommonModule, formatDate} from "@angular/common";
+import { CommonModule, formatDate } from "@angular/common";
 import {MatAutocompleteModule} from "@angular/material/autocomplete";
 import {MatTableModule} from "@angular/material/table";
 import {MatIconModule} from "@angular/material/icon";

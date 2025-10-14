@@ -9,179 +9,181 @@
           <mat-form-field appearance="outline" class="w-100">
             <mat-label>Saisir reference produit</mat-label>
             <input matInput [formControl]="searchReferenceControl"
-                   placeholder="Saisir reference produit" id="search-reference-produit">
-          </mat-form-field>
+              placeholder="Saisir reference produit" id="search-reference-produit">
+            </mat-form-field>
+          </div>
         </div>
+
+      </mat-card-content>
+    </mat-card>
+
+    <div fxLayout="row" fxLayoutAlign="space-around center" class="mt-4">
+      <mat-card class="col-md-5">
+        <mat-card-header>
+          <mat-card-title>Produit achetés</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <table mat-table [dataSource]="produitsAchetes" class="mat-elevation-z8">
+            <ng-container matColumnDef="nom">
+              <th mat-header-cell *matHeaderCellDef> Nom</th>
+              <td mat-cell *matCellDef="let produit"> {{ produit.nom }}</td>
+            </ng-container>
+            <ng-container matColumnDef="prixUnitaire">
+              <th mat-header-cell *matHeaderCellDef> Prix Unitaire</th>
+              <td mat-cell *matCellDef="let produit"> {{ produit.prixUnitaire }}</td>
+            </ng-container>
+            <ng-container matColumnDef="quantite">
+              <th mat-header-cell *matHeaderCellDef> Quantité</th>
+              <td mat-cell *matCellDef="let produit"> {{ produit.quantite }}</td>
+            </ng-container>
+            <ng-container matColumnDef="reduction">
+              <th mat-header-cell *matHeaderCellDef> Réduction</th>
+              <td mat-cell *matCellDef="let produit"> {{ produit.reduction }}</td>
+            </ng-container>
+            <ng-container matColumnDef="action">
+              <th mat-header-cell *matHeaderCellDef> Action</th>
+              <td mat-cell *matCellDef="let produit">
+                <mat-form-field style=" width: 100px;"
+                  appearance="outline" class="quantity-input">
+                  <mat-label>Quantité</mat-label>
+                  <input matInput type="number"
+                    value="{{ produit.quantiteRetour }}"
+                    [(ngModel)]="produit.quantiteRetour" min="0" max="{{ produit.quantite }}">
+                  </mat-form-field>
+                  <button mat-button color="primary"
+                    [disabled]="produit.quantiteRetour <=0"
+                    (click)="moveToRetournes(produit, produit.quantiteRetour)">
+                    Retourner
+                  </button>
+                </td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+            </table>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-icon class="arrow-icon">arrow_forward</mat-icon>
+
+        <mat-card class="col-md-5">
+          <mat-card-header>
+            <mat-card-title>Produit retourné</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <table mat-table [dataSource]="produitsRetournes" class="mat-elevation-z8">
+              <ng-container matColumnDef="nom">
+                <th mat-header-cell *matHeaderCellDef> Nom</th>
+                <td mat-cell *matCellDef="let produit"> {{ produit.nom }}</td>
+              </ng-container>
+              <ng-container matColumnDef="prixUnitaire">
+                <th mat-header-cell *matHeaderCellDef> Prix Unitaire</th>
+                <td mat-cell *matCellDef="let produit"> {{ produit.prixUnitaire }}</td>
+              </ng-container>
+              <ng-container matColumnDef="quantite">
+                <th mat-header-cell *matHeaderCellDef> Quantité</th>
+                <td mat-cell *matCellDef="let produit"> {{ produit.quantite }}</td>
+              </ng-container>
+              <ng-container matColumnDef="reduction">
+                <th mat-header-cell *matHeaderCellDef> Réduction</th>
+                <td mat-cell *matCellDef="let produit"> {{ produit.reduction }}</td>
+              </ng-container>
+              <ng-container matColumnDef="action">
+                <th mat-header-cell *matHeaderCellDef> Action</th>
+                <td mat-cell *matCellDef="let produit">
+                  <button mat-button color="warn" (click)="annulerRetour(produit)">Annuler</button>
+                </td>
+              </ng-container>
+              <tr mat-header-row *matHeaderRowDef="displayedColumnsRetournes"></tr>
+              <tr mat-row *matRowDef="let row; columns: displayedColumnsRetournes;"></tr>
+            </table>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card class="summary-card">
+          <mat-card-content>
+            <div class="footer-actions">
+              <div class="summary-details">
+                <p class="summary-item">Total: <span class="summary-value">{{ totalPrix }}</span> FCFA</p>
+                <p class="summary-item">Réduction: <span class="summary-value">{{ totalReduction }}</span> FCFA</p>
+                <mat-divider></mat-divider>
+                <p class="summary-item">Net à retourner: <span class="summary-value">{{ netTotal }}</span> FCFA</p>
+              </div>
+
+            </div>
+          </mat-card-content>
+          <mat-card-footer>
+            <button mat-raised-button color="accent" class="action-button"
+              [disabled]="produitsRetournes.length <= 0"
+            (click)="validerRetour()">Valider retour</button>
+          </mat-card-footer>
+        </mat-card>
       </div>
 
-    </mat-card-content>
-  </mat-card>
-
-  <div fxLayout="row" fxLayoutAlign="space-around center" class="mt-4">
-    <mat-card class="col-md-5">
-      <mat-card-header>
-        <mat-card-title>Produit achetés</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <table mat-table [dataSource]="produitsAchetes" class="mat-elevation-z8">
-          <ng-container matColumnDef="nom">
-            <th mat-header-cell *matHeaderCellDef> Nom</th>
-            <td mat-cell *matCellDef="let produit"> {{ produit.nom }}</td>
-          </ng-container>
-          <ng-container matColumnDef="prixUnitaire">
-            <th mat-header-cell *matHeaderCellDef> Prix Unitaire</th>
-            <td mat-cell *matCellDef="let produit"> {{ produit.prixUnitaire }}</td>
-          </ng-container>
-          <ng-container matColumnDef="quantite">
-            <th mat-header-cell *matHeaderCellDef> Quantité</th>
-            <td mat-cell *matCellDef="let produit"> {{ produit.quantite }}</td>
-          </ng-container>
-          <ng-container matColumnDef="reduction">
-            <th mat-header-cell *matHeaderCellDef> Réduction</th>
-            <td mat-cell *matCellDef="let produit"> {{ produit.reduction }}</td>
-          </ng-container>
-          <ng-container matColumnDef="action">
-            <th mat-header-cell *matHeaderCellDef> Action</th>
-            <td mat-cell *matCellDef="let produit">
-              <mat-form-field style=" width: 100px;"
-                              appearance="outline" class="quantity-input">
-                <mat-label>Quantité</mat-label>
-                <input matInput type="number"
-                       value="{{ produit.quantiteRetour }}"
-                       [(ngModel)]="produit.quantiteRetour" min="0" max="{{ produit.quantite }}">
-              </mat-form-field>
-              <button mat-button color="primary"
-                      [disabled]="produit.quantiteRetour <=0"
-                      (click)="moveToRetournes(produit, produit.quantiteRetour)">
-                Retourner
-              </button>
-            </td>
-          </ng-container>
-
-          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-        </table>
-      </mat-card-content>
-    </mat-card>
-
-    <mat-icon class="arrow-icon">arrow_forward</mat-icon>
-
-    <mat-card class="col-md-5">
-      <mat-card-header>
-        <mat-card-title>Produit retourné</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <table mat-table [dataSource]="produitsRetournes" class="mat-elevation-z8">
-          <ng-container matColumnDef="nom">
-            <th mat-header-cell *matHeaderCellDef> Nom</th>
-            <td mat-cell *matCellDef="let produit"> {{ produit.nom }}</td>
-          </ng-container>
-          <ng-container matColumnDef="prixUnitaire">
-            <th mat-header-cell *matHeaderCellDef> Prix Unitaire</th>
-            <td mat-cell *matCellDef="let produit"> {{ produit.prixUnitaire }}</td>
-          </ng-container>
-          <ng-container matColumnDef="quantite">
-            <th mat-header-cell *matHeaderCellDef> Quantité</th>
-            <td mat-cell *matCellDef="let produit"> {{ produit.quantite }}</td>
-          </ng-container>
-          <ng-container matColumnDef="reduction">
-            <th mat-header-cell *matHeaderCellDef> Réduction</th>
-            <td mat-cell *matCellDef="let produit"> {{ produit.reduction }}</td>
-          </ng-container>
-          <ng-container matColumnDef="action">
-            <th mat-header-cell *matHeaderCellDef> Action</th>
-            <td mat-cell *matCellDef="let produit">
-              <button mat-button color="warn" (click)="annulerRetour(produit)">Annuler</button>
-            </td>
-          </ng-container>
-          <tr mat-header-row *matHeaderRowDef="displayedColumnsRetournes"></tr>
-          <tr mat-row *matRowDef="let row; columns: displayedColumnsRetournes;"></tr>
-        </table>
-      </mat-card-content>
-    </mat-card>
-
-    <mat-card class="summary-card">
-      <mat-card-content>
-        <div class="footer-actions">
-          <div class="summary-details">
-            <p class="summary-item">Total: <span class="summary-value">{{ totalPrix }}</span> FCFA</p>
-            <p class="summary-item">Réduction: <span class="summary-value">{{ totalReduction }}</span> FCFA</p>
-            <mat-divider></mat-divider>
-            <p class="summary-item">Net à retourner: <span class="summary-value">{{ netTotal }}</span> FCFA</p>
-          </div>
-
-        </div>
-      </mat-card-content>
-      <mat-card-footer>
-        <button mat-raised-button color="accent" class="action-button"
-                [disabled]="produitsRetournes.length <= 0"
-                (click)="validerRetour()">Valider retour</button>
-      </mat-card-footer>
-    </mat-card>
-  </div>
-
-  <mat-card class="mt-4">
-    <mat-card-header>
-      <mat-card-title>Liste des produits retournés</mat-card-title>
-    </mat-card-header>
-    <mat-card-content>
-      <table mat-table [dataSource]="retourProduitList" class="mat-elevation-z8">
-        <ng-container matColumnDef="nomEmploye">
-          <th mat-header-cell *matHeaderCellDef> Nom employé</th>
-          <td mat-cell *matCellDef="let produit"> {{ produit.nomEmploye }}</td>
-        </ng-container>
-        <ng-container matColumnDef="referenceVente">
-          <th mat-header-cell *matHeaderCellDef> Reference vente</th>
-          <td mat-cell *matCellDef="let produit"> {{ produit.venteReference }}</td>
-        </ng-container>
-        <ng-container matColumnDef="date">
-          <th mat-header-cell *matHeaderCellDef> Date</th>
-          <td mat-cell *matCellDef="let produit"> {{ produit.dateRetour }}</td>
-        </ng-container>
-        <ng-container matColumnDef="caisse">
-          <th mat-header-cell *matHeaderCellDef> Caisse</th>
-          <td mat-cell *matCellDef="let produit"> {{ produit.caisseId }}</td>
-        </ng-container>
-        <ng-container matColumnDef="produits">
-          <th mat-header-cell *matHeaderCellDef> Produits</th>
-          <td mat-cell *matCellDef="let produit">
-            <ul>
-              <li *ngFor="let retour of produit.produitsRetournes">
-                {{ retour.nomProduit }} ({{ retour.quantiteRetournee }})
-              </li>
-            </ul>
-          </td>
-        </ng-container>
-        <ng-container matColumnDef="quantite">
-          <th mat-header-cell *matHeaderCellDef> Quantité</th>
-          <td mat-cell *matCellDef="let produit"> {{ produit.quantiteTotalRetour }}</td>
-        </ng-container>
-        <ng-container matColumnDef="prixTotal">
-          <th mat-header-cell *matHeaderCellDef> Prix total</th>
-          <td mat-cell *matCellDef="let produit"> {{ produit.quantiteTotalRetourPrix }}</td>
-        </ng-container>
-        <ng-container matColumnDef="action">
-          <th mat-header-cell *matHeaderCellDef> Action</th>
-          <td mat-cell *matCellDef="let produit">
-            <button mat-button color="primary" (click)="generateTicket(produit)">Imprimer</button>
-          </td>
-        </ng-container>
-        <tr mat-header-row *matHeaderRowDef="displayedColumnsListe"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumnsListe;"></tr>
-      </table>
-    </mat-card-content>
-  </mat-card>
-
-  <!--  @if (retourProduitList.length) {-->
-  <div fxLayout="row wrap">
-    <div fxFlex="100">
-      <mat-card class="text-center">
-        <mat-paginator [length]="totalItems" [pageSize]="count" [pageSizeOptions]="[5, 10, 25, 100]"
-                       (page)="onPageChanged($event)">
-        </mat-paginator>
+      <mat-card class="mt-4">
+        <mat-card-header>
+          <mat-card-title>Liste des produits retournés</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <table mat-table [dataSource]="retourProduitList" class="mat-elevation-z8">
+            <ng-container matColumnDef="nomEmploye">
+              <th mat-header-cell *matHeaderCellDef> Nom employé</th>
+              <td mat-cell *matCellDef="let produit"> {{ produit.nomEmploye }}</td>
+            </ng-container>
+            <ng-container matColumnDef="referenceVente">
+              <th mat-header-cell *matHeaderCellDef> Reference vente</th>
+              <td mat-cell *matCellDef="let produit"> {{ produit.venteReference }}</td>
+            </ng-container>
+            <ng-container matColumnDef="date">
+              <th mat-header-cell *matHeaderCellDef> Date</th>
+              <td mat-cell *matCellDef="let produit"> {{ produit.dateRetour }}</td>
+            </ng-container>
+            <ng-container matColumnDef="caisse">
+              <th mat-header-cell *matHeaderCellDef> Caisse</th>
+              <td mat-cell *matCellDef="let produit"> {{ produit.caisseId }}</td>
+            </ng-container>
+            <ng-container matColumnDef="produits">
+              <th mat-header-cell *matHeaderCellDef> Produits</th>
+              <td mat-cell *matCellDef="let produit">
+                <ul>
+                  @for (retour of produit.produitsRetournes; track retour) {
+                    <li>
+                      {{ retour.nomProduit }} ({{ retour.quantiteRetournee }})
+                    </li>
+                  }
+                </ul>
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="quantite">
+              <th mat-header-cell *matHeaderCellDef> Quantité</th>
+              <td mat-cell *matCellDef="let produit"> {{ produit.quantiteTotalRetour }}</td>
+            </ng-container>
+            <ng-container matColumnDef="prixTotal">
+              <th mat-header-cell *matHeaderCellDef> Prix total</th>
+              <td mat-cell *matCellDef="let produit"> {{ produit.quantiteTotalRetourPrix }}</td>
+            </ng-container>
+            <ng-container matColumnDef="action">
+              <th mat-header-cell *matHeaderCellDef> Action</th>
+              <td mat-cell *matCellDef="let produit">
+                <button mat-button color="primary" (click)="generateTicket(produit)">Imprimer</button>
+              </td>
+            </ng-container>
+            <tr mat-header-row *matHeaderRowDef="displayedColumnsListe"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumnsListe;"></tr>
+          </table>
+        </mat-card-content>
       </mat-card>
-    </div>
-  </div>
-  <!--  }-->
 
-</div>
+      <!--  @if (retourProduitList.length) {-->
+      <div fxLayout="row wrap">
+        <div fxFlex="100">
+          <mat-card class="text-center">
+            <mat-paginator [length]="totalItems" [pageSize]="count" [pageSizeOptions]="[5, 10, 25, 100]"
+              (page)="onPageChanged($event)">
+            </mat-paginator>
+          </mat-card>
+        </div>
+      </div>
+      <!--  }-->
+
+    </div>

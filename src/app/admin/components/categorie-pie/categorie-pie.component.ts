@@ -1,5 +1,5 @@
 import {Component, Input, OnInit} from '@angular/core';
-import {CommonModule, DecimalPipe} from "@angular/common";
+import { DecimalPipe } from "@angular/common";
 import {MatCardModule} from "@angular/material/card";
 import {MatIconModule} from "@angular/material/icon";
 import {MatChipsModule} from "@angular/material/chips";
@@ -45,7 +45,6 @@ import {PipesModule} from "../../../theme/pipes/pipes.module";
     ControlsComponent,
     DecimalPipe,
     PipesModule,
-    CommonModule,
     MatCardModule,
     MatIconModule,
     MatChipsModule,
@@ -53,7 +52,7 @@ import {PipesModule} from "../../../theme/pipes/pipes.module";
     MatListModule,
     MatSelectModule,
     NgChartsModule
-  ],
+],
   templateUrl: './categorie-pie.component.html',
   styleUrl: './categorie-pie.component.scss'
 })

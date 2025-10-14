@@ -1,38 +1,58 @@
 <div class="p-2">
   <mat-card>
     <div fxLayout="row wrap" fxLayoutAlign="space-between center" class="w-100 p-3">
-      <h2 *ngIf="caisseStatus === 'active'">Caisse ouverte par : {{ cashierName }}</h2>
-      <h2 *ngIf="caisseStatus === 'already'">Caisse actuellement ouverte par : {{ cashierName }}</h2>
-      <h2 *ngIf="caisseStatus == 'close' || caisseStatus == 'pending'">Caisse fermée</h2>
+      @if (caisseStatus === 'active') {
+        <h2>Caisse ouverte par : {{ cashierName }}</h2>
+      }
+      @if (caisseStatus === 'already') {
+        <h2>Caisse actuellement ouverte par : {{ cashierName }}</h2>
+      }
+      @if (caisseStatus == 'close' || caisseStatus == 'pending') {
+        <h2>Caisse fermée</h2>
+      }
       <div fxLayout="row" fxLayoutGap="8px">
         <!--        <button mat-raised-button color="primary" (click)="manageCaisse()">Fermer la caisse</button>-->
         <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
-          <button *ngIf="caisseStatus === 'active'" mat-flat-button color="warn" (click)="fermerCaisse()">Fermer la
-            caisse
-          </button>
-          <button *ngIf="caisseStatus === 'open' || caisseStatus === 'close'" mat-flat-button color="primary"
-                  (click)="ouvrirCaisse()">Ouvrir la
-            caisse
-          </button>
-          <button *ngIf="caisseStatus === 'pending'" mat-flat-button color="primary" (click)="manageCaisse()">Continuer
-            billetage
-          </button>
-          <button *ngIf="caisseStatus === 'other'" mat-flat-button color="primary" (click)="handleOtherStatus()">Autre
-            action
-          </button>
-          <button *ngIf="caisseStatus == 'active' "
-                  mat-flat-button color="accent" (click)="showBonCaisse()">Gérer les Bons de Caisse
-          </button>
-          <button *ngIf="caisseStatus == 'active' "
-                  mat-flat-button color="warn" (click)="showDepense()">Entrez une Dépense
-          </button>
-          <button *ngIf="caisseStatus == 'active' "
-                  mat-flat-button color="primary" (click)="onRefresh()">Rafraîchir les Données
-          </button>
+          @if (caisseStatus === 'active') {
+            <button mat-flat-button color="warn" (click)="fermerCaisse()">Fermer la
+              caisse
+            </button>
+          }
+          @if (caisseStatus === 'open' || caisseStatus === 'close') {
+            <button mat-flat-button color="primary"
+              (click)="ouvrirCaisse()">Ouvrir la
+              caisse
+            </button>
+          }
+          @if (caisseStatus === 'pending') {
+            <button mat-flat-button color="primary" (click)="manageCaisse()">Continuer
+              billetage
+            </button>
+          }
+          @if (caisseStatus === 'other') {
+            <button mat-flat-button color="primary" (click)="handleOtherStatus()">Autre
+              action
+            </button>
+          }
+          @if (caisseStatus == 'active' ) {
+            <button
+              mat-flat-button color="accent" (click)="showBonCaisse()">Gérer les Bons de Caisse
+            </button>
+          }
+          @if (caisseStatus == 'active' ) {
+            <button
+              mat-flat-button color="warn" (click)="showDepense()">Entrez une Dépense
+            </button>
+          }
+          @if (caisseStatus == 'active' ) {
+            <button
+              mat-flat-button color="primary" (click)="onRefresh()">Rafraîchir les Données
+            </button>
+          }
         </div>
 
         <button
-                mat-flat-button color="accent" (click)="showVente()">Afficher les Ventes
+          mat-flat-button color="accent" (click)="showVente()">Afficher les Ventes
         </button>
       </div>
     </div>
@@ -90,7 +110,7 @@
       <tr mat-row *matRowDef="let row; columns: headerColumns;"></tr>
     </table>
     <mat-paginator [length]="totalItemsEnCours" [pageSize]="countEnCours" [pageSizeOptions]="[5, 10, 25, 100]"
-                   (page)="onPageChangedVenteEnCours($event)">
+      (page)="onPageChangedVenteEnCours($event)">
     </mat-paginator>
   </mat-card>
 </div>
@@ -225,120 +245,130 @@
                 <mat-form-field class="w-100 mt-2" appearance="outline">
                   <mat-label>Montant</mat-label>
                   <input matInput type="number" [(ngModel)]="montantElectroniqueMixte"
-                         (ngModelChange)="calculateRendu()">
-                </mat-form-field>
-              </div>
-              <div class="p-2" fxLayout="row wrap">
-                <h3>Ticket</h3>
-                <mat-form-field class="w-100 mt-2" appearance="outline">
-                  <mat-label>Numéro de ticket</mat-label>
-                  <input matInput type="text" [(ngModel)]="numeroTicketMixte"
-                         (input)="onTicketMixteInputChange($event)">
-                </mat-form-field>
-                <mat-form-field class="w-100 mt-2" appearance="outline">
-                  <mat-label>Montant</mat-label>
-                  <input matInput type="number" [(ngModel)]="montantTicketMixte" (ngModelChange)="calculateRendu()">
-                </mat-form-field>
-              </div>
-              <div class="p-2" fxLayout="row wrap">
-                <mat-form-field class="w-100 mt-2" appearance="outline">
-                  <mat-label>Total encaissé</mat-label>
-                  <input matInput [value]="totalEncaisse" readonly>
-                </mat-form-field>
-              </div>
-              <div class="p-2" fxLayout="row wrap">
-                <mat-form-field class="w-100 mt-2" appearance="outline">
-                  <mat-label>Rendu</mat-label>
-                  <input matInput [value]="rendu" readonly>
-                </mat-form-field>
-              </div>
-            </div>
-          </mat-tab>
-        </mat-tab-group>
+                    (ngModelChange)="calculateRendu()">
+                  </mat-form-field>
+                </div>
+                <div class="p-2" fxLayout="row wrap">
+                  <h3>Ticket</h3>
+                  <mat-form-field class="w-100 mt-2" appearance="outline">
+                    <mat-label>Numéro de ticket</mat-label>
+                    <input matInput type="text" [(ngModel)]="numeroTicketMixte"
+                      (input)="onTicketMixteInputChange($event)">
+                    </mat-form-field>
+                    <mat-form-field class="w-100 mt-2" appearance="outline">
+                      <mat-label>Montant</mat-label>
+                      <input matInput type="number" [(ngModel)]="montantTicketMixte" (ngModelChange)="calculateRendu()">
+                    </mat-form-field>
+                  </div>
+                  <div class="p-2" fxLayout="row wrap">
+                    <mat-form-field class="w-100 mt-2" appearance="outline">
+                      <mat-label>Total encaissé</mat-label>
+                      <input matInput [value]="totalEncaisse" readonly>
+                    </mat-form-field>
+                  </div>
+                  <div class="p-2" fxLayout="row wrap">
+                    <mat-form-field class="w-100 mt-2" appearance="outline">
+                      <mat-label>Rendu</mat-label>
+                      <input matInput [value]="rendu" readonly>
+                    </mat-form-field>
+                  </div>
+                </div>
+              </mat-tab>
+            </mat-tab-group>
 
-        <div *ngIf="caisseStatus ==='active'" fxLayout="row wrap"
-             fxLayoutAlign="space-between center"
-             class="w-100 p-3">
-          <button *ngIf="caisseStatus !== 'pending' && caisseStatus !== 'closed' && caisseStatus !== 'none'"
-                  mat-stroked-button
-                  (click)="onAnnuler()">Annuler
-          </button>
-          <button *ngIf="caisseStatus !== 'pending' && caisseStatus !== 'closed' && caisseStatus !== 'none'"
-                  mat-flat-button color="primary"
-                  (click)="onValider()">Valider
-          </button>
-          <button *ngIf="caisseStatus !== 'pending' && caisseStatus !== 'closed' && caisseStatus !== 'none'"
-                  mat-flat-button color="accent"
-                  (click)="onImprimer()">Imprimer
-          </button>
-        </div>
-      </mat-card-content>
+            @if (caisseStatus ==='active') {
+              <div fxLayout="row wrap"
+                fxLayoutAlign="space-between center"
+                class="w-100 p-3">
+                @if (caisseStatus !== 'pending' && caisseStatus !== 'closed' && caisseStatus !== 'none') {
+                  <button
+                    mat-stroked-button
+                    (click)="onAnnuler()">Annuler
+                  </button>
+                }
+                @if (caisseStatus !== 'pending' && caisseStatus !== 'closed' && caisseStatus !== 'none') {
+                  <button
+                    mat-flat-button color="primary"
+                    (click)="onValider()">Valider
+                  </button>
+                }
+                @if (caisseStatus !== 'pending' && caisseStatus !== 'closed' && caisseStatus !== 'none') {
+                  <button
+                    mat-flat-button color="accent"
+                    (click)="onImprimer()">Imprimer
+                  </button>
+                }
+              </div>
+            }
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </div>
+
+
+    <!-- Tableau des ventes fermées -->
+    <mat-card class="mt-16">
+      <mat-card-header>
+        <mat-card-title>Ventes Fermées</mat-card-title>
+        <mat-card-subtitle>Historique des ventes déjà encaissées</mat-card-subtitle>
+      </mat-card-header>
+      <table mat-table [dataSource]="bottomDataSource">
+
+        <ng-container matColumnDef="montant">
+          <th mat-header-cell *matHeaderCellDef>Prix total</th>
+          <td mat-cell *matCellDef="let vente">{{ vente.netAPayer }}</td>
+        </ng-container>
+        <ng-container matColumnDef="etat">
+          <th mat-header-cell *matHeaderCellDef>État</th>
+          <td mat-cell *matCellDef="let vente">{{ vente.etat }}</td>
+        </ng-container>
+        <ng-container matColumnDef="ref">
+          <th mat-header-cell *matHeaderCellDef>Réference</th>
+          <td mat-cell *matCellDef="let vente">
+            <mat-accordion>
+              <mat-expansion-panel>
+                <mat-expansion-panel-header>
+                  <mat-panel-title>
+                    {{ vente.reference }}
+                  </mat-panel-title>
+                </mat-expansion-panel-header>
+                <div>
+                  <ul>
+                    @for (produit of vente.produits; track produit) {
+                      <li>
+                        {{ produit.nom }} ({{ produit.quantite }})
+                      </li>
+                    }
+                  </ul>
+                </div>
+              </mat-expansion-panel>
+            </mat-accordion>
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="vendeur">
+          <th mat-header-cell *matHeaderCellDef>Vendeur</th>
+          <td mat-cell *matCellDef="let vente">{{ vente.vendeur }}</td>
+        </ng-container>
+        <ng-container matColumnDef="client">
+          <th mat-header-cell *matHeaderCellDef>Client</th>
+          <td mat-cell *matCellDef="let vente">{{ vente.infoClients }}</td>
+        </ng-container>
+        <ng-container matColumnDef="dateVente">
+          <th mat-header-cell *matHeaderCellDef>Date de vente</th>
+          <td mat-cell *matCellDef="let vente">{{ vente.dateVente | date:'yyyy-MM-dd HH:mm:ss' }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef>Actions</th>
+          <td mat-cell *matCellDef="let vente">
+            <button mat-raised-button color="primary" (click)="envoyerEnCaisse(vente.id)">Envoyer en caisse</button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="bottomColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: bottomColumns;"></tr>
+      </table>
+      <mat-paginator [length]="totalItemsCredit" [pageSize]="countCredit" [pageSizeOptions]="[5, 10, 25, 100]"
+        (page)="onPageChangedCredit($event)">
+      </mat-paginator>
     </mat-card>
-  </div>
-</div>
-
-
-<!-- Tableau des ventes fermées -->
-<mat-card class="mt-16">
-  <mat-card-header>
-    <mat-card-title>Ventes Fermées</mat-card-title>
-    <mat-card-subtitle>Historique des ventes déjà encaissées</mat-card-subtitle>
-  </mat-card-header>
-  <table mat-table [dataSource]="bottomDataSource">
-
-    <ng-container matColumnDef="montant">
-      <th mat-header-cell *matHeaderCellDef>Prix total</th>
-      <td mat-cell *matCellDef="let vente">{{ vente.netAPayer }}</td>
-    </ng-container>
-    <ng-container matColumnDef="etat">
-      <th mat-header-cell *matHeaderCellDef>État</th>
-      <td mat-cell *matCellDef="let vente">{{ vente.etat }}</td>
-    </ng-container>
-    <ng-container matColumnDef="ref">
-      <th mat-header-cell *matHeaderCellDef>Réference</th>
-      <td mat-cell *matCellDef="let vente">
-        <mat-accordion>
-          <mat-expansion-panel>
-            <mat-expansion-panel-header>
-              <mat-panel-title>
-                {{ vente.reference }}
-              </mat-panel-title>
-            </mat-expansion-panel-header>
-            <div>
-              <ul>
-                <li *ngFor="let produit of vente.produits">
-                  {{ produit.nom }} ({{ produit.quantite }})
-                </li>
-              </ul>
-            </div>
-          </mat-expansion-panel>
-        </mat-accordion>
-      </td>
-    </ng-container>
-    <ng-container matColumnDef="vendeur">
-      <th mat-header-cell *matHeaderCellDef>Vendeur</th>
-      <td mat-cell *matCellDef="let vente">{{ vente.vendeur }}</td>
-    </ng-container>
-    <ng-container matColumnDef="client">
-      <th mat-header-cell *matHeaderCellDef>Client</th>
-      <td mat-cell *matCellDef="let vente">{{ vente.infoClients }}</td>
-    </ng-container>
-    <ng-container matColumnDef="dateVente">
-      <th mat-header-cell *matHeaderCellDef>Date de vente</th>
-      <td mat-cell *matCellDef="let vente">{{ vente.dateVente | date:'yyyy-MM-dd HH:mm:ss' }}</td>
-    </ng-container>
-
-    <ng-container matColumnDef="actions">
-      <th mat-header-cell *matHeaderCellDef>Actions</th>
-      <td mat-cell *matCellDef="let vente">
-        <button mat-raised-button color="primary" (click)="envoyerEnCaisse(vente.id)">Envoyer en caisse</button>
-      </td>
-    </ng-container>
-
-    <tr mat-header-row *matHeaderRowDef="bottomColumns"></tr>
-    <tr mat-row *matRowDef="let row; columns: bottomColumns;"></tr>
-  </table>
-  <mat-paginator [length]="totalItemsCredit" [pageSize]="countCredit" [pageSizeOptions]="[5, 10, 25, 100]"
-                 (page)="onPageChangedCredit($event)">
-  </mat-paginator>
-</mat-card>

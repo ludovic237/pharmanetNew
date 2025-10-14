@@ -2,11 +2,11 @@
   <a mat-button routerLink="/" routerLinkActive="horizontal-active-link" [routerLinkActiveOptions]="{exact:true}">Connexion</a>
 
   <a mat-button routerLink="/contact" routerLinkActive="horizontal-active-link"
-     [routerLinkActiveOptions]="{exact:true}">{{ 'NAV.CONTACT' | translate }}</a>
+  [routerLinkActiveOptions]="{exact:true}">{{ 'NAV.CONTACT' | translate }}</a>
 
-  <ng-container *ngIf="hasToken">
+  @if (hasToken) {
     <a mat-button routerLink="/admin" routerLinkActive="horizontal-active-link"
-       [routerLinkActiveOptions]="{exact:true}">{{ 'NAV.ADMIN' | translate }}</a>
-  </ng-container>
+    [routerLinkActiveOptions]="{exact:true}">{{ 'NAV.ADMIN' | translate }}</a>
+  }
 </mat-toolbar>
 

@@ -15,23 +15,23 @@
   <div class="user-search" [class.show]="controls.value == 'search'">
     <mat-form-field class="user-search-input">
       <input matInput placeholder="Recherche produit..."
-             formControlName="searchForm" name="search">
-    </mat-form-field>
-  </div>
-  <div fxLayout="row" fxLayoutAlign="space-between center">
-    <mat-button-toggle-group #viewType="matButtonToggleGroup" appearance="legacy" value="grid"
-                             hideSingleSelectionIndicator="true">
-      <mat-button-toggle value="grid">
-        <mat-icon>view_module</mat-icon>
-      </mat-button-toggle>
-      <mat-button-toggle value="list">
-        <mat-icon>view_list</mat-icon>
-      </mat-button-toggle>
-    </mat-button-toggle-group>
-  </div>
-</form>
+        formControlName="searchForm" name="search">
+      </mat-form-field>
+    </div>
+    <div fxLayout="row" fxLayoutAlign="space-between center">
+      <mat-button-toggle-group #viewType="matButtonToggleGroup" appearance="legacy" value="grid"
+        hideSingleSelectionIndicator="true">
+        <mat-button-toggle value="grid">
+          <mat-icon>view_module</mat-icon>
+        </mat-button-toggle>
+        <mat-button-toggle value="list">
+          <mat-icon>view_list</mat-icon>
+        </mat-button-toggle>
+      </mat-button-toggle-group>
+    </div>
+  </form>
 
-<!--<div fxLayout="row wrap" class="search-bar">
+  <!--<div fxLayout="row wrap" class="search-bar">
   <mat-form-field appearance="outline" class="w-40">
     <input matInput formControlName="searchForm">
   </mat-form-field>
@@ -45,7 +45,7 @@
       totalItems: totalItems,
       itemsPerPage: count,
       currentPage: page
-    }; track $index) {
+      }; track $index) {
       <div fxFlex="100" [fxFlex.gt-sm]="viewCol" fxFlex.sm="50" class="p-2">
         <mat-card class="product-item text-center">
           <img [src]="product.image" alt="">
@@ -60,52 +60,52 @@
               <!--                @if (product.prixAchatInitial) {-->
               <!--                  <span>FCFA {{ product.prixAchatInitial | number : '1.2-2' }}</span>-->
               <!--                }-->
-              <!--              </p>-->
-              <!--              <p class="new-price">{{ product.categorieNom }}</p>-->
-              <div>
-                <span class="status-chip" [ngClass]="getStockStatus(product).class">
-                          {{ product.categorieNom }}
-                        </span>
-                <div class="text-mute">
-                  {{ product.uniteMesure }}
-                </div>
+            <!--              </p>-->
+            <!--              <p class="new-price">{{ product.categorieNom }}</p>-->
+            <div>
+              <span class="status-chip" [ngClass]="getStockStatus(product).class">
+                {{ product.categorieNom }}
+              </span>
+              <div class="text-mute">
+                {{ product.uniteMesure }}
               </div>
             </div>
-
-
-            <!--            <app-rating [ratingsCount]="product.ratingsCount" [ratingsValue]="product.ratingsValue" [direction]="'column'"></app-rating>-->
           </div>
-          <div class="divider mt-2"></div>
 
-          <div class="icons">
-<!--            <a (click)="creerEnRayon(product)"-->
-<!--               *ngIf="product.prixAchatInitial==0 && product.prixVenteActuel==0 && product.datePeremption==0"-->
-<!--               mat-mini-fab color="basic" matTooltip="Detail">-->
-<!--              <mat-icon>refresh</mat-icon>-->
-<!--            </a>-->
-            <a (click)="getDetailProduit(product)" mat-mini-fab color="basic" matTooltip="Detail">
-              <mat-icon>info</mat-icon>
-            </a>
-            <a (click)="updateProduit(product)" mat-mini-fab color="accent" matTooltip="Edit">
-              <mat-icon>edit</mat-icon>
-            </a>
-            <a (click)="getInfoProduit(product)" mat-mini-fab color="primary" matTooltip="View">
-              <mat-icon>remove_red_eye</mat-icon>
-            </a>
-            <button [disabled]="product.supprimer==1" mat-mini-fab color="warn" matTooltip="Remove" (click)="remove(product)">
-              <mat-icon>delete</mat-icon>
-            </button>
-            <mat-chip-listbox>
-              <mat-chip-option
-                [color]="product.quantiteTotaleEnStock<=0 ? 'warn' : product.quantiteTotaleEnStock>0 && product.quantiteTotaleEnStock<= product.seuil? 'accent' : 'primary'"
-                highlighted selectable="false">Stock : {{ product.quantiteTotaleEnStock }}
-              </mat-chip-option>
-            </mat-chip-listbox>
-          </div>
-        </mat-card>
+
+          <!--            <app-rating [ratingsCount]="product.ratingsCount" [ratingsValue]="product.ratingsValue" [direction]="'column'"></app-rating>-->
+        </div>
+        <div class="divider mt-2"></div>
+
+        <div class="icons">
+          <!--            <a (click)="creerEnRayon(product)"-->
+          <!--               *ngIf="product.prixAchatInitial==0 && product.prixVenteActuel==0 && product.datePeremption==0"-->
+          <!--               mat-mini-fab color="basic" matTooltip="Detail">-->
+          <!--              <mat-icon>refresh</mat-icon>-->
+        <!--            </a>-->
+        <a (click)="getDetailProduit(product)" mat-mini-fab color="basic" matTooltip="Detail">
+          <mat-icon>info</mat-icon>
+        </a>
+        <a (click)="updateProduit(product)" mat-mini-fab color="accent" matTooltip="Edit">
+          <mat-icon>edit</mat-icon>
+        </a>
+        <a (click)="getInfoProduit(product)" mat-mini-fab color="primary" matTooltip="View">
+          <mat-icon>remove_red_eye</mat-icon>
+        </a>
+        <button [disabled]="product.supprimer==1" mat-mini-fab color="warn" matTooltip="Remove" (click)="remove(product)">
+          <mat-icon>delete</mat-icon>
+        </button>
+        <mat-chip-listbox>
+          <mat-chip-option
+            [color]="product.quantiteTotaleEnStock<=0 ? 'warn' : product.quantiteTotaleEnStock>0 && product.quantiteTotaleEnStock<= product.seuil? 'accent' : 'primary'"
+            highlighted selectable="false">Stock : {{ product.quantiteTotaleEnStock }}
+          </mat-chip-option>
+        </mat-chip-listbox>
       </div>
-    }
+    </mat-card>
   </div>
+}
+</div>
 }
 
 @if (viewType.value == 'list') {
@@ -116,83 +116,85 @@
     <!--        <mat-header-cell *matHeaderCellDef> Image </mat-header-cell>-->
     <!--        <mat-cell *matCellDef="let product">-->
     <!--          <img [src]="product.image" alt="" class="product-image">-->
-    <!--        </mat-cell>-->
-    <!--      </ng-container>-->
+  <!--        </mat-cell>-->
+<!--      </ng-container>-->
 
-    <ng-container matColumnDef="image">
-      <mat-header-cell *matHeaderCellDef> Id</mat-header-cell>
-      <mat-cell *matCellDef="let product"> {{ product.id }}</mat-cell>
-    </ng-container>
+<ng-container matColumnDef="image">
+  <mat-header-cell *matHeaderCellDef> Id</mat-header-cell>
+  <mat-cell *matCellDef="let product"> {{ product.id }}</mat-cell>
+</ng-container>
 
-    <ng-container matColumnDef="name">
-      <mat-header-cell *matHeaderCellDef> Nom</mat-header-cell>
-      <mat-cell *matCellDef="let product"> {{ product.nom }}</mat-cell>
-    </ng-container>
+<ng-container matColumnDef="name">
+  <mat-header-cell *matHeaderCellDef> Nom</mat-header-cell>
+  <mat-cell *matCellDef="let product"> {{ product.nom }}</mat-cell>
+</ng-container>
 
-    <!-- Category Column -->
-    <ng-container matColumnDef="category">
-      <mat-header-cell *matHeaderCellDef> Categorie</mat-header-cell>
-      <mat-cell *matCellDef="let product">
-        {{ product.categorieNom }}
-        <!--          {{ (categories | filterById : product.categorieNom)?.name }}-->
-      </mat-cell>
-    </ng-container>
+<!-- Category Column -->
+<ng-container matColumnDef="category">
+  <mat-header-cell *matHeaderCellDef> Categorie</mat-header-cell>
+  <mat-cell *matCellDef="let product">
+    {{ product.categorieNom }}
+    <!--          {{ (categories | filterById : product.categorieNom)?.name }}-->
+  </mat-cell>
+</ng-container>
 
-    <!-- Name Column -->
+<!-- Name Column -->
 
 
-    <!-- Old Price Column -->
-    <ng-container matColumnDef="oldPrice">
-      <mat-header-cell *matHeaderCellDef>Unite</mat-header-cell>
-      <mat-cell *matCellDef="let product">
-          <span *ngIf="product.uniteMesure">
-<!--            FCFA {{ product.uniteMesure | number : '1.2-2' }}-->
-            {{ product.uniteMesure }}
-          </span>
-      </mat-cell>
-    </ng-container>
+<!-- Old Price Column -->
+<ng-container matColumnDef="oldPrice">
+  <mat-header-cell *matHeaderCellDef>Unite</mat-header-cell>
+  <mat-cell *matCellDef="let product">
+    @if (product.uniteMesure) {
+      <span>
+        <!--            FCFA {{ product.uniteMesure | number : '1.2-2' }}-->
+        {{ product.uniteMesure }}
+      </span>
+    }
+  </mat-cell>
+</ng-container>
 
-    <!-- New Price Column -->
-    <ng-container matColumnDef="newPrice">
-      <mat-header-cell *matHeaderCellDef> Quantite en stock</mat-header-cell>
-      <mat-cell *matCellDef="let product">
-        <mat-chip-listbox>
-          <mat-chip-option
-            [color]="product.quantiteTotaleEnStock<=0 ? 'warn' : product.quantiteTotaleEnStock>0 && product.quantiteTotaleEnStock<= product.seuil? 'accent' : 'primary'"
-            highlighted selectable="false">{{ product.quantiteTotaleEnStock | number : '1.2-2' }}
-          </mat-chip-option>
-        </mat-chip-listbox>
-      </mat-cell>
-    </ng-container>
+<!-- New Price Column -->
+<ng-container matColumnDef="newPrice">
+  <mat-header-cell *matHeaderCellDef> Quantite en stock</mat-header-cell>
+  <mat-cell *matCellDef="let product">
+    <mat-chip-listbox>
+      <mat-chip-option
+        [color]="product.quantiteTotaleEnStock<=0 ? 'warn' : product.quantiteTotaleEnStock>0 && product.quantiteTotaleEnStock<= product.seuil? 'accent' : 'primary'"
+        highlighted selectable="false">{{ product.quantiteTotaleEnStock | number : '1.2-2' }}
+      </mat-chip-option>
+    </mat-chip-listbox>
+  </mat-cell>
+</ng-container>
 
-    <!-- Actions Column -->
-    <ng-container matColumnDef="actions">
-      <mat-header-cell *matHeaderCellDef> Actions</mat-header-cell>
-      <mat-cell *matCellDef="let product">
-        <a (click)="getDetailProduit(product)" mat-mini-fab color="basic" matTooltip="Detail">
-          <mat-icon>info</mat-icon>
-        </a>
-<!--        <a (click)="creerEnRayon(product)"-->
-<!--           *ngIf="product.prixAchatInitial==0 && product.prixVenteActuel==0 && product.datePeremption==0" mat-mini-fab-->
-<!--           color="basic" matTooltip="Detail">-->
-<!--          <mat-icon>refresh</mat-icon>-->
-<!--        </a>-->
-        <a (click)="updateProduit(product)" mat-mini-fab color="accent" matTooltip="Edit">
-          <mat-icon>edit</mat-icon>
-        </a>
-        <a (click)="getInfoProduit(product)" mat-mini-fab color="primary" matTooltip="View">
-          <mat-icon>remove_red_eye</mat-icon>
-        </a>
-        <button [disabled]="product.supprimer==1" mat-mini-fab color="warn" matTooltip="Remove" (click)="remove(product)">
-          <mat-icon>delete</mat-icon>
-        </button>
-      </mat-cell>
-    </ng-container>
+<!-- Actions Column -->
+<ng-container matColumnDef="actions">
+  <mat-header-cell *matHeaderCellDef> Actions</mat-header-cell>
+  <mat-cell *matCellDef="let product">
+    <a (click)="getDetailProduit(product)" mat-mini-fab color="basic" matTooltip="Detail">
+      <mat-icon>info</mat-icon>
+    </a>
+    <!--        <a (click)="creerEnRayon(product)"-->
+    <!--           *ngIf="product.prixAchatInitial==0 && product.prixVenteActuel==0 && product.datePeremption==0" mat-mini-fab-->
+    <!--           color="basic" matTooltip="Detail">-->
+    <!--          <mat-icon>refresh</mat-icon>-->
+  <!--        </a>-->
+  <a (click)="updateProduit(product)" mat-mini-fab color="accent" matTooltip="Edit">
+    <mat-icon>edit</mat-icon>
+  </a>
+  <a (click)="getInfoProduit(product)" mat-mini-fab color="primary" matTooltip="View">
+    <mat-icon>remove_red_eye</mat-icon>
+  </a>
+  <button [disabled]="product.supprimer==1" mat-mini-fab color="warn" matTooltip="Remove" (click)="remove(product)">
+    <mat-icon>delete</mat-icon>
+  </button>
+</mat-cell>
+</ng-container>
 
-    <!-- Header and Row Definitions -->
-    <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
-    <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
-  </mat-table>
+<!-- Header and Row Definitions -->
+<mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+<mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+</mat-table>
 }
 
 <!--@if (products.length) {-->
@@ -200,11 +202,11 @@
   <div fxFlex="100" class="p-2">
     <mat-card class="text-center">
       <!--      <pagination-controls class="product-pagination" [autoHide]="true" [maxSize]="5"-->
-      <!--                           (pageChange)="onPageChanged($event)"></pagination-controls>-->
-      <mat-paginator [length]="totalItems" [pageSize]="count" [pageSizeOptions]="[10,20,40,80, 100]"
-                     (page)="onPageChanged($event)">
-      </mat-paginator>
-    </mat-card>
-  </div>
+    <!--                           (pageChange)="onPageChanged($event)"></pagination-controls>-->
+    <mat-paginator [length]="totalItems" [pageSize]="count" [pageSizeOptions]="[10,20,40,80, 100]"
+      (page)="onPageChanged($event)">
+    </mat-paginator>
+  </mat-card>
+</div>
 </div>
 <!--}-->

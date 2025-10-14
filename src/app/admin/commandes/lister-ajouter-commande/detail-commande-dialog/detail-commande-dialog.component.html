@@ -1,7 +1,7 @@
 <mat-toolbar color="primary">
   <h2>Détails de la Commande - {{ reference }} - Statut : <span class="badge" [ngClass]="getEtatClass(commande.etat)">
-       {{ commande.etat }}
-     </span></h2>
+    {{ commande.etat }}
+  </span></h2>
 </mat-toolbar>
 <mat-dialog-content>
   <div class="row">
@@ -24,248 +24,255 @@
               <mat-form-field appearance="outline" class="full-width">
                 <mat-label><strong>Date de Livraison:</strong></mat-label>
                 <input matInput
-                       [value]="commande.dateLivraison ? (commande.dateLivraison | date:'dd/MM/yyyy HH:mm') : 'Non Livrée'"
-                       readonly>
-              </mat-form-field>
-              <mat-form-field appearance="outline" class="full-width">
-                <mat-label><strong>État:</strong></mat-label>
-                <input matInput [value]="commande.etat" readonly>
-              </mat-form-field>
+                  [value]="commande.dateLivraison ? (commande.dateLivraison | date:'dd/MM/yyyy HH:mm') : 'Non Livrée'"
+                  readonly>
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label><strong>État:</strong></mat-label>
+                  <input matInput [value]="commande.etat" readonly>
+                </mat-form-field>
+              </div>
+              <div fxFlex="50%">
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label><strong>Quantité Commandée:</strong></mat-label>
+                  <input matInput [value]="commande.qtiteCmd" readonly>
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label><strong>Quantité Reçue:</strong></mat-label>
+                  <input matInput [value]="commande.qtiteRecu" readonly>
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label><strong>Montant Total:</strong></mat-label>
+                  <input matInput [value]="commande.montantTotal | currency:'XAF' " readonly>
+                </mat-form-field>
+              </div>
             </div>
-            <div fxFlex="50%">
-              <mat-form-field appearance="outline" class="full-width">
-                <mat-label><strong>Quantité Commandée:</strong></mat-label>
-                <input matInput [value]="commande.qtiteCmd" readonly>
-              </mat-form-field>
-              <mat-form-field appearance="outline" class="full-width">
-                <mat-label><strong>Quantité Reçue:</strong></mat-label>
-                <input matInput [value]="commande.qtiteRecu" readonly>
-              </mat-form-field>
-              <mat-form-field appearance="outline" class="full-width">
-                <mat-label><strong>Montant Total:</strong></mat-label>
-                <input matInput [value]="commande.montantTotal | currency:'XAF' " readonly>
-              </mat-form-field>
+          </mat-card-content>
+        </mat-card>
+        <mat-card style="margin-top: 16px">
+          <mat-toolbar color="primary">
+            <h2>Informations du Fournisseur</h2>
+          </mat-toolbar>
+          <mat-card-content>
+            <div class="row" style="margin-top: 16px" fxLayoutGap="16px">
+              <div fxFlex="50%">
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label><strong>Nom:</strong></mat-label>
+                  <input matInput [value]="commande.fournisseur?commande.fournisseur.nom : 'Non spécifiée'" readonly>
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label><strong>Code:</strong></mat-label>
+                  <input matInput [value]="commande.fournisseur?commande.fournisseur.code : 'Non spécifiée'" readonly>
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label><strong>Statut:</strong></mat-label>
+                  <input matInput [value]="commande.fournisseur?commande.fournisseur.statut : 'Non spécifiée'" readonly>
+                </mat-form-field>
+              </div>
+              <div fxFlex="50%">
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label><strong>Adresse:</strong></mat-label>
+                  <input matInput [value]="commande.fournisseur?commande.fournisseur.adresse : 'Non spécifiée'" readonly>
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label><strong>Téléphone:</strong></mat-label>
+                  <input matInput [value]="commande.fournisseur?commande.fournisseur.telephone : 'Non spécifié'" readonly>
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label><strong>Email:</strong></mat-label>
+                  <input matInput [value]="commande.fournisseur?commande.fournisseur.email : 'Non spécifié'" readonly>
+                </mat-form-field>
+              </div>
             </div>
-          </div>
-        </mat-card-content>
-      </mat-card>
-      <mat-card style="margin-top: 16px">
-        <mat-toolbar color="primary">
-          <h2>Informations du Fournisseur</h2>
-        </mat-toolbar>
-        <mat-card-content>
-          <div class="row" style="margin-top: 16px" fxLayoutGap="16px">
-            <div fxFlex="50%">
-              <mat-form-field appearance="outline" class="full-width">
-                <mat-label><strong>Nom:</strong></mat-label>
-                <input matInput [value]="commande.fournisseur?commande.fournisseur.nom : 'Non spécifiée'" readonly>
-              </mat-form-field>
-              <mat-form-field appearance="outline" class="full-width">
-                <mat-label><strong>Code:</strong></mat-label>
-                <input matInput [value]="commande.fournisseur?commande.fournisseur.code : 'Non spécifiée'" readonly>
-              </mat-form-field>
-              <mat-form-field appearance="outline" class="full-width">
-                <mat-label><strong>Statut:</strong></mat-label>
-                <input matInput [value]="commande.fournisseur?commande.fournisseur.statut : 'Non spécifiée'" readonly>
-              </mat-form-field>
-            </div>
-            <div fxFlex="50%">
-              <mat-form-field appearance="outline" class="full-width">
-                <mat-label><strong>Adresse:</strong></mat-label>
-                <input matInput [value]="commande.fournisseur?commande.fournisseur.adresse : 'Non spécifiée'" readonly>
-              </mat-form-field>
-              <mat-form-field appearance="outline" class="full-width">
-                <mat-label><strong>Téléphone:</strong></mat-label>
-                <input matInput [value]="commande.fournisseur?commande.fournisseur.telephone : 'Non spécifié'" readonly>
-              </mat-form-field>
-              <mat-form-field appearance="outline" class="full-width">
-                <mat-label><strong>Email:</strong></mat-label>
-                <input matInput [value]="commande.fournisseur?commande.fournisseur.email : 'Non spécifié'" readonly>
-              </mat-form-field>
-            </div>
-          </div>
-        </mat-card-content>
-      </mat-card>
-    </div>
-    <div fxFlex="70%">
-      <div fxLayout="row" fxLayoutGap="16px" *ngIf="type!=null">
-        <button mat-raised-button color="primary" [disabled]="!canSubmitReception()"
-                (click)="submitReception()">
-          Enregistrer la Réception
-        </button>
-        <button mat-raised-button color="primary"
-                [disabled]="commande.etat.toLowerCase() !== 'en_cours' && commande.etat.toLowerCase() !== 'livree'"
-                (click)="submitCloture()">
-          Cloture commande
-        </button>
+          </mat-card-content>
+        </mat-card>
       </div>
-      <mat-accordion>
-
-        <!-- Products Section -->
-        <mat-expansion-panel expanded>
-          <mat-expansion-panel-header color="primary" class="admin-toolbar mat-elevation-z2">
-            <mat-panel-title>
-              Produits Commandés
-              <mat-chip-set>
-                <mat-chip color="primary">Quantité Commandée: {{ commande.qtiteCmd }}</mat-chip>
-                <mat-chip color="primary">Quantité Reçue: {{ commande.qtiteRecu }}</mat-chip>
-                <mat-chip color="primary"> Unités Gratuites: {{ commande.uniteGratuite }}</mat-chip>
-              </mat-chip-set>
-            </mat-panel-title>
-          </mat-expansion-panel-header>
-          <div class="table-container">
-            <table mat-table [dataSource]="commande.produits" class="mat-elevation-z8">
-              <!-- Product Name Column -->
-              <ng-container matColumnDef="nom">
-                <th mat-header-cell *matHeaderCellDef>Nom du Produit</th>
-                <td mat-cell *matCellDef="let produit">{{ produit.produit.nom }} - ({{ produit.produit.categorie.nom }})
-                </td>
-              </ng-container>
-
-              <!-- Purchase Price Column -->
-              <ng-container matColumnDef="prixAchat">
-                <th mat-header-cell *matHeaderCellDef>Prix d'Achat</th>
-                <td mat-cell *matCellDef="let produit">
-                  <div *ngIf="type === 'partiel' || type === 'complementaire' ; else displayPrixAchat ">
-                    <div fxLayout="row" fxLayoutAlign="center center">
-                      <mat-form-field appearance="outline" class="full-width"
-                                      style=" margin-top: 10px; width: 100px;">
-                        <input matInput type="number" [(ngModel)]="produit.prixAchat"
-                               [min]="0"
-                               [value]="produit.prixAchat"/>
-                      </mat-form-field>
-                    </div>
-                  </div>
-                  <ng-template #displayPrixAchat>
-                    {{ produit.prixAchat }}
-                  </ng-template>
-
-                </td>
-              </ng-container>
-
-              <!-- Sale Price Column -->
-              <ng-container matColumnDef="prixVente">
-                <th mat-header-cell *matHeaderCellDef>Prix de Vente</th>
-                <td mat-cell *matCellDef="let produit">
-                  <div *ngIf="type === 'partiel' || type === 'complementaire' ; else displayPrixVente ">
-                    <div fxLayout="row" fxLayoutAlign="center center">
-                      <mat-form-field appearance="outline" class="full-width"
-                                      style=" margin-top: 10px; width: 100px;">
-                        <input matInput type="number" [(ngModel)]="produit.prixVente"
-                               [min]="0"
-                               [value]="produit.prixVente"/>
-                      </mat-form-field>
-                    </div>
-                  </div>
-
-                  <ng-template #displayPrixVente>
-                    {{ produit.prixVente }}
-                  </ng-template>
-                </td>
-              </ng-container>
-
-              <!-- Quantity Ordered Column -->
-              <ng-container matColumnDef="qtiteRecu">
-                <th mat-header-cell *matHeaderCellDef>Quantité reçue</th>
-                <td mat-cell *matCellDef="let produit" style="width: 80px;">
-                  <div *ngIf="type === 'partiel' || type === 'complementaire' ; else displayQtiteRecu ">
-                    <div fxLayout="row" fxLayoutAlign="center center">
-                      <mat-form-field appearance="outline"
-                                      style=" margin-top: 10px; width: 80px;">
-                        <input matInput type="number" [(ngModel)]="produit.qtiteRecu"
-                               [max]="produit.qtiteCmd" [min]="0"
-                               [value]="produit.qtiteRecu"/>
-                      </mat-form-field>
-                    </div>
-
-                  </div>
-                  <ng-template #displayQtiteRecu>
-                    {{ produit.qtiteRecu }}
-                  </ng-template>
-                </td>
-              </ng-container>
-
-              <!-- Quantity Received Column -->
-              <ng-container
-                matColumnDef="qtiteCmd">
-                <th mat-header-cell *matHeaderCellDef style="width: 150px;">Quantité commande</th>
-                <td mat-cell *matCellDef="let produit" style="width: 80px;">
-                  <div *ngIf="type === 'partiel' || type === 'complementaire' ; else displayQtiteCmd ">
-                    <div fxLayout="row" fxLayoutAlign="center center">
-                      <mat-form-field appearance="outline"
-                                      style=" margin-top: 10px; width: 80px;">
-                        <input matInput type="number" [(ngModel)]="produit.qtiteCmd"
-                               [min]="0"
-                               [value]="produit.qtiteCmd"/>
-                      </mat-form-field>
-                    </div>
-                  </div>
-                  <ng-template #displayQtiteCmd>
-                    {{ produit.qtiteCmd }}
-                  </ng-template>
-                </td>
-              </ng-container>
-
-              <!-- Quantity Received Column -->
-              <ng-container matColumnDef="uniteGratuite">
-                <th mat-header-cell *matHeaderCellDef style="width: 150px;">Unite gratuite</th>
-                <td mat-cell *matCellDef="let produit" style="width: 80px;">
-                  <div *ngIf="type === 'partiel' || type === 'complementaire'; else displayUniteGratuite">
-                    <div fxLayout="row" fxLayoutAlign="center center">
-                      <mat-form-field appearance="outline"
-                                      style=" margin-top: 10px; width: 80px;">
-                        <input matInput type="number" [(ngModel)]="produit.uniteGratuite"
-                               [min]="0"
-                               [value]="produit.uniteGratuite"/>
-                      </mat-form-field>
-                    </div>
-                  </div>
-                  <ng-template #displayUniteGratuite>
-                    {{ produit.uniteGratuite }}
-                  </ng-template>
-                </td>
-              </ng-container>
-
-              <!-- Quantity Received Column -->
-              <ng-container matColumnDef="datePeremption">
-                <th mat-header-cell *matHeaderCellDef style="width: 140px;">Date permptiom</th>
-                <td mat-cell *matCellDef="let produit">
-                  <div *ngIf="type === 'partiel' || type === 'complementaire'; else displaydatePeremption">
-                    <div fxLayout="row" fxLayoutAlign="center center">
-                      <mat-form-field appearance="outline" class="full-width"
-                                      style=" margin-top: 10px; width: 140px;">
-                        <input matInput [matDatepicker]="pickerPeremption" [(ngModel)]="produit.datePeremption"
-                               [value]="produit.datePeremption">
-                        <mat-datepicker-toggle matIconSuffix [for]="pickerPeremption"></mat-datepicker-toggle>
-                        <mat-datepicker #pickerPeremption></mat-datepicker>
-                        <!-- <mat-error *ngIf="detailForm.get('datePeremption')?.hasError('required')">
-                           Date de péremption requise
-                         </mat-error>-->
-                      </mat-form-field>
-                    </div>
-                  </div>
-                  <ng-template #displaydatePeremption>
-                    {{ produit.datePeremption }}
-                  </ng-template>
-                </td>
-              </ng-container>
-
-              <tr mat-header-row *matHeaderRowDef="columnsDisplay"></tr>
-              <tr mat-row *matRowDef="let row; columns: columnsDisplay"></tr>
-            </table>
+      <div fxFlex="70%">
+        @if (type!=null) {
+          <div fxLayout="row" fxLayoutGap="16px">
+            <button mat-raised-button color="primary" [disabled]="!canSubmitReception()"
+              (click)="submitReception()">
+              Enregistrer la Réception
+            </button>
+            <button mat-raised-button color="primary"
+              [disabled]="commande.etat.toLowerCase() !== 'en_cours' && commande.etat.toLowerCase() !== 'livree'"
+              (click)="submitCloture()">
+              Cloture commande
+            </button>
           </div>
+        }
+        <mat-accordion>
 
-        </mat-expansion-panel>
-      </mat-accordion>
-    </div>
-  </div>
-  <div class="text-center mt-3">
-    <button mat-raised-button color="primary" [disabled]="!canSubmitReception()" (click)="submitReception()">
-      Enregistrer la Réception
-    </button>
-    <button mat-raised-button color="primary" [disabled]="!canSubmitReception()" (click)="submitReception()">
-      Cloture commande
-    </button>
-  </div>
-</mat-dialog-content>
+          <!-- Products Section -->
+          <mat-expansion-panel expanded>
+            <mat-expansion-panel-header color="primary" class="admin-toolbar mat-elevation-z2">
+              <mat-panel-title>
+                Produits Commandés
+                <mat-chip-set>
+                  <mat-chip color="primary">Quantité Commandée: {{ commande.qtiteCmd }}</mat-chip>
+                  <mat-chip color="primary">Quantité Reçue: {{ commande.qtiteRecu }}</mat-chip>
+                  <mat-chip color="primary"> Unités Gratuites: {{ commande.uniteGratuite }}</mat-chip>
+                </mat-chip-set>
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+            <div class="table-container">
+              <table mat-table [dataSource]="commande.produits" class="mat-elevation-z8">
+                <!-- Product Name Column -->
+                <ng-container matColumnDef="nom">
+                  <th mat-header-cell *matHeaderCellDef>Nom du Produit</th>
+                  <td mat-cell *matCellDef="let produit">{{ produit.produit.nom }} - ({{ produit.produit.categorie.nom }})
+                  </td>
+                </ng-container>
+
+                <!-- Purchase Price Column -->
+                <ng-container matColumnDef="prixAchat">
+                  <th mat-header-cell *matHeaderCellDef>Prix d'Achat</th>
+                  <td mat-cell *matCellDef="let produit">
+                    @if (type === 'partiel' || type === 'complementaire' ) {
+                      <div>
+                        <div fxLayout="row" fxLayoutAlign="center center">
+                          <mat-form-field appearance="outline" class="full-width"
+                            style=" margin-top: 10px; width: 100px;">
+                            <input matInput type="number" [(ngModel)]="produit.prixAchat"
+                              [min]="0"
+                              [value]="produit.prixAchat"/>
+                            </mat-form-field>
+                          </div>
+                        </div>
+                      } @else {
+                        {{ produit.prixAchat }}
+                      }
+
+                    </td>
+                  </ng-container>
+
+                  <!-- Sale Price Column -->
+                  <ng-container matColumnDef="prixVente">
+                    <th mat-header-cell *matHeaderCellDef>Prix de Vente</th>
+                    <td mat-cell *matCellDef="let produit">
+                      @if (type === 'partiel' || type === 'complementaire' ) {
+                        <div>
+                          <div fxLayout="row" fxLayoutAlign="center center">
+                            <mat-form-field appearance="outline" class="full-width"
+                              style=" margin-top: 10px; width: 100px;">
+                              <input matInput type="number" [(ngModel)]="produit.prixVente"
+                                [min]="0"
+                                [value]="produit.prixVente"/>
+                              </mat-form-field>
+                            </div>
+                          </div>
+                        } @else {
+                          {{ produit.prixVente }}
+                        }
+
+                      </td>
+                    </ng-container>
+
+                    <!-- Quantity Ordered Column -->
+                    <ng-container matColumnDef="qtiteRecu">
+                      <th mat-header-cell *matHeaderCellDef>Quantité reçue</th>
+                      <td mat-cell *matCellDef="let produit" style="width: 80px;">
+                        @if (type === 'partiel' || type === 'complementaire' ) {
+                          <div>
+                            <div fxLayout="row" fxLayoutAlign="center center">
+                              <mat-form-field appearance="outline"
+                                style=" margin-top: 10px; width: 80px;">
+                                <input matInput type="number" [(ngModel)]="produit.qtiteRecu"
+                                  [max]="produit.qtiteCmd" [min]="0"
+                                  [value]="produit.qtiteRecu"/>
+                                </mat-form-field>
+                              </div>
+                            </div>
+                          } @else {
+                            {{ produit.qtiteRecu }}
+                          }
+                        </td>
+                      </ng-container>
+
+                      <!-- Quantity Received Column -->
+                      <ng-container
+                        matColumnDef="qtiteCmd">
+                        <th mat-header-cell *matHeaderCellDef style="width: 150px;">Quantité commande</th>
+                        <td mat-cell *matCellDef="let produit" style="width: 80px;">
+                          @if (type === 'partiel' || type === 'complementaire' ) {
+                            <div>
+                              <div fxLayout="row" fxLayoutAlign="center center">
+                                <mat-form-field appearance="outline"
+                                  style=" margin-top: 10px; width: 80px;">
+                                  <input matInput type="number" [(ngModel)]="produit.qtiteCmd"
+                                    [min]="0"
+                                    [value]="produit.qtiteCmd"/>
+                                  </mat-form-field>
+                                </div>
+                              </div>
+                            } @else {
+                              {{ produit.qtiteCmd }}
+                            }
+                          </td>
+                        </ng-container>
+
+                        <!-- Quantity Received Column -->
+                        <ng-container matColumnDef="uniteGratuite">
+                          <th mat-header-cell *matHeaderCellDef style="width: 150px;">Unite gratuite</th>
+                          <td mat-cell *matCellDef="let produit" style="width: 80px;">
+                            @if (type === 'partiel' || type === 'complementaire') {
+                              <div>
+                                <div fxLayout="row" fxLayoutAlign="center center">
+                                  <mat-form-field appearance="outline"
+                                    style=" margin-top: 10px; width: 80px;">
+                                    <input matInput type="number" [(ngModel)]="produit.uniteGratuite"
+                                      [min]="0"
+                                      [value]="produit.uniteGratuite"/>
+                                    </mat-form-field>
+                                  </div>
+                                </div>
+                              } @else {
+                                {{ produit.uniteGratuite }}
+                              }
+                            </td>
+                          </ng-container>
+
+                          <!-- Quantity Received Column -->
+                          <ng-container matColumnDef="datePeremption">
+                            <th mat-header-cell *matHeaderCellDef style="width: 140px;">Date permptiom</th>
+                            <td mat-cell *matCellDef="let produit">
+                              @if (type === 'partiel' || type === 'complementaire') {
+                                <div>
+                                  <div fxLayout="row" fxLayoutAlign="center center">
+                                    <mat-form-field appearance="outline" class="full-width"
+                                      style=" margin-top: 10px; width: 140px;">
+                                      <input matInput [matDatepicker]="pickerPeremption" [(ngModel)]="produit.datePeremption"
+                                        [value]="produit.datePeremption">
+                                        <mat-datepicker-toggle matIconSuffix [for]="pickerPeremption"></mat-datepicker-toggle>
+                                        <mat-datepicker #pickerPeremption></mat-datepicker>
+                                        <!-- <mat-error *ngIf="detailForm.get('datePeremption')?.hasError('required')">
+                                        Date de péremption requise
+                                      </mat-error>-->
+                                    </mat-form-field>
+                                  </div>
+                                </div>
+                              } @else {
+                                {{ produit.datePeremption }}
+                              }
+                            </td>
+                          </ng-container>
+
+                          <tr mat-header-row *matHeaderRowDef="columnsDisplay"></tr>
+                          <tr mat-row *matRowDef="let row; columns: columnsDisplay"></tr>
+                        </table>
+                      </div>
+
+                    </mat-expansion-panel>
+                  </mat-accordion>
+                </div>
+              </div>
+              <div class="text-center mt-3">
+                <button mat-raised-button color="primary" [disabled]="!canSubmitReception()" (click)="submitReception()">
+                  Enregistrer la Réception
+                </button>
+                <button mat-raised-button color="primary" [disabled]="!canSubmitReception()" (click)="submitReception()">
+                  Cloture commande
+                </button>
+              </div>
+            </mat-dialog-content>
 

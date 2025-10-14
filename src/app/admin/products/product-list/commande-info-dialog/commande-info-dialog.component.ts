@@ -1,5 +1,5 @@
 import {Component, Inject} from '@angular/core';
-import {CommonModule, DecimalPipe} from "@angular/common";
+import { DecimalPipe } from "@angular/common";
 import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
 import {MAT_DIALOG_DATA, MatDialogModule, MatDialogRef} from "@angular/material/dialog";
 import {MatFormFieldModule} from "@angular/material/form-field";
@@ -59,8 +59,6 @@ import {LoaderService} from "@services/loader.service";
     MatExpansionModule,
     FormsModule,
     ReactiveFormsModule,
-    CommonModule,
-    // Material
     MatToolbarModule,
     MatTabsModule,
     MatIconModule,
@@ -77,7 +75,6 @@ import {LoaderService} from "@services/loader.service";
     FormsModule,
     ReactiveFormsModule,
     FlexLayoutModule,
-    // Material
     MatStepperModule,
     MatTableModule,
     MatFormFieldModule,
@@ -90,7 +87,6 @@ import {LoaderService} from "@services/loader.service";
     MatChipsModule,
     NgxPaginationModule,
     MatDatepickerModule,
-    CommonModule,
     ReactiveFormsModule,
     FormsModule,
     MatDialogModule,
@@ -109,7 +105,6 @@ import {LoaderService} from "@services/loader.service";
     MatButtonModule,
     MatButtonToggleModule,
     MatIconModule,
-    CommonModule,
     ReactiveFormsModule,
     MatSelectModule,
     MatCheckboxModule,
@@ -119,7 +114,6 @@ import {LoaderService} from "@services/loader.service";
     PipesModule,
     MatDatepickerModule,
     MatNativeDateModule,
-    CommonModule,
     FormsModule,
     MatTabsModule,
     MatToolbarModule,
@@ -129,7 +123,9 @@ import {LoaderService} from "@services/loader.service";
     MatSelectModule,
     MatCheckboxModule,
     MatButtonModule,
-    MatButtonModule, MatDividerModule, MatIconModule,
+    MatButtonModule,
+    MatDividerModule,
+    MatIconModule,
     MatTableModule,
     MatAutocompleteModule,
     FlexLayoutModule,
@@ -139,8 +135,8 @@ import {LoaderService} from "@services/loader.service";
     MatInputModule,
     MatDialogModule,
     MatDatepickerModule,
-    MatNativeDateModule, // <-- IMPORTANT: au niveau racine
-  ],
+    MatNativeDateModule
+],
   providers: [
     provideNativeDateAdapter(),
     {provide: MAT_DATE_FORMATS, useValue: MAT_NATIVE_DATE_FORMATS},

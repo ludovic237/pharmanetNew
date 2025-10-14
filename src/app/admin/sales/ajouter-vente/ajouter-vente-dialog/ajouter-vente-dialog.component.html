@@ -16,68 +16,68 @@
           <td mat-cell *matCellDef="let item">{{ item.quantite }}</td>
         </ng-container>
 
-       <!-- Quantité à modifier -->
-       <ng-container matColumnDef="quantiteAdjust">
-         <th mat-header-cell *matHeaderCellDef>Quantité à Modifier</th>
-         <td mat-cell *matCellDef="let item" style="width: 215px;" >
-           <div>
-             <bdi fxLayout="row" fxLayoutAlign="start center">
-               <button mat-mini-fab color="primary" (click)="decrement(item, 'quantiteRestante')" [disabled]="item.quantiteRestante <= 0">
-                 <mat-icon>remove</mat-icon>
-               </button>
-               <mat-form-field style="width: 100px; height: 60px;" appearance="outline" class="small-input">
-                 <input matInput
-                        type="number"
-                        [(ngModel)]="item.quantiteRestante"
-                        [min]="0"
-                        [max]="item.quantite"
-                        [value]="0"
-                        placeholder="0">
-               </mat-form-field>
-               <button mat-mini-fab color="primary" (click)="increment(item, 'quantiteRestante')" [disabled]="item.quantiteRestante >= item.quantite">
-                 <mat-icon>add</mat-icon>
-               </button>
-             </bdi>
-           </div>
-
-         </td>
-       </ng-container>
-
-       <!-- Prix de Vente -->
-       <ng-container matColumnDef="prixVente">
-         <th mat-header-cell *matHeaderCellDef>Prix de Vente</th>
-         <td mat-cell *matCellDef="let item" style="width: 215px;">
-           <button mat-mini-fab color="primary" (click)="decrement(item, 'prixVente')" [disabled]="item.prixVente <= 0">
-             <mat-icon>remove</mat-icon>
-           </button>
-           <mat-form-field style="width: 100px; height: 60px;" appearance="outline" class="small-input">
-             <input matInput
+        <!-- Quantité à modifier -->
+        <ng-container matColumnDef="quantiteAdjust">
+          <th mat-header-cell *matHeaderCellDef>Quantité à Modifier</th>
+          <td mat-cell *matCellDef="let item" style="width: 215px;" >
+            <div>
+              <bdi fxLayout="row" fxLayoutAlign="start center">
+                <button mat-mini-fab color="primary" (click)="decrement(item, 'quantiteRestante')" [disabled]="item.quantiteRestante <= 0">
+                  <mat-icon>remove</mat-icon>
+                </button>
+                <mat-form-field style="width: 100px; height: 60px;" appearance="outline" class="small-input">
+                  <input matInput
                     type="number"
-                    [(ngModel)]="item.prixVente"
+                    [(ngModel)]="item.quantiteRestante"
+                    [min]="0"
+                    [max]="item.quantite"
+                    [value]="0"
                     placeholder="0">
-           </mat-form-field>
-           <button mat-mini-fab color="primary" (click)="increment(item, 'prixVente')">
-             <mat-icon>add</mat-icon>
-           </button>
-         </td>
-       </ng-container>
+                  </mat-form-field>
+                  <button mat-mini-fab color="primary" (click)="increment(item, 'quantiteRestante')" [disabled]="item.quantiteRestante >= item.quantite">
+                    <mat-icon>add</mat-icon>
+                  </button>
+                </bdi>
+              </div>
 
-        <!-- Date de péremption -->
-        <ng-container matColumnDef="datePeremption">
-          <th mat-header-cell *matHeaderCellDef>Date Péremption</th>
-          <td mat-cell *matCellDef="let item">
-            {{ item.datePeremption | date:'dd/MM/yyyy' }}
-          </td>
-        </ng-container>
+            </td>
+          </ng-container>
 
-        <!-- Dates de livraison -->
-        <ng-container matColumnDef="dateLivraison">
-          <th mat-header-cell *matHeaderCellDef>Dates Livraison</th>
-<!--          <td mat-cell *matCellDef="let item">-->
-<!--            <ng-container *ngFor="let d of item.datesLivraison; let last = last">-->
-<!--              {{ d | date:'dd/MM/yyyy' }}<span *ngIf="!last">, </span>-->
-<!--            </ng-container>-->
-<!--          </td>-->
+          <!-- Prix de Vente -->
+          <ng-container matColumnDef="prixVente">
+            <th mat-header-cell *matHeaderCellDef>Prix de Vente</th>
+            <td mat-cell *matCellDef="let item" style="width: 215px;">
+              <button mat-mini-fab color="primary" (click)="decrement(item, 'prixVente')" [disabled]="item.prixVente <= 0">
+                <mat-icon>remove</mat-icon>
+              </button>
+              <mat-form-field style="width: 100px; height: 60px;" appearance="outline" class="small-input">
+                <input matInput
+                  type="number"
+                  [(ngModel)]="item.prixVente"
+                  placeholder="0">
+                </mat-form-field>
+                <button mat-mini-fab color="primary" (click)="increment(item, 'prixVente')">
+                  <mat-icon>add</mat-icon>
+                </button>
+              </td>
+            </ng-container>
+
+            <!-- Date de péremption -->
+            <ng-container matColumnDef="datePeremption">
+              <th mat-header-cell *matHeaderCellDef>Date Péremption</th>
+              <td mat-cell *matCellDef="let item">
+                {{ item.datePeremption | date:'dd/MM/yyyy' }}
+              </td>
+            </ng-container>
+
+            <!-- Dates de livraison -->
+            <ng-container matColumnDef="dateLivraison">
+              <th mat-header-cell *matHeaderCellDef>Dates Livraison</th>
+              <!--          <td mat-cell *matCellDef="let item">-->
+              <!--            <ng-container *ngFor="let d of item.datesLivraison; let last = last">-->
+              <!--              {{ d | date:'dd/MM/yyyy' }}<span *ngIf="!last">, </span>-->
+            <!--            </ng-container>-->
+          <!--          </td>-->
           <td mat-cell *matCellDef="let item">
             {{ item.dateLivraison | date:'dd/MM/yyyy' }}
           </td>
@@ -93,9 +93,11 @@
         <ng-container matColumnDef="actions">
           <th mat-header-cell *matHeaderCellDef>Actions</th>
           <td mat-cell *matCellDef="let item">
-<!--            <button mat-raised-button color="primary" (click)="saveChanges(item)">Sauvegarder</button>-->
-<!--            <button mat-raised-button color="warn" (click)="resetValues(item)">Réinitialiser</button>-->
-            <mat-icon *ngIf="item.quantiteRestante > 0" color="primary">check_circle</mat-icon>
+            <!--            <button mat-raised-button color="primary" (click)="saveChanges(item)">Sauvegarder</button>-->
+            <!--            <button mat-raised-button color="warn" (click)="resetValues(item)">Réinitialiser</button>-->
+            @if (item.quantiteRestante > 0) {
+              <mat-icon color="primary">check_circle</mat-icon>
+            }
           </td>
         </ng-container>
 
@@ -103,11 +105,11 @@
         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
         <tr mat-row        *matRowDef="let row; columns: displayedColumns"></tr>
       </table>
-    <button mat-raised-button color="accent"
-            [disabled]="modifiedProducts.length === 0"
-            (click)="validateModifiedQuantities()">
-      Valider
-    </button>
+      <button mat-raised-button color="accent"
+        [disabled]="modifiedProducts.length === 0"
+        (click)="validateModifiedQuantities()">
+        Valider
+      </button>
     </mat-card-content>
   </mat-card>
 </div>

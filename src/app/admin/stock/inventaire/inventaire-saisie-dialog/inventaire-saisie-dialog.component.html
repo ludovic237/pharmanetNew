@@ -20,149 +20,156 @@
         <mat-form-field class="w-100" appearance="outline">
           <mat-label>Search Products</mat-label>
           <input type="text"
-                 matInput
-                 [formControl]="medControl"
-                 [matAutocomplete]="auto">
-          <mat-autocomplete #auto="matAutocomplete">
-            <mat-option *ngFor="let option of medOptions" [value]="option.name" (click)="openMedicamentDialog(option)">
-              {{ option.name }}
-            </mat-option>
-          </mat-autocomplete>
-        </mat-form-field>
+            matInput
+            [formControl]="medControl"
+            [matAutocomplete]="auto">
+            <mat-autocomplete #auto="matAutocomplete">
+              @for (option of medOptions; track option) {
+                <mat-option [value]="option.name" (click)="openMedicamentDialog(option)">
+                  {{ option.name }}
+                </mat-option>
+              }
+            </mat-autocomplete>
+          </mat-form-field>
+        </div>
+        <div fxFlex="100" fxFlex.gt-md="5" class="px-1">
+          <mat-divider vertical></mat-divider>
+        </div>
+        <div [formGroup]="form" fxFlex="100" fxFlex.gt-md="40" class="px-1">
+          <mat-form-field class="w-100" appearance="outline">
+            <mat-label>Scanner ou saisir code produit</mat-label>
+            <input matInput formControlName="productSan" placeholder="Scanner ou saisir code produit" required
+              (input)="onScan($event)">
+            </mat-form-field>
+          </div>
+        </div>
+
+      </mat-card>
+
+      <div  fxLayout="row wrap" fxLayoutGap="16px">
+
       </div>
-      <div fxFlex="100" fxFlex.gt-md="5" class="px-1">
-        <mat-divider vertical></mat-divider>
-      </div>
-      <div [formGroup]="form" fxFlex="100" fxFlex.gt-md="40" class="px-1">
-        <mat-form-field class="w-100" appearance="outline">
-          <mat-label>Scanner ou saisir code produit</mat-label>
-          <input matInput formControlName="productSan" placeholder="Scanner ou saisir code produit" required
-                 (input)="onScan($event)">
-        </mat-form-field>
-      </div>
-    </div>
+      <table mat-table [dataSource]="filteredProducts" class="mat-elevation-z8">
 
-  </mat-card>
+        <ng-container matColumnDef="id">
+          <th mat-header-cell *matHeaderCellDef> ID</th>
+          <td mat-cell *matCellDef="let product"> {{ product.rayonId }}</td>
+        </ng-container>
 
-  <div  fxLayout="row wrap" fxLayoutGap="16px">
+        <ng-container matColumnDef="name">
+          <th mat-header-cell *matHeaderCellDef> Name</th>
+          <td mat-cell *matCellDef="let product"> {{ product.nom }}</td>
+        </ng-container>
 
-  </div>
-  <table mat-table [dataSource]="filteredProducts" class="mat-elevation-z8">
+        <ng-container matColumnDef="quantitySystem">
+          <th mat-header-cell *matHeaderCellDef> Quantité Système</th>
+          <td mat-cell *matCellDef="let product"> {{ product.quantitySystem }}</td>
+        </ng-container>
 
-    <ng-container matColumnDef="id">
-      <th mat-header-cell *matHeaderCellDef> ID</th>
-      <td mat-cell *matCellDef="let product"> {{ product.rayonId }}</td>
-    </ng-container>
+        <ng-container matColumnDef="quantityReal">
+          <th mat-header-cell *matHeaderCellDef> Quantité Réel</th>
+          <td mat-cell *matCellDef="let product">
+            <mat-form-field style="width: 140px; height: 60px;" appearance="outline" class="small-input">
+              <input matInput
+                [disabled]="!product.isActive"
+                [(ngModel)]="product.quantityReal"
+                type="number"
+                placeholder="Enter real quantity">
+              </mat-form-field>
+            </td>
+          </ng-container>
 
-    <ng-container matColumnDef="name">
-      <th mat-header-cell *matHeaderCellDef> Name</th>
-      <td mat-cell *matCellDef="let product"> {{ product.nom }}</td>
-    </ng-container>
+          <ng-container matColumnDef="comparison">
+            <th mat-header-cell *matHeaderCellDef> Comparison</th>
+            <td mat-cell *matCellDef="let product">
+              {{ product.quantityReal - product.quantitySystem }}
+            </td>
+          </ng-container>
 
-    <ng-container matColumnDef="quantitySystem">
-      <th mat-header-cell *matHeaderCellDef> Quantité Système</th>
-      <td mat-cell *matCellDef="let product"> {{ product.quantitySystem }}</td>
-    </ng-container>
+          <ng-container matColumnDef="dateLivraison">
+            <th mat-header-cell *matHeaderCellDef>Date livraison</th>
+            <td mat-cell *matCellDef="let product" [class.disabled-row]="product.disabled"> {{ product.dateLivraison  | date:'yyyy-MM-dd HH:mm:ss'  }}</td>
+          </ng-container>
 
-    <ng-container matColumnDef="quantityReal">
-      <th mat-header-cell *matHeaderCellDef> Quantité Réel</th>
-      <td mat-cell *matCellDef="let product">
-        <mat-form-field style="width: 140px; height: 60px;" appearance="outline" class="small-input">
-          <input matInput
-                 [disabled]="!product.isActive"
-                 [(ngModel)]="product.quantityReal"
-                 type="number"
-                 placeholder="Enter real quantity">
-        </mat-form-field>
-      </td>
-    </ng-container>
-
-    <ng-container matColumnDef="comparison">
-      <th mat-header-cell *matHeaderCellDef> Comparison</th>
-      <td mat-cell *matCellDef="let product">
-        {{ product.quantityReal - product.quantitySystem }}
-      </td>
-    </ng-container>
-
-    <ng-container matColumnDef="dateLivraison">
-      <th mat-header-cell *matHeaderCellDef>Date livraison</th>
-      <td mat-cell *matCellDef="let product" [class.disabled-row]="product.disabled"> {{ product.dateLivraison  | date:'yyyy-MM-dd HH:mm:ss'  }}</td>
-    </ng-container>
-
-    <ng-container matColumnDef="datePeremption">
-      <th mat-header-cell *matHeaderCellDef>Date peremption</th>
-      <td mat-cell *matCellDef="let product" [class.disabled-row]="product.disabled"> {{ product.datePeremption  | date:'yyyy-MM-dd HH:mm:ss'  }}
-      </td>
-    </ng-container>
+          <ng-container matColumnDef="datePeremption">
+            <th mat-header-cell *matHeaderCellDef>Date peremption</th>
+            <td mat-cell *matCellDef="let product" [class.disabled-row]="product.disabled"> {{ product.datePeremption  | date:'yyyy-MM-dd HH:mm:ss'  }}
+            </td>
+          </ng-container>
 
 
-    <ng-container matColumnDef="actions">
-      <th mat-header-cell *matHeaderCellDef> Actions</th>
-      <td mat-cell *matCellDef="let product" class="admin-table mat-mdc-table mat-mdc-cell">
-        <div class="p-2 actions">
-          <button mat-mini-fab class="ml-2"
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef> Actions</th>
+            <td mat-cell *matCellDef="let product" class="admin-table mat-mdc-table mat-mdc-cell">
+              <div class="p-2 actions">
+                <button mat-mini-fab class="ml-2"
                   [disabled]="product.quantityReal<=0"
                   [color]="product.isActive ? 'primary' : 'warn'"
                   (click)="addProductToInventory(product)"
                   [matTooltip]="product.isActive ? 'Valider quantite' : 'Mettre a jour la quantite'"
-          >
-            <mat-icon >
-              {{ product.isActive ? 'checked' : 'cancel' }}
-            </mat-icon>
-          </button>
-          <button *ngIf="product.produitInventaireId" mat-mini-fab matTooltip="Supprimer de l'inventaire"  class="ml-2"
-                  color="warn"
-                  (click)="deleteRow(product)">
-            <mat-icon>delete</mat-icon>
-          </button>
-        </div>
+                  >
+                  <mat-icon >
+                    {{ product.isActive ? 'checked' : 'cancel' }}
+                  </mat-icon>
+                </button>
+                @if (product.produitInventaireId) {
+                  <button mat-mini-fab matTooltip="Supprimer de l'inventaire"  class="ml-2"
+                    color="warn"
+                    (click)="deleteRow(product)">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                }
+              </div>
 
-      </td>
-    </ng-container>
+            </td>
+          </ng-container>
 
-    <tr mat-header-row
-        *matHeaderRowDef="['id', 'name', 'quantitySystem', 'quantityReal', 'comparison', 'dateLivraison', 'datePeremption', 'actions']"></tr>
-    <tr mat-row
-        *matRowDef="let row; columns: [ 'id', 'name', 'quantitySystem', 'quantityReal', 'comparison', 'dateLivraison', 'datePeremption', 'actions'];"></tr>
-  </table>
-  <mat-divider></mat-divider>
-  <mat-paginator [length]="totalItems" [pageSize]="count" [pageSizeOptions]="[5, 10, 25, 100]"
-                 (page)="onPageChanged($event)">
-  </mat-paginator>
-</mat-dialog-content>
+          <tr mat-header-row
+          *matHeaderRowDef="['id', 'name', 'quantitySystem', 'quantityReal', 'comparison', 'dateLivraison', 'datePeremption', 'actions']"></tr>
+          <tr mat-row
+          *matRowDef="let row; columns: [ 'id', 'name', 'quantitySystem', 'quantityReal', 'comparison', 'dateLivraison', 'datePeremption', 'actions'];"></tr>
+        </table>
+        <mat-divider></mat-divider>
+        <mat-paginator [length]="totalItems" [pageSize]="count" [pageSizeOptions]="[5, 10, 25, 100]"
+          (page)="onPageChanged($event)">
+        </mat-paginator>
+      </mat-dialog-content>
 
-<mat-dialog-actions>
-  <mat-toolbar>
-    <div fxLayout="row" fxLayoutAlign="space-between center">
-      <div mat-dialog-actions>
-        <button mat-button (click)="onCancel()">Cancel</button>
-        <!-- Button for "add" type -->
-        <button mat-raised-button
-                color="primary"
-                (click)="addSelectedProducts()"
-                *ngIf="data.type === 'add'"
-                [disabled]="filteredProducts.length === 0">
-          Sauvegarder
-        </button>
+      <mat-dialog-actions>
+        <mat-toolbar>
+          <div fxLayout="row" fxLayoutAlign="space-between center">
+            <div mat-dialog-actions>
+              <button mat-button (click)="onCancel()">Cancel</button>
+              <!-- Button for "add" type -->
+              @if (data.type === 'add') {
+                <button mat-raised-button
+                  color="primary"
+                  (click)="addSelectedProducts()"
+                  [disabled]="filteredProducts.length === 0">
+                  Sauvegarder
+                </button>
+              }
 
-<!--        &lt;!&ndash; Button for "update" type &ndash;&gt;-->
-<!--        <button mat-raised-button-->
-<!--                color="accent"-->
-<!--                (click)="onSave()"-->
-<!--                *ngIf="data.type === 'edit'">-->
-<!--          Mise à jour-->
-<!--        </button>-->
+              <!--        &lt;!&ndash; Button for "update" type &ndash;&gt;-->
+              <!--        <button mat-raised-button-->
+              <!--                color="accent"-->
+              <!--                (click)="onSave()"-->
+              <!--                *ngIf="data.type === 'edit'">-->
+              <!--          Mise à jour-->
+            <!--        </button>-->
 
-        <!-- Button for "update" or other types -->
-        <button mat-raised-button
+            <!-- Button for "update" or other types -->
+            @if (data.type === 'update' || data.type !== 'add') {
+              <button mat-raised-button
                 color="warn"
                 (click)="onCloturer()"
-                *ngIf="data.type === 'update' || data.type !== 'add'">
-          Clôturer
-        </button>
+                >
+                Clôturer
+              </button>
+            }
 
-      </div>
-    </div>
-  </mat-toolbar>
-</mat-dialog-actions>
+          </div>
+        </div>
+      </mat-toolbar>
+    </mat-dialog-actions>
 

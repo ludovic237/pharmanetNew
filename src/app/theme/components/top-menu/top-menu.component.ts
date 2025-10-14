@@ -9,7 +9,7 @@ import {AppService} from '@services/app.service';
 import {Settings, SettingsService} from '@services/settings.service';
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {AuthService} from "@services/auth.service";
-import {CommonModule} from "@angular/common";
+
 
 @Component({
   selector: 'app-top-menu',
@@ -19,9 +19,8 @@ import {CommonModule} from "@angular/common";
     MatButtonModule,
     MatMenuModule,
     MatIconModule,
-    CommonModule,
     TranslateModule
-  ],
+],
   templateUrl: './top-menu.component.html'
 })
 export class TopMenuComponent implements OnInit {

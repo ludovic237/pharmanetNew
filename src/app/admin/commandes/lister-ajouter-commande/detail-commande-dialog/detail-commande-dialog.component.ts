@@ -37,6 +37,7 @@ import {products} from "../../../../common/data/dashboard.data";
 
 @Component({
   selector: 'app-detail-commande-dialog',
+  standalone: true,
   imports: [
     CommonModule,
     FormsModule,

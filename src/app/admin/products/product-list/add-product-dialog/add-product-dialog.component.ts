@@ -16,7 +16,7 @@ import {MagasinService} from "@services/magasins.service";
 import {RayonService} from "@services/rayons.service";
 import {FabriquantService} from "@services/fabriquants.service";
 import {FormeService} from "@services/formes.service";
-import {CommonModule} from "@angular/common";
+
 import {ProductService} from "@services/products.service";
 import {EtageresService} from "@services/etageres.service";
 import {MatToolbarModule} from "@angular/material/toolbar";
@@ -46,7 +46,6 @@ import {LoaderService} from "@services/loader.service";
   imports: [
     MatDialogModule,
     MatToolbarModule,
-    CommonModule,
     FormsModule,
     MatToolbarModule,
     ReactiveFormsModule,
@@ -71,8 +70,6 @@ import {LoaderService} from "@services/loader.service";
     MatExpansionModule,
     FormsModule,
     ReactiveFormsModule,
-    CommonModule,
-    // Material
     MatToolbarModule,
     MatTabsModule,
     MatIconModule,
@@ -89,7 +86,6 @@ import {LoaderService} from "@services/loader.service";
     FormsModule,
     ReactiveFormsModule,
     FlexLayoutModule,
-    // Material
     MatStepperModule,
     MatTableModule,
     MatFormFieldModule,
@@ -101,7 +97,7 @@ import {LoaderService} from "@services/loader.service";
     MatSnackBarModule,
     MatChipsModule,
     NgxPaginationModule
-  ],
+],
   templateUrl: './add-product-dialog.component.html',
   styleUrl: './add-product-dialog.component.scss'
 })

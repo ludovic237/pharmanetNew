@@ -18,7 +18,7 @@ import {MatButtonModule} from '@angular/material/button';
 import {CategorieService} from "@services/categories.service";
 import {LoaderService} from "@services/loader.service";
 import {MatPaginatorModule, PageEvent} from "@angular/material/paginator";
-import {CommonModule} from "@angular/common";
+
 
 @Component({
   selector: 'app-categories',
@@ -30,9 +30,8 @@ import {CommonModule} from "@angular/common";
     MatIconModule,
     MatDividerModule,
     PipesModule,
-    NgxPaginationModule,
-    CommonModule
-  ],
+    NgxPaginationModule
+],
   templateUrl: './categories.component.html',
   styleUrl: './categories.component.scss'
 })

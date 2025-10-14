@@ -19,7 +19,7 @@ import {MatNativeDateModule} from "@angular/material/core";
 import {MatDatepickerModule} from "@angular/material/datepicker";
 import {NgxChartsModule} from "@swimlane/ngx-charts";
 import {NgChartsModule} from "ng2-charts";
-import {CommonModule, formatDate, isPlatformBrowser, NgStyle} from '@angular/common';
+import { CommonModule, formatDate, isPlatformBrowser, NgStyle } from '@angular/common';
 import {ChartData, ChartOptions} from "chart.js";
 import {MatPaginatorModule} from "@angular/material/paginator";
 import {MatMenuModule} from "@angular/material/menu";

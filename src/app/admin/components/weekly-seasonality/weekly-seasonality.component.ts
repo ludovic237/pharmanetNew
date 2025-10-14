@@ -1,6 +1,6 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {ChartConfiguration} from "chart.js";
-import {CommonModule, DecimalPipe} from "@angular/common";
+import { DecimalPipe } from "@angular/common";
 import {MatCardModule} from "@angular/material/card";
 import {MatIconModule} from "@angular/material/icon";
 import {MatChipsModule} from "@angular/material/chips";
@@ -45,14 +45,13 @@ import {PipesModule} from "../../../theme/pipes/pipes.module";
     ControlsComponent,
     DecimalPipe,
     PipesModule,
-    CommonModule,
     MatCardModule,
     MatIconModule,
     MatChipsModule,
     MatProgressSpinnerModule,
     MatBadgeModule,
     NgChartsModule
-  ],
+],
   templateUrl: './weekly-seasonality.component.html',
   styleUrl: './weekly-seasonality.component.scss'
 })

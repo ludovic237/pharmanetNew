@@ -1,5 +1,5 @@
 import {Component, Inject} from '@angular/core';
-import {CommonModule} from "@angular/common";
+
 import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
 import {MatCardModule} from "@angular/material/card";
 import {MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef} from "@angular/material/dialog";
@@ -21,7 +21,6 @@ import {LoaderService} from "@services/loader.service";
 @Component({
   selector: 'app-update-produit-detail-dialog',
   imports: [
-    CommonModule,
     FormsModule,
     MatCardModule,
     MatToolbarModule,
@@ -31,11 +30,13 @@ import {LoaderService} from "@services/loader.service";
     MatSelectModule,
     MatCheckboxModule,
     MatButtonModule,
-    MatButtonModule, MatDividerModule, MatIconModule,
+    MatButtonModule,
+    MatDividerModule,
+    MatIconModule,
     MatTableModule,
     MatAutocompleteModule,
     FlexLayoutModule
-  ],
+],
   templateUrl: './update-produit-detail-dialog.component.html',
   styleUrl: './update-produit-detail-dialog.component.scss'
 })

@@ -1,5 +1,27 @@
 {
-  "WELCOME": "Welcome to our marketplace!",
+  "SALES_SUMMARY_BY_SUPPLIER": "Sales Summary by Supplier",
+  "SALES_SUMMARY_BY_TYPE": "Sales Summary by Type",
+  "SALES_COLLECTION": "Sales Collection",
+  "CREDIT_INVOICE_COLLECTION": "Credit Invoice Collection",
+  "GENERATED_CASH_VOUCHER": "Generated Cash Voucher",
+  "CASH_RECEIPT_CASHED": "Cash Receipt Cashed",
+  "CASH_STATUS": "Cash Status",
+
+  "WHOLSALER": "Wholesaler",
+  "REDUCTION": "Reduction",
+  "TOTAL": "Total",
+  "RETAILER": "Retailer",
+  "PRODUCT_DETAIL": "Product Details",
+
+  "CREDIT": "Credit",
+  "INSURANCE": "Insurance",
+
+  "CASH": "Cash",
+  "ELECTRONIC": "Electronic",
+  "CASH_VOUCHER": "Cash Voucher",
+  "RETURNED": "Returned",
+
+  "WELCOME": "Welcome to our market!",
   "LOGIN": "Login",
   "LOGOUT": "Logout",
   "REGISTER": "Register",
@@ -83,16 +105,16 @@
   },
   "MESSAGE": {
     "SURE_DELETE": "Are you sure you want to delete?",
-    "FILE_SIZE": "File size cannot exceed {{param}} KB."
+    "FILE_SIZE": "File size cannot exceed {{param}} kb."
   },
   "FIELD": {
     "NAME": "Name"
   },
   "PAGINATION": {
     "ITEMS_PER_PAGE": "Items per page:",
-    "NEXT_PAGE": "Next Page",
-    "PREV_PAGE": "Previous Page",
-    "FIRST_PAGE": "First Page",
-    "LAST_PAGE": "Last Page"
+    "NEXT_PAGE": "Next page",
+    "PREV_PAGE": "Previous page",
+    "FIRST_PAGE": "First page",
+    "LAST_PAGE": "Last page"
   }
 }

@@ -8,47 +8,48 @@
       </mat-panel-title>
     </mat-expansion-panel-header>
     <ng-scrollbar orientation="vertical" pointerEventsMethod="scrollbar">
-      <ng-container *ngIf="loading">
+      @if (loading) {
         <div class="loading">
           <mat-progress-bar mode="indeterminate"></mat-progress-bar>
         </div>
-      </ng-container>
+      }
 
-      <ng-container *ngIf="!loading && error">
+      @if (!loading && error) {
         <div class="error">
           <mat-icon color="warn">error_outline</mat-icon>
           {{ error }}
         </div>
-      </ng-container>
+      }
 
 
       <div class="list">
-        <mat-card class="item" *ngFor="let it of items; trackBy: trackById">
-          <div class="left">
-            <div class="rank" matBadge="{{ it.rank }}" matBadgeColor="primary"></div>
-            <div class="name-id">
-              <div class="name">
-                <span class="dot blue"></span>
-                {{ it.produit || ('Produit #' + it.produit_id) }}
-              </div>
-              <div class="assoc">
-                <span class="bar"></span>
-                <span class="label">associé avec</span>
-              </div>
-              <div class="pair">
-                <span class="dot green"></span>
-                <!-- Ici, c’est une reco “voisine” : vous affichez juste l’item courant.
-                     S’il y a un produit “source” (productId), l’UX peut le rappeler au-dessus. -->
-                ID: {{ it.produit_id }}
+        @for (it of items; track trackById($index, it)) {
+          <mat-card class="item">
+            <div class="left">
+              <div class="rank" matBadge="{{ it.rank }}" matBadgeColor="primary"></div>
+              <div class="name-id">
+                <div class="name">
+                  <span class="dot blue"></span>
+                  {{ it.produit || ('Produit #' + it.produit_id) }}
+                </div>
+                <div class="assoc">
+                  <span class="bar"></span>
+                  <span class="label">associé avec</span>
+                </div>
+                <div class="pair">
+                  <span class="dot green"></span>
+                  <!-- Ici, c’est une reco “voisine” : vous affichez juste l’item courant.
+                  S’il y a un produit “source” (productId), l’UX peut le rappeler au-dessus. -->
+                  ID: {{ it.produit_id }}
+                </div>
               </div>
             </div>
-          </div>
-
-          <div class="right">
-            <div class="freq">{{ it.percent }}% freq.</div>
-            <mat-progress-bar mode="determinate" [value]="it.percent"></mat-progress-bar>
-          </div>
-        </mat-card>
+            <div class="right">
+              <div class="freq">{{ it.percent }}% freq.</div>
+              <mat-progress-bar mode="determinate" [value]="it.percent"></mat-progress-bar>
+            </div>
+          </mat-card>
+        }
       </div>
     </ng-scrollbar>
   </mat-expansion-panel>

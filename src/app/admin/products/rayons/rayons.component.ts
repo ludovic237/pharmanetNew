@@ -15,7 +15,7 @@ import {MatDividerModule} from '@angular/material/divider';
 import {MatButtonModule} from '@angular/material/button';
 import {RayonService} from "@services/rayons.service";
 import {Rayon} from "@models/product";
-import {CommonModule} from "@angular/common";
+
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {AuthService} from "@services/auth.service";
 import {MatSnackBar} from "@angular/material/snack-bar";
@@ -26,7 +26,6 @@ import {MatPaginatorModule, PageEvent} from "@angular/material/paginator";
   selector: 'app-rayons',
   imports: [
     MatPaginatorModule,
-    CommonModule,
     ReactiveFormsModule,
     FormsModule,
     FlexLayoutModule,
@@ -35,9 +34,8 @@ import {MatPaginatorModule, PageEvent} from "@angular/material/paginator";
     MatIconModule,
     MatDividerModule,
     PipesModule,
-    NgxPaginationModule,
-    CommonModule
-  ],
+    NgxPaginationModule
+],
   templateUrl: './rayons.component.html',
   styleUrl: './rayons.component.scss'
 })

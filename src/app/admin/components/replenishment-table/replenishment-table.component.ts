@@ -1,5 +1,5 @@
 import {Component, Input, SimpleChanges} from '@angular/core';
-import {CommonModule} from "@angular/common";
+
 import {MatCardModule} from "@angular/material/card";
 import {MatIconModule} from "@angular/material/icon";
 import {MatChipsModule} from "@angular/material/chips";
@@ -9,13 +9,12 @@ import {MatTableDataSource, MatTableModule} from "@angular/material/table";
 @Component({
   selector: 'app-replenishment-table',
   imports: [
-    CommonModule,
     MatCardModule,
     MatIconModule,
     MatChipsModule,
     MatProgressSpinnerModule,
     MatTableModule
-  ],
+],
   templateUrl: './replenishment-table.component.html',
   styleUrl: './replenishment-table.component.scss'
 })

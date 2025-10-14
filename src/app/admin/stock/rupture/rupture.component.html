@@ -11,33 +11,33 @@
     <mat-divider></mat-divider>
     <div fxLayout="row" fxLayoutAlign="space-between center" class="w-100 p-3">
       <div fxLayout="row" fxLayoutGap="8px">
-<!--        <button matBadgePosition="before" matBadgeColor="accent"-->
-<!--                [matBadge]="countItemProduitAiSelect"-->
-<!--                mat-raised-button color="primary" >AI</button>-->
-        <button matBadgePosition="before" matBadgeColor="accent"
-                [disabled]="countItemProduitCommandeSelect==0"
-                [matBadge]="countItemProduitCommandeSelect"
-                mat-raised-button color="primary" (click)="openSimpleReaDialog()">P commande</button>
-        <button matBadgePosition="before" matBadgeColor="accent"
-                [matBadge]="countItemSelect"
-                mat-raised-button color="primary" (click)="resetSelected()"
-                [disabled]="!hasSelection()">Réinitialiser les produits selectionnees</button>
-        <button mat-raised-button color="accent" (click)="resetNegative()">Réinitialiser les stocks negatifs</button>
-        <!--        <button mat-raised-button color="warn" (click)="resetAll()">Réinitialiser tous les stocks</button>-->
-      </div>
+        <!--        <button matBadgePosition="before" matBadgeColor="accent"-->
+        <!--                [matBadge]="countItemProduitAiSelect"-->
+      <!--                mat-raised-button color="primary" >AI</button>-->
+      <button matBadgePosition="before" matBadgeColor="accent"
+        [disabled]="countItemProduitCommandeSelect==0"
+        [matBadge]="countItemProduitCommandeSelect"
+      mat-raised-button color="primary" (click)="openSimpleReaDialog()">P commande</button>
+      <button matBadgePosition="before" matBadgeColor="accent"
+        [matBadge]="countItemSelect"
+        mat-raised-button color="primary" (click)="resetSelected()"
+      [disabled]="!hasSelection()">Réinitialiser les produits selectionnees</button>
+      <button mat-raised-button color="accent" (click)="resetNegative()">Réinitialiser les stocks negatifs</button>
+      <!--        <button mat-raised-button color="warn" (click)="resetAll()">Réinitialiser tous les stocks</button>-->
     </div>
+  </div>
 
-  </mat-card-content>
+</mat-card-content>
 </mat-card>
 
 <div class="table-container">
   <table mat-table [dataSource]="stockCritique" matSort>
     <ng-container matColumnDef="select">
       <th mat-header-cell *matHeaderCellDef>
-<!--        <mat-checkbox (change)="toggleAll($event.checked)"></mat-checkbox>-->
+        <!--        <mat-checkbox (change)="toggleAll($event.checked)"></mat-checkbox>-->
       </th>
       <td mat-cell *matCellDef="let row">
-<!--        <mat-checkbox [(ngModel)]="row.selected"></mat-checkbox>-->
+        <!--        <mat-checkbox [(ngModel)]="row.selected"></mat-checkbox>-->
         <mat-checkbox [disabled]="row.stock>=0" (change)="toggleSelection(row)"
         [checked]="isSelected(row)"></mat-checkbox>
       </td>
@@ -59,47 +59,46 @@
       <td mat-cell *matCellDef="let row">
         <!--                        {{ row.stock }}-->
         <span class="status-chip" [ngClass]="getStockStatus(row).class">
-                          {{ getStockStatus(row).label }}
-                        </span>
+          {{ getStockStatus(row).label }}
+        </span>
       </td>
     </ng-container>
     <ng-container matColumnDef="action">
       <th mat-header-cell *matHeaderCellDef>Actions</th>
       <td mat-cell *matCellDef="let row">
         <div  fxLayout="row" fxLayoutGap="8px">
-          <ng-container  *ngIf="row.stock < 0">
+          @if (row.stock < 0) {
             <button mat-raised-button color="primary" (click)="resetQuantite(row)" >Reinitialiser cette quantite</button>
-          </ng-container>
-          <ng-container *ngIf="row.stock >= 0">
+          }
+          @if (row.stock >= 0) {
             <button mat-raised-button
-                    [color]="isCommanded(row) ? 'warn' : 'primary'"
-                    (click)="toggleCommande(row)">
+              [color]="isCommanded(row) ? 'warn' : 'primary'"
+              (click)="toggleCommande(row)">
               {{ isCommanded(row) ? 'Décommander' : 'Commander' }}
             </button>
-
-          </ng-container>
+          }
           <!--<ng-container *ngIf="row.stock > 0 && row.stock < row.min ">
-            <button mat-raised-button
-                    [color]="isAISelected(row) ? 'warn' : 'accent'"
-                    (click)="togglePropositionAI(row)">
-              {{ isAISelected(row) ? 'Annuler' : 'Proposition IA' }}
-            </button>
-          </ng-container>-->
-        </div>
+          <button mat-raised-button
+            [color]="isAISelected(row) ? 'warn' : 'accent'"
+            (click)="togglePropositionAI(row)">
+            {{ isAISelected(row) ? 'Annuler' : 'Proposition IA' }}
+          </button>
+        </ng-container>-->
+      </div>
 
-<!--        <button mat-raised-button color="primary" >Sortir le stock</button>-->
-<!--        <button mat-raised-button color="primary" >Augmenter le stock</button>-->
-      </td>
-    </ng-container>
-    <tr mat-header-row *matHeaderRowDef="displayedColumnsRupture"></tr>
-    <tr mat-row *matRowDef="let row; columns: displayedColumnsRupture;"></tr>
-  </table>
+      <!--        <button mat-raised-button color="primary" >Sortir le stock</button>-->
+      <!--        <button mat-raised-button color="primary" >Augmenter le stock</button>-->
+    </td>
+  </ng-container>
+  <tr mat-header-row *matHeaderRowDef="displayedColumnsRupture"></tr>
+  <tr mat-row *matRowDef="let row; columns: displayedColumnsRupture;"></tr>
+</table>
 
-  <mat-paginator
-    [showFirstLastButtons]="true"
-    [length]="totalItems"
-    [pageSize]="count"
-    [pageSizeOptions]="[5, 10, 25, 100]"
-    (page)="onPageChanged($event)">
-  </mat-paginator>
+<mat-paginator
+  [showFirstLastButtons]="true"
+  [length]="totalItems"
+  [pageSize]="count"
+  [pageSizeOptions]="[5, 10, 25, 100]"
+  (page)="onPageChanged($event)">
+</mat-paginator>
 </div>

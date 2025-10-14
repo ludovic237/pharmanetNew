@@ -28,7 +28,7 @@ import {LoaderService} from "@services/loader.service";
 import {TranslateModule, TranslateService} from '@ngx-translate/core';
 import {join} from "node:path";
 import {MatMenuModule} from "@angular/material/menu";
-import {CommonModule} from "@angular/common";
+
 
 @Component({
   selector: 'app-admin',
@@ -45,9 +45,8 @@ import {CommonModule} from "@angular/common";
     FullScreenComponent,
     AdminMenuComponent,
     MatMenuModule,
-    MatIconModule,
-    CommonModule,
-  ],
+    MatIconModule
+],
   templateUrl: './admin.component.html',
   styleUrl: './admin.component.scss'
 })

@@ -6,80 +6,92 @@
     <div autocomplete="off" fxLayout="row wrap">
       <div fxFlex="100" fxFlex.gt-sm="40" class="px-2">
         <p class="mt-1"><span class="uppercase fw-500">Gallery</span><span
-          class="text-muted px-1">(max 8 images)</span></p>
-        <input-file formControlName="images" [fileLimit]="8" fileAccept="image/*"></input-file>
-      </div>
-      <div fxFlex="100" fxFlex.gt-sm="60" class="px-2">
-        <div fxLayout="row wrap">
-          <mat-toolbar>
-            <h2>Information</h2>
-          </mat-toolbar>
-          <div fxFlex="100" fxFlex.gt-sm="50" class="px-1">
-            <mat-form-field appearance="outline" class="w-100">
-              <mat-label>Identifiant</mat-label>
-              <input matInput formControlName="identifiant" required>
-              <mat-error *ngIf="form.controls.identifiant.errors?.required">Identifiant is required</mat-error>
-              <mat-error *ngIf="form.controls.identifiant.errors?.minlength">Minimum 4 characters</mat-error>
-            </mat-form-field>
-          </div>
-          <div fxFlex="100" fxFlex.gt-sm="50" class="px-1">
-            <mat-form-field appearance="outline" class="w-100">
-              <mat-label>Password</mat-label>
-              <input matInput formControlName="password">
-            </mat-form-field>
-          </div>
-          <div fxFlex="100" fxFlex.gt-sm="50" class="px-1">
-            <mat-form-field appearance="outline" class="w-100">
-              <mat-label>Type</mat-label>
-              <mat-select formControlName="type" required>
-                <mat-option *ngFor="let cat of type" [value]="cat.nom">{{ cat.nom }}</mat-option>
-              </mat-select>
-            </mat-form-field>
-          </div>
-          <div fxFlex="100" fxFlex.gt-sm="50" class="px-1">
-            <mat-form-field appearance="outline" class="w-100">
-              <mat-label>Etat</mat-label>
-              <input matInput formControlName="etat">
-            </mat-form-field>
-          </div>
-          <div fxFlex="100" fxFlex.gt-sm="50" class="px-1">
-            <mat-form-field appearance="outline" class="w-100">
-              <mat-label>Utilisateur</mat-label>
-              <mat-select formControlName="user" required>
-                <mat-option *ngFor="let cat of users" [value]="cat.id">{{ cat.nom }}</mat-option>
-              </mat-select>
-            </mat-form-field>
-          </div>
-          <div fxFlex="100" fxFlex.gt-sm="50" class="px-1">
-            <mat-form-field appearance="outline" class="w-100">
-              <mat-label>Code barre</mat-label>
-              <input matInput formControlName="codebarreId">
-            </mat-form-field>
-          </div>
-          <div fxFlex="100" fxFlex.gt-sm="50" class="px-1">
-            <mat-form-field appearance="outline" class="w-100">
-              <mat-label>Reduction</mat-label>
-              <input matInput formControlName="faireReductionMax">
-            </mat-form-field>
-          </div>
+      class="text-muted px-1">(max 8 images)</span></p>
+      <input-file formControlName="images" [fileLimit]="8" fileAccept="image/*"></input-file>
+    </div>
+    <div fxFlex="100" fxFlex.gt-sm="60" class="px-2">
+      <div fxLayout="row wrap">
+        <mat-toolbar>
+          <h2>Information</h2>
+        </mat-toolbar>
+        <div fxFlex="100" fxFlex.gt-sm="50" class="px-1">
+          <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Identifiant</mat-label>
+            <input matInput formControlName="identifiant" required>
+            @if (form.controls.identifiant.errors?.required) {
+              <mat-error>Identifiant is required</mat-error>
+            }
+            @if (form.controls.identifiant.errors?.minlength) {
+              <mat-error>Minimum 4 characters</mat-error>
+            }
+          </mat-form-field>
+        </div>
+        <div fxFlex="100" fxFlex.gt-sm="50" class="px-1">
+          <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Password</mat-label>
+            <input matInput formControlName="password">
+          </mat-form-field>
+        </div>
+        <div fxFlex="100" fxFlex.gt-sm="50" class="px-1">
+          <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Type</mat-label>
+            <mat-select formControlName="type" required>
+              @for (cat of type; track cat) {
+                <mat-option [value]="cat.nom">{{ cat.nom }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        </div>
+        <div fxFlex="100" fxFlex.gt-sm="50" class="px-1">
+          <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Etat</mat-label>
+            <input matInput formControlName="etat">
+          </mat-form-field>
+        </div>
+        <div fxFlex="100" fxFlex.gt-sm="50" class="px-1">
+          <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Utilisateur</mat-label>
+            <mat-select formControlName="user" required>
+              @for (cat of users; track cat) {
+                <mat-option [value]="cat.id">{{ cat.nom }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        </div>
+        <div fxFlex="100" fxFlex.gt-sm="50" class="px-1">
+          <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Code barre</mat-label>
+            <input matInput formControlName="codebarreId">
+          </mat-form-field>
+        </div>
+        <div fxFlex="100" fxFlex.gt-sm="50" class="px-1">
+          <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Reduction</mat-label>
+            <input matInput formControlName="faireReductionMax">
+          </mat-form-field>
         </div>
       </div>
     </div>
   </div>
-  <mat-dialog-actions>
-    <mat-toolbar>
-      <div mat-dialog-actions fxLayout="row" fxLayoutAlign="space-between center" class="w-100 p-3">
-        <button mat-raised-button color="warn" (click)="close()">
-          Fermer
-        </button>
-        <button *ngIf="user.type==='add' " type="submit" mat-raised-button color="accent">
+</div>
+<mat-dialog-actions>
+  <mat-toolbar>
+    <div mat-dialog-actions fxLayout="row" fxLayoutAlign="space-between center" class="w-100 p-3">
+      <button mat-raised-button color="warn" (click)="close()">
+        Fermer
+      </button>
+      @if (user.type==='add' ) {
+        <button type="submit" mat-raised-button color="accent">
           Ajouter
         </button>
-        <button *ngIf="user.type==='update' " type="submit" mat-raised-button color="accent">
+      }
+      @if (user.type==='update' ) {
+        <button type="submit" mat-raised-button color="accent">
           Mettre a jour
         </button>
-      </div>
-    </mat-toolbar>
-  </mat-dialog-actions>
+      }
+    </div>
+  </mat-toolbar>
+</mat-dialog-actions>
 </form>
 

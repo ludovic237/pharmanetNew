@@ -8,7 +8,7 @@ import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatIconModule} from '@angular/material/icon';
 import {MatDatepickerModule} from '@angular/material/datepicker';
 import {MatRadioModule} from '@angular/material/radio';
-import {CommonModule, DatePipe} from '@angular/common';
+import { DatePipe } from '@angular/common';
 import {MatNativeDateModule} from '@angular/material/core';
 import {MatButtonModule} from '@angular/material/button';
 import {MatCheckboxModule} from '@angular/material/checkbox';
@@ -43,9 +43,8 @@ import {LoaderService} from "@services/loader.service";
     MatCardModule,
     MatSelectModule,
     MatToolbarModule,
-    CommonModule,
     InputFileModule
-  ],
+],
   templateUrl: './employe-dialog.component.html',
   styleUrl: './employe-dialog.component.scss'
 })

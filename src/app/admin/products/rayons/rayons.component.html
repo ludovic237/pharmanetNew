@@ -12,36 +12,40 @@
         <div class="mat-mdc-header-cell">Parent Rayon</div>
         <div class="mat-mdc-header-cell"></div>
       </div>
-      <div *ngFor="let rayon of rayons " class="mat-mdc-row">
-        <div class="mat-mdc-cell">{{ rayon.nom }}</div>
-        <div class="mat-mdc-cell">{{ rayon.code }}</div>
-        <div class="mat-mdc-cell">
-          {{ (rayons | filterById: rayon.id)?.nom || 'N/A' }}
-        </div>
-        <div class="mat-mdc-cell">
-          <div class="p-2 actions">
-            <button mat-mini-fab color="primary" matTooltip="Edit" (click)="openRayonDialog(rayon)">
-              <mat-icon>edit</mat-icon>
-            </button>
-            <button [disabled]="rayon.supprimer==1" mat-mini-fab color="warn" matTooltip="Delete" class="mx-1" (click)="remove(rayon)">
-              <mat-icon>delete</mat-icon>
-            </button>
+      @for (rayon of rayons ; track rayon) {
+        <div class="mat-mdc-row">
+          <div class="mat-mdc-cell">{{ rayon.nom }}</div>
+          <div class="mat-mdc-cell">{{ rayon.code }}</div>
+          <div class="mat-mdc-cell">
+            {{ (rayons | filterById: rayon.id)?.nom || 'N/A' }}
+          </div>
+          <div class="mat-mdc-cell">
+            <div class="p-2 actions">
+              <button mat-mini-fab color="primary" matTooltip="Edit" (click)="openRayonDialog(rayon)">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button [disabled]="rayon.supprimer==1" mat-mini-fab color="warn" matTooltip="Delete" class="mx-1" (click)="remove(rayon)">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      }
     </div>
   </mat-card>
 
-  <div *ngIf="rayons.length" fxLayout="row wrap">
-    <div fxFlex="100">
-      <mat-card class="p-0 text-center">
-        <mat-paginator
-          [length]="totalItems"
-          [pageSize]="count"
-          (page)="onPageChanged($event)"
-          [pageSizeOptions]="[5, 10, 25, 100]">
-        </mat-paginator>
-      </mat-card>
+  @if (rayons.length) {
+    <div fxLayout="row wrap">
+      <div fxFlex="100">
+        <mat-card class="p-0 text-center">
+          <mat-paginator
+            [length]="totalItems"
+            [pageSize]="count"
+            (page)="onPageChanged($event)"
+            [pageSizeOptions]="[5, 10, 25, 100]">
+          </mat-paginator>
+        </mat-card>
+      </div>
     </div>
-  </div>
+  }
 </div>

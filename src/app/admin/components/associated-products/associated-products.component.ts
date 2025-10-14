@@ -1,7 +1,7 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {map, Observable} from "rxjs";
 import {AiService} from "@services/ai.service";
-import {CommonModule, DecimalPipe} from "@angular/common";
+import { DecimalPipe } from "@angular/common";
 import {MatCardModule} from "@angular/material/card";
 import {MatIconModule} from "@angular/material/icon";
 import {MatChipsModule} from "@angular/material/chips";
@@ -51,14 +51,13 @@ type ViewItem = any & { rank: number; percent: number };
     ControlsComponent,
     DecimalPipe,
     PipesModule,
-    CommonModule,
     MatCardModule,
     MatIconModule,
     MatChipsModule,
     MatProgressSpinnerModule,
     MatProgressBar,
     MatBadgeModule
-  ],
+],
   templateUrl: './associated-products.component.html',
   styleUrl: './associated-products.component.scss'
 })

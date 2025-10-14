@@ -21,7 +21,7 @@ import {MatSlideToggleModule} from "@angular/material/slide-toggle";
 import {MatCheckboxModule} from "@angular/material/checkbox";
 import {MatDividerModule} from "@angular/material/divider";
 import {MatExpansionModule} from "@angular/material/expansion";
-import {CommonModule} from "@angular/common";
+
 import {MatToolbarModule} from "@angular/material/toolbar";
 import {MatTabsModule} from "@angular/material/tabs";
 import {MatAutocompleteModule} from "@angular/material/autocomplete";
@@ -37,13 +37,17 @@ import {NgScrollbarModule} from "ngx-scrollbar";
   selector: 'app-daily-sales',
   imports: [
     ReactiveFormsModule,
-    // Material
-    MatCardModule, MatFormFieldModule, MatInputModule,
-    MatDatepickerModule, MatNativeDateModule,
-    MatButtonModule, MatGridListModule, MatTableModule,
-    MatIconModule, MatTooltipModule,
+    MatCardModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatButtonModule,
+    MatGridListModule,
+    MatTableModule,
+    MatIconModule,
+    MatTooltipModule,
     NgScrollbarModule,
-    // Charts
     NgChartsModule,
     NgxChartsModule,
     MatPaginatorModule,
@@ -60,8 +64,6 @@ import {NgScrollbarModule} from "ngx-scrollbar";
     MatExpansionModule,
     FormsModule,
     ReactiveFormsModule,
-    CommonModule,
-    // Material
     MatToolbarModule,
     MatTabsModule,
     MatIconModule,
@@ -78,7 +80,6 @@ import {NgScrollbarModule} from "ngx-scrollbar";
     FormsModule,
     ReactiveFormsModule,
     FlexLayoutModule,
-    // Material
     MatStepperModule,
     MatTableModule,
     MatFormFieldModule,
@@ -89,8 +90,8 @@ import {NgScrollbarModule} from "ngx-scrollbar";
     MatCardModule,
     MatSnackBarModule,
     MatChipsModule,
-    NgxPaginationModule,
-  ],
+    NgxPaginationModule
+],
   templateUrl: './daily-sales.component.html',
   styleUrl: './daily-sales.component.scss'
 })

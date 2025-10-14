@@ -12,44 +12,44 @@
   <div class="user-search" [class.show]="controls.value == 'search'">
     <mat-form-field class="user-search-input">
       <input matInput placeholder="Recherche produit detail..."
-             formControlName="searchForm" name="search">
-    </mat-form-field>
-  </div>
-  <div fxLayout="row" fxLayoutAlign="space-between center">
-    <mat-button-toggle-group #viewType="matButtonToggleGroup" appearance="legacy" value="grid"
-                             hideSingleSelectionIndicator="true">
-      <mat-button-toggle value="grid">
-        <mat-icon>view_module</mat-icon>
-      </mat-button-toggle>
-      <mat-button-toggle value="list">
-        <mat-icon>view_list</mat-icon>
-      </mat-button-toggle>
-    </mat-button-toggle-group>
-  </div>
-</form>
+        formControlName="searchForm" name="search">
+      </mat-form-field>
+    </div>
+    <div fxLayout="row" fxLayoutAlign="space-between center">
+      <mat-button-toggle-group #viewType="matButtonToggleGroup" appearance="legacy" value="grid"
+        hideSingleSelectionIndicator="true">
+        <mat-button-toggle value="grid">
+          <mat-icon>view_module</mat-icon>
+        </mat-button-toggle>
+        <mat-button-toggle value="list">
+          <mat-icon>view_list</mat-icon>
+        </mat-button-toggle>
+      </mat-button-toggle-group>
+    </div>
+  </form>
 
 
-@if (viewType.value == 'grid') {
-  <div fxLayout="row wrap">
-    @for (product of products | paginate: {
-      totalItems: totalItems,
-      itemsPerPage: count,
-      currentPage: page
-    }; track $index) {
-      <div fxFlex="100" [fxFlex.gt-sm]="viewCol" fxFlex.sm="50" class="p-2">
-        <mat-card class="product-item text-center">
-          <img [src]="product.image" alt="">
-          <h4 class="category text-muted">{{ (categories | filterById : product.categorieNom)?.name }}</h4>
-          <div class="title text-truncate" style="margin-top: 10px">
-<!--            {{ $index }}-->
+  @if (viewType.value == 'grid') {
+    <div fxLayout="row wrap">
+      @for (product of products | paginate: {
+        totalItems: totalItems,
+        itemsPerPage: count,
+        currentPage: page
+        }; track $index) {
+        <div fxFlex="100" [fxFlex.gt-sm]="viewCol" fxFlex.sm="50" class="p-2">
+          <mat-card class="product-item text-center">
+            <img [src]="product.image" alt="">
+            <h4 class="category text-muted">{{ (categories | filterById : product.categorieNom)?.name }}</h4>
+            <div class="title text-truncate" style="margin-top: 10px">
+              <!--            {{ $index }}-->
             {{ product.nom }}</div>
-          <div fxLayout="row" fxLayoutAlign="space-between center" class="prices">
-            <div fxLayout="column" fxLayoutAlign="center start">
-<!--              <p class="old-price text-muted">-->
-<!--                @if (product.prix) {-->
-<!--                  <span>FCFA {{ product.prix | number : '1.2-2' }}</span>-->
-<!--                }-->
-<!--              </p>-->
+            <div fxLayout="row" fxLayoutAlign="space-between center" class="prices">
+              <div fxLayout="column" fxLayoutAlign="center start">
+                <!--              <p class="old-price text-muted">-->
+                <!--                @if (product.prix) {-->
+                <!--                  <span>FCFA {{ product.prix | number : '1.2-2' }}</span>-->
+                <!--                }-->
+              <!--              </p>-->
               <p class="new-price">FCFA {{ product.prix | number : '1.2-2' }}</p>
             </div>
             <!--            <app-rating [ratingsCount]="product.ratingsCount" [ratingsValue]="product.ratingsValue" [direction]="'column'"></app-rating>-->
@@ -58,15 +58,17 @@
           <div class="product-name">
             <div>
               <ul>
-                <li *ngFor="let produit of product.grossisteList">
-                  {{ produit.nom }} ({{ produit.quantite }})
-                </li>
+                @for (produit of product.grossisteList; track produit) {
+                  <li>
+                    {{ produit.nom }} ({{ produit.quantite }})
+                  </li>
+                }
               </ul>
             </div>
           </div>
           <div class="icons">
             <a (click)="getDetailProduit(product)"  mat-mini-fab color="primary"
-               matTooltip="Edit">
+              matTooltip="Edit">
               <mat-icon>edit</mat-icon>
             </a>
             <button [disabled]="product.supprimer==1" mat-mini-fab color="warn" matTooltip="Remove" (click)="remove(product)">
@@ -115,9 +117,11 @@
       <mat-cell *matCellDef="let product">
         <div>
           <ul>
-            <li *ngFor="let produit of product.grossisteList">
-              {{ produit.nom }} ({{ produit.quantite }})
-            </li>
+            @for (produit of product.grossisteList; track produit) {
+              <li>
+                {{ produit.nom }} ({{ produit.quantite }})
+              </li>
+            }
           </ul>
         </div>
       </mat-cell>
@@ -136,7 +140,7 @@
       <mat-header-cell *matHeaderCellDef> Actions</mat-header-cell>
       <mat-cell *matCellDef="let product">
         <a (click)="getDetailProduit(product)"  mat-mini-fab color="primary"
-           matTooltip="Edit">
+          matTooltip="Edit">
           <mat-icon>edit</mat-icon>
         </a>
         <button mat-mini-fab color="warn" matTooltip="Remove" (click)="remove(product)">
@@ -156,7 +160,7 @@
   <div fxFlex="100" class="p-2">
     <mat-card class="text-center">
       <mat-paginator [length]="totalItems" [pageSize]="count" [pageSizeOptions]="[10,20,40,80, 100]"
-                     (page)="onPageChanged($event)">
+        (page)="onPageChanged($event)">
       </mat-paginator>
     </mat-card>
   </div>

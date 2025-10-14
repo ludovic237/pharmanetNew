@@ -28,9 +28,11 @@
             <mat-form-field appearance="outline" class="w-100 ">
               <mat-label>Nom Parent</mat-label>
               <mat-select formControlName="produitDetailGrossisteList">
-                <mat-option *ngFor="let item of data.grossistes" [value]="item">
-                  {{ item.nom }}
-                </mat-option>
+                @for (item of data.grossistes; track item) {
+                  <mat-option [value]="item">
+                    {{ item.nom }}
+                  </mat-option>
+                }
               </mat-select>
             </mat-form-field>
           </div>
@@ -56,47 +58,47 @@
   <hr class="divider">
 
   <!-- Tableau des sorties à effectuer -->
-  <div class="table-container" *ngIf="dataSource.length > 0">
-    <table mat-table [dataSource]="dataSource">
+  @if (dataSource.length > 0) {
+    <div class="table-container">
+      <table mat-table [dataSource]="dataSource">
+        <!-- Colonne Nom Produit -->
+        <ng-container matColumnDef="nomProduit">
+          <th mat-header-cell *matHeaderCellDef> Produit</th>
+          <td mat-cell *matCellDef="let element"> {{ element.nom }}</td>
+        </ng-container>
+        <!-- Colonne Quantité -->
+        <ng-container matColumnDef="quantite">
+          <th mat-header-cell *matHeaderCellDef> Quantité</th>
+          <td mat-cell *matCellDef="let element"> {{ element.quantite }}</td>
+        </ng-container>
+        <ng-container matColumnDef="contenu">
+          <th mat-header-cell *matHeaderCellDef> Contenu detail</th>
+          <td mat-cell *matCellDef="let element"> {{ element.contenuDetail }}</td>
+        </ng-container>
+        <ng-container matColumnDef="dateLivraison">
+          <th mat-header-cell *matHeaderCellDef> date livraison</th>
+          <td mat-cell *matCellDef="let element"> {{ element.dateLivraison  | date:'yyyy-MM-dd HH:mm:ss' }}</td>
+        </ng-container>
+        <!-- Colonne Action (Supprimer) -->
+        <ng-container matColumnDef="action">
+          <th mat-header-cell *matHeaderCellDef> Action</th>
+          <td mat-cell *matCellDef="let element">
+            <button mat-icon-button color="warn" (click)="supprimerLigne(element)" matTooltip="Supprimer la ligne">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      </table>
+    </div>
+  }
 
-      <!-- Colonne Nom Produit -->
-      <ng-container matColumnDef="nomProduit">
-        <th mat-header-cell *matHeaderCellDef> Produit</th>
-        <td mat-cell *matCellDef="let element"> {{ element.nom }}</td>
-      </ng-container>
-
-      <!-- Colonne Quantité -->
-      <ng-container matColumnDef="quantite">
-        <th mat-header-cell *matHeaderCellDef> Quantité</th>
-        <td mat-cell *matCellDef="let element"> {{ element.quantite }}</td>
-      </ng-container>
-      <ng-container matColumnDef="contenu">
-        <th mat-header-cell *matHeaderCellDef> Contenu detail</th>
-        <td mat-cell *matCellDef="let element"> {{ element.contenuDetail }}</td>
-      </ng-container>
-      <ng-container matColumnDef="dateLivraison">
-        <th mat-header-cell *matHeaderCellDef> date livraison</th>
-        <td mat-cell *matCellDef="let element"> {{ element.dateLivraison  | date:'yyyy-MM-dd HH:mm:ss' }}</td>
-      </ng-container>
-
-      <!-- Colonne Action (Supprimer) -->
-      <ng-container matColumnDef="action">
-        <th mat-header-cell *matHeaderCellDef> Action</th>
-        <td mat-cell *matCellDef="let element">
-          <button mat-icon-button color="warn" (click)="supprimerLigne(element)" matTooltip="Supprimer la ligne">
-            <mat-icon>delete</mat-icon>
-          </button>
-        </td>
-      </ng-container>
-
-      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-    </table>
-  </div>
-
-  <div class="no-data" *ngIf="dataSource.length === 0">
-    <p>Aucun produit ajouté à la sortie.</p>
-  </div>
+  @if (dataSource.length === 0) {
+    <div class="no-data">
+      <p>Aucun produit ajouté à la sortie.</p>
+    </div>
+  }
 
 </div>
 

@@ -28,17 +28,17 @@
     <mat-card fxFlex="50" style="background-color: #f8d7da; padding: 16px; border-radius: 8px;">
       <b>Produits manquants</b>
       <div style="margin-top: 8px; font-size: 0.9rem;">
-                <span style="background-color: #f5c6cb; padding: 4px 12px; border-radius: 4px;">
-                  {{ produitsManquants.quantite }} produits • {{ produitsManquants.impact | currency:'EUR' }}
-                </span>
+        <span style="background-color: #f5c6cb; padding: 4px 12px; border-radius: 4px;">
+          {{ produitsManquants.quantite }} produits • {{ produitsManquants.impact | currency:'EUR' }}
+        </span>
       </div>
     </mat-card>
     <mat-card fxFlex="50" style="background-color: #d4edda; padding: 16px; border-radius: 8px;">
       <b>Produits excédentaires</b>
       <div style="margin-top: 8px; font-size: 0.9rem;">
-                <span style="background-color: #c3e6cb; padding: 4px 12px; border-radius: 4px;">
-                  {{ produitsExcedentaires.quantite }} produits • {{ produitsExcedentaires.impact | currency:'EUR' }}
-                </span>
+        <span style="background-color: #c3e6cb; padding: 4px 12px; border-radius: 4px;">
+          {{ produitsExcedentaires.quantite }} produits • {{ produitsExcedentaires.impact | currency:'EUR' }}
+        </span>
       </div>
     </mat-card>
   </div>
@@ -48,11 +48,13 @@
     <b>Commentaire de validation:</b>
     <mat-form-field appearance="outline" style="width: 100%; margin-top: 8px;">
       <textarea matInput rows="3" [(ngModel)]="commentaire"
-                placeholder="Commentaire obligatoire pour les écarts importants..."></textarea>
+      placeholder="Commentaire obligatoire pour les écarts importants..."></textarea>
     </mat-form-field>
-    <div *ngIf="commentaireErreur" style="color: red; font-size: 0.9rem; margin-top: 4px;">
-      {{ commentaireErreur }}
-    </div>
+    @if (commentaireErreur) {
+      <div style="color: red; font-size: 0.9rem; margin-top: 4px;">
+        {{ commentaireErreur }}
+      </div>
+    }
   </mat-card>
 </mat-dialog-content>
 

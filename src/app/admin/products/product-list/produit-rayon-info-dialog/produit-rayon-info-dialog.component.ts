@@ -7,7 +7,7 @@ import {MAT_DIALOG_DATA, MatDialogModule, MatDialogRef} from "@angular/material/
 import {MatInputModule} from "@angular/material/input";
 import {MatButtonModule} from "@angular/material/button";
 import {MatIconModule} from "@angular/material/icon";
-import {CommonModule, DecimalPipe} from "@angular/common";
+import { DecimalPipe } from "@angular/common";
 import {MatCardModule} from "@angular/material/card";
 import {MatToolbarModule} from "@angular/material/toolbar";
 import {MatTableModule} from "@angular/material/table";
@@ -29,7 +29,6 @@ import {LoaderService} from "@services/loader.service";
 @Component({
   selector: 'app-produit-rayon-info-dialog',
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     FormsModule,
     MatDialogModule,
@@ -48,7 +47,6 @@ import {LoaderService} from "@services/loader.service";
     MatButtonModule,
     MatButtonToggleModule,
     MatIconModule,
-    CommonModule,
     ReactiveFormsModule,
     MatInputModule,
     MatSelectModule,
@@ -57,7 +55,7 @@ import {LoaderService} from "@services/loader.service";
     FormsModule,
     NgxPaginationModule,
     PipesModule
-  ],
+],
   templateUrl: './produit-rayon-info-dialog.component.html',
   styleUrl: './produit-rayon-info-dialog.component.scss'
 })

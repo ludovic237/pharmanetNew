@@ -6,76 +6,84 @@
     <div autocomplete="off" fxLayout="row wrap">
       <div fxFlex="100" fxFlex.gt-sm="40" class="px-2">
         <p class="mt-1"><span class="uppercase fw-500">Gallery</span><span
-          class="text-muted px-1">(max 8 images)</span></p>
-        <input-file formControlName="images" [fileLimit]="8" fileAccept="image/*"></input-file>
-      </div>
-      <div fxFlex="100" fxFlex.gt-sm="60" class="px-2">
-        <div fxLayout="row wrap">
-          <mat-toolbar>
-            <h2>Information</h2>
-          </mat-toolbar>
-          <div fxFlex="100" fxFlex.gt-sm="50" class="px-1">
-            <mat-form-field appearance="outline" class="w-100">
-              <mat-label>Nom</mat-label>
-              <input matInput formControlName="nom" required>
-              <mat-error *ngIf="form.controls.nom.errors?.required">Nom is required</mat-error>
-              <mat-error *ngIf="form.controls.nom.errors?.minlength">Minimum 4 characters</mat-error>
-            </mat-form-field>
-          </div>
-          <div fxFlex="100" fxFlex.gt-sm="50" class="px-1">
-            <mat-form-field appearance="outline" class="w-100">
-              <mat-label>Prenom</mat-label>
-              <input matInput formControlName="prenom">
-            </mat-form-field>
-          </div>
-          <div fxFlex="100" fxFlex.gt-sm="50" class="px-1">
-            <mat-form-field appearance="outline" class="w-100">
-              <mat-label>Email</mat-label>
-              <input matInput formControlName="email">
-            </mat-form-field>
-          </div>
-          <div fxFlex="100" fxFlex.gt-sm="50" class="px-1">
-            <mat-form-field appearance="outline" class="w-100">
-              <mat-label>Fonction</mat-label>
-              <input matInput formControlName="fonction">
-            </mat-form-field>
-          </div>
-          <div fxFlex="100" fxFlex.gt-sm="50" class="px-1">
-            <mat-form-field appearance="outline" class="w-100">
-              <mat-label>Reduction(%)</mat-label>
-              <input matInput formControlName="reduction">
-            </mat-form-field>
-          </div>
-          <div fxFlex="100" fxFlex.gt-sm="50" class="px-1">
-            <mat-form-field appearance="outline" class="w-100">
-              <mat-label>Reduction maximal(%)</mat-label>
-              <input matInput formControlName="reductionMax">
-            </mat-form-field>
-          </div>
-          <div fxFlex="100" fxFlex.gt-sm="50" class="px-1">
-            <mat-form-field appearance="outline" class="w-100">
-              <mat-label>Reduction deja fait</mat-label>
-              <input matInput formControlName="reductionFait">
-            </mat-form-field>
-          </div>
+      class="text-muted px-1">(max 8 images)</span></p>
+      <input-file formControlName="images" [fileLimit]="8" fileAccept="image/*"></input-file>
+    </div>
+    <div fxFlex="100" fxFlex.gt-sm="60" class="px-2">
+      <div fxLayout="row wrap">
+        <mat-toolbar>
+          <h2>Information</h2>
+        </mat-toolbar>
+        <div fxFlex="100" fxFlex.gt-sm="50" class="px-1">
+          <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Nom</mat-label>
+            <input matInput formControlName="nom" required>
+            @if (form.controls.nom.errors?.required) {
+              <mat-error>Nom is required</mat-error>
+            }
+            @if (form.controls.nom.errors?.minlength) {
+              <mat-error>Minimum 4 characters</mat-error>
+            }
+          </mat-form-field>
+        </div>
+        <div fxFlex="100" fxFlex.gt-sm="50" class="px-1">
+          <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Prenom</mat-label>
+            <input matInput formControlName="prenom">
+          </mat-form-field>
+        </div>
+        <div fxFlex="100" fxFlex.gt-sm="50" class="px-1">
+          <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Email</mat-label>
+            <input matInput formControlName="email">
+          </mat-form-field>
+        </div>
+        <div fxFlex="100" fxFlex.gt-sm="50" class="px-1">
+          <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Fonction</mat-label>
+            <input matInput formControlName="fonction">
+          </mat-form-field>
+        </div>
+        <div fxFlex="100" fxFlex.gt-sm="50" class="px-1">
+          <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Reduction(%)</mat-label>
+            <input matInput formControlName="reduction">
+          </mat-form-field>
+        </div>
+        <div fxFlex="100" fxFlex.gt-sm="50" class="px-1">
+          <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Reduction maximal(%)</mat-label>
+            <input matInput formControlName="reductionMax">
+          </mat-form-field>
+        </div>
+        <div fxFlex="100" fxFlex.gt-sm="50" class="px-1">
+          <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Reduction deja fait</mat-label>
+            <input matInput formControlName="reductionFait">
+          </mat-form-field>
         </div>
       </div>
     </div>
   </div>
-  <mat-dialog-actions>
-    <mat-toolbar>
-      <div mat-dialog-actions fxLayout="row" fxLayoutAlign="space-between center" class="w-100 p-3">
-        <button mat-raised-button color="warn" (click)="close()">
-          Fermer
-        </button>
-        <button *ngIf="user.type==='add' " type="submit" mat-raised-button color="accent">
+</div>
+<mat-dialog-actions>
+  <mat-toolbar>
+    <div mat-dialog-actions fxLayout="row" fxLayoutAlign="space-between center" class="w-100 p-3">
+      <button mat-raised-button color="warn" (click)="close()">
+        Fermer
+      </button>
+      @if (user.type==='add' ) {
+        <button type="submit" mat-raised-button color="accent">
           Ajouter
         </button>
-        <button *ngIf="user.type==='update' " type="submit" mat-raised-button color="accent">
+      }
+      @if (user.type==='update' ) {
+        <button type="submit" mat-raised-button color="accent">
           Mettre a jour
         </button>
-      </div>
-    </mat-toolbar>
-  </mat-dialog-actions>
+      }
+    </div>
+  </mat-toolbar>
+</mat-dialog-actions>
 </form>
 

@@ -12,107 +12,119 @@
     <mat-card  class="mb-4">
       <div fxLayout="row wrap" class="mt-3">
         <!--<div fxFlex="100" fxFlex.gt-md="25" class="px-2">
-          <mat-form-field  appearance="outline">
-            <mat-label>Entrer date</mat-label>
-            <mat-date-range-input [rangePicker]="picker">
-              <input matStartDate  placeholder="Start date" [(ngModel)]="startDate" >
-              <input matEndDate placeholder="End date" [(ngModel)]="endDate" >
-            </mat-date-range-input>
-            <mat-hint>MM/DD/YYYY - MM/DD/YYYY</mat-hint>
-            <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-            <mat-date-range-picker #picker>
-              <mat-date-range-picker-actions>
-                <button mat-button matDateRangePickerCancel>Annuler</button>
-                <button mat-button matDateRangePickerApply>Apply</button>
-              </mat-date-range-picker-actions>
-            </mat-date-range-picker>
-          </mat-form-field>
-        </div>
-        <div fxFlex="100" fxFlex.gt-md="25" class="px-2">
-          <mat-form-field appearance="fill">
-            <mat-label>Status</mat-label>
-            <mat-select [(ngModel)]="data.etat">
-              <mat-option value="active">Active</mat-option>
-              <mat-option value="inactive">Inactive</mat-option>
-            </mat-select>
-          </mat-form-field>
-        </div>-->
-        <div fxFlex="100" fxFlex.gt-sm="50" class="px-1">
-          <mat-form-field appearance="outline" class="w-100">
-            <mat-label>Categorie</mat-label>
-            <mat-select formControlName="categorieId" required>
-              <mat-option [value]="null">Tous les categories</mat-option>
-              <mat-option *ngFor="let cat of categories" [value]="cat.id">{{ cat.nom }}</mat-option>
-            </mat-select>
-          </mat-form-field>
-        </div>
-        <div fxFlex="100" fxFlex.gt-sm="50" class="px-1">
-          <mat-form-field appearance="outline" class="w-100">
-            <mat-label>Rayon</mat-label>
-            <mat-select formControlName="rayonId" required>
-              <mat-option [value]="null">Tous les rayons</mat-option>
-              <mat-option *ngFor="let r of rayons" [value]="r.id">{{ r.nom }}</mat-option>
-            </mat-select>
-          </mat-form-field>
-        </div>
-
-        <div fxFlex="100" fxFlex.gt-sm="50" class="px-1">
-          <mat-form-field appearance="outline" class="w-100">
-            <mat-label>Fournisseur</mat-label>
-            <mat-select formControlName="fournisseurId" required>
-              <mat-option [value]="null">Tous les fournisseurs</mat-option>
-              <mat-option *ngFor="let e of fournisseurs" [value]="e.id">{{ e.nom }}</mat-option>
-            </mat-select>
-          </mat-form-field>
-        </div>
-
-        <div fxFlex="100" fxFlex.gt-sm="50" class="px-1">
-          <mat-form-field appearance="outline" class="w-100">
-            <mat-label>Magasin</mat-label>
-            <mat-select formControlName="magasinId" required>
-              <mat-option [value]="null">Tous les magasins</mat-option>
-              <mat-option *ngFor="let m of magasins" [value]="m.id">{{ m.nom }}</mat-option>
-            </mat-select>
-          </mat-form-field>
-        </div>
-
-        <div fxFlex="100" fxFlex.gt-sm="50" class="px-1">
-          <mat-form-field appearance="outline" class="w-100">
-            <mat-label>Forme</mat-label>
-            <mat-select formControlName="formeId" required>
-              <mat-option [value]="null">Tous les formes</mat-option>
-              <mat-option *ngFor="let f of formes" [value]="f.id">{{ f.nom }}</mat-option>
-            </mat-select>
-          </mat-form-field>
-        </div>
-
-        <div fxFlex="100" fxFlex.gt-sm="50" class="px-1">
-          <mat-form-field appearance="outline" class="w-100">
-            <mat-label>Fabriquant</mat-label>
-            <mat-select formControlName="fabriquantId" required>
-              <mat-option [value]="null">Tous les fabriquants</mat-option>
-              <mat-option *ngFor="let fa of fabriquants" [value]="fa.id">{{ fa.nom }}</mat-option>
-            </mat-select>
-          </mat-form-field>
-        </div>
+        <mat-form-field  appearance="outline">
+          <mat-label>Entrer date</mat-label>
+          <mat-date-range-input [rangePicker]="picker">
+            <input matStartDate  placeholder="Start date" [(ngModel)]="startDate" >
+            <input matEndDate placeholder="End date" [(ngModel)]="endDate" >
+          </mat-date-range-input>
+          <mat-hint>MM/DD/YYYY - MM/DD/YYYY</mat-hint>
+          <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+          <mat-date-range-picker #picker>
+            <mat-date-range-picker-actions>
+              <button mat-button matDateRangePickerCancel>Annuler</button>
+              <button mat-button matDateRangePickerApply>Apply</button>
+            </mat-date-range-picker-actions>
+          </mat-date-range-picker>
+        </mat-form-field>
       </div>
-    </mat-card>
-
-  </mat-dialog-content>
-
-  <mat-dialog-actions>
-    <mat-toolbar >
-      <div mat-dialog-actions fxLayout="row" fxLayoutAlign="space-between center">
-        <button mat-button (click)="onCancel()">Cancel</button>
-        <!-- Button for "add" type -->
-        <button mat-raised-button
-                type="submit"
-                color="primary">
-          Commencer un nouvel inventaire
-        </button>
+      <div fxFlex="100" fxFlex.gt-md="25" class="px-2">
+        <mat-form-field appearance="fill">
+          <mat-label>Status</mat-label>
+          <mat-select [(ngModel)]="data.etat">
+            <mat-option value="active">Active</mat-option>
+            <mat-option value="inactive">Inactive</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>-->
+      <div fxFlex="100" fxFlex.gt-sm="50" class="px-1">
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Categorie</mat-label>
+          <mat-select formControlName="categorieId" required>
+            <mat-option [value]="null">Tous les categories</mat-option>
+            @for (cat of categories; track cat) {
+              <mat-option [value]="cat.id">{{ cat.nom }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
       </div>
-    </mat-toolbar>
-  </mat-dialog-actions>
+      <div fxFlex="100" fxFlex.gt-sm="50" class="px-1">
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Rayon</mat-label>
+          <mat-select formControlName="rayonId" required>
+            <mat-option [value]="null">Tous les rayons</mat-option>
+            @for (r of rayons; track r) {
+              <mat-option [value]="r.id">{{ r.nom }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <div fxFlex="100" fxFlex.gt-sm="50" class="px-1">
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Fournisseur</mat-label>
+          <mat-select formControlName="fournisseurId" required>
+            <mat-option [value]="null">Tous les fournisseurs</mat-option>
+            @for (e of fournisseurs; track e) {
+              <mat-option [value]="e.id">{{ e.nom }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <div fxFlex="100" fxFlex.gt-sm="50" class="px-1">
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Magasin</mat-label>
+          <mat-select formControlName="magasinId" required>
+            <mat-option [value]="null">Tous les magasins</mat-option>
+            @for (m of magasins; track m) {
+              <mat-option [value]="m.id">{{ m.nom }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <div fxFlex="100" fxFlex.gt-sm="50" class="px-1">
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Forme</mat-label>
+          <mat-select formControlName="formeId" required>
+            <mat-option [value]="null">Tous les formes</mat-option>
+            @for (f of formes; track f) {
+              <mat-option [value]="f.id">{{ f.nom }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <div fxFlex="100" fxFlex.gt-sm="50" class="px-1">
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Fabriquant</mat-label>
+          <mat-select formControlName="fabriquantId" required>
+            <mat-option [value]="null">Tous les fabriquants</mat-option>
+            @for (fa of fabriquants; track fa) {
+              <mat-option [value]="fa.id">{{ fa.nom }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </div>
+    </div>
+  </mat-card>
+
+</mat-dialog-content>
+
+<mat-dialog-actions>
+  <mat-toolbar >
+    <div mat-dialog-actions fxLayout="row" fxLayoutAlign="space-between center">
+      <button mat-button (click)="onCancel()">Cancel</button>
+      <!-- Button for "add" type -->
+      <button mat-raised-button
+        type="submit"
+        color="primary">
+        Commencer un nouvel inventaire
+      </button>
+    </div>
+  </mat-toolbar>
+</mat-dialog-actions>
 </form>
 
 

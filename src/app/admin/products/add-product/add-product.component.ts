@@ -17,7 +17,7 @@ import {MagasinService} from "@services/magasins.service";
 import {RayonService} from "@services/rayons.service";
 import {FabriquantService} from "@services/fabriquants.service";
 import {FormeService} from "@services/formes.service";
-import {CommonModule} from "@angular/common";
+
 import {ProductService} from "@services/products.service";
 import {EtageresService} from "@services/etageres.service";
 import {MatToolbarModule} from "@angular/material/toolbar";
@@ -26,7 +26,6 @@ import {LoaderService} from "@services/loader.service";
 @Component({
   selector: 'app-add-product',
   imports: [
-    CommonModule,
     FormsModule,
     MatToolbarModule,
     ReactiveFormsModule,
@@ -37,7 +36,7 @@ import {LoaderService} from "@services/loader.service";
     MatButtonModule,
     MatIconModule,
     FlexLayoutModule
-  ],
+],
   templateUrl: './add-product.component.html',
   styleUrl: './add-product.component.scss'
 })

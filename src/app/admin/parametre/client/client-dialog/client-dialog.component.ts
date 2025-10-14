@@ -8,7 +8,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatRadioModule } from '@angular/material/radio';
-import {CommonModule, DatePipe} from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -27,24 +27,23 @@ import {LoaderService} from "@services/loader.service";
     selector: 'app-client-dialog',
   providers:[UsersService,EmployesService,AuthService],
     imports: [
-      ReactiveFormsModule,
-      FlexLayoutModule,
-      MatTabsModule,
-      MatFormFieldModule,
-      MatInputModule,
-      MatIconModule,
-      MatDatepickerModule,
-      MatNativeDateModule,
-      MatRadioModule,
-      MatDialogModule,
-      MatButtonModule,
-      MatCheckboxModule,
-      MatCardModule,
-      MatSelectModule,
-      MatToolbarModule,
-      CommonModule,
-      InputFileModule
-    ],
+    ReactiveFormsModule,
+    FlexLayoutModule,
+    MatTabsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatIconModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatRadioModule,
+    MatDialogModule,
+    MatButtonModule,
+    MatCheckboxModule,
+    MatCardModule,
+    MatSelectModule,
+    MatToolbarModule,
+    InputFileModule
+],
     templateUrl: './client-dialog.component.html',
     styleUrl: './client-dialog.component.scss'
 })

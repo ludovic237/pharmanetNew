@@ -13,7 +13,7 @@ import {ConfirmDialogComponent} from '@shared-components/confirm-dialog/confirm-
 import {RatingComponent} from '@shared-components/rating/rating.component';
 import {NgxPaginationModule} from 'ngx-pagination';
 import {PipesModule} from '../../../theme/pipes/pipes.module';
-import {CommonModule, DecimalPipe} from '@angular/common';
+import { CommonModule, DecimalPipe } from '@angular/common';
 import {ProductService} from "@services/products.service";
 import {CategorieService} from "@services/categories.service";
 import {FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";

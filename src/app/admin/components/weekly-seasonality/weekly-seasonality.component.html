@@ -6,11 +6,13 @@
       </mat-panel-title>
     </mat-expansion-panel-header>
     <ng-scrollbar orientation="vertical" pointerEventsMethod="scrollbar">
-      <mat-card *ngIf="chart" class="mt-2">
-        <canvas baseChart [type]="'bar'"
-                [data]="chart!.data"
-        ></canvas>
-      </mat-card>
+      @if (chart) {
+        <mat-card class="mt-2">
+          <canvas baseChart [type]="'bar'"
+            [data]="chart!.data"
+          ></canvas>
+        </mat-card>
+      }
     </ng-scrollbar>
   </mat-expansion-panel>
 </mat-accordion>

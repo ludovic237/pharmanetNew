@@ -13,12 +13,16 @@
         <mat-form-field appearance="outline" class="mr-2">
           <mat-label>Nombre de sessions</mat-label>
           <input matInput type="number" value="10" formControlName="nombre" placeholder="Ex: 10" min="1">
-          <mat-error *ngIf="sessionForm.get('nombre')?.hasError('required')">
-            Ce champ est requis
-          </mat-error>
-          <mat-error *ngIf="sessionForm.get('nombre')?.hasError('min')">
-            Le nombre doit être supérieur à 0
-          </mat-error>
+          @if (sessionForm.get('nombre')?.hasError('required')) {
+            <mat-error>
+              Ce champ est requis
+            </mat-error>
+          }
+          @if (sessionForm.get('nombre')?.hasError('min')) {
+            <mat-error>
+              Le nombre doit être supérieur à 0
+            </mat-error>
+          }
         </mat-form-field>
 
         <button mat-flat-button color="primary" type="submit" [disabled]="sessionForm.invalid">
@@ -32,13 +36,19 @@
         <mat-form-field appearance="outline" class="w-75 mr-2">
           <mat-label>Choisir une caisse</mat-label>
           <mat-select [formControl]="caisseControl">
-            <mat-option *ngFor="let caisse of caisses" [value]="caisse.id">
-              {{ caisse.nomEmploye }} -
-              <span class="badge badge-red" *ngIf="caisse.etat.toLowerCase()=='clot'">{{ caisse.etat }} </span>
-              <span class="badge badge-green" *ngIf="caisse.etat.toLowerCase()=='ouvert'">{{ caisse.etat }} </span>
-              | Periode d'ouverture : {{ caisse.dateOuvert | date:"dd MMMM, yyyy 'at' HH:mm" }}  -
-              Periode de fermeture : {{ caisse.dateFerme | date:"dd MMMM, yyyy 'at' HH:mm" }}
-            </mat-option>
+            @for (caisse of caisses; track caisse) {
+              <mat-option [value]="caisse.id">
+                {{ caisse.nomEmploye }} -
+                @if (caisse.etat.toLowerCase()=='clot') {
+                  <span class="badge badge-red">{{ caisse.etat }} </span>
+                }
+                @if (caisse.etat.toLowerCase()=='ouvert') {
+                  <span class="badge badge-green">{{ caisse.etat }} </span>
+                }
+                | Periode d'ouverture : {{ caisse.dateOuvert | date:"dd MMMM, yyyy 'at' HH:mm" }}  -
+                Periode de fermeture : {{ caisse.dateFerme | date:"dd MMMM, yyyy 'at' HH:mm" }}
+              </mat-option>
+            }
           </mat-select>
         </mat-form-field>
         <button mat-raised-button color="primary" (click)="getRapportCaisse()">Charger info caisse</button>

@@ -12,7 +12,7 @@ import {VentesService} from "@services/ventes.service";
 import {PrescripteursService} from "@services/prescripteurs.service";
 import {MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef} from "@angular/material/dialog";
 import {FormBuilder, FormsModule, ReactiveFormsModule} from "@angular/forms";
-import {CommonModule} from "@angular/common";
+
 import {MatCardModule} from "@angular/material/card";
 import {MatInputModule} from "@angular/material/input";
 import {MatSelectModule} from "@angular/material/select";
@@ -48,8 +48,6 @@ import {LoaderService} from "@services/loader.service";
     MatExpansionModule,
     FormsModule,
     ReactiveFormsModule,
-    CommonModule,
-    // Material
     MatToolbarModule,
     MatTabsModule,
     MatIconModule,
@@ -64,7 +62,6 @@ import {LoaderService} from "@services/loader.service";
     MatNativeDateModule,
     MatSelectModule,
     FlexLayoutModule,
-    CommonModule,
     FormsModule,
     MatCardModule,
     ReactiveFormsModule,
@@ -73,11 +70,13 @@ import {LoaderService} from "@services/loader.service";
     MatSelectModule,
     MatCheckboxModule,
     MatButtonModule,
-    MatButtonModule, MatDividerModule, MatIconModule,
+    MatButtonModule,
+    MatDividerModule,
+    MatIconModule,
     MatTableModule,
     MatToolbarModule,
     MatAutocompleteModule
-  ],
+],
   templateUrl: './payment-dialog.component.html',
   styleUrl: './payment-dialog.component.scss'
 })

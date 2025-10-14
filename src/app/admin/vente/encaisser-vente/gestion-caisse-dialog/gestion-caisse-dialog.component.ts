@@ -7,7 +7,7 @@ import {MatFormFieldModule} from "@angular/material/form-field";
 import {MatInputModule} from "@angular/material/input";
 import {MatDividerModule} from "@angular/material/divider";
 import {MatExpansionModule} from "@angular/material/expansion";
-import {CommonModule} from "@angular/common";
+
 import {MatToolbarModule} from "@angular/material/toolbar";
 import {MatTabsModule} from "@angular/material/tabs";
 import {MatIconModule} from "@angular/material/icon";
@@ -39,8 +39,6 @@ import {LoaderService} from "@services/loader.service";
     MatExpansionModule,
     FormsModule,
     ReactiveFormsModule,
-    CommonModule,
-    // Material
     MatDialogModule,
     MatToolbarModule,
     MatTabsModule,
@@ -56,7 +54,7 @@ import {LoaderService} from "@services/loader.service";
     MatNativeDateModule,
     MatSelectModule,
     FlexLayoutModule
-  ],
+],
   templateUrl: './gestion-caisse-dialog.component.html',
   styleUrl: './gestion-caisse-dialog.component.scss'
 })

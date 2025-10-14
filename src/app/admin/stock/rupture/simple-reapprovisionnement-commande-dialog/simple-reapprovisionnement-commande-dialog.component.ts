@@ -8,7 +8,7 @@ import {EnrayonsService} from "@services/enrayons.service";
 import {
   UpdateProduitDetailDialogComponent
 } from "../../../vente/ajouter-vente/ajouter-vente-dialog/update-produit-detail-dialog/update-produit-detail-dialog.component";
-import {CommonModule} from "@angular/common";
+
 import {MatCardModule} from "@angular/material/card";
 import {MatInputModule} from "@angular/material/input";
 import {MatSelectModule} from "@angular/material/select";
@@ -33,7 +33,6 @@ import {ConfirmDialogComponent} from "@shared-components/confirm-dialog/confirm-
 @Component({
   selector: 'app-simple-reapprovisionnement-commande-dialog',
   imports: [
-    CommonModule,
     FormsModule,
     MatCardModule,
     ReactiveFormsModule,
@@ -42,7 +41,9 @@ import {ConfirmDialogComponent} from "@shared-components/confirm-dialog/confirm-
     MatSelectModule,
     MatCheckboxModule,
     MatButtonModule,
-    MatButtonModule, MatDividerModule, MatIconModule,
+    MatButtonModule,
+    MatDividerModule,
+    MatIconModule,
     MatTableModule,
     MatToolbarModule,
     MatAutocompleteModule,
@@ -50,7 +51,7 @@ import {ConfirmDialogComponent} from "@shared-components/confirm-dialog/confirm-
     MatDatepickerModule,
     MatNativeDateModule,
     MatPaginatorModule
-  ],
+],
   providers: [provideNativeDateAdapter()],
   templateUrl: './simple-reapprovisionnement-commande-dialog.component.html',
   styleUrl: './simple-reapprovisionnement-commande-dialog.component.scss'

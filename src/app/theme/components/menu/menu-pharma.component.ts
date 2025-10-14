@@ -10,12 +10,11 @@ import {TranslateModule} from '@ngx-translate/core';
 import {DomHandlerService} from '@services/dom-handler.service';
 import {MatCardModule} from '@angular/material/card';
 import {FlexLayoutModule} from '@ngbracket/ngx-layout';
-import {CommonModule} from "@angular/common";
+
 
 @Component({
   selector: 'app-menu-pharma',
   imports: [
-    CommonModule,
     RouterModule,
     FlexLayoutModule,
     MatToolbarModule,
@@ -26,7 +25,7 @@ import {CommonModule} from "@angular/common";
     MatCardModule,
     MatChipsModule,
     TranslateModule
-  ],
+],
   templateUrl: './menu-pharma.component.html'
 })
 export class MenuPharmaComponent implements OnInit {
