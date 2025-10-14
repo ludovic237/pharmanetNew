@@ -79,26 +79,16 @@ export class StockStatus {
 @Component({
   selector: 'app-dashboard-new',
   imports: [
-    OptimizeDashboardComponent,
-    LowStockTableComponent,
-    ReplenishmentComponent,
-    ForecastChartComponent,
-    AssociatedProductsComponent,
-    CategoriePieComponent,
     WeeklySeasonalityComponent,
-    DailySalesComponent,
-    AssociatedProductsComponent,
     TopProductsComponent,
     LowStockComponent,
     MonthlySalesComponent,
-    ReplenishmentTableComponent,
     ReactiveFormsModule,
     // Material
     MatCardModule, MatFormFieldModule, MatInputModule,
     MatDatepickerModule, MatNativeDateModule,
     MatButtonModule, MatGridListModule, MatTableModule,
     MatIconModule, MatTooltipModule,
-    NgStyle,
     CommonModule,
     RouterModule,
     // Charts

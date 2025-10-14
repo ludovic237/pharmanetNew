@@ -56,10 +56,6 @@ import {MatProgressBar} from "@angular/material/progress-bar";
     MatSliderModule,
     MatCardModule,
     NgxPaginationModule,
-    CategoryListComponent,
-    RatingComponent,
-    ControlsComponent,
-    DecimalPipe,
     PipesModule,
     MatMenuModule,
     MatListModule,
@@ -107,7 +103,6 @@ import {MatProgressBar} from "@angular/material/progress-bar";
     MatPaginatorModule,
     MatProgressSpinnerModule,
     MatLine,
-    MatProgressBar
   ],
   templateUrl: './replenishment.component.html',
   standalone: true,
