@@ -9,7 +9,7 @@ from app.repositories.app_setting_repository import AppSettingRepository
 
 class AppSettingService:
 
-  def __init__(self, db:Session):
+  def __init__(self, db: Session):
     self.app_setting_repo = AppSettingRepository(db)
 
   # getParam(key:String): String?
@@ -28,14 +28,14 @@ class AppSettingService:
     setting = self.app_setting_repo.find_by_key_name(key)
     if setting is None:
       # modèle minimal attendu par le repo (ex. SQLAlchemy)
-      setting = self.app_setting_repo.model()  # ex.: AppSetting()
+      setting = AppSetting()  # ex.: AppSetting()
       setting.keyName = key
     setting.value = value
     return self.app_setting_repo.save(setting)
 
   # getAll(): List<AppSetting>
   def get_all(self) -> list[dict[str, Any]]:
-    datas =  self.app_setting_repo.find_all()
+    datas = self.app_setting_repo.find_all()
     mapped: List[Dict[str, Any]] = []
     for d in datas:
       mapped.append({

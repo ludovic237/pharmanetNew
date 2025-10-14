@@ -267,12 +267,15 @@ def retourner_produits_vendus_et_en_rayon(
   produitsRetour: List[Dict[str, Any]],
   db: Session = Depends(get_db), employe: Employe = Depends(UserUtils.get_current_employe)
 ):
-  try:
-    return ProduitService(db).retourner_produits_vendus_et_en_rayon(venteId, produitsRetour, employe)
-  except ValueError as e:
-    raise HTTPException(status_code=400, detail=str(e))
-  except Exception:
-    raise HTTPException(status_code=500, detail="Internal server error")
+  return ProduitService(db).retourner_produits_vendus_et_en_rayon(venteId, produitsRetour, employe)
+
+
+# try:
+#   return ProduitService(db).retourner_produits_vendus_et_en_rayon(venteId, produitsRetour, employe)
+# except ValueError as e:
+#   raise HTTPException(status_code=400, detail=str(e))
+# except Exception:
+#   raise HTTPException(status_code=500, detail="Internal server error")
 
 
 # -----------------------------
@@ -280,12 +283,15 @@ def retourner_produits_vendus_et_en_rayon(
 # -----------------------------
 @router.get("/details/{reference}")
 def get_vente_details_by_reference(reference: str, db: Session = Depends(get_db)):
-  try:
-    return VenteService(db).get_vente_details_by_reference(reference)
-  except ValueError as e:
-    raise HTTPException(status_code=400, detail=str(e))
-  except Exception:
-    raise HTTPException(status_code=500, detail="Internal server error")
+  return VenteService(db).get_vente_details_by_reference(reference)
+
+
+# try:
+#   return VenteService(db).get_vente_details_by_reference(reference)
+# except ValueError as e:
+#   raise HTTPException(status_code=400, detail=str(e))
+# except Exception:
+#   raise HTTPException(status_code=500, detail="Internal server error")
 
 
 # -----------------------------

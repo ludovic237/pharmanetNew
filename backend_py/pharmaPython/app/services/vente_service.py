@@ -846,9 +846,9 @@ class VenteService:
         p = self.produit_repo.find_by_id(int(er.produit_id)) if er else None
         nom, pid = getattr(p, "nom", None), getattr(p, "id", None)
       produits.append({
-        "id": c.id, "nom": nom, "produitId": pid, "rayonId": c.enRayonId,
-        "quantite": c.quantite, "prixUnitaire": c.prixUnit, "reduction": c.reduction,
-        "prixTotal": _parse_int(c.prixUnit) * _parse_int(c.quantite),
+        "id": c.id, "nom": nom, "produitId": pid, "rayonId": c.en_rayon_id,
+        "quantite": c.quantite, "prixUnitaire": c.prix_unit, "reduction": c.reduction,
+        "prixTotal": _parse_int(c.prix_unit) * _parse_int(c.quantite),
       })
     return {"vente": vente, "produits": produits}
 

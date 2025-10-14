@@ -8,8 +8,13 @@ from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from decimal import Decimal, ROUND_HALF_UP
 
+from app.models.categorie import Categorie
 from app.models.employe import Employe
+from app.models.fournisseur import Fournisseur
 from app.models.produit import Produit
+from app.models.produit_retour import ProduitRetour
+from app.models.rayon import Rayon
+from app.models.retour_produit import RetourProduit
 from app.repositories.caisse_repository import CaisseRepository
 from app.repositories.categorie_repository import CategorieRepository
 from app.repositories.commande_repository import CommandeRepository
@@ -141,7 +146,7 @@ class ProduitService:
       if self.produit_repo.find_by_code_ubipharm_and_supprimer(request.codeUbipharm):
         raise HTTPException(422, detail=f"Un produit avec le code-barres '{request.codeUbipharm}' existe déjà.")
 
-    produit = self.produit_repo.model()
+    produit = Produit()
     produit.ean13 = request.ean13
     produit.codeLaborex = request.codeLaborex
     produit.codeUbipharm = request.codeUbipharm
@@ -400,7 +405,7 @@ class ProduitService:
 
   def add_or_update_produit_new(self, id_: Optional[int], request: ProduitRequestNewDto) -> Dict[str, Any]:
     if not id_ or id_ == 0:
-      p = self.produit_repo.model()
+      p = Produit()
     else:
       p = self.produit_repo.find_by_id(id_)
       if not p or int(p.supprimer or 0) != 0:
@@ -477,7 +482,7 @@ class ProduitService:
   def create_categorie(self, dto) -> Dict[str, Any]:
     if self.categorie_repo.find_by_nom(dto.nom):
       raise HTTPException(422, detail=f"Une catégorie avec le nom '{dto.nom}' existe déjà.")
-    c = self.categorie_repo.model();
+    c = Categorie()
     c.nom = dto.nom
     c = self.categorie_repo.save(c)
     return {"id": c.id, "nom": c.nom}
@@ -489,7 +494,7 @@ class ProduitService:
   def create_fournisseur(self, dto) -> Dict[str, Any]:
     if getattr(dto, "email", None) and self.fournisseur_repo.find_by_email_and_supprimer(dto.email, 0):
       raise HTTPException(422, detail=f"Un fournisseur avec l'email '{dto.email}' existe déjà.")
-    f = self.fournisseur_repo.model()
+    f = Fournisseur()
     f.nom, f.email, f.telephone = dto.nom, dto.email, dto.telephone
     f = self.fournisseur_repo.save(f)
     return {"id": f.id, "nom": f.nom, "email": f.email, "telephone": f.telephone}
@@ -499,7 +504,7 @@ class ProduitService:
     return [{"id": r.id, "nom": r.nom, "email": r.email, "telephone": r.telephone} for r in rows]
 
   def create_rayon(self, dto) -> Dict[str, Any]:
-    r = self.rayon_repo.model()
+    r = Rayon()
     r.nom, r.code = dto.nom, dto.code
     r = self.rayon_repo.save(r)
     return {"id": r.id, "nom": r.nom, "code": r.code}
@@ -520,7 +525,7 @@ class ProduitService:
     employe = currentEmploye
     caisse = self.caisse_service.get_caisse_active_db(self.db)
 
-    rp = self.retour_produit_repo.model()
+    rp = RetourProduit()
     rp.vente, rp.caisse, rp.employe = vente, caisse, employe
     rp.dateRetour = datetime.now()
     rp = self.retour_produit_repo.save(rp)
@@ -543,7 +548,7 @@ class ProduitService:
       concerner = self.concerner_repo.save(concerner)
 
       # Ligne de retour
-      pr_line = self.produit_retour_repo.model()
+      pr_line = ProduitRetour()
       pr_line.retourProduit = rp
       pr_line.concerner = concerner
       pr_line.quantite = q_retour

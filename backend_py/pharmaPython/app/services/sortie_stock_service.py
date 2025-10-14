@@ -2,6 +2,7 @@
 from sqlalchemy.orm import Session
 from datetime import datetime
 
+from app.models.sortie_stock import SortieStock
 from app.repositories.en_rayon_repository import EnRayonRepository
 from app.repositories.produit_detail_repository import ProduitDetailRepository
 from app.repositories.produit_repository import ProduitRepository
@@ -297,7 +298,7 @@ class SortieStockService:
         self.produit_repo.save(produit)
 
       # Création de la sortie
-      ss = self.sortie_stock_repo.model()  # Option: une fabrique ou modèle SQLAlchemy
+      ss = SortieStock()  # Option: une fabrique ou modèle SQLAlchemy
       ss.en_rayon = en_rayon
       if contenu_detail not in (None, "null"):
         # Type sortie détaillée (id = 1 dans le code Kotlin)
