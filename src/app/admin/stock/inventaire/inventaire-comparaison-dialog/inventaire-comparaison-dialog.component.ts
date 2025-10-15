@@ -130,6 +130,7 @@ export class InventaireComparaisonDialogComponent implements OnInit {
     const activeTabLabel = event.tab.textLabel;
     console.log('Active Tab:', activeTabLabel);
     // You can perform additional actions based on the active tab
+    this.page = 1
     if (activeTabLabel === 'Écarts uniquement') {
       // Logic for when the Comparaison tab is active
       this.filtre = "equal"

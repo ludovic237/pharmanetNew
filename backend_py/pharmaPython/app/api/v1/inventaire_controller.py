@@ -96,7 +96,7 @@ def lister_produits_par_inventaire_avec_filtre(
   return InventaireService(db).lister_produits_par_inventaire_avec_filtre(id, page, size, sort, direction, filtre)
 
 
-@router.get("/info/produit_inventaire/{id}", response_model=Dict[str, Any])
+@router.get("/info/produit_inventaire/{id}")
 def get_info_produits_inventaire(id: str, db: Session = Depends(get_db)):
   return InventaireService(db).get_info_produits_inventaire(id)
 
