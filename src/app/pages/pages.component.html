@@ -37,116 +37,8 @@
             <div fxFlex="20">
                 <a class="logo" routerLink="/" (click)="closeSubMenus()">ALSA</a>
             </div>
-            <div fxFlex fxShow="false" fxShow.gt-sm>
-                <form method="get" class="search-form" fxLayout="row">
-                    <button mat-raised-button [matMenuTriggerFor]="categoriesMenu" #categoriesMenuTrigger="matMenuTrigger" type="button" class="mat-elevation-z0 categories text-truncate text-muted">{{category.name}}<mat-icon iconPositionEnd>arrow_drop_down</mat-icon></button>
-                    <mat-menu #categoriesMenu="matMenu" [overlapTrigger]="false" xPosition="before" class="categories-dropdown">
-                        <span (mouseleave)="categoriesMenuTrigger.closeMenu()">
-                            <app-category-list [categories]="categories" [categoryParentId]="0" (change)="changeCategory($event)"></app-category-list>
-                        </span>
-                    </mat-menu>
-                    <input type="text" placeholder="Type to search..." fxFlex>
-                    <button mat-mini-fab (click)="search()" type="button" class="search-btn mat-elevation-z0 text-muted">
-                        <mat-icon>search</mat-icon>
-                    </button>
-                </form>
-            </div>
             <div fxFlex="20" fxLayout="row" fxLayoutAlign="end center">
-                <div fxLayoutAlign="center center" [@.disabled]="true">
-                    <button mat-button [matMenuTriggerFor]="cartMenu" #cartMenuTrigger="matMenuTrigger" class="shopping-cart-btn">
-                        <mat-icon class="mat-icon-lg" [matBadgeHidden]="appService.Data.totalCartCount == 0" [matBadge]="appService.Data.totalCartCount" matBadgeColor="warn" aria-hidden="false">shopping_cart</mat-icon>
-                        <div fxLayout="column" fxLayoutAlign="center center" fxShow="false" fxShow.gt-xs class="top-cart">
-                            <span>Shopping Cart</span>
-                            @if (appService.Data.totalCartCount) {
-                                <span>
-                                    <bdi>{{appService.Data.totalCartCount}} item
-                                        @if (appService.Data.totalCartCount > 1) {
-                                            <span>s</span>
-                                        }
-                                        -
-                                        $<span>{{appService.Data.totalPrice | number : '1.2-2'}}</span>
-                                    </bdi>
-                                </span>
-                            }
-                        </div>
-                        <mat-icon class="mat-icon-sm m-0" iconPositionEnd>arrow_drop_down</mat-icon>
-                    </button>
-                    <mat-menu #cartMenu="matMenu" [overlapTrigger]="false" xPosition="before" class="top-menu-dropdown cart-dropdown">
-                        <ng-template matMenuContent>
-                            <span (mouseleave)="cartMenuTrigger.closeMenu()" class="d-block">
-                                <div fxLayout="row" fxLayoutAlign="space-between center" class="text-muted">
-                                    <b>
-                                        <span>{{appService.Data.totalCartCount}} ITEM
-                                            @if (appService.Data.totalCartCount! > 1) {
-                                                <span>S</span>
-                                            }
-                                        </span>
-                                    </b>
-                                    <b><a [routerLink]="['/cart']" class="text-muted">VIEW CART</a></b>
-                                </div>
-                                <div class="divider mt-1"></div>
-                                @if (appService.Data.totalCartCount == 0) {
-                                    <div class="py-1 text-muted text-center">You have no items in your shopping cart.</div>
-                                }
-                                @for (product of appService.Data.cartList; track product.id) {
-                                    <div fxLayout="row" fxLayoutAlign="space-between center" class="text-muted list-item">
-                                        <div>
-                                            <h3>{{product.name}}</h3>
-                                            <p><bdi>{{product.cartCount}} x FCFA {{product.newPrice | number : '1.2-2'}}</bdi></p>
-                                        </div>
-                                        <img [src]="product.images[0].small" alt="image">
-                                        <button mat-icon-button color="warn" class="remove" (click)="remove(product);stopClickPropagate($event)" matTooltip="Remove" matTooltipPosition="before">
-                                            <mat-icon class="mat-icon-sm">close</mat-icon>
-                                        </button>
-                                    </div>
-                                }
-                                @if (appService.Data.cartList.length) {
-                                    <div class="cart-dropdown-footer">
-                                        <div class="divider mt-2"></div>
-                                        <div fxLayout="row" fxLayoutAlign="space-between center" class="text-muted mt-2">
-                                            <b>TOTAL:</b>
-                                            <b class="new-price">FCFA {{appService.Data.totalPrice | number : '1.2-2'}}</b>
-                                        </div>
-                                        <div class="divider mt-2"></div>
-                                        <div fxLayout="row" fxLayoutAlign="space-between center" class="mt-2">
-                                            <button mat-mini-fab color="warn" (click)="clear();stopClickPropagate($event)" matTooltip="Clear All" matTooltipPosition="after">
-                                                <mat-icon>remove_shopping_cart</mat-icon>
-                                            </button>
-                                            <a [routerLink]="['/checkout']" mat-mini-fab color="primary" matTooltip="Checkout" matTooltipPosition="before">
-                                                <mat-icon>check</mat-icon>
-                                            </a>
-                                        </div>
-                                    </div>
-                                }
-                            </span>
-                        </ng-template>
-                    </mat-menu>
-                </div>
-                <div fxLayoutAlign="center center" fxHide="false" fxHide.gt-sm [@.disabled]="true">
-                    <button mat-icon-button [matMenuTriggerFor]="searchMenu" #searchMenuTrigger="matMenuTrigger" class="search-toggle-btn p-0 default-contrast">
-                        <mat-icon class="mat-icon-lg">search</mat-icon>
-                    </button>
-                    <mat-menu #searchMenu="matMenu" [overlapTrigger]="false" xPosition="before" class="search-dropdown mat-elevation-z8">
-                        <ng-template matMenuContent>
-                            <form method="get" fxFlex class="search-form">
-                                <button mat-raised-button [matMenuTriggerFor]="categories2Menu" #categories2MenuTrigger="matMenuTrigger" type="button" class="mat-elevation-z0 categories text-muted" (click)="stopClickPropagate($event)">
-                                    {{category.name}}<mat-icon iconPositionEnd class="m-0">arrow_drop_down</mat-icon>
-                                </button>
-                                <mat-menu #categories2Menu="matMenu" [overlapTrigger]="false" xPosition="before" class="categories-dropdown">
-                                    <ng-template matMenuContent>
-                                        <span (mouseleave)="categories2MenuTrigger.closeMenu()">
-                                            <app-category-list [categories]="categories" [categoryParentId]="0" (change)="changeCategory($event)"></app-category-list>
-                                        </span>
-                                    </ng-template>
-                                </mat-menu>
-                                <input type="text" placeholder="Type to search..." fxFlex (click)="stopClickPropagate($event)">
-                                <button mat-mini-fab (click)="search()" type="button" class="search-btn mat-elevation-z0 text-muted">
-                                    <mat-icon>search</mat-icon>
-                                </button>
-                            </form>
-                        </ng-template>
-                    </mat-menu>
-                </div>
+
             </div>
         </mat-toolbar-row>
     </mat-toolbar>
@@ -158,7 +50,7 @@
         <router-outlet></router-outlet>
     </div>
 
-    <app-options></app-options>
+<!--    <app-options></app-options>-->
     <app-footer></app-footer>
 
     @if (showBackToTop) {

@@ -73,7 +73,7 @@ export class PagesComponent implements OnInit {
     console.log("this.sidenavMenuItems");
     console.log(this.sidenavMenuItems);
     setTimeout(() => {
-      this.settings.theme = 'green';
+      this.settings.theme = 'orange';
     });
   }
 
