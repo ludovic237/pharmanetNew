@@ -15,20 +15,20 @@ class Inventaire(Base):
   supprimer = Column(Integer, default=0)
   date_debut = Column(DateTime)
   date_fin = Column(DateTime)
-  employe_id = Column(Integer, ForeignKey("employe.id"))
-  rayon_id = Column(Integer, ForeignKey("rayon.id"))
-  categorie_id = Column(Integer, ForeignKey("categorie.id"))
-  fabriquant_id = Column(Integer, ForeignKey("fabriquant.id"))
-  forme_id = Column(Integer, ForeignKey("forme.id"))
-  fournisseur_id = Column(Integer, ForeignKey("fournisseur.id"))
+  employe_id = Column(Integer, ForeignKey("employe.id"), nullable=True)
+  rayon_id = Column(Integer, ForeignKey("rayon.id"), nullable=True)
+  categorie_id = Column(Integer, ForeignKey("categorie.id"), nullable=True)
+  fabriquant_id = Column(Integer, ForeignKey("fabriquant.id"), nullable=True)
+  forme_id = Column(Integer, ForeignKey("forme.id"), nullable=True)
+  fournisseur_id = Column(Integer, ForeignKey("fournisseur.id"), nullable=True)
   commentaire = Column(String)
 
-  # employe = relationship("Employe", lazy="select")
-  # rayon = relationship("Rayon", lazy="select")
-  # categorie = relationship("Categorie", lazy="select")
-  # fabriquant = relationship("Fabriquant", lazy="select")
-  # forme = relationship("Forme", lazy="select")
-  # fournisseur = relationship("Fournisseur", lazy="select")
+  employe = relationship("Employe", lazy="select")
+  rayon = relationship("Rayon", lazy="select")
+  categorie = relationship("Categorie", lazy="select")
+  fabriquant = relationship("Fabriquant", lazy="select")
+  forme = relationship("Forme", lazy="select")
+  fournisseur = relationship("Fournisseur", lazy="select")
 
   # constantes d'état
   INVENTAIRE_EN_COURS = "EN_COURS"
@@ -50,8 +50,8 @@ class InventaireSchema(BaseModel):
   fournisseur_id: int
   commentaire: str
 
-class InventaireIn(BaseModel):
 
+class InventaireIn(BaseModel):
   etat: str
   date_debut: datetime
   date_fin: datetime

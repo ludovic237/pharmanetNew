@@ -11,4 +11,7 @@
   <component name="ProjectType">
     <option name="id" value="jpab" />
   </component>
+  <component name="PythonCompatibilityInspectionAdvertiser">
+    <option name="version" value="3" />
+  </component>
 </project>

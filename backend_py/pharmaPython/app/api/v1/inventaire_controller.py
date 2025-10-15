@@ -3,12 +3,14 @@ from sqlalchemy.orm import Session
 from typing import List, Dict, Any, Optional
 
 from app.api.deps import get_db
+from app.models.employe import Employe
 from app.models.inventaire import InventaireSchema
 from app.models.produit_inventaire import ProduitInventaireSchema
 from app.schemas.inventaire_dto import InventaireRequestDto, InventaireNewCreatetDto, \
   InventaireOneProductUpdateRequestDto, InventaireUpdateRequestDto
 from app.services.inventaire_service import InventaireService
 from app.utility.jwt_authentication import jwt_authentication
+from app.utility.user_utils import UserUtils
 
 router = APIRouter(
   prefix="/admin/inventaire",
@@ -22,24 +24,27 @@ def creer_inventaire(data: InventaireRequestDto, db: Session = Depends(get_db)):
   return InventaireService(db).creer_inventaire(data)
 
 
-@router.post("/create-new", response_model=InventaireSchema)
-def creer_inventaire_new(data: InventaireNewCreatetDto, db: Session = Depends(get_db)):
-  return InventaireService(db).creer_inventaire_new(data)
+@router.post("/create-new")
+def creer_inventaire_new(data: InventaireNewCreatetDto, db: Session = Depends(get_db),
+                         employe: Employe = Depends(UserUtils.get_current_employe)):
+  return InventaireService(db).creer_inventaire_new(data, employe)
 
 
-@router.get("/close/{id}", response_model=InventaireSchema)
+@router.get("/close/{id}")
 def cloturer_inventaire(id: int, db: Session = Depends(get_db)):
   return InventaireService(db).cloturer_inventaire(id)
 
 
 @router.put("/update/{id}", response_model=InventaireSchema)
-def mettre_a_jour_inventaire(data: InventaireUpdateRequestDto, db: Session = Depends(get_db)):
-  return InventaireService(db).mettre_a_jour_inventaire(data)
+def mettre_a_jour_inventaire(data: InventaireUpdateRequestDto, db: Session = Depends(get_db),
+                             employe: Employe = Depends(UserUtils.get_current_employe)):
+  return InventaireService(db).mettre_a_jour_inventaire(data, employe)
 
 
 @router.put("/update/valid/product/{id}", response_model=ProduitInventaireSchema)
-def add_product_to_inventory(data: InventaireOneProductUpdateRequestDto, db: Session = Depends(get_db)):
-  return InventaireService(db).valide_product_to_inventory(data)
+def add_product_to_inventory(data: InventaireOneProductUpdateRequestDto, db: Session = Depends(get_db),
+                             employe: Employe = Depends(UserUtils.get_current_employe)):
+  return InventaireService(db).valide_product_to_inventory(data, employe)
 
 
 @router.delete("/update/invalid/product/{id}", response_model=Dict[str, Any])

@@ -165,7 +165,7 @@ export class InventaireSaisieDialogComponent implements OnInit {
       magasinId: this.form.value.magasinId || null,
       categorieId: this.form.value.categorieId || null,
       page: 0,
-      size: 40
+      size: 10
     }).subscribe({
       // this.productService.searchProducts(this.searchTerm, this.page, this.count).subscribe({
       next: (data: any) => {
@@ -533,7 +533,17 @@ export class InventaireSaisieDialogComponent implements OnInit {
     this.inventaireService.listerProduitsParInventaireAsMap(this.data.id, this.page - 1,
       this.count,).subscribe({
       next: (data: any) => {
-
+        this.totalItems = data.totalElements;
+        this.count = data.pageSize;
+        // this.filteredProducts = [
+        //   ...data.content.map((product: any) => ({
+        //     ...product,
+        //     produitId: product.id ?? 0,
+        //     rayonId: product.rayonId ?? 0,
+        //     quantityReal: product.quantiteReelle ?? 0,
+        //     quantitySystem: product.quantiteSysteme ?? 0
+        //   })),
+        //   ...this.filteredProducts];
         this.filteredProducts = [
           ...data.content.map((product: any) => ({
             ...product,
@@ -541,8 +551,7 @@ export class InventaireSaisieDialogComponent implements OnInit {
             rayonId: product.rayonId ?? 0,
             quantityReal: product.quantiteReelle ?? 0,
             quantitySystem: product.quantiteSysteme ?? 0
-          })),
-          ...this.filteredProducts];
+          }))];
         this.form = this.fb.group({
           productSan: ['']
         });
@@ -598,6 +607,11 @@ export class InventaireSaisieDialogComponent implements OnInit {
   }
 
   addProductToInventory(product: any) {
+    if (product.isActive) {
+      product.isActive = !product.isActive
+    } else {
+      product.isActive = !product.isActive
+    }
     const data = {
       id: this.data.id,
       produitId: product.produitId,
@@ -607,16 +621,12 @@ export class InventaireSaisieDialogComponent implements OnInit {
       isValid: product.isActive
     }
 
+    console.log("product")
+    console.log(product)
+
     this.inventaireService.addProductToInventory(data).subscribe({
       next: (data: any) => {
-        if (data.statut == "CLOTURER") {
-          product.isActive = false; // Set the product as active after adding to inventory
-        } else {
-          product.isActive = true; // Set the product as active after adding to inventory
-        }
-        this.getInventaireInfo();
-        // product.isActive = true; // Set the product as active after adding to inventory
-
+        product.produitInventaireId = data.inventaire_id
       },
       error: (err: any) => {
 
@@ -721,6 +731,6 @@ export class InventaireSaisieDialogComponent implements OnInit {
   onPageChanged(event: PageEvent): void {
     this.page = event.pageIndex + 1;
     this.count = event.pageSize
-    // this.fetchComparaisonData();
+    this.getInventaireInfo()
   }
 }

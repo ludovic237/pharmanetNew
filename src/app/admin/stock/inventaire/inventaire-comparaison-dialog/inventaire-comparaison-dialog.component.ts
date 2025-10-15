@@ -165,7 +165,7 @@ export class InventaireComparaisonDialogComponent implements OnInit {
           difference: item.quantiteReelle - item.quantiteSysteme,
           status: this.getStatus(item.quantiteReelle - item.quantiteSysteme) || 'unknown', // Default to 'unknown' if status is not provided
         }));
-        this.count = data.pageable.pageSize;
+        this.count = data.pageSize;
         this.totalItems = data.totalElements;
 
       },

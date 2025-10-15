@@ -17,6 +17,10 @@ class ProduitInventaire(Base):
   en_rayon_id = Column(Integer, ForeignKey("en_rayon.id"))
   stock_avant = Column(Integer)
   stock_valide = Column(Integer)
+  statut = Column(String)
+  type = Column(String)
+  date_debut = Column(DateTime)
+  date_fin = Column(DateTime)
   supprimer = Column(Integer, default=0, nullable=False)
 
   inventaire = relationship("Inventaire")

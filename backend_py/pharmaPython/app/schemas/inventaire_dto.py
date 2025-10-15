@@ -23,9 +23,9 @@ class InventaireUpdateRequestDto(BaseModel):
   produitList: List[ProduitInventaireDto]
 
 class InventaireOneProductUpdateRequestDto(BaseModel):
-  id: Optional[str] = None
+  id: Optional[int] = None
   produitId: Optional[int] = None
-  rayonId: Optional[int] = None
+  rayonId: Optional[str] = None
   quantiteReel: Optional[int] = None
   quantiteSysteme: Optional[int] = None
   isValid: Optional[bool] = False

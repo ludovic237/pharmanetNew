@@ -80,7 +80,7 @@ class InventaireService:
   # ------------------------------------------------------------------
   # creerInventaire(data)
   # ------------------------------------------------------------------
-  def creer_inventaire(self, data: InventaireRequestDto, currentEmploye:Employe) -> Inventaire:
+  def creer_inventaire(self, data: InventaireRequestDto, currentEmploye: Employe) -> Inventaire:
     employe = currentEmploye
     inv = Inventaire(
       date_debut=_now(),
@@ -109,7 +109,7 @@ class InventaireService:
   # ------------------------------------------------------------------
   # creerInventaireNew(data)
   # ------------------------------------------------------------------
-  def creer_inventaire_new(self, data: InventaireNewCreatetDto, currentEmploye : Employe) -> Inventaire:
+  def creer_inventaire_new(self, data: InventaireNewCreatetDto, currentEmploye: Employe) -> Dict[str, Any]:
     employe = currentEmploye
 
     rayon = self.rayon_repo.find_by_id(int(data.rayonId)) if data.rayonId else None
@@ -119,20 +119,35 @@ class InventaireService:
     fournisseur = self.fournisseur_repo.find_by_id(int(data.fournisseurId)) if data.fournisseurId else None
 
     inv = Inventaire(
-      rayon=rayon,
-      categorie=categorie,
-      fabriquant=fabriquant,
-      forme=forme,
-      fournisseur=fournisseur,
-      employe=employe,
+      rayon_id=rayon.id if rayon else None,
+      categorie_id=categorie.id if categorie else None,
+      fabriquant_id=fabriquant.id if fabriquant else None,
+      forme_id=forme.id if forme else None,
+      fournisseur_id=fournisseur.id if fournisseur else None,
+      employe_id=employe.id,
       supprimer=0,
+      commentaire="",
       date_debut=_now(),
+      date_fin=None,
       etat=self.INVENTAIRE_EN_COURS,
     )
     self.db.add(inv)
     self.db.commit()
     self.db.refresh(inv)
-    return inv
+    return {
+      "id": inv.id,
+      "etat": inv.etat,
+      "supprimer": inv.supprimer,
+      "date_debut": inv.date_debut,
+      "date_fin": inv.date_fin,
+      "employe_id": inv.employe_id,
+      "rayon_id": inv.rayon_id,
+      "categorie_id": inv.categorie_id,
+      "fabriquant_id": inv.fabriquant_id,
+      "forme_id": inv.forme_id,
+      "fournisseur_id": inv.fournisseur_id,
+      "commentaire": inv.commentaire,
+    }
 
   # ------------------------------------------------------------------
   # cloturerInventaire(inventaireId)
@@ -150,7 +165,7 @@ class InventaireService:
   # ------------------------------------------------------------------
   # mettreAJourInventaire(data)
   # ------------------------------------------------------------------
-  def mettre_a_jour_inventaire(self, data: InventaireUpdateRequestDto, currentEmploye : Employe) -> Inventaire:
+  def mettre_a_jour_inventaire(self, data: InventaireUpdateRequestDto, currentEmploye: Employe) -> Inventaire:
     inv = self.inventaire_repo.find_by_id(int(data.id))
     if not inv:
       raise HTTPException(status_code=404, detail=f"Inventaire introuvable: {data.id}")
@@ -186,14 +201,15 @@ class InventaireService:
   # ------------------------------------------------------------------
   # valideProductToInventory(data)
   # ------------------------------------------------------------------
-  def valide_product_to_inventory(self, data: InventaireOneProductUpdateRequestDto, currentEmploye: Employe) -> ProduitInventaire:
+  def valide_product_to_inventory(self, data: InventaireOneProductUpdateRequestDto,
+                                  currentEmploye: Employe) -> ProduitInventaire:
     inv = self.inventaire_repo.find_by_id(int(data.id))
-    if not inv:
-      raise HTTPException(status_code=404, detail=f"Inventaire introuvable: {data.id}")
+    # if not inv:
+    #   raise HTTPException(status_code=404, detail=f"Inventaire introuvable: {data.id}")
     employe = currentEmploye
     en_rayon = self.enrayon_repo.find_by_id(str(data.rayonId))
-    if not en_rayon:
-      raise HTTPException(status_code=404, detail=f"EnRayon introuvable: {data.rayonId}")
+    # if not en_rayon:
+    #   raise HTTPException(status_code=404, detail=f"EnRayon introuvable: {data.rayonId}")
 
     pi = self.produit_inventorie_repo.find_by_inventaire_and_en_rayon(inv, en_rayon)
     now = _now()
@@ -370,9 +386,15 @@ class InventaireService:
     if search:
       prod_ids = [p.id for p in self.produit_repo.find_by_nom_containing(search)]
       enrayons = self.enrayon_repo.find_all_by_produit_id_in_and_supprimer(prod_ids)
-      base_q = self.produit_inventorie_repo.q_by_inventaire_and_enrayon_in(inv, enrayons)
+      ids = [e.id for e in enrayons]
+      base_q = self.db.query(ProduitInventaire).filter(
+        ProduitInventaire.inventaire_id == inv.id,
+        ProduitInventaire.en_rayon_id.in_(ids)
+      )
     else:
-      base_q = self.produit_inventorie_repo.q_by_inventaire(inv)
+      base_q = self.db.query(ProduitInventaire).filter(
+        ProduitInventaire.inventaire_id == inv.id
+      )
 
     q = base_q.order_by(_order_by(ProduitInventaire, sort, direction))
     total = q.count()

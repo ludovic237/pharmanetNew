@@ -222,10 +222,10 @@ export class InventaireComponent implements OnInit {
           autoFocus: false,
         });
         dialogRef.afterClosed().subscribe((data: any) => {
-
           this.fetchInventaire();
         });
       }
+      this.fetchInventaire();;
     });
   }
 
