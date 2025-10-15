@@ -163,7 +163,8 @@
               <tr mat-header-row *matHeaderRowDef="ventesListCols"></tr>
               <tr mat-row *matRowDef="let row; columns: ventesListCols;"></tr>
             </table>
-            <mat-paginator [length]="totalItemsVentes" [pageSize]="countVentes" [pageSizeOptions]="[5, 10, 25, 100]"
+            <mat-paginator [showFirstLastButtons]="true"
+                           [length]="totalItemsVentes" [pageSize]="countVentes" [pageSizeOptions]="[5, 10, 25, 100]"
                            (page)="onPageChangedVente($event)">
             </mat-paginator>
           </mat-card-content>
@@ -335,7 +336,8 @@
               <tr mat-header-row *matHeaderRowDef="commandesListCols"></tr>
               <tr mat-row *matRowDef="let row; columns: commandesListCols;"></tr>
             </table>
-            <mat-paginator [length]="totalItemsCommandes" [pageSize]="countCommandes" [pageSizeOptions]="[5, 10, 25, 100]"
+            <mat-paginator  [showFirstLastButtons]="true"
+                            [length]="totalItemsCommandes" [pageSize]="countCommandes" [pageSizeOptions]="[5, 10, 25, 100]"
                            (page)="onPageChangedCommande($event)">
             </mat-paginator>
           </mat-card-content>
@@ -448,7 +450,8 @@
               <tr mat-header-row *matHeaderRowDef="stockEntryCols"></tr>
               <tr mat-row *matRowDef="let row; columns: stockEntryCols;"></tr>
             </table>
-            <mat-paginator [length]="totalItemsEnRayons" [pageSize]="countEnRayons" [pageSizeOptions]="[5, 10, 25, 100]"
+            <mat-paginator [showFirstLastButtons]="true"
+                           [length]="totalItemsEnRayons" [pageSize]="countEnRayons" [pageSizeOptions]="[5, 10, 25, 100]"
                            (page)="onPageChangedEnRayon($event)">
             </mat-paginator>
           </mat-card-content>
@@ -521,7 +524,8 @@
               <tr mat-header-row *matHeaderRowDef="sortieCols"></tr>
               <tr mat-row *matRowDef="let row; columns: sortieCols;"></tr>
             </table>
-            <mat-paginator [length]="totalItemsSorties" [pageSize]="countSorties" [pageSizeOptions]="[5, 10, 25, 100]"
+            <mat-paginator [showFirstLastButtons]="true"
+                           [length]="totalItemsSorties" [pageSize]="countSorties" [pageSizeOptions]="[5, 10, 25, 100]"
                            (page)="onPageChangedSortie($event)">
             </mat-paginator>
           </mat-card-content>

@@ -179,7 +179,7 @@
   <div fxLayout="row wrap">
     <div fxFlex="100">
       <mat-card class="text-center">
-        <mat-paginator [length]="totalItems" [pageSize]="count" [pageSizeOptions]="[5, 10, 25, 100]"
+        <mat-paginator [showFirstLastButtons]="true" [length]="totalItems" [pageSize]="count" [pageSizeOptions]="[5, 10, 25, 100]"
                        (page)="onPageChanged($event)">
         </mat-paginator>
       </mat-card>

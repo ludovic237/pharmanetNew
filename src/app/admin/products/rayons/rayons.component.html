@@ -54,6 +54,7 @@
       <div fxFlex="100">
         <mat-card class="p-0 text-center">
           <mat-paginator
+            [showFirstLastButtons]="true"
             [length]="totalItems"
             [pageSize]="count"
             (page)="onPageChanged($event)"

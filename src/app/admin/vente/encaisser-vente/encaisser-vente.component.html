@@ -109,7 +109,8 @@
       <tr mat-header-row *matHeaderRowDef="headerColumns"></tr>
       <tr mat-row *matRowDef="let row; columns: headerColumns;"></tr>
     </table>
-    <mat-paginator [length]="totalItemsEnCours" [pageSize]="countEnCours" [pageSizeOptions]="[5, 10, 25, 100]"
+    <mat-paginator [showFirstLastButtons]="true"
+                   [length]="totalItemsEnCours" [pageSize]="countEnCours" [pageSizeOptions]="[5, 10, 25, 100]"
       (page)="onPageChangedVenteEnCours($event)">
     </mat-paginator>
   </mat-card>
@@ -368,7 +369,9 @@
         <tr mat-header-row *matHeaderRowDef="bottomColumns"></tr>
         <tr mat-row *matRowDef="let row; columns: bottomColumns;"></tr>
       </table>
-      <mat-paginator [length]="totalItemsCredit" [pageSize]="countCredit" [pageSizeOptions]="[5, 10, 25, 100]"
+      <mat-paginator
+        [showFirstLastButtons]="true"
+        [length]="totalItemsCredit" [pageSize]="countCredit" [pageSizeOptions]="[5, 10, 25, 100]"
         (page)="onPageChangedCredit($event)">
       </mat-paginator>
     </mat-card>

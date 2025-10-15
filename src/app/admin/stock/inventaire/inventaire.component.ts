@@ -225,7 +225,7 @@ export class InventaireComponent implements OnInit {
           this.fetchInventaire();
         });
       }
-      this.fetchInventaire();;
+      this.fetchInventaire();
     });
   }
 
@@ -253,6 +253,7 @@ export class InventaireComponent implements OnInit {
         if (dialogResult) {
 
         }
+        this.fetchInventaire();
       });
       this.fetchInventaire();
     });

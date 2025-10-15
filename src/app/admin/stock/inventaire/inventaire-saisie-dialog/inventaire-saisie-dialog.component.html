@@ -130,7 +130,8 @@
           *matRowDef="let row; columns: [ 'id', 'name', 'quantitySystem', 'quantityReal', 'comparison', 'dateLivraison', 'datePeremption', 'actions'];"></tr>
         </table>
         <mat-divider></mat-divider>
-        <mat-paginator [length]="totalItems" [pageSize]="count" [pageSizeOptions]="[5, 10, 25, 100]"
+        <mat-paginator [showFirstLastButtons]="true"
+                       [length]="totalItems" [pageSize]="count" [pageSizeOptions]="[5, 10, 25, 100]"
           (page)="onPageChanged($event)">
         </mat-paginator>
       </mat-dialog-content>

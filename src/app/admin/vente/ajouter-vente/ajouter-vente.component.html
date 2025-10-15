@@ -346,7 +346,8 @@
               <tr mat-header-row *matHeaderRowDef="displayedColumnsCredit"></tr>
               <tr mat-row *matRowDef="let row; columns: displayedColumnsCredit;"></tr>
             </table>
-            <mat-paginator [length]="totalItemsCredit" [pageSize]="countCredit" [pageSizeOptions]="[5, 10, 25, 100]"
+            <mat-paginator [showFirstLastButtons]="true"
+                           [length]="totalItemsCredit" [pageSize]="countCredit" [pageSizeOptions]="[5, 10, 25, 100]"
               (page)="onPageChangedCredit($event)">
             </mat-paginator>
           </div>

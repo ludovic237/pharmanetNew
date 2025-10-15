@@ -122,7 +122,8 @@
           <tr mat-header-row *matHeaderRowDef="colonnesVente"></tr>
           <tr mat-row *matRowDef="let row; columns: colonnesVente;"></tr>
         </table>
-        <mat-paginator [length]="totalItems" [pageSize]="count" [pageSizeOptions]="[5, 10, 25, 100]"
+        <mat-paginator [showFirstLastButtons]="true"
+                       [length]="totalItems" [pageSize]="count" [pageSizeOptions]="[5, 10, 25, 100]"
           (page)="onPageChangedVente($event)">
         </mat-paginator>
       </div>
@@ -180,7 +181,8 @@
         <tr mat-header-row *matHeaderRowDef="colonnesCaisse"></tr>
         <tr mat-row *matRowDef="let row; columns: colonnesCaisse;"></tr>
       </table>
-      <mat-paginator [length]="totalItems" [pageSize]="count" [pageSizeOptions]="[5, 10, 25, 100]"
+      <mat-paginator [showFirstLastButtons]="true"
+                     [length]="totalItems" [pageSize]="count" [pageSizeOptions]="[5, 10, 25, 100]"
         (page)="onPageChangedCaisse($event)">
       </mat-paginator>
     </div>
@@ -221,7 +223,8 @@
         <tr mat-header-row *matHeaderRowDef="colonnesDepense"></tr>
         <tr mat-row *matRowDef="let row; columns: colonnesDepense;"></tr>
       </table>
-      <mat-paginator [length]="totalItems" [pageSize]="count" [pageSizeOptions]="[5, 10, 25, 100]"
+      <mat-paginator [showFirstLastButtons]="true"
+                     [length]="totalItems" [pageSize]="count" [pageSizeOptions]="[5, 10, 25, 100]"
         (page)="onPageChangedDepense($event)">
       </mat-paginator>
     </mat-card-content>
@@ -331,7 +334,8 @@
         <tr mat-header-row *matHeaderRowDef="colonnesCommande"></tr>
         <tr mat-row *matRowDef="let row; columns: colonnesCommande;"></tr>
       </table>
-      <mat-paginator [length]="totalItems" [pageSize]="count" [pageSizeOptions]="[5, 10, 25, 100]"
+      <mat-paginator [showFirstLastButtons]="true"
+                     [length]="totalItems" [pageSize]="count" [pageSizeOptions]="[5, 10, 25, 100]"
         (page)="onPageChangedCommande($event)">
       </mat-paginator>
     </div>

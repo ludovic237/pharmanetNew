@@ -101,6 +101,6 @@ def get_info_produits_inventaire(id: str, db: Session = Depends(get_db)):
   return InventaireService(db).get_info_produits_inventaire(id)
 
 
-@router.get("/terminer/{id}", response_model=InventaireSchema)
+@router.get("/terminer/{id}")
 def terminer_inventaire(id: int, commentaire: str, db: Session = Depends(get_db)):
   return InventaireService(db).terminer_inventaire(id, commentaire)
