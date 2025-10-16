@@ -22,24 +22,30 @@ export class LoaderService {
 
   show() {
     if (!this.isBrowser) return
+    console.log("this.isBrowser show")
+    console.log(this.isBrowser)
+    console.log(PLATFORM_ID)
     this.requests++;
     if (this.requests === 1) {
       this.dialogRef = this.matDialog.open(LoaderDialogComponent, {
         disableClose: true,
-        panelClass: 'loader-dialog-panel',
-        backdropClass: 'loader-backdrop'
+        // panelClass: 'loader-dialog-panel',
+        // backdropClass: 'loader-backdrop'
       })
     }
   }
 
   hide() {
     if (!this.isBrowser) return;
+    console.log("this.isBrowser hide")
+    console.log(this.isBrowser)
+    console.log(PLATFORM_ID)
     if (this.requests > 0) {
       this.requests--;
     }
     if (this.dialogRef && this.requests === 0) {
       this.dialogRef.close()
-      this.dialogRef = null
+      // this.dialogRef = undefined
     }
   }
 

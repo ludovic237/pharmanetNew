@@ -187,6 +187,10 @@ class CaisseService:
                       end_date: Optional[str] = None,
                       ) -> Dict[str, Any]:
     query = self.db.query(Caisse).order_by(Caisse.date_ouvert.desc())
+    if start_date == 'null':
+      start_date = None
+    if end_date == 'null':
+      end_date = None
     if start_date is not None and end_date is not None:
       start_dt = datetime.fromisoformat(start_date.strip())
       end_dt = datetime.fromisoformat(end_date.strip())

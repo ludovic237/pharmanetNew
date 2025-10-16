@@ -46,11 +46,13 @@ export const LoaderInterceptor: HttpInterceptorFn = (req, next) => {
   const loaderService = inject(LoaderService)
   const ngZone = inject(NgZone)
   ngZone.run(() => loaderService.show())
+  // loaderService.show()
   // setTimeout(()=> loaderService.show(),1000)
   return next(req).pipe(
     finalize(() => {
       setTimeout(() => {
-        ngZone.run(() => loaderService.hide())
+        // ngZone.run(() => loaderService.hide())
+        loaderService.hide()
       }, 0)
     })
   )
