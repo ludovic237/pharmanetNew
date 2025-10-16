@@ -19,7 +19,7 @@
     </div>
     <div style="margin-left: 32px; margin-top: 8px; font-size: 0.9rem;">
       {{ recapitulatif.ecartsDetectes }} écarts détectés • Impact
-      financier: {{ recapitulatif.impactFinancier | currency:'EUR' }}
+      financier: {{ recapitulatif.impactFinancier | currency:'XAF'}}
     </div>
   </mat-card>
 
@@ -29,7 +29,7 @@
       <b>Produits manquants</b>
       <div style="margin-top: 8px; font-size: 0.9rem;">
         <span style="background-color: #f5c6cb; padding: 4px 12px; border-radius: 4px;">
-          {{ produitsManquants.quantite }} produits • {{ produitsManquants.impact | currency:'EUR' }}
+          {{ produitsManquants.quantite }} produits • {{ produitsManquants.impact | currency:'XAF'}}
         </span>
       </div>
     </mat-card>
@@ -37,7 +37,7 @@
       <b>Produits excédentaires</b>
       <div style="margin-top: 8px; font-size: 0.9rem;">
         <span style="background-color: #c3e6cb; padding: 4px 12px; border-radius: 4px;">
-          {{ produitsExcedentaires.quantite }} produits • {{ produitsExcedentaires.impact | currency:'EUR' }}
+          {{ produitsExcedentaires.quantite }} produits • {{ produitsExcedentaires.impact | currency:'XAF'}}
         </span>
       </div>
     </mat-card>
