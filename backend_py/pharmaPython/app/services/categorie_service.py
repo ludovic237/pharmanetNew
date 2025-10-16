@@ -28,7 +28,10 @@ class CategorieService:
   # Récupérer toutes les catégories non supprimées
   # ----------------------------
   def get_all_categories(self) -> List[Categorie]:
-    return self.db.query(Categorie).filter(Categorie.supprimer == 0).all()
+    categories =  self.db.query(Categorie).filter(Categorie.supprimer == 0).all()
+    print("categories")
+    print(categories)
+    return categories
 
   # ----------------------------
   # Récupérer toutes les catégories (pagination manuelle)
