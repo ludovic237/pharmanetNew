@@ -88,12 +88,12 @@ app.add_middleware(
 app.include_router(api_router)
 
 # ---- 2) Angular (SPA) servi à la racine
-REPO_ROOT = Path(__file__).resolve().parents[3]          # => .../pharmaNew
-FRONT_DIST = REPO_ROOT / "dist" / "emporium" / "browser" # => .../pharmaNew/dist/emporium/browser
-# FRONT_DIST = get_front_dist()
+REPO_ROOT = Path(__file__).resolve().parents[2]          # => .../pharmaNew
+# FRONT_DIST = REPO_ROOT / "dist" / "emporium" / "browser" # => .../pharmaNew/dist/emporium/browser
+FRONT_DIST = get_front_dist()
 
-# if not (FRONT_DIST / "index.html").exists():
-#   raise RuntimeError(f"index.html introuvable dans {FRONT_DIST}. Lance 'ng build' et vérifie le chemin.")
+if not (FRONT_DIST / "index.html").exists():
+  raise RuntimeError(f"index.html introuvable dans {FRONT_DIST}. Lance 'ng build' et vérifie le chemin.")
 
 # Sert TOUS les fichiers statiques (chunks .js/.css) avec le bon Content-Type
 app.mount("/", StaticFiles(directory=str(FRONT_DIST), html=True), name="spa")
