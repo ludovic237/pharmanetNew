@@ -24,6 +24,7 @@ import {MatSelectModule} from "@angular/material/select";
 import {FlexLayoutModule} from "@ngbracket/ngx-layout";
 import {AuthService} from "@services/auth.service";
 import {LoaderService} from "@services/loader.service";
+import {TranslateModule} from "@ngx-translate/core";
 
 @Component({
   selector: 'app-confirmation-dialog',
@@ -52,7 +53,8 @@ import {LoaderService} from "@services/loader.service";
     MatDatepickerModule,
     MatNativeDateModule,
     MatSelectModule,
-    FlexLayoutModule
+    FlexLayoutModule,
+    TranslateModule
 ],
   templateUrl: './confirmation-dialog.component.html',
   styleUrl: './confirmation-dialog.component.scss'

@@ -16,7 +16,7 @@ import {environment} from "../../environments/environment";
 })
 export class SettingsService {
   public settings = new Settings(
-    'Emporium',  // theme name
+    'ALSA',  // theme name
     'orange',     // green, blue, red, pink, purple, grey
     false,       // true = rtl, false = ltr
     true,        // adminSidenavIsOpened

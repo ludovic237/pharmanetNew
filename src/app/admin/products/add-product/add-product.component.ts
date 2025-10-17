@@ -22,6 +22,7 @@ import {ProductService} from "@services/products.service";
 import {EtageresService} from "@services/etageres.service";
 import {MatToolbarModule} from "@angular/material/toolbar";
 import {LoaderService} from "@services/loader.service";
+import {TranslateModule} from "@ngx-translate/core";
 
 @Component({
   selector: 'app-add-product',
@@ -35,7 +36,8 @@ import {LoaderService} from "@services/loader.service";
     MatSelectModule,
     MatButtonModule,
     MatIconModule,
-    FlexLayoutModule
+    FlexLayoutModule,
+    TranslateModule
 ],
   templateUrl: './add-product.component.html',
   styleUrl: './add-product.component.scss'
