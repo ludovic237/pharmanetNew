@@ -44,6 +44,7 @@ import autoTable from 'jspdf-autotable';
 import {MatPaginatorModule, PageEvent} from "@angular/material/paginator";
 import {AuthService} from "@services/auth.service";
 import {LoaderService} from "@services/loader.service";
+import {TranslateModule} from "@ngx-translate/core";
 
 @Component({
   selector: 'app-retour-produit',
@@ -89,7 +90,8 @@ import {LoaderService} from "@services/loader.service";
     MatCardModule,
     MatSnackBarModule,
     MatChipsModule,
-    NgxPaginationModule
+    NgxPaginationModule,
+    TranslateModule
 ],
   templateUrl: './retour-produit.component.html',
   styleUrl: './retour-produit.component.scss'

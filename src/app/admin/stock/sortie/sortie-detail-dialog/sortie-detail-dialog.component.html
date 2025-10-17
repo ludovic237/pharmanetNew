@@ -108,7 +108,7 @@
     Quantite a ajouter : {{quantiteAjouter}} -  Quantite total : {{mouvelQuantite}}
   </div>
   <div>
-    <button mat-stroked-button mat-dialog-close>Annuler</button>
+    <button mat-stroked-button mat-dialog-close>{{ 'BTN.CANCEL' | translate }}</button>
     <button mat-flat-button color="primary" (click)="enregistrer()" [disabled]="dataSource.length === 0">
       Enregistrer les Sorties
     </button>

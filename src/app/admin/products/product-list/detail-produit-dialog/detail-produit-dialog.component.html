@@ -108,7 +108,7 @@
                   <mat-datepicker-toggle matIconSuffix [for]="pickerVentes"></mat-datepicker-toggle>
                   <mat-date-range-picker #pickerVentes>
                     <mat-date-range-picker-actions>
-                      <button mat-button matDateRangePickerCancel>Annuler</button>
+                      <button mat-button matDateRangePickerCancel>{{ 'BTN.CANCEL' | translate }}</button>
                       <button mat-button matDateRangePickerApply (click)="fetchVentesPageableRangeProduct()">Apply
                       </button>
                     </mat-date-range-picker-actions>
@@ -246,7 +246,7 @@
                   <mat-datepicker-toggle matIconSuffix [for]="pickerCommandes"></mat-datepicker-toggle>
                   <mat-date-range-picker #pickerCommandes>
                     <mat-date-range-picker-actions>
-                      <button mat-button matDateRangePickerCancel>Annuler</button>
+                      <button mat-button matDateRangePickerCancel>{{ 'BTN.CANCEL' | translate }}</button>
                       <button mat-button matDateRangePickerApply (click)="getCommandeInfoByProduct()">Apply</button>
                     </mat-date-range-picker-actions>
                   </mat-date-range-picker>
@@ -377,7 +377,7 @@
                   <mat-datepicker-toggle matIconSuffix [for]="pickerEnRayons"></mat-datepicker-toggle>
                   <mat-date-range-picker #pickerEnRayons>
                     <mat-date-range-picker-actions>
-                      <button mat-button matDateRangePickerCancel>Annuler</button>
+                      <button mat-button matDateRangePickerCancel>{{ 'BTN.CANCEL' | translate }}</button>
                       <button mat-button matDateRangePickerApply (click)="getProduitsEnRayonPageableProduitRange()">
                         Apply
                       </button>
@@ -484,7 +484,7 @@
                   <mat-datepicker-toggle matIconSuffix [for]="pickerSorties"></mat-datepicker-toggle>
                   <mat-date-range-picker #pickerSorties>
                     <mat-date-range-picker-actions>
-                      <button mat-button matDateRangePickerCancel>Annuler</button>
+                      <button mat-button matDateRangePickerCancel>{{ 'BTN.CANCEL' | translate }}</button>
                       <button mat-button matDateRangePickerApply (click)="getSortieStockPageableProductRange()">Apply
                       </button>
                     </mat-date-range-picker-actions>

@@ -10,6 +10,7 @@ import {RayonService} from "@services/rayons.service";
 import {AuthService} from "@services/auth.service";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {LoaderService} from "@services/loader.service";
+import {TranslateModule} from "@ngx-translate/core";
 
 @Component({
   selector: 'app-rayon-dialog',
@@ -20,7 +21,8 @@ import {LoaderService} from "@services/loader.service";
     MatSelectModule,
     MatCheckboxModule,
     MatButtonModule,
-    FlexLayoutModule
+    FlexLayoutModule,
+    TranslateModule
   ],
   templateUrl: './rayon-dialog.component.html'
 })

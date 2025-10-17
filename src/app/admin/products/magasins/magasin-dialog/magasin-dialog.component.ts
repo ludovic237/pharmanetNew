@@ -11,6 +11,7 @@ import {FlexLayoutModule} from '@ngbracket/ngx-layout';
 import {MagasinService} from "@services/magasins.service";
 import {MatToolbarModule} from "@angular/material/toolbar";
 import {LoaderService} from "@services/loader.service";
+import {TranslateModule} from "@ngx-translate/core";
 
 
 @Component({
@@ -23,7 +24,8 @@ import {LoaderService} from "@services/loader.service";
     MatCheckboxModule,
     MatButtonModule,
     MatToolbarModule,
-    FlexLayoutModule
+    FlexLayoutModule,
+    TranslateModule
   ],
   templateUrl: './magasin-dialog.component.html'
 })

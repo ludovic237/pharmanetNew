@@ -71,7 +71,7 @@
           <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
           <mat-date-range-picker #picker>
             <mat-date-range-picker-actions>
-              <button mat-button matDateRangePickerCancel>Annuler</button>
+              <button mat-button matDateRangePickerCancel>{{ 'BTN.CANCEL' | translate }}</button>
               <button mat-button matDateRangePickerApply (click)="fetchCommandesPageable()">Apply</button>
             </mat-date-range-picker-actions>
           </mat-date-range-picker>
@@ -214,7 +214,7 @@
         </button>
         <button mat-menu-item matTooltip="Annuler la commande" (click)="annulerCommande(commande)">
           <mat-icon color="warn">cancel</mat-icon>
-          <span>Annuler</span>
+          <span>{{ 'BTN.CANCEL' | translate }}</span>
         </button>
       }
 

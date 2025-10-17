@@ -12,6 +12,7 @@ import {FormeService} from "@services/formes.service";
 import {MatFormFieldModule} from "@angular/material/form-field";
 import {MatToolbarModule} from "@angular/material/toolbar";
 import {LoaderService} from "@services/loader.service";
+import {TranslateModule} from "@ngx-translate/core";
 
 @Component({
   selector: 'app-forme-dialog',
@@ -24,7 +25,8 @@ import {LoaderService} from "@services/loader.service";
     MatFormFieldModule,
     MatButtonModule,
     MatToolbarModule,
-    FlexLayoutModule
+    FlexLayoutModule,
+    TranslateModule
   ],
   templateUrl: './forme-dialog.component.html'
 })

@@ -11,7 +11,7 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatToolbarModule} from '@angular/material/toolbar';
 import {MatBadgeModule} from '@angular/material/badge';
 import {SidenavMenuComponent} from '../theme/components/sidenav-menu/sidenav-menu.component';
-import {TranslateModule} from '@ngx-translate/core';
+import {TranslateModule, TranslateService} from '@ngx-translate/core';
 import {TopMenuComponent} from '../theme/components/top-menu/top-menu.component';
 import {MatMenuModule} from '@angular/material/menu';
 import {CategoryListComponent} from '../shared-components/category-list/category-list.component';
@@ -60,6 +60,7 @@ export class PagesComponent implements OnInit {
   constructor(
     public settingsService: SettingsService,
     public appService: AppService,
+    public translateService: TranslateService,
     public sidenavMenuService: SidenavMenuService,
     public router: Router,
     public domHandlerService: DomHandlerService) {
@@ -67,6 +68,9 @@ export class PagesComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.translateService.setDefaultLang('fr');
+    this.translateService.langs = ['fr', 'en']
+    this.translateService.use('fr');
     this.getCategories();
     this.sidenavMenuItems = this.sidenavMenuService.getSidenavMenuItems();
     console.log("this.sidenavMenuItems");
@@ -104,7 +108,7 @@ export class PagesComponent implements OnInit {
   }
 
   public clear() {
-    this.appService.Data.cartList.forEach((product:any) => {
+    this.appService.Data.cartList.forEach((product: any) => {
       this.appService.resetProductCartCount(product);
     });
     this.appService.Data.cartList.length = 0;

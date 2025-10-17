@@ -39,6 +39,7 @@ import {MatPaginator, PageEvent} from "@angular/material/paginator";
 import {AuthService} from "@services/auth.service";
 import {AppService} from "@services/app.service";
 import {LoaderService} from "@services/loader.service";
+import {TranslateModule} from "@ngx-translate/core";
 
 @Component({
   selector: 'app-entree',
@@ -96,7 +97,8 @@ import {LoaderService} from "@services/loader.service";
     MatChipsModule,
     NgxPaginationModule,
     MatPaginator,
-    CommonModule
+    CommonModule,
+    TranslateModule
   ],
   templateUrl: './entree.component.html',
   standalone: true,

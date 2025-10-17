@@ -1,52 +1,56 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import {Component, Inject, OnInit} from '@angular/core';
 import {AuthService} from "@services/auth.service";
 import {MatSnackBar} from "@angular/material/snack-bar";
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
-import { COMMA, ENTER } from '@angular/cdk/keycodes';
-import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import { MatTabsModule } from '@angular/material/tabs';
-import { FlexLayoutModule } from '@ngbracket/ngx-layout';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatButtonModule } from '@angular/material/button';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatIconModule } from '@angular/material/icon';
-import { MatNativeDateModule } from '@angular/material/core';
-import { MatTooltipModule } from '@angular/material/tooltip';
+import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
+import {MatChipInputEvent, MatChipsModule} from '@angular/material/chips';
+import {COMMA, ENTER} from '@angular/cdk/keycodes';
+import {MAT_DIALOG_DATA, MatDialogModule, MatDialogRef} from '@angular/material/dialog';
+import {MatTabsModule} from '@angular/material/tabs';
+import {FlexLayoutModule} from '@ngbracket/ngx-layout';
+import {MatInputModule} from '@angular/material/input';
+import {MatSelectModule} from '@angular/material/select';
+import {MatCheckboxModule} from '@angular/material/checkbox';
+import {MatButtonModule} from '@angular/material/button';
+import {MatDatepickerModule} from '@angular/material/datepicker';
+import {MatIconModule} from '@angular/material/icon';
+import {MatNativeDateModule} from '@angular/material/core';
+import {MatTooltipModule} from '@angular/material/tooltip';
 import {LoaderService} from "@services/loader.service";
+import {TranslateModule} from "@ngx-translate/core";
 
 @Component({
-    selector: 'app-coupon-dialog',
-    imports: [
-        ReactiveFormsModule,
-        FlexLayoutModule,
-        MatTabsModule,
-        MatDialogModule,
-        MatInputModule,
-        MatSelectModule,
-        MatCheckboxModule,
-        MatChipsModule,
-        MatButtonModule,
-        MatDatepickerModule,
-        MatNativeDateModule,
-        MatIconModule,
-        MatTooltipModule
-    ],
-    templateUrl: './coupon-dialog.component.html',
-    styleUrl: './coupon-dialog.component.scss'
+  selector: 'app-coupon-dialog',
+  imports: [
+    ReactiveFormsModule,
+    FlexLayoutModule,
+    MatTabsModule,
+    MatDialogModule,
+    MatInputModule,
+    MatSelectModule,
+    MatCheckboxModule,
+    MatChipsModule,
+    MatButtonModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatIconModule,
+    MatTooltipModule,
+    TranslateModule
+  ],
+  templateUrl: './coupon-dialog.component.html',
+  styleUrl: './coupon-dialog.component.scss'
 })
 export class CouponDialogComponent implements OnInit {
   readonly separatorKeysCodes: number[] = [ENTER, COMMA];
   public products: any[] = [];
   public form: FormGroup;
-   constructor(
-     public loaderService: LoaderService,
+
+  constructor(
+    public loaderService: LoaderService,
     public authService: AuthService,
-    public snackBar:MatSnackBar,public dialogRef: MatDialogRef<CouponDialogComponent>,
-              @Inject(MAT_DIALOG_DATA) public data: any,
-              public fb: FormBuilder) { }
+    public snackBar: MatSnackBar, public dialogRef: MatDialogRef<CouponDialogComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: any,
+    public fb: FormBuilder) {
+  }
 
   ngOnInit(): void {
     this.form = this.fb.group({
@@ -78,7 +82,8 @@ export class CouponDialogComponent implements OnInit {
     if (this.data.coupon) {
       this.form.patchValue(this.data.coupon);
       this.products = this.data.coupon.restriction.products;
-    };
+    }
+    ;
   }
 
   public onSubmit() {

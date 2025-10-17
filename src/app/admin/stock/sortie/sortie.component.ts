@@ -51,6 +51,7 @@ import {
 } from "./sortie-simplet-product-detail-rayon-dialog/sortie-simple-product-detail-rayon-dialog.component";
 import {LoaderService} from "@services/loader.service";
 import {AppService} from "@services/app.service";
+import {TranslateModule} from "@ngx-translate/core";
 
 @Component({
   selector: 'app-sortie',
@@ -108,7 +109,8 @@ import {AppService} from "@services/app.service";
     MatSnackBarModule,
     MatChipsModule,
     NgxPaginationModule,
-    CommonModule
+    CommonModule,
+    TranslateModule
   ],
   templateUrl: './sortie.component.html',
   styleUrl: './sortie.component.scss'

@@ -61,6 +61,7 @@ import {jsPDF} from "jspdf";
 import autoTable from "jspdf-autotable";
 import QRCode from "qrcode";
 import {it} from "node:test";
+import {TranslateModule} from "@ngx-translate/core";
 
 interface Commande {
   id: string;
@@ -127,6 +128,7 @@ interface ProduitCommande {
     MatChipsModule,
     NgxPaginationModule,
     MatPaginator,
+    TranslateModule
   ],
   templateUrl: './lister-ajouter-commande.component.html',
   styleUrl: './lister-ajouter-commande.component.scss'

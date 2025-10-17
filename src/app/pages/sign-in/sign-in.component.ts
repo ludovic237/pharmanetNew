@@ -13,6 +13,7 @@ import {MatOptionModule} from "@angular/material/core";
 import {MatSelectModule} from "@angular/material/select";
 import {AppSettingsService} from "@services/app-settings.service";
 import {MatDividerModule} from "@angular/material/divider";
+import {TranslateModule} from "@ngx-translate/core";
 
 @Component({
   selector: 'app-sign-in',
@@ -26,7 +27,8 @@ import {MatDividerModule} from "@angular/material/divider";
     MatOptionModule,
     MatSelectModule,
     MatDividerModule,
-    FlexLayoutModule
+    FlexLayoutModule,
+    TranslateModule
   ],
   templateUrl: './sign-in.component.html',
   styleUrl: './sign-in.component.scss'

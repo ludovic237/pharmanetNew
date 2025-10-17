@@ -44,6 +44,7 @@ import {EmployesService} from "@services/employes.service";
 import autoTable from "jspdf-autotable";
 import {LoaderService} from "@services/loader.service";
 import html2canvas from "html2canvas";
+import {TranslateModule} from "@ngx-translate/core";
 
 @Component({
   selector: 'app-ventes',
@@ -93,7 +94,8 @@ import html2canvas from "html2canvas";
     MatSnackBarModule,
     MatChipsModule,
     NgxPaginationModule,
-    CommonModule
+    CommonModule,
+    TranslateModule
   ],
   templateUrl: './ventes.component.html'
 })

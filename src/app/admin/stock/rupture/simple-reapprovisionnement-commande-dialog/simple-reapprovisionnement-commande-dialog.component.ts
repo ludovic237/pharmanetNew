@@ -29,6 +29,7 @@ import {MatNativeDateModule, provideNativeDateAdapter} from "@angular/material/c
 import {MatPaginator, MatPaginatorModule} from "@angular/material/paginator";
 import {MatSort} from "@angular/material/sort";
 import {ConfirmDialogComponent} from "@shared-components/confirm-dialog/confirm-dialog.component";
+import {TranslateModule} from "@ngx-translate/core";
 
 @Component({
   selector: 'app-simple-reapprovisionnement-commande-dialog',
@@ -50,7 +51,8 @@ import {ConfirmDialogComponent} from "@shared-components/confirm-dialog/confirm-
     FlexLayoutModule,
     MatDatepickerModule,
     MatNativeDateModule,
-    MatPaginatorModule
+    MatPaginatorModule,
+    TranslateModule
 ],
   providers: [provideNativeDateAdapter()],
   templateUrl: './simple-reapprovisionnement-commande-dialog.component.html',

@@ -11,6 +11,7 @@ import {FlexLayoutModule} from '@ngbracket/ngx-layout';
 import {FabriquantService} from "@services/fabriquants.service";
 import {MatToolbarModule} from "@angular/material/toolbar";
 import {LoaderService} from "@services/loader.service";
+import {TranslateModule} from "@ngx-translate/core";
 
 @Component({
   selector: 'app-fabriquant-dialog',
@@ -22,7 +23,8 @@ import {LoaderService} from "@services/loader.service";
     MatCheckboxModule,
     MatButtonModule,
     MatToolbarModule,
-    FlexLayoutModule
+    FlexLayoutModule,
+    TranslateModule
   ],
   templateUrl: './fabriquant-dialog.component.html'
 })

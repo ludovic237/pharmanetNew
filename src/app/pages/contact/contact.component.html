@@ -46,7 +46,7 @@
                     @if (contactForm.controls.email.hasError('invalidEmail')) {
                         Invalid email address
                     }
-                </mat-error> 
+                </mat-error>
             </mat-form-field>
         </div>
         <div fxFlex="100" fxFlex.gt-sm="33.3" class="px-2" ngClass.sm="mt-1" ngClass.xs="mt-1">
@@ -55,7 +55,7 @@
                 <input matInput placeholder="Phone" formControlName="phone" required>
                 @if (contactForm.controls.phone.errors?.required) {
                     <mat-error>Phone is required</mat-error>
-                }              
+                }
             </mat-form-field>
         </div>
         <div fxFlex="100" class="px-2 mt-1">
@@ -64,11 +64,11 @@
                 <textarea matInput placeholder="Message" formControlName="message" required rows="7"></textarea>
                 @if (contactForm.controls.message.errors?.required) {
                     <mat-error>Message is required</mat-error>
-                }  
+                }
             </mat-form-field>
         </div>
         <div class="w-100 py-2 text-center">
-            <button mat-raised-button color="primary" type="submit">Submit</button>
+            <button mat-raised-button color="primary" type="submit">{{ 'BTN.SUBMIT' | translate }}</button>
         </div>
     </form>
 

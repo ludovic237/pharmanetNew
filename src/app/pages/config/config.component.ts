@@ -29,6 +29,7 @@ import {MatRadioModule} from "@angular/material/radio";
 import {MatSnackBar, MatSnackBarModule} from "@angular/material/snack-bar";
 import {NgxPaginationModule} from "ngx-pagination";
 import {MatPaginator} from "@angular/material/paginator";
+import {TranslateModule} from "@ngx-translate/core";
 
 @Component({
   selector: 'app-config',
@@ -74,8 +75,8 @@ import {MatPaginator} from "@angular/material/paginator";
     MatSnackBarModule,
     MatChipsModule,
     NgxPaginationModule,
-    MatPaginator,
-    CommonModule
+    CommonModule,
+    TranslateModule
   ],
   templateUrl: './config.component.html',
   styleUrls: ['./config.component.scss']

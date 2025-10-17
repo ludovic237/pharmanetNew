@@ -41,10 +41,12 @@ import {InventaireValdationDialogComponent} from "./inventaire-valdation-dialog/
 import {AuthService} from "@services/auth.service";
 import {LoaderService} from "@services/loader.service";
 import {AppService} from "@services/app.service";
+import {TranslateModule} from "@ngx-translate/core";
 
 @Component({
   selector: 'app-inventaire',
   imports: [
+    TranslateModule,
     MatMenuModule,
     MatListModule,
     MatChipsModule,
@@ -89,7 +91,8 @@ import {AppService} from "@services/app.service";
     MatChipsModule,
     NgxPaginationModule,
     MatPaginator,
-    CommonModule
+    CommonModule,
+    TranslateModule
   ],
   templateUrl: './inventaire.component.html',
   styleUrl: './inventaire.component.scss'

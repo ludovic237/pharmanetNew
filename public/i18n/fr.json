@@ -22,6 +22,7 @@
   "RETURNED": "Rendu",
 
   "WELCOME": "Bienvenue sur notre marché!",
+  "WELCOME_SIMPLE": "Bienvenue sur ",
   "LOGIN": "S'identifier",
   "LOGOUT": "Se déconnecter",
   "REGISTER": "S'inscrire",

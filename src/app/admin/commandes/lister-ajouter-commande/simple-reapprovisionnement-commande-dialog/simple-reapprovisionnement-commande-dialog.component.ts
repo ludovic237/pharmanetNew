@@ -28,6 +28,7 @@ import {MatDatepickerModule} from "@angular/material/datepicker";
 import {MatNativeDateModule, provideNativeDateAdapter} from "@angular/material/core";
 import {MatPaginator} from "@angular/material/paginator";
 import {MatSort} from "@angular/material/sort";
+import {TranslateModule} from "@ngx-translate/core";
 
 @Component({
   selector: 'app-simple-reapprovisionnement-commande-dialog',
@@ -48,6 +49,7 @@ import {MatSort} from "@angular/material/sort";
     FlexLayoutModule,
     MatDatepickerModule,
     MatNativeDateModule,
+    TranslateModule
   ],
   providers: [provideNativeDateAdapter()],
   templateUrl: './simple-reapprovisionnement-commande-dialog.component.html',

@@ -1,16 +1,16 @@
 <h1 mat-dialog-title>Customer</h1>
 <form [formGroup]="form" (ngSubmit)="onSubmit()" autocomplete="off">
-    <div mat-dialog-content> 
+    <div mat-dialog-content>
         <mat-tab-group class="tab-content-wrapped">
-            <mat-tab label="General Info"> 
+            <mat-tab label="General Info">
                 <div fxLayout="row wrap" class="mt-3">
                     <div fxFlex="100" fxFlex.gt-sm="33.3" class="px-2">
                         <mat-form-field appearance="outline" class="w-100">
                             <mat-label>First name</mat-label>
                             <input matInput placeholder="First name" formControlName="firstName" required>
                             @if (form.controls.firstName.errors?.required) {
-                                <mat-error>First name is required</mat-error>   
-                            }                         
+                                <mat-error>First name is required</mat-error>
+                            }
                         </mat-form-field>
                     </div>
                     <div fxFlex="100" fxFlex.gt-sm="33.3" class="px-2">
@@ -19,7 +19,7 @@
                             <input matInput placeholder="Last name" formControlName="lastName" required>
                             @if (form.controls.lastName.errors?.required) {
                                 <mat-error>Last name is required</mat-error>
-                            }                     
+                            }
                         </mat-form-field>
                     </div>
                     <div fxFlex="100" fxFlex.gt-sm="33.3" class="px-2">
@@ -34,13 +34,13 @@
                             <input matInput placeholder="Username" formControlName="username" required>
                             @if (form.controls.username.errors?.required) {
                                 <mat-error>Username is required</mat-error>
-                            }                          
+                            }
                         </mat-form-field>
                     </div>
                     <div fxFlex="100" fxFlex.gt-sm="33.3" class="px-2">
                         <mat-form-field appearance="outline" class="w-100">
                             <mat-label>Email</mat-label>
-                            <input matInput placeholder="Email" formControlName="email"> 
+                            <input matInput placeholder="Email" formControlName="email">
                         </mat-form-field>
                     </div>
                     <div fxFlex="100" fxFlex.gt-sm="33.3" class="px-2">
@@ -51,7 +51,7 @@
                                 @for (store of data.stores; track $index) {
                                     <mat-option [value]="store.id">{{store.name}}</mat-option>
                                 }
-                            </mat-select> 
+                            </mat-select>
                         </mat-form-field>
                     </div>
                     <div fxFlex="100" fxFlex.gt-sm="33.3" class="px-2">
@@ -66,7 +66,7 @@
                             <input matInput formControlName="revenue">
                         </mat-form-field>
                     </div>
-                </div>  
+                </div>
             </mat-tab>
             <mat-tab label="Billing" formGroupName="billing">
                 <div fxLayout="row wrap" class="mt-3">
@@ -75,8 +75,8 @@
                           <mat-label>First name</mat-label>
                           <input matInput placeholder="First name" formControlName="firstName" required>
                           @if (billingForm.controls.firstName.errors?.required) {
-                            <mat-error>First name is required</mat-error> 
-                          }                           
+                            <mat-error>First name is required</mat-error>
+                          }
                       </mat-form-field>
                     </div>
                     <div fxFlex="100" fxFlex.gt-sm="33.3" class="px-2">
@@ -85,7 +85,7 @@
                           <input matInput placeholder="Last name" formControlName="lastName" required>
                           @if (billingForm.controls.lastName.errors?.required) {
                             <mat-error>Last name is required</mat-error>
-                          } 
+                          }
                       </mat-form-field>
                     </div>
                     <div fxFlex="100" fxFlex.gt-sm="33.3" class="px-2">
@@ -106,7 +106,7 @@
                           <input matInput placeholder="Email" formControlName="email" required>
                           @if (billingForm.controls.email.errors?.required) {
                             <mat-error>Email is required</mat-error>
-                          } 
+                          }
                       </mat-form-field>
                     </div>
                     <div fxFlex="100" fxFlex.gt-sm="33.3" class="px-2">
@@ -115,7 +115,7 @@
                           <input matInput placeholder="Phone" formControlName="phone" required>
                           @if (billingForm.controls.phone.errors?.required) {
                             <mat-error>Phone is required</mat-error>
-                          } 
+                          }
                       </mat-form-field>
                     </div>
                     <div fxFlex="100" fxFlex.gt-sm="25" class="px-2">
@@ -125,11 +125,11 @@
                                 <mat-option [value]="">-</mat-option>
                                 @for (country of data.countries; track $index) {
                                     <mat-option [value]="country">{{country.name}}</mat-option>
-                                }                               
+                                }
                             </mat-select>
                             @if (billingForm.controls.country.errors?.required) {
                                 <mat-error>Country is required</mat-error>
-                            } 
+                            }
                       </mat-form-field>
                     </div>
                     <div fxFlex="100" fxFlex.gt-sm="25" class="px-2">
@@ -138,7 +138,7 @@
                           <input matInput placeholder="City" formControlName="city" required>
                           @if (billingForm.controls.city.errors?.required) {
                             <mat-error>City is required</mat-error>
-                          } 
+                          }
                       </mat-form-field>
                     </div>
                     <div fxFlex="100" fxFlex.gt-sm="25" class="px-2">
@@ -153,7 +153,7 @@
                           <input matInput placeholder="Zip/Postal Code" formControlName="zip" required>
                           @if (billingForm.controls.zip.errors?.required) {
                             <mat-error>Zip/Postal Code is required</mat-error>
-                          } 
+                          }
                       </mat-form-field>
                     </div>
                     <div fxFlex="100" class="px-2">
@@ -162,17 +162,17 @@
                           <input matInput placeholder="Address (street, apartment, suite, unit etc.)" formControlName="address" required>
                           @if (billingForm.controls.address.errors?.required) {
                             <mat-error>Address is required</mat-error>
-                          } 
+                          }
                       </mat-form-field>
                     </div>
                 </div>
             </mat-tab>
-        </mat-tab-group> 
+        </mat-tab-group>
     </div>
     <div mat-dialog-actions>
-        <div fxLayout="row" fxLayoutAlign="space-between center" class="w-100 p-3"> 
+        <div fxLayout="row" fxLayoutAlign="space-between center" class="w-100 p-3">
             <button mat-raised-button color="warn" type="button" mat-dialog-close>Close</button>
-            <button mat-raised-button color="primary" type="submit">Save</button>
-        </div> 
+            <button mat-raised-button color="primary" type="submit">{{ 'BTN.SAVE' | translate }}</button>
+        </div>
     </div>
 </form>

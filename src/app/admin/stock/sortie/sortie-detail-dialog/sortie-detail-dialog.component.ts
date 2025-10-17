@@ -25,6 +25,7 @@ import {SortieDetailRayonComponent} from "../sortie-detail-rayon/sortie-detail-r
 import {SortiesService} from "@services/sorties.service";
 import {TypeSortiesService} from "@services/type-sorties.service";
 import {LoaderService} from "@services/loader.service";
+import {TranslateModule} from "@ngx-translate/core";
 
 @Component({
   selector: 'app-sortie-detail-dialog',
@@ -51,7 +52,8 @@ import {LoaderService} from "@services/loader.service";
     MatButtonModule,
     MatTableModule,
     MatIconModule,
-    MatToolbarModule
+    MatToolbarModule,
+    TranslateModule
   ],
   templateUrl: './sortie-detail-dialog.component.html',
   styleUrl: './sortie-detail-dialog.component.scss'

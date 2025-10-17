@@ -23,6 +23,7 @@ import {MatFormFieldModule} from "@angular/material/form-field";
 import {MatToolbarModule} from "@angular/material/toolbar";
 import {ProductService} from "@services/products.service";
 import {LoaderService} from "@services/loader.service";
+import {TranslateModule} from "@ngx-translate/core";
 
 @Component({
   selector: 'app-sortie-rayon-dialog',
@@ -50,6 +51,7 @@ import {LoaderService} from "@services/loader.service";
     MatTableModule,
     MatIconModule,
     MatToolbarModule,
+    TranslateModule,
     MatAutocompleteModule
   ],
   templateUrl: './sortie-rayon-dialog.component.html',

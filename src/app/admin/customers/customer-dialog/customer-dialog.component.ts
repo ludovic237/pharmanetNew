@@ -9,6 +9,7 @@ import {FlexLayoutModule} from '@ngbracket/ngx-layout';
 import {AuthService} from "@services/auth.service";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {LoaderService} from "@services/loader.service";
+import {TranslateModule} from "@ngx-translate/core";
 
 @Component({
   selector: 'app-customer-dialog',
@@ -19,7 +20,8 @@ import {LoaderService} from "@services/loader.service";
     MatInputModule,
     MatSelectModule,
     MatButtonModule,
-    MatDialogModule
+    MatDialogModule,
+    TranslateModule
   ],
   templateUrl: './customer-dialog.component.html',
   styleUrl: './customer-dialog.component.scss'

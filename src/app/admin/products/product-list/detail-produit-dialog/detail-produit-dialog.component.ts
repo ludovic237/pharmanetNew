@@ -38,6 +38,7 @@ import {
 import {MatPaginatorModule, PageEvent} from "@angular/material/paginator";
 import {CommandeInfoDialogComponent} from "../commande-info-dialog/commande-info-dialog.component";
 import {LoaderService} from "@services/loader.service";
+import {TranslateModule} from "@ngx-translate/core";
 
 @Component({
   selector: 'app-detail-produit-dialog',
@@ -65,7 +66,8 @@ import {LoaderService} from "@services/loader.service";
     MatDialogModule,
     MatDatepickerModule,
     MatNativeDateModule,
-    MatPaginatorModule
+    MatPaginatorModule,
+    TranslateModule
   ],
   providers: [
     provideNativeDateAdapter(),

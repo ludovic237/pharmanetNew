@@ -8,6 +8,7 @@ import {MatTabsModule} from '@angular/material/tabs';
 import {FlexLayoutModule} from '@ngbracket/ngx-layout';
 import {AppService} from '@services/app.service';
 import {AuthService} from "@services/auth.service";
+import {TranslateModule} from "@ngx-translate/core";
 
 @Component({
   selector: 'app-addresses',
@@ -17,7 +18,8 @@ import {AuthService} from "@services/auth.service";
     MatSelectModule,
     MatButtonModule,
     FlexLayoutModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    TranslateModule
   ],
   templateUrl: './addresses.component.html',
   styleUrl: './addresses.component.scss'

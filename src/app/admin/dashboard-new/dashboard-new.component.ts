@@ -58,6 +58,7 @@ import {AppService} from "@services/app.service";
 import {NgScrollbarModule} from "ngx-scrollbar";
 import {MatProgressSpinnerModule} from "@angular/material/progress-spinner";
 import {RouterModule} from "@angular/router";
+import {TranslateModule} from "@ngx-translate/core";
 
 function toIso(dt: Date, endOfDay = false): string {
   if (!dt) return '';
@@ -139,7 +140,8 @@ export class StockStatus {
     MatChipsModule,
     NgxPaginationModule,
     NgScrollbarModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    TranslateModule
   ],
   host: {
     'ngSkipHydration': ''

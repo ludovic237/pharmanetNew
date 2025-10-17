@@ -1,29 +1,33 @@
-import { Component, inject, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { emailValidator, matchingPasswords } from '../../../theme/utils/app-validators';
-import { MatInputModule } from '@angular/material/input';
-import { FlexLayoutModule } from '@ngbracket/ngx-layout';
-import { MatButtonModule } from '@angular/material/button';
+import {Component, inject, OnInit} from '@angular/core';
+import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
+import {MatSnackBar} from '@angular/material/snack-bar';
+import {emailValidator, matchingPasswords} from '../../../theme/utils/app-validators';
+import {MatInputModule} from '@angular/material/input';
+import {FlexLayoutModule} from '@ngbracket/ngx-layout';
+import {MatButtonModule} from '@angular/material/button';
 import {AuthService} from "@services/auth.service";
+import {TranslateModule} from "@ngx-translate/core";
 
 @Component({
-    selector: 'app-information',
-    imports: [
-        ReactiveFormsModule,
-        MatInputModule,
-        FlexLayoutModule,
-        MatButtonModule
-    ],
-    templateUrl: './information.component.html',
-    styleUrl: './information.component.scss'
+  selector: 'app-information',
+  imports: [
+    ReactiveFormsModule,
+    MatInputModule,
+    FlexLayoutModule,
+    MatButtonModule,
+    TranslateModule
+  ],
+  templateUrl: './information.component.html',
+  styleUrl: './information.component.scss'
 })
 export class InformationComponent implements OnInit {
   infoForm: FormGroup;
   passwordForm: FormGroup;
-   constructor(
+
+  constructor(
     public authService: AuthService,
-    public snackBar:MatSnackBar,public formBuilder: FormBuilder) { }
+    public snackBar: MatSnackBar, public formBuilder: FormBuilder) {
+  }
 
   ngOnInit() {
     this.infoForm = this.formBuilder.group({
@@ -36,18 +40,26 @@ export class InformationComponent implements OnInit {
       'currentPassword': ['', Validators.required],
       'newPassword': ['', Validators.required],
       'confirmNewPassword': ['', Validators.required]
-    }, { validator: matchingPasswords('newPassword', 'confirmNewPassword') });
+    }, {validator: matchingPasswords('newPassword', 'confirmNewPassword')});
   }
 
   public onInfoFormSubmit(values: Object): void {
     if (this.infoForm.valid) {
-      this.snackBar.open('Your account information updated successfully!', '×', { panelClass: 'success', verticalPosition: 'top', duration: 3000 });
+      this.snackBar.open('Your account information updated successfully!', '×', {
+        panelClass: 'success',
+        verticalPosition: 'top',
+        duration: 3000
+      });
     }
   }
 
   public onPasswordFormSubmit(values: Object): void {
     if (this.passwordForm.valid) {
-      this.snackBar.open('Your password changed successfully!', '×', { panelClass: 'success', verticalPosition: 'top', duration: 3000 });
+      this.snackBar.open('Your password changed successfully!', '×', {
+        panelClass: 'success',
+        verticalPosition: 'top',
+        duration: 3000
+      });
     }
   }
 

@@ -1,7 +1,7 @@
 <mat-card class="p-4">
 <div fxLayout="row wrap" fxLayoutAlign="center center">
   <div fxFlex="50" fxFlex.gt-sm="50" class="p-3">
-    <h2 class="text-muted text-center mb-3">Sign In</h2>
+    <h2 class="text-muted text-center mb-3">{{ 'LOGIN' | translate }}</h2>
     <form [formGroup]="codebarreForm" (ngSubmit)="codebarreFormSubmit(codebarreForm.value)">
       <mat-form-field appearance="outline" class="w-100 mt-2">
         <mat-label>Code barre</mat-label>

@@ -139,7 +139,7 @@
                 <mat-datepicker-toggle matSuffix [for]="datePeremptionPicker"></mat-datepicker-toggle>
                 <mat-datepicker #datePeremptionPicker>
                   <mat-date-range-picker-actions>
-                    <button mat-button matDateRangePickerCancel>Annuler</button>
+                    <button mat-button matDateRangePickerCancel>{{ 'BTN.CANCEL' | translate }}</button>
                     <button mat-button matDateRangePickerApply (click)="saveDatePeremtion(item)">Apply
                     </button>
                   </mat-date-range-picker-actions>
@@ -158,7 +158,7 @@
               <mat-datepicker-toggle matSuffix [for]="dateLivraisonPicker"></mat-datepicker-toggle>
               <mat-datepicker #dateLivraisonPicker>
                 <mat-date-range-picker-actions>
-                  <button mat-button matDateRangePickerCancel>Annuler</button>
+                  <button mat-button matDateRangePickerCancel>{{ 'BTN.CANCEL' | translate }}</button>
                   <button mat-button matDateRangePickerApply (click)="saveDateLivraison(item)">Apply
                   </button>
                 </mat-date-range-picker-actions>

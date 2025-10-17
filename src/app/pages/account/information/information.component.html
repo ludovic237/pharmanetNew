@@ -11,7 +11,7 @@
                     @if (infoForm.controls.firstName.hasError('minlength')) {
                         First Name isn't long enough, minimum of 3 characters
                     }
-                </mat-error> 
+                </mat-error>
             </mat-form-field>
             <mat-form-field class="w-100 mt-1">
                 <input matInput placeholder="Last Name" formControlName="lastName" required>
@@ -22,7 +22,7 @@
                     @if (infoForm.controls.lastName.hasError('minlength')) {
                         Last Name isn't long enough, minimum of 3 characters
                     }
-                </mat-error> 
+                </mat-error>
             </mat-form-field>
             <mat-form-field class="w-100 mt-1">
                 <input matInput placeholder="Email" formControlName="email" required>
@@ -33,17 +33,17 @@
                     @if (infoForm.controls.email.hasError('invalidEmail')) {
                         Invalid email address
                     }
-                </mat-error> 
+                </mat-error>
             </mat-form-field>
             <div class="text-center mt-2">
-                <button mat-raised-button color="primary" (click)="onInfoFormSubmit(infoForm.value)">Save</button>
-            </div> 
+                <button mat-raised-button color="primary" (click)="onInfoFormSubmit(infoForm.value)">{{ 'BTN.SAVE' | translate }}</button>
+            </div>
         </form>
     </div>
     <div fxFlex="100" fxFlex.gt-sm="50" class="p-2" ngClass.sm="mt-2" ngClass.xs="mt-2">
         <h2 class="text-muted text-center">Password change</h2>
-        <form [formGroup]="passwordForm" (ngSubmit)="onPasswordFormSubmit(passwordForm.value)">            
-            <mat-form-field class="w-100 mt-2"> 
+        <form [formGroup]="passwordForm" (ngSubmit)="onPasswordFormSubmit(passwordForm.value)">
+            <mat-form-field class="w-100 mt-2">
                 <input matInput placeholder="Current Password" formControlName="currentPassword" type="password" minlength="6" required>
                 <mat-error>
                     @if (passwordForm.controls.currentPassword.errors?.required) {
@@ -52,7 +52,7 @@
                     @if (passwordForm.controls.currentPassword.hasError('minlength')) {
                         Current Password isn't long enough, minimum of 6 characters
                     }
-                </mat-error> 
+                </mat-error>
             </mat-form-field>
             <mat-form-field class="w-100 mt-1">
                 <input matInput placeholder="New Password" formControlName="newPassword" type="password" minlength="6" required>
@@ -63,8 +63,8 @@
                     @if (passwordForm.controls.newPassword.hasError('minlength')) {
                         New Password isn't long enough, minimum of 6 characters
                     }
-                </mat-error> 
-            </mat-form-field> 
+                </mat-error>
+            </mat-form-field>
             <mat-form-field class="w-100 mt-1">
               <input matInput placeholder="Confirm New Password" formControlName="confirmNewPassword" type="password" required>
               <mat-error>
@@ -74,11 +74,11 @@
                 @if (passwordForm.controls.confirmNewPassword.hasError('mismatchedPasswords')) {
                     Passwords do not match
                 }
-              </mat-error> 
+              </mat-error>
             </mat-form-field>
             <div class="text-center mt-2">
                 <button mat-raised-button color="primary" (click)="onPasswordFormSubmit(passwordForm.value)">Change</button>
             </div>
         </form>
     </div>
-</div> 
+</div>

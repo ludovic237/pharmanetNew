@@ -45,6 +45,7 @@ import {DepenseDialogComponent} from "./depense-dialog/depense-dialog.component"
 import {VenteDialogComponent} from "./vente-dialog/vente-dialog.component";
 import {AuthService} from "@services/auth.service";
 import {LoaderService} from "@services/loader.service";
+import {TranslateModule} from "@ngx-translate/core";
 
 interface LigneHeader {
   netAPayer?: number;
@@ -103,6 +104,7 @@ interface LigneVente {
     MatDatepickerModule,
     MatNativeDateModule,
     MatSelectModule,
+    TranslateModule,
     FlexLayoutModule
   ],
   templateUrl: './encaisser-vente.component.html',
