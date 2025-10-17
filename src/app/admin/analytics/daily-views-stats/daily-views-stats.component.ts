@@ -37,6 +37,6 @@ export class DailyViewsStatsComponent {
   }
 
   onSelect(event: any) {
-    console.log(event);
+    // console.log(event);
   }
 }

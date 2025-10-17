@@ -239,8 +239,8 @@ export class AjouterVenteComponent implements OnInit {
   netAPayer = 0;
 
   ngOnInit(): void {
-    console.log("this.dataSource");
-    console.log(this.dataSource);
+    // console.log("this.dataSource");
+    // console.log(this.dataSource);
     this.fetchVentesCreditPageable()
     this.clientTypeControl.patchValue('new');
     this.clientTypeControl.reset('new');
@@ -340,7 +340,7 @@ export class AjouterVenteComponent implements OnInit {
 
     this.reductionEnabled.valueChanges.subscribe((isEnabled) => {
       if (!isEnabled) {
-        console.log('Reduction toggle deactivated');
+        // console.log('Reduction toggle deactivated');
         // Add logic to handle deactivation
         this.applicableReduction = 0; // Reset applicable reduction
         this.tauxReduction.reset(0); // Reset the reduction percentage to 0
@@ -363,8 +363,8 @@ export class AjouterVenteComponent implements OnInit {
 
     this.tauxReduction.valueChanges.subscribe((percent) => {
       if (this.reductionEnabled.value) {
-        console.log("percent")
-        console.log(percent)
+        // console.log("percent")
+        // console.log(percent)
         this.applicableReduction = percent; // Assign selected value to applicableReduction
         this.calculeTotaux();
       }
@@ -417,7 +417,7 @@ export class AjouterVenteComponent implements OnInit {
   }
 
   onPrescripteurSelected(event: any): void {
-    console.log('Selected prescriber:', event.option.value);
+    // console.log('Selected prescriber:', event.option.value);
     this.selectedPrescripteur = this.prescripteurOptions.find(prescripteur => prescripteur.name === event.option.value);
   }
 
@@ -434,7 +434,7 @@ export class AjouterVenteComponent implements OnInit {
         this.selectedPrescripteur = this.selectedOLdPrescripteur
       }
       this.calculeTotaux()
-      console.log('Client Type Changed:', value);
+      // console.log('Client Type Changed:', value);
     } else {
       console.error('Invalid prescripteur type:', value);
     }
@@ -463,18 +463,18 @@ export class AjouterVenteComponent implements OnInit {
       })
       .reduce((a, b) => a + b, 0);
 
-    console.log("this.dataSource")
-    console.log(this.dataSource)
+    // console.log("this.dataSource")
+    // console.log(this.dataSource)
     this.totaleReduction = this.dataSource
       .map(l => {
-        console.log("this.clientTypeControl.value")
-        console.log(this.clientTypeControl.value)
+        // console.log("this.clientTypeControl.value")
+        // console.log(this.clientTypeControl.value)
         if (this.clientTypeControl.value == 'new') {
           this.applicableReduction = Math.min(this.applicableReduction, l.reduction);
         } else {
           this.applicableReduction = 0;
           if (this.selectedClient && this.selectedClient.reduction != undefined) {
-            console.log("ici")
+            // console.log("ici")
             this.applicableReduction = Math.min(this.selectedClient.reduction, l.reduction);
           } else {
             this.applicableReduction = l.reduction;
@@ -484,8 +484,8 @@ export class AjouterVenteComponent implements OnInit {
           }
         }
 
-        console.log("this.applicableReduction")
-        console.log(this.applicableReduction)
+        // console.log("this.applicableReduction")
+        // console.log(this.applicableReduction)
         return (l.prixTotal * (this.applicableReduction / 100));
       })
       .reduce((a, b) => a + b, 0);
@@ -535,8 +535,8 @@ export class AjouterVenteComponent implements OnInit {
 
 
   openMedicamentDialog(med: any): void {
-    console.log("med")
-    console.log(med)
+    // console.log("med")
+    // console.log(med)
 
     this.enRayonService.getProduitsEnRayon(med.id).subscribe({
       next: (data: any) => {
@@ -554,8 +554,8 @@ export class AjouterVenteComponent implements OnInit {
           direction: (this.settings.rtl) ? 'rtl' : 'ltr'
         });
         dialogRef.afterClosed().subscribe((modifiedProducts: any[]) => {
-          console.log("modifiedProducts")
-          console.log(modifiedProducts)
+          // console.log("modifiedProducts")
+          // console.log(modifiedProducts)
           if (modifiedProducts && modifiedProducts.length > 0) {
             const newData = modifiedProducts.map(product => {
               const existingProductIndex = this.dataSource.findIndex(item => item.nom === product.nom);
@@ -646,8 +646,8 @@ export class AjouterVenteComponent implements OnInit {
           name: product.nom,
           stock: product.stock,
         }));
-        console.log("this.medOptions");
-        console.log(this.medOptions);
+        // console.log("this.medOptions");
+        // console.log(this.medOptions);
 
       },
       error: (err) => {
@@ -709,8 +709,8 @@ export class AjouterVenteComponent implements OnInit {
 
   onClientSelected(event: any): void {
     this.selectedClient = this.clientOptions.find(client => client.name === event.option.value);
-    console.log("selectedClient")
-    console.log(this.selectedClient)
+    // console.log("selectedClient")
+    // console.log(this.selectedClient)
     // if (selectedClient) {
     //   this.clientName.setValue(selectedClient.name);
     //   this.clientPhone.setValue(selectedClient.phone);
@@ -731,7 +731,7 @@ export class AjouterVenteComponent implements OnInit {
         this.selectedClient = this.selectedOLdClient
       }
       this.calculeTotaux()
-      console.log('Client Type Changed:', value);
+      // console.log('Client Type Changed:', value);
     } else {
       console.error('Invalid client type:', value);
     }
@@ -748,7 +748,7 @@ export class AjouterVenteComponent implements OnInit {
           reduction: client.reduction
         }));
 
-        console.log('Clients loaded:', this.clientOptions);
+        // console.log('Clients loaded:', this.clientOptions);
       },
       error: (err) => {
 
@@ -797,7 +797,7 @@ export class AjouterVenteComponent implements OnInit {
           name: prescipteur.name,
         }));
 
-        console.log('Prescripteurs loaded:', this.prescripteurOptions);
+        // console.log('Prescripteurs loaded:', this.prescripteurOptions);
       },
       error: (err) => {
 
@@ -874,7 +874,7 @@ export class AjouterVenteComponent implements OnInit {
       ...otherFields,
     };
 
-    console.log('Payment Data:', paymentData);
+    // console.log('Payment Data:', paymentData);
 
     // Proceed with payment logic (e.g., send to backend)
 
@@ -983,8 +983,8 @@ export class AjouterVenteComponent implements OnInit {
           direction: (this.settings.rtl) ? 'rtl' : 'ltr'
         });
         dialogRef.afterClosed().subscribe((modifiedProducts: any) => {
-          console.log("modifiedProducts")
-          console.log(modifiedProducts)
+          // console.log("modifiedProducts")
+          // console.log(modifiedProducts)
           if (modifiedProducts.reference) {
             // Reset form controls
             this.clientTypeControl.reset('');

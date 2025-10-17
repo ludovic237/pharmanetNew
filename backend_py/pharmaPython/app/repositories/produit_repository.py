@@ -45,10 +45,6 @@ class ProduitRepository:
           q = q.filter(*filters)
     search = str(spec.get("query"))
     q = q.filter(func.lower(Produit.nom).like(f"%{search.lower()}%"))
-    print("---------------")
-    print(q)
-    print("spec")
-    print(spec)
     total = q.count()
 
     sort_col = getattr(Produit, sort, getattr(Produit, "id", Produit.id))

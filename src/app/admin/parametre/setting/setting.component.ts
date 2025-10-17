@@ -109,8 +109,8 @@ export class SettingComponent implements OnInit {
   loadSettings(): void {
     this.appSettingsService.loadSetting().subscribe({
       next: (data: any[]) => {
-        console.log(data.find((item: any) => item.keyName === 'app_name')?.value);
-        console.log(data.find((item: any) => item.keyName === 'app_name'));
+        // console.log(data.find((item: any) => item.keyName === 'app_name')?.value);
+        // console.log(data.find((item: any) => item.keyName === 'app_name'));
         this.settings.appName = data.find(item => item.keyName === 'app_name')?.value || '';
         this.settings.venteMode = data.find(item => item.keyName === 'vente_mode')?.value || '';
         this.settings.showMenuStats = data.find(item => item.keyName === 'show_menu_stats')?.value === 'true';

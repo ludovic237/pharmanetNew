@@ -90,8 +90,8 @@ export class SortieDetailRayonComponent implements OnInit {
 
     existingRayonIds = this.sourceList.map((product: any) => product.rayonId);
 
-    console.log("this.sourceList")
-    console.log(this.sourceList)
+    // console.log("this.sourceList")
+    // console.log(this.sourceList)
     this.enRayonList = this.data.enRayonList.map((item: any) => ({
       ...item,
       quantiteRestante: 0,
@@ -105,12 +105,12 @@ export class SortieDetailRayonComponent implements OnInit {
       item.quantiteRestante = (Number(item.quantiteOld) > 0) ? Number(item.quantiteOld) : 0
     })
 
-    console.log("this.enRayonList")
-    console.log(this.enRayonList)
+    // console.log("this.enRayonList")
+    // console.log(this.enRayonList)
   }
 
   public onSubmit() {
-    console.log(this.form.value);
+    // console.log(this.form.value);
     if (this.form.valid) {
       this.dialogRef.close(this.form.value);
     }
@@ -139,8 +139,8 @@ export class SortieDetailRayonComponent implements OnInit {
       verticalPosition: 'top',
       duration: 3000
     });
-    console.log("this.modifiedProducts")
-    console.log(this.modifiedProducts)
+    // console.log("this.modifiedProducts")
+    // console.log(this.modifiedProducts)
     this.dialogRef.close(this.modifiedProducts);
   }
 

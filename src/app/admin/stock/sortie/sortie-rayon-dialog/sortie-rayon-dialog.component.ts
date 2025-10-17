@@ -103,8 +103,8 @@ export class SortieRayonDialogComponent implements OnInit {
     });
 
     this.sortieForm.get('produitTypeSortieList').valueChanges.subscribe(produitTypeSortieList => {
-      console.log("produitTypeSortieList")
-      console.log(produitTypeSortieList)
+      // console.log("produitTypeSortieList")
+      // console.log(produitTypeSortieList)
     });
 
   }
@@ -131,8 +131,8 @@ export class SortieRayonDialogComponent implements OnInit {
           // direction: (this.settings.rtl) ? 'rtl' : 'ltr'
         });
         dialogRef.afterClosed().subscribe((modifiedProducts: any[]) => {
-          console.log("modifiedProducts")
-          console.log(modifiedProducts)
+          // console.log("modifiedProducts")
+          // console.log(modifiedProducts)
           if (modifiedProducts && modifiedProducts.length > 0) {
             const newData = modifiedProducts.map(product => {
               const existingProductIndex = this.dataSource.findIndex(item => item.rayonId === product.rayonId);
@@ -166,8 +166,8 @@ export class SortieRayonDialogComponent implements OnInit {
             }).filter(item => item !== null);
 
             this.dataSource = [...this.dataSource, ...newData];
-            console.log("this.dataSource")
-            console.log(this.dataSource)
+            // console.log("this.dataSource")
+            // console.log(this.dataSource)
             // this.totalGrosAmount =  this.produitsAchetes.reduce((sum, item) => sum + (item.prixUnitaire*item.quantite), 0)
             this.quantiteAjouter = this.dataSource.reduce((sum, item) => sum + (item.quantite), 0)
             // this.mouvelQuantite = this.sortieForm.get("produitDetailStock").value + this.quantiteAjouter;
@@ -244,8 +244,8 @@ export class SortieRayonDialogComponent implements OnInit {
       produitDetailId: "null",
       typeSortieId: this.sortieForm.get("produitTypeSortieList").value
     }
-    console.log("sortie")
-    console.log(sortie)
+    // console.log("sortie")
+    // console.log(sortie)
     if (this.sortieForm.valid) {
 
       this.sortiesService.addProduitDetail(sortie).subscribe({

@@ -59,8 +59,8 @@ export class UpdateProduitDetailDialogComponent {
   }
 
   onSubmit(form: FormGroup) {
-    console.log('Valid?', form.valid);
-    console.log('product:', form.value.product);
+    // console.log('Valid?', form.valid);
+    // console.log('product:', form.value.product);
 
     this.enRayonService.decrementerStock("" + form.value.product, "" + this.data.id).subscribe({
       next: (data) => {

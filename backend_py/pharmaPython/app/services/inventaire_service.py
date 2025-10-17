@@ -512,10 +512,6 @@ class InventaireService:
 
     filtered = [p for p in all_rows if _keep(p)]
     total = len(filtered)
-    print("filtered")
-    print(filtered)
-    print("total")
-    print(total)
     rows = filtered[page * size:(page + 1) * size]
 
     def _active(statut: str) -> bool:

@@ -229,8 +229,8 @@ export class RapportCaisseComponent implements OnInit {
     this.caisseService.getCaisseReport(caisseId).subscribe({
       // this.productService.searchProducts(this.searchTerm, this.page, this.count).subscribe({
       next: (data: any) => {
-        console.log("data");
-        console.log(data);
+        // console.log("data");
+        // console.log(data);
         this.dataCaisse = data
         this.totalBonCaisseGeneres = 0
         this.totalBonCaisseEncaisse = 0
@@ -275,8 +275,8 @@ export class RapportCaisseComponent implements OnInit {
           this.totalRetourProduits = this.totalRetourProduits + item.total;
         });
 
-        console.log("resultRapport");
-        console.log(this.resultRapport)
+        // console.log("resultRapport");
+        // console.log(this.resultRapport)
         this.venteParFournisseurData = [
           {type: 'Grossiste', montant: data.prixTotalGrossiste},
           {type: 'Detaillant', montant: data.prixTotalDetaillant},
@@ -430,7 +430,7 @@ export class RapportCaisseComponent implements OnInit {
   rechercherDernieresSessions(): void {
     const nombre = this.sessionForm.value.nombre;
     // Appelle ton service ici
-    console.log(`Recherche des ${nombre} dernières sessions de caisse`);
+    // console.log(`Recherche des ${nombre} dernières sessions de caisse`);
     // Exemple : this.sessionService.getDernieresSessions(nombre).subscribe(...)
 
     this.caisseService.getAllCaisses(0, nombre, 'id', null, null).subscribe({

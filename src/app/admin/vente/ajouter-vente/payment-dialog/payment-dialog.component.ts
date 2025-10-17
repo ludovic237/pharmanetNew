@@ -121,7 +121,7 @@ export class PaymentDialogComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    console.log(this.data)
+    // console.log(this.data)
     this.result = {
       venteRequestDto: this.data,
       encaissementDto: null
@@ -204,8 +204,8 @@ export class PaymentDialogComponent implements OnInit {
       montantRendu: this.rendu
     };
     // Proceed with validation logic
-    console.log('Validation successful for tab:', this.selectedTabIndex);
-    console.log(encaissementDetails)
+    // console.log('Validation successful for tab:', this.selectedTabIndex);
+    // console.log(encaissementDetails)
 
     this.result.encaissementDto = encaissementDetails
 

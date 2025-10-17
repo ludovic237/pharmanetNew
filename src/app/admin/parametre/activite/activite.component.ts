@@ -161,11 +161,11 @@ export class ActiviteComponent implements OnInit {
 
   rechercher(): void {
     const formValues = this.rechercheForm.value;
-    console.log('Critères de recherche :', formValues);
+    // console.log('Critères de recherche :', formValues);
     // Appelle ici ton service ou fais un filtrage local
     this.categorieActive = this.rechercheForm.value.categorie;
-    console.log("this.categorieActive")
-    console.log(this.categorieActive)
+    // console.log("this.categorieActive")
+    // console.log(this.categorieActive)
     // Pour l’exemple, on simule un résultat différent selon la catégorie :
     this.page = 1
     switch (this.categorieActive) {
@@ -354,7 +354,7 @@ export class ActiviteComponent implements OnInit {
           autoFocus: false,
         });
         dialogRef.afterClosed().subscribe((data: any) => {
-          console.log('Dialog closed', data);
+          // console.log('Dialog closed', data);
           this.fetchCommandesPageable();
         });
 
@@ -395,7 +395,7 @@ export class ActiviteComponent implements OnInit {
         }
       }
     });
-    console.log('Commande details:', commande);
+    // console.log('Commande details:', commande);
     // Add logic to display details (e.g., open a dialog or navigate to a details page)
 
   }
@@ -488,7 +488,7 @@ export class ActiviteComponent implements OnInit {
           autoFocus: false,
         });
         dialogRef.afterClosed().subscribe((data: any) => {
-          console.log('Dialog closed', data);
+          // console.log('Dialog closed', data);
         });
 
       },
@@ -538,7 +538,7 @@ export class ActiviteComponent implements OnInit {
       autoFocus: false,
     });
     dialogRef.afterClosed().subscribe((data: any) => {
-      console.log('Dialog closed', data);
+      // console.log('Dialog closed', data);
     });
   }
 

@@ -122,8 +122,8 @@ export class ProduitRayonInfoDialogComponent {
   generatePDF(): Promise<void> {
     return new Promise((resolve) => {
       const {data: etiquetteData} = this.data;
-      console.log("this.quantiteEtiquette")
-      console.log(this.etiquetteForm.get('quantiteEtiquette')?.value)
+      // console.log("this.quantiteEtiquette")
+      // console.log(this.etiquetteForm.get('quantiteEtiquette')?.value)
       const qte = this.etiquetteForm.get('quantiteEtiquette')?.value || 1;
       const base64Image = etiquetteData.codeBarre || 'https://example.com/default-image.jpg';
       this.isLoading = true;
@@ -195,13 +195,13 @@ export class ProduitRayonInfoDialogComponent {
     // this.etiquetteDatep = datelivraison;
     this.etiquettePrix = prix;
 
-    console.log("etiquetteData")
-    console.log(this.etiquetteNomP)
-    console.log(this.etiquetteNomF)
-    console.log(this.etiquetteCode)
-    console.log(this.etiquetteDatel)
-    console.log(this.etiquetteDatep)
-    console.log(this.etiquettePrix)
+    // console.log("etiquetteData")
+    // console.log(this.etiquetteNomP)
+    // console.log(this.etiquetteNomF)
+    // console.log(this.etiquetteCode)
+    // console.log(this.etiquetteDatel)
+    // console.log(this.etiquetteDatep)
+    // console.log(this.etiquettePrix)
 
     const qrCodeDataUrl = await QRCode.toDataURL(this.etiquetteCode);
     doc.cell(0, 0, 30, 20, ' ', 1, "center");

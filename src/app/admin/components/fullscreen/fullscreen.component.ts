@@ -1,7 +1,7 @@
 import { Component, ViewEncapsulation, ViewChild, HostListener, ElementRef, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { DomHandlerService } from '@services/dom-handler.service'; 
+import { DomHandlerService } from '@services/dom-handler.service';
 
 @Component({
     selector: 'app-fullscreen',
@@ -16,8 +16,8 @@ import { DomHandlerService } from '@services/dom-handler.service';
             <mat-icon #compress>fullscreen_exit</mat-icon>
         } @else {
             <mat-icon #expand>fullscreen</mat-icon>
-        }  
-    </button> 
+        }
+    </button>
   `
 })
 export class FullScreenComponent {
@@ -27,12 +27,12 @@ export class FullScreenComponent {
     domHandlerService = inject(DomHandlerService);
     document: any = this.domHandlerService.window?.document;
 
-    
+
     requestFullscreen(elem: any) {
         if (elem.requestFullscreen) {
             elem.requestFullscreen();
         } else {
-            console.log('Fullscreen API is not supported.');
+            // console.log('Fullscreen API is not supported.');
         }
     };
 
@@ -40,7 +40,7 @@ export class FullScreenComponent {
         if (document.exitFullscreen) {
             document.exitFullscreen();
         } else {
-            console.log('Fullscreen API is not supported.');
+            // console.log('Fullscreen API is not supported.');
         }
     };
 
@@ -58,8 +58,8 @@ export class FullScreenComponent {
         if (fullscreenElement != null) {
             this.toggle = true;
         } else {
-            this.toggle = false;          
+            this.toggle = false;
         }
-    }   
+    }
 
 }

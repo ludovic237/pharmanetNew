@@ -264,7 +264,7 @@ export class ListerAjouterCommandeComponent implements OnInit {
       const parsedDate = new Date(date);
       return `${parsedDate.getFullYear()}-${String(parsedDate.getMonth() + 1).padStart(2, '0')}-${String(parsedDate.getDate()).padStart(2, '0')}T${String(parsedDate.getHours()).padStart(2, '0')}:${String(parsedDate.getMinutes()).padStart(2, '0')}:${String(parsedDate.getSeconds()).padStart(2, '0')}`;
     };
-    console.log("fetchCommandesPageable")
+    // console.log("fetchCommandesPageable")
     const formattedStartDate = formatDate((new Date(new Date(this.startDate).setHours(0, 0, 0, 0))) + "");
     const formattedEndDate = formatDate((new Date(new Date(this.endDate).setHours(23, 59, 59, 999))) + "");
     this.commandesService.fetchCommandesPageable(
@@ -391,7 +391,7 @@ export class ListerAjouterCommandeComponent implements OnInit {
       autoFocus: false,
     });
     dialogRef.afterClosed().subscribe((data: any) => {
-      console.log('Dialog closed', data);
+      // console.log('Dialog closed', data);
       this.fetchCommandesPageable();
     });
   }
@@ -404,7 +404,7 @@ export class ListerAjouterCommandeComponent implements OnInit {
       autoFocus: false,
     });
     dialogRef.afterClosed().subscribe((data: any) => {
-      console.log('Dialog closed', data);
+      // console.log('Dialog closed', data);
       this.fetchCommandesPageable();
     });
   }
@@ -464,7 +464,7 @@ export class ListerAjouterCommandeComponent implements OnInit {
       'complete',
       payload).subscribe({
       next: (response) => {
-        console.log('Réception complète réussie:', response);
+        // console.log('Réception complète réussie:', response);
         this.fetchCommandesPageable();
       },
       error: (err) => {
@@ -485,7 +485,7 @@ export class ListerAjouterCommandeComponent implements OnInit {
           autoFocus: false,
         });
         dialogRef.afterClosed().subscribe((data: any) => {
-          console.log('Dialog closed', data);
+          // console.log('Dialog closed', data);
           this.fetchCommandesPageable();
         });
       },
@@ -502,7 +502,7 @@ export class ListerAjouterCommandeComponent implements OnInit {
       'annuler',
       payload).subscribe({
       next: (response) => {
-        console.log('Réception complète réussie:', response);
+        // console.log('Réception complète réussie:', response);
         this.fetchCommandesPageable();
 
       },
@@ -520,7 +520,7 @@ export class ListerAjouterCommandeComponent implements OnInit {
       'mettreEnAttente',
       payload).subscribe({
       next: (response) => {
-        console.log('Réception complète réussie:', response);
+        // console.log('Réception complète réussie:', response);
         this.fetchCommandesPageable();
       },
       error: (err) => {
@@ -562,7 +562,7 @@ export class ListerAjouterCommandeComponent implements OnInit {
           autoFocus: false,
         });
         dialogRef.afterClosed().subscribe((data: any) => {
-          console.log('Dialog closed', data);
+          // console.log('Dialog closed', data);
           this.fetchCommandesPageable();
         });
 
@@ -572,14 +572,14 @@ export class ListerAjouterCommandeComponent implements OnInit {
 
       }
     });
-    console.log('Commande details:', commande);
+    // console.log('Commande details:', commande);
     // Add logic to display details (e.g., open a dialog or navigate to a details page)
 
   }
 
   // En attente
   modifierLignes(commande: any): void {
-    console.log('Modifier les lignes:', commande);
+    // console.log('Modifier les lignes:', commande);
     // Logic to modify products or quantities
 
     this.commandesService.getCommandeInfo(commande.id).subscribe({
@@ -687,7 +687,7 @@ export class ListerAjouterCommandeComponent implements OnInit {
           autoFocus: false,
         });
         dialogRef.afterClosed().subscribe((data: any) => {
-          console.log('Dialog closed', data);
+          // console.log('Dialog closed', data);
           this.fetchCommandesPageable();
         });
 
@@ -795,13 +795,13 @@ export class ListerAjouterCommandeComponent implements OnInit {
 
   // Annulée
   lireDetails(commande: any): void {
-    console.log('Lire les détails:', commande);
+    // console.log('Lire les détails:', commande);
     // Logic to read details of the canceled order
     this.viewDetails(commande);
   }
 
   ajouterMotifAnnulation(commande: any): void {
-    console.log('Ajouter un motif d\'annulation:', commande);
+    // console.log('Ajouter un motif d\'annulation:', commande);
     // Logic to add cancellation reason
 
     this.commandesService.getCommandeInfo(commande.id).subscribe({
@@ -813,7 +813,7 @@ export class ListerAjouterCommandeComponent implements OnInit {
           autoFocus: false,
         });
         dialogRef.afterClosed().subscribe((data: any) => {
-          console.log('Dialog closed', data);
+          // console.log('Dialog closed', data);
           this.fetchCommandesPageable();
         });
 
@@ -991,9 +991,9 @@ export class ListerAjouterCommandeComponent implements OnInit {
 
   async generateAllTicketCommande(commande: any): Promise<void> {
     const doc = new jsPDF({orientation: 'landscape', unit: 'mm', format: [30, 20]});
-    console.log("commande")
-    console.log(commande)
-    console.log(commande.produits)
+    // console.log("commande")
+    // console.log(commande)
+    // console.log(commande.produits)
     const today = new Date();
     const todayFormatted = today.toLocaleDateString('en-GB').replace(/\//g, '-');
 
@@ -1001,7 +1001,7 @@ export class ListerAjouterCommandeComponent implements OnInit {
     // commande.produits.forEach((data: any) => {
     for (const data of commande.produits) {
       const qrcode = await QRCode.toDataURL(data.enRayonId);
-      console.log("ici")
+      // console.log("ici")
       for (let j = 0; j < (data.qtiteRecu+data.uniteGratuite); j++) {
         doc.addImage(qrcode, 'JPEG', -2, -2, 22, 22);
         doc.setFontSize(7).text(`${data.prixVente || ''} F`, 18, 6);
@@ -1021,14 +1021,14 @@ export class ListerAjouterCommandeComponent implements OnInit {
     }
     doc.deletePage((commande.qtiteRecu+commande.uniteGratuite)+1)
     doc.save('ticket_commande_'+commande.reference+'.pdf')
-    console.log(i)
+    // console.log(i)
   }
 
   // generatePDF(commande: any): Promise<void> {
   //   return new Promise((resolve) => {
   //     const {data: etiquetteData} = this.data;
-  //     console.log("this.quantiteEtiquette")
-  //     console.log(this.etiquetteForm.get('quantiteEtiquette')?.value)
+  //     // console.log("this.quantiteEtiquette")
+  //     // console.log(this.etiquetteForm.get('quantiteEtiquette')?.value)
   //     const qte = this.etiquetteForm.get('quantiteEtiquette')?.value || 1;
   //     const base64Image = etiquetteData.codeBarre || 'https://example.com/default-image.jpg';
   //     this.isLoading = true;

@@ -411,7 +411,7 @@ export class AjouterVenteComponent implements OnInit {
         this.selectedClient = this.selectedOLdClient
       }
       this.calculeTotaux()
-      console.log('Client Type Changed:', value);
+      // console.log('Client Type Changed:', value);
     } else {
       console.error('Invalid client type:', value);
     }

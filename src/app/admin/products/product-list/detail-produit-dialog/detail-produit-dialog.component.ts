@@ -252,8 +252,8 @@ export class DetailProduitDialogComponent implements OnInit {
 
       },
       error: (err) => {
-        console.log("error");
-        console.log(err);
+        // console.log("error");
+        // console.log(err);
 
         if (err.status === 401 || err.status === 403) {
           this.authService.logout();
@@ -335,7 +335,7 @@ export class DetailProduitDialogComponent implements OnInit {
 
   printLabel(product: any): void {
     // Logic to generate and print the label
-    console.log('Printing label for product:', product);
+    // console.log('Printing label for product:', product);
     // Example: Call a service to generate a PDF
     // this.productService.generateLabel(product.id).subscribe((labelData:any) => {
     //   // Handle label printing
@@ -350,7 +350,7 @@ export class DetailProduitDialogComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        console.log('Données du produit:', result);
+        // console.log('Données du produit:', result);
       }
     });
 
@@ -369,7 +369,7 @@ export class DetailProduitDialogComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         // Update the product list or call the backend to save changes
-        console.log('Product modified:', result);
+        // console.log('Product modified:', result);
         this.getProduitsEnRayonPageableProduitRange()
       }
     });
@@ -384,7 +384,7 @@ export class DetailProduitDialogComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         // Update the product list or call the backend to save changes
-        console.log('Product modified:', result);
+        // console.log('Product modified:', result);
         this.getCommandeInfoByProduct()
       }
     });
@@ -456,7 +456,7 @@ export class DetailProduitDialogComponent implements OnInit {
 
   getCommandeInfoByProduct(): void {
 
-    console.log("test")
+    // console.log("test")
     this.commandesService.getCommandeInfoByProduct(
       this.pageCommandes - 1,
       this.countCommandes,
@@ -465,8 +465,8 @@ export class DetailProduitDialogComponent implements OnInit {
       this.appService.formatDate(new Date(new Date(this.endDateCommandes.setHours(23, 59, 59, 0))) + ""),
     ).subscribe({
       next: (dataCommande: any) => {
-        console.log("dataCommande")
-        console.log(dataCommande)
+        // console.log("dataCommande")
+        // console.log(dataCommande)
         this.commandesListDS = [...dataCommande.content.content];
         this.countCommandes = dataCommande.pageSize;
         this.totalItemsCommandes = dataCommande.totalElements;
@@ -475,14 +475,14 @@ export class DetailProduitDialogComponent implements OnInit {
         this.totalQteRecu = dataCommande.totalQteRecu
         this.totalQteCommande = dataCommande.totalQteCommande
 
-        console.log("this.commandesListDS")
-        console.log(this.commandesListDS)
-        console.log(this.countCommandes)
-        console.log(this.totalItemsCommandes)
-        console.log(this.totalAmountRecu)
-        console.log(this.totalAmountCommande)
-        console.log(this.totalQteRecu)
-        console.log(this.totalQteCommande)
+        // console.log("this.commandesListDS")
+        // console.log(this.commandesListDS)
+        // console.log(this.countCommandes)
+        // console.log(this.totalItemsCommandes)
+        // console.log(this.totalAmountRecu)
+        // console.log(this.totalAmountCommande)
+        // console.log(this.totalQteRecu)
+        // console.log(this.totalQteCommande)
 
       },
       error: (err) => {

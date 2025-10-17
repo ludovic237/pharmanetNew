@@ -138,7 +138,7 @@ export class InventaireValdationDialogComponent implements OnInit {
 
     this.inventaireService.getInfoProduitsInventaire(this.data.id).subscribe({
       next: (data: any) => {
-        console.log('Produits en stock récupérés:', data);
+        // console.log('Produits en stock récupérés:', data);
         this.produitsManquants.quantite = data.totalProduitsManquant;
         this.produitsManquants.impact = data.totalProduitsPriceManquant;
         this.produitsExcedentaires.quantite = data.totalProduitsExcedent;
@@ -194,7 +194,7 @@ export class InventaireValdationDialogComponent implements OnInit {
       this.commentaireErreur = 'Le commentaire est obligatoire pour valider les écarts.';
     } else {
       this.commentaireErreur = '';
-      console.log('Inventaire validé avec commentaire:', this.commentaire);
+      // console.log('Inventaire validé avec commentaire:', this.commentaire);
       // Add logic to save or process the validation
     }
 
@@ -252,7 +252,7 @@ export class InventaireValdationDialogComponent implements OnInit {
   }
 
   retourAuxEcarts(): void {
-    console.log('Retour aux écarts');
+    // console.log('Retour aux écarts');
     // Add navigation logic if needed
   }
 }

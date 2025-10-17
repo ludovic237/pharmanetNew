@@ -155,7 +155,7 @@ addSelectedProducts(): void {
    }));
 
   if (this.selectedProducts.length > 0) {
-    console.log('Selected Products:', this.selectedProducts);
+    // console.log('Selected Products:', this.selectedProducts);
     this.dialogRef.close(this.selectedProducts); // Pass selected products back to the parent
   } else {
     this.snackBar.open('No products selected.', '×', {

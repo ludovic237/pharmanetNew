@@ -92,17 +92,17 @@ export class SortieDetailDialogComponent implements OnInit {
   ngOnInit(): void {
     // Initialisation du formulaire
     // this.sortieForm.produitDetailGrossisteList.valueChanges.
-    console.log("ngOnInit")
-    console.log("this.data")
-    console.log(this.data)
+    // console.log("ngOnInit")
+    // console.log("this.data")
+    // console.log(this.data)
     this.sortieForm.patchValue({
       produitDetailName: this.data.nom,
       produitDetailStock: this.data.quantite
     })
 
     this.sortieForm.get('produitDetailGrossisteList').valueChanges.subscribe(selectGrossiste => {
-      console.log("selectGrossiste")
-      console.log(selectGrossiste)
+      // console.log("selectGrossiste")
+      // console.log(selectGrossiste)
 
       this.produitId = selectGrossiste.id
       this.sortieForm.patchValue({
@@ -137,8 +137,8 @@ export class SortieDetailDialogComponent implements OnInit {
           // direction: (this.settings.rtl) ? 'rtl' : 'ltr'
         });
         dialogRef.afterClosed().subscribe((modifiedProducts: any[]) => {
-          console.log("modifiedProducts")
-          console.log(modifiedProducts)
+          // console.log("modifiedProducts")
+          // console.log(modifiedProducts)
           if (modifiedProducts && modifiedProducts.length > 0) {
             const newData = modifiedProducts.map(product => {
               const existingProductIndex = this.dataSource.findIndex(item => item.rayonId === product.rayonId);
@@ -174,8 +174,8 @@ export class SortieDetailDialogComponent implements OnInit {
             }).filter(item => item !== null);
 
             this.dataSource = [...this.dataSource, ...newData];
-            console.log("this.dataSource")
-            console.log(this.dataSource)
+            // console.log("this.dataSource")
+            // console.log(this.dataSource)
             // this.totalGrosAmount =  this.produitsAchetes.reduce((sum, item) => sum + (item.prixUnitaire*item.quantite), 0)
             this.quantiteAjouter = this.dataSource.reduce((sum, item) => sum + (item.contenuDetail * item.quantite), 0)
             this.mouvelQuantite = this.sortieForm.get("produitDetailStock").value + this.quantiteAjouter;
@@ -252,8 +252,8 @@ export class SortieDetailDialogComponent implements OnInit {
       produitDetailId: this.data.id,
       typeSortieId: "null"
     }
-    console.log("sortie")
-    console.log(sortie)
+    // console.log("sortie")
+    // console.log(sortie)
 
     this.sortiesService.addProduitDetail(sortie).subscribe({
       next: (response: any) => {

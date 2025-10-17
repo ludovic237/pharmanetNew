@@ -37,7 +37,7 @@ export class MostViewedProductsComponent implements OnInit {
   }
 
   public onSelect(event: any) {
-    console.log(event);
+    // console.log(event);
   }
 
   ngAfterViewChecked() {

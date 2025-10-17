@@ -91,7 +91,7 @@ export class AjouterVenteDialogComponent implements OnInit {
   }
 
   public onSubmit() {
-    console.log(this.form.value);
+    // console.log(this.form.value);
     if (this.form.valid) {
       this.dialogRef.close(this.form.value);
     }
@@ -120,8 +120,8 @@ export class AjouterVenteDialogComponent implements OnInit {
       verticalPosition: 'top',
       duration: 3000
     });
-    console.log("this.modifiedProducts")
-    console.log(this.modifiedProducts)
+    // console.log("this.modifiedProducts")
+    // console.log(this.modifiedProducts)
     this.dialogRef.close(this.modifiedProducts);
   }
 

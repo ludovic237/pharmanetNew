@@ -146,8 +146,8 @@ export class ProductDetailInfoDialogComponent implements OnInit {
       }
     });
 
-    console.log("this.data produit detail")
-    console.log(this.data)
+    // console.log("this.data produit detail")
+    // console.log(this.data)
     if (this.data != null) {
       this.title = this.data.title
       this.form.patchValue(this.data.data);
@@ -159,8 +159,8 @@ export class ProductDetailInfoDialogComponent implements OnInit {
 
     this.productService.getProductById(med.id).subscribe({
       next: (data: any) => {
-        console.log("openMedicamentDialog");
-        console.log(data);
+        // console.log("openMedicamentDialog");
+        // console.log(data);
         /* this.parentList = [...this.parentList, {
            ...data,
            nom:data.nom,
@@ -183,16 +183,16 @@ export class ProductDetailInfoDialogComponent implements OnInit {
   }
 
   public onSubmit() {
-    console.log("this.form.value");
-    console.log(this.form.value);
+    // console.log("this.form.value");
+    // console.log(this.form.value);
     let result = {
       ...this.form.value,
       data: this.parentList
     }
-    console.log("result");
-    console.log(result);
-    console.log("this.data");
-    console.log(this.data);
+    // console.log("result");
+    // console.log(result);
+    // console.log("this.data");
+    // console.log(this.data);
     if (this.form.valid) {
       if (this.data == null) {
 
@@ -281,8 +281,8 @@ export class ProductDetailInfoDialogComponent implements OnInit {
           id: product.id,
           name: product.nom
         }));
-        console.log("this.medOptions");
-        console.log(this.medOptions);
+        // console.log("this.medOptions");
+        // console.log(this.medOptions);
 
       },
       error: (err) => {
@@ -294,7 +294,7 @@ export class ProductDetailInfoDialogComponent implements OnInit {
 
   edit(element: any): void {
     // ... Votre code pour éditer l'élément ici ...
-    console.log(`Le bouton Modifier a été cliqué pour l'élément: ${element}`);
+    // console.log(`Le bouton Modifier a été cliqué pour l'élément: ${element}`);
   }
 
   delete(element: any) {

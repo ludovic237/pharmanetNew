@@ -131,15 +131,15 @@ export class SimpleReapprovisionnementCommandeDialogComponent implements OnInit 
     dialogRef.afterClosed().subscribe(dialogResult => {
       if (dialogResult) {
         this.modifiedProducts = this.enRayonList.data.filter(item => item.quantiteRestante > 0);
-        console.log("this.fournisseur")
-        console.log(this.fournisseur)
+        // console.log("this.fournisseur")
+        // console.log(this.fournisseur)
         this.snackBar.open(`${this.modifiedProducts.length} produits modifiés.`, '×', {
           panelClass: 'success',
           verticalPosition: 'top',
           duration: 3000
         });
-        console.log("this.modifiedProducts")
-        console.log(this.modifiedProducts)
+        // console.log("this.modifiedProducts")
+        // console.log(this.modifiedProducts)
         // this.dialogRef.close(this.modifiedProducts);
 
         this.commandesService.commandeByFournisseurRupture(this.typeCommande, this.fournisseur.id, this.total + "", this.modifiedProducts).subscribe({
@@ -283,16 +283,16 @@ export class SimpleReapprovisionnementCommandeDialogComponent implements OnInit 
   }
 
   saveDatePeremtion(item: any) {
-    console.log("save date")
-    console.log(item)
+    // console.log("save date")
+    // console.log(item)
     if (item.datePeremptionControl) {
       const nouvelleDate = item.datePeremptionControl.value;
-      console.log("nouvelleDate")
-      console.log(nouvelleDate)
+      // console.log("nouvelleDate")
+      // console.log(nouvelleDate)
       const dateIsoPourBackend = nouvelleDate.toISOString();
       if (nouvelleDate) {
-        console.log("dateIsoPourBackend")
-        console.log(dateIsoPourBackend)
+        // console.log("dateIsoPourBackend")
+        // console.log(dateIsoPourBackend)
         item.datePeremption = dateIsoPourBackend
       } else {
         item.datePeremption = null
@@ -301,16 +301,16 @@ export class SimpleReapprovisionnementCommandeDialogComponent implements OnInit 
   }
 
   saveDateLivraison(item: any) {
-    console.log("save date")
-    console.log(item)
+    // console.log("save date")
+    // console.log(item)
     if (item.dateLivraisonControl) {
       const nouvelleDate = item.dateLivraisonControl.value;
-      console.log("nouvelleDate")
-      console.log(nouvelleDate)
+      // console.log("nouvelleDate")
+      // console.log(nouvelleDate)
       const dateIsoPourBackend = nouvelleDate.toISOString();
       if (nouvelleDate) {
-        console.log("dateIsoPourBackend")
-        console.log(dateIsoPourBackend)
+        // console.log("dateIsoPourBackend")
+        // console.log(dateIsoPourBackend)
         item.dateLivraison = dateIsoPourBackend
       } else {
         item.dateLivraison = null

@@ -59,7 +59,7 @@ export class AppSettingsService {
   refreshSetting() {
     this.loadSetting().subscribe({
       next: (data: any[]) => {
-        console.log("refreshSetting")
+        // console.log("refreshSetting")
         localStorage.setItem('app_name', data[0].value);
         localStorage.setItem('vente_mode', data[1].value);
         localStorage.setItem('show_menu_stats', data[2].value);

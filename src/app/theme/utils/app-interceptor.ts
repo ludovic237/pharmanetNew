@@ -23,7 +23,7 @@ export class AppInterceptor implements HttpInterceptor {
           catchError((error: HttpErrorResponse) => {
             const started = Date.now();
             const elapsed = Date.now() - started;
-            console.log(`Request for ${req.urlWithParams} failed after ${elapsed} ms.`);
+            // console.log(`Request for ${req.urlWithParams} failed after ${elapsed} ms.`);
            // debugger;
             return throwError(error);
           })

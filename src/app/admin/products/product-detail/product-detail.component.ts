@@ -161,7 +161,7 @@ export class ProductDetailComponent implements OnInit {
 
   public onSubmit() {
     if (this.form.valid) {
-      console.log(this.form.value);
+      // console.log(this.form.value);
     }
   }
 

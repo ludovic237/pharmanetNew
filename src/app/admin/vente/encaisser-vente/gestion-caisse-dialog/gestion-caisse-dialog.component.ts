@@ -130,7 +130,7 @@ export class GestionCaisseDialogComponent {
       ...Object.values(formData.pieces),
       ...Object.values(formData.billets)
     ].join("-");
-    console.log(concatenatedValues);
+    // console.log(concatenatedValues);
     const reversedValues = concatenatedValues.split("-");
     const firstFiveReversed = reversedValues.slice(0, 5).reverse();
     const lastFiveReversed = reversedValues.slice(-5).reverse();
@@ -153,9 +153,9 @@ export class GestionCaisseDialogComponent {
       }
     }
 
-    console.log("result");
-    console.log(result);
-    console.log(this.data);
+    // console.log("result");
+    // console.log(result);
+    // console.log(this.data);
     this.dialogRef.close({
         type: this.data.type,
         action: 'validate',

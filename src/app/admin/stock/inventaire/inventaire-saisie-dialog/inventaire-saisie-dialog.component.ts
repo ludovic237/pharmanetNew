@@ -621,8 +621,8 @@ export class InventaireSaisieDialogComponent implements OnInit {
       isValid: product.isActive
     }
 
-    console.log("product")
-    console.log(product)
+    // console.log("product")
+    // console.log(product)
 
     this.inventaireService.addProductToInventory(data).subscribe({
       next: (data: any) => {

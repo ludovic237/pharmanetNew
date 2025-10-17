@@ -780,8 +780,6 @@ class ProduitService:
   def _map_to_produit_response_map(self, p) -> Dict[str, Any]:
     # ers = self.enrayon_repo.find_all_by_produit_id_and_supprimer(p.id)
     ers = self.produit_detail_repo.find_grossiste_by_produit_id(p.id)
-    print(ers)
-    print("ers")
     stock_details = [{
       "reference": getattr(er, "reference", None),
       "productNom": getattr(er, "nom", None),

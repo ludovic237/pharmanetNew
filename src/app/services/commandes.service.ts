@@ -71,7 +71,7 @@ export class CommandesService {
       case 'enRayon':
         this.http.post('http://localhost:8080/api/en-rayon/par-produit', data).subscribe({
           next: (response) => {
-            console.log('Réception en rayon réussie:', response);
+            // console.log('Réception en rayon réussie:', response);
           },
           error: (err) => {
             console.error('Erreur lors de la réception en rayon:', err);
@@ -82,7 +82,7 @@ export class CommandesService {
       case 'venteSansEncaissement':
         this.http.post('http://localhost:8080/api/ventes/creer-sans-encaissement', data).subscribe({
           next: (response) => {
-            console.log('Vente sans encaissement réussie:', response);
+            // console.log('Vente sans encaissement réussie:', response);
           },
           error: (err) => {
             console.error('Erreur lors de la création de la vente sans encaissement:', err);
@@ -93,7 +93,7 @@ export class CommandesService {
       case 'commande':
         this.http.post('http://localhost:8080/api/commandes', data).subscribe({
           next: (response) => {
-            console.log('Commande créée avec succès:', response);
+            // console.log('Commande créée avec succès:', response);
           },
           error: (err) => {
             console.error('Erreur lors de la création de la commande:', err);
@@ -181,8 +181,8 @@ export class CommandesService {
   }
 
   commandeByFournisseurRupture(type: string, fournisseurId: string, totalAmount: string, produits: any[]): Observable<any> {
-    console.log("produits")
-    console.log(produits)
+    // console.log("produits")
+    // console.log(produits)
     const data = {
       type: type,
       fournisseurId: fournisseurId,

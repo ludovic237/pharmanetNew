@@ -29,8 +29,6 @@ class CategorieService:
   # ----------------------------
   def get_all_categories(self) -> List[Categorie]:
     categories =  self.db.query(Categorie).filter(Categorie.supprimer == 0).all()
-    print("categories")
-    print(categories)
     return categories
 
   # ----------------------------

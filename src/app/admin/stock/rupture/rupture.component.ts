@@ -567,7 +567,7 @@ export class RuptureComponent implements OnInit {
       autoFocus: false,
     });
     dialogRef.afterClosed().subscribe((data: any) => {
-      console.log('Dialog closed', data);
+      // console.log('Dialog closed', data);
       if (data.type=="commande"){
         localStorage.removeItem(this.LS_CMD)
         this.produitsCommandeIds = new Set();

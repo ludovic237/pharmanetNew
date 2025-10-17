@@ -111,12 +111,12 @@ export class SimpleReapprovisionnementCommandeDialogComponent implements OnInit 
       verticalPosition: 'top',
       duration: 3000
     });
-    console.log("this.modifiedProducts")
-    console.log(this.modifiedProducts)
+    // console.log("this.modifiedProducts")
+    // console.log(this.modifiedProducts)
     // this.dialogRef.close(this.modifiedProducts);
     this.modifiedProducts = this.modifiedProducts.map(({datePeremptionControl, dateLivraisonControl, ...rest}) => rest)
-    console.log("this.modifiedProducts")
-    console.log(this.modifiedProducts)
+    // console.log("this.modifiedProducts")
+    // console.log(this.modifiedProducts)
     this.commandesService.commandeByFournisseur(this.fournisseur.id, this.total + "", this.modifiedProducts).subscribe({
       next: (data) => {
         this.dialogRef.close(data);
@@ -244,8 +244,8 @@ export class SimpleReapprovisionnementCommandeDialogComponent implements OnInit 
       this.fournisseur = this.form.value.fournisseur;
       this.ventesService.listerVenteParNombreDeJourEtFournisseur(this.fournisseur.id, this.form.value.jour + "").subscribe({
         next: (data: any[]) => {
-          console.log("getDataVente")
-          console.log(data)
+          // console.log("getDataVente")
+          // console.log(data)
           this.enRayonList = new MatTableDataSource<any, MatPaginator>(data.map((produit: any) => {
             produit.datePeremptionControl = new FormControl(new Date(produit.datePeremption))
             produit.dateLivraisonControl = new FormControl(new Date(produit.dateLivraison))
@@ -288,16 +288,16 @@ export class SimpleReapprovisionnementCommandeDialogComponent implements OnInit 
   }
 
   saveDatePeremtion(item: any) {
-    console.log("save date")
-    console.log(item)
+    // console.log("save date")
+    // console.log(item)
     if (item.datePeremptionControl) {
       const nouvelleDate = item.datePeremptionControl.value;
-      console.log("nouvelleDate")
-      console.log(nouvelleDate)
+      // console.log("nouvelleDate")
+      // console.log(nouvelleDate)
       const dateIsoPourBackend = nouvelleDate.toISOString();
       if (nouvelleDate) {
-        console.log("dateIsoPourBackend")
-        console.log(dateIsoPourBackend)
+        // console.log("dateIsoPourBackend")
+        // console.log(dateIsoPourBackend)
         item.datePeremption = dateIsoPourBackend
       } else {
         item.datePeremption = null
@@ -306,16 +306,16 @@ export class SimpleReapprovisionnementCommandeDialogComponent implements OnInit 
   }
 
   saveDateLivraison(item: any) {
-    console.log("save date")
-    console.log(item)
+    // console.log("save date")
+    // console.log(item)
     if (item.dateLivraisonControl) {
       const nouvelleDate = item.dateLivraisonControl.value;
-      console.log("nouvelleDate")
-      console.log(nouvelleDate)
+      // console.log("nouvelleDate")
+      // console.log(nouvelleDate)
       const dateIsoPourBackend = nouvelleDate.toISOString();
       if (nouvelleDate) {
-        console.log("dateIsoPourBackend")
-        console.log(dateIsoPourBackend)
+        // console.log("dateIsoPourBackend")
+        // console.log(dateIsoPourBackend)
         item.dateLivraison = dateIsoPourBackend
       } else {
         item.dateLivraison = null

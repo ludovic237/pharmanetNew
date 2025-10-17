@@ -28,8 +28,6 @@ class FabriquantService:
     total = q.count()
     order_col = getattr(Fabriquant, sort_by, Fabriquant.id)
     q = q.order_by(desc(order_col) if direction.upper() == "DESC" else asc(order_col))
-    print("search")
-    print(search)
     if search != "null":
       q = q.filter(func.lower(Fabriquant.nom).like(f"%{search.lower()}%"))
     rows = q.offset(skip).limit(limit).all()

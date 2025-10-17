@@ -36,7 +36,7 @@ export class MenuPharmaComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    console.log('MenuPharmaComponent initialized');
+    // console.log('MenuPharmaComponent initialized');
 
     if (typeof window !== 'undefined' && typeof localStorage!=='undefined'){
       this.hasToken = !!localStorage.getItem('token');

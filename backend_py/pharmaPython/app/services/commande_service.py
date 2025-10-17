@@ -154,7 +154,6 @@ class CommandeService:
     commande = self.commande_repo.find_by_id(commande_id)
 
     data = self.produit_cmd_repo.find_by_commande_id(commande_id)
-    print("data")
     produits: List[Dict[str, Any]] = []
     for l in data:
       # produit = self.produit_repo.find_by_id(l.produit_id)
@@ -179,9 +178,6 @@ class CommandeService:
       })
     if not commande:
       raise HTTPException(status_code=404, detail="Commande non trouvée")
-    print(produits)
-    print("commande")
-    print(commande)
     return {
       "id": commande.id,
       "dateCreation": commande.date_creation,
@@ -263,8 +259,6 @@ class CommandeService:
       raise HTTPException(status_code=404, detail="Commande non trouvée")
 
     lignes = {l.id: l for l in self.produit_cmd_repo.find_by_commande_id(commande.id)}
-    print("produits")
-    print(produits)
     for item in produits:
       if not item.productCmdId:
         continue

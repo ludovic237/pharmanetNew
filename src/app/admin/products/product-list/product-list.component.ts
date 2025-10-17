@@ -162,7 +162,7 @@ export class ProductListComponent implements OnInit {
   }
 
   public searchProducts(): void {
-    console.log('Searching for products with term:', this.form.value);
+    // console.log('Searching for products with term:', this.form.value);
 
     this.productService.searchProducts(this.searchText, this.page - 1, this.count).subscribe({
       // this.productService.searchProducts(this.searchTerm, this.page, this.count).subscribe({
@@ -180,8 +180,8 @@ export class ProductListComponent implements OnInit {
   }
 
   public onPageChanged(event: PageEvent) {
-    console.log("event")
-    console.log(event)
+    // console.log("event")
+    // console.log(event)
     this.count = event.pageSize;
     if (this.searchText === "" || this.searchText === undefined) {
       if (this.page == 0) {

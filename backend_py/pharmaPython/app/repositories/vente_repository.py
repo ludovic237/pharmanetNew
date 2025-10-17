@@ -192,9 +192,6 @@ class VenteRepository:
     if start_date_vente and end_date_vente:
       start_dt = datetime.fromisoformat(start_date_vente.strip())
       end_dt = datetime.fromisoformat(end_date_vente.strip())
-      print("start_date_vente")
-      print(start_dt)
-      print(end_dt)
       q = q.filter(Vente.date_vente.between(start_dt, end_dt))
 
     if etat and etat != "null":

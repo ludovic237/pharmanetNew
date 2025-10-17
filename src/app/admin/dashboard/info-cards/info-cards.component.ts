@@ -47,7 +47,7 @@ export class InfoCardsComponent implements OnInit {
   }
 
   public onSelect(event: any) {
-    console.log(event);
+    // console.log(event);
   }
 
   public addRandomValue(param: string) {

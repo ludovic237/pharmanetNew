@@ -135,7 +135,7 @@ export class BonCaisseDialogComponent implements OnInit{
             duration: 3000,
           });
           this.generateBonCaisse(bon).then(() => {
-            console.log('Receipt generated successfully');
+            // console.log('Receipt generated successfully');
           });
           this.bonForm.reset();
           this.bonForm.markAsPristine();

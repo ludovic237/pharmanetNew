@@ -15,8 +15,6 @@ class FormeRepository:
 
   def find_all_pageable(self, page: int, size: int, search: str) -> Tuple[List[Forme], int]:
     q = self.db.query(Forme)
-    print("search")
-    print(search)
     if search != "null":
       q = q.filter(func.lower(Forme.nom).like(f"%{search.lower()}%"))
     total = q.count()

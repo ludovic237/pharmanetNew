@@ -166,8 +166,8 @@ export class SignInComponent implements OnInit {
 
   public codebarreFormSubmit(values: Object): void {
     this.codebarre = this.codebarreForm.get('codebarre')?.value;
-    console.log("this.codebarre");
-    console.log(this.codebarre);
+    // console.log("this.codebarre");
+    // console.log(this.codebarre);
     if (this.codebarreForm.valid) {
       // this.router.navigate(['/']);
       this.authService.loginCodebarre(this.codebarre).subscribe({

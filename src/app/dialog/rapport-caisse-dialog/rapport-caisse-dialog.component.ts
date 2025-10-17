@@ -203,8 +203,8 @@ export class RapportCaisseDialogComponent implements OnInit {
 
   public getRapportCaisse(): void {
 
-      console.log("data");
-      console.log(this.data);
+      // console.log("data");
+      // console.log(this.data);
       this.dataCaisse = this.data
       this.totalBonCaisseGeneres = 0
       this.totalBonCaisseEncaisse = 0
@@ -249,8 +249,8 @@ export class RapportCaisseDialogComponent implements OnInit {
         this.totalRetourProduits = this.totalRetourProduits + item.total;
       });
 
-      console.log("resultRapport");
-      console.log(this.resultRapport)
+      // console.log("resultRapport");
+      // console.log(this.resultRapport)
       this.venteParFournisseurData = [
         {type: 'Grossiste', montant: this.dataCaisse.prixTotalGrossiste},
         {type: 'Detaillant', montant: this.dataCaisse.prixTotalDetaillant},
@@ -335,7 +335,7 @@ export class RapportCaisseDialogComponent implements OnInit {
   rechercherDernieresSessions(): void {
     const nombre = this.sessionForm.value.nombre;
     // Appelle ton service ici
-    console.log(`Recherche des ${nombre} dernières sessions de caisse`);
+    // console.log(`Recherche des ${nombre} dernières sessions de caisse`);
     // Exemple : this.sessionService.getDernieresSessions(nombre).subscribe(...)
 
     this.caisseService.getAllCaisses(0, nombre, 'id', null,null).subscribe({

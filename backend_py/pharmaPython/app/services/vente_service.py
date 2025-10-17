@@ -459,9 +459,6 @@ class VenteService:
       supprimer=0,
     )
     fact = self.facturation_repo.save(fact)
-    print("fact")
-    print(fact.id)
-    print(fact)
     if dto.typeEncaissement == "espece" and dto.espece is not None:
       self.facture_espece_repo.save(FactureEspece(facturation_id=fact.id, montant=dto.espece))
     elif dto.typeEncaissement == "electronique" and dto.electronique:
@@ -519,9 +516,7 @@ class VenteService:
   # chargerVentesEnCoursNonEncaisser(venteId)
   # ---------------------------------------------------------------------
   def charger_ventes_en_cours_non_encaisser(self, vente_id: int) -> Dict[str, Any]:
-    vente = to_camel_dict(_require(self.vente_repo.find_by_id(int(vente_id)), "Vente introuvable"))
-    print("vente")
-    print(vente)
+    vente = to_camel_dict(_require(self.vente_repo.find_by_id(int(vente_id)), "Vente introuvable")
     data = {
       "id": vente.id,
       "prixTotal": vente.prix_total,
@@ -684,14 +679,10 @@ class VenteService:
     str, Any]:
     page, size = _page_sizing(page, size)
     caisse = self.caisse_service.get_caisse_active_db(self.db)
-    print("caisseId")
-    print(caisseId)
     # if caisseId is not None:
     #   caisse = None
     if caisseId != "null":
       caisse = None
-    print("caisse")
-    print(caisse)
     rows, total = self.vente_repo.filter_ventes(supprimer=0, active_caisse=caisse, prix_percu=None,
                                                 etat="null", date_vente="null", date_encaissement="null",
                                                 user_id="null", employe_id="null", prescripteur_id="null",
@@ -918,14 +909,9 @@ class VenteService:
       page=page, size=size,
       sort_by="dateVente", direction="DESC",
     )
-    print("rows")
-    print(rows)
 
     def _map(v: Vente) -> Dict[str, Any]:
       produits = []
-      print("v")
-      print(v.date_encaissement)
-      print(v.date_vente)
       for c in self.concerner_repo.find_by_vente_id(int(v.id)):
         if c.type == "detail":
           pd = self.produit_detail_repo.find_by_id(int(getattr(c, "en_rayon_id", 0)))

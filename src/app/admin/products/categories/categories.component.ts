@@ -123,9 +123,9 @@ export class CategoriesComponent implements OnInit {
         this.count = data.pageable.pageSize;
         this.totalItems = data.totalElements;
         // this.count = this.categories.length
-        console.log(this.categories)
-        console.log(this.count)
-        console.log(this.totalItems)
+        // console.log(this.categories)
+        // console.log(this.count)
+        // console.log(this.totalItems)
       },
       error: (err) => {
         console.error('Error  subscription:', err);

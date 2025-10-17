@@ -275,7 +275,7 @@ export class EncaisserVenteComponent implements OnInit {
         autoFocus: false,
       });
       dialogRef.afterClosed().subscribe((data: any) => {
-        console.log('Dialog closed', data);
+        // console.log('Dialog closed', data);
         if (data.type === 'open') {
 
           this.caisseService.ouvrirCaisse(parseFloat(data.data.fondCaisse), data.data.ouvertureCaisse).subscribe({
@@ -344,7 +344,7 @@ export class EncaisserVenteComponent implements OnInit {
         autoFocus: false,
       });
       dialogRef.afterClosed().subscribe((data: any) => {
-        console.log('Dialog closed', data);
+        // console.log('Dialog closed', data);
         if (data.action === 'validate') {
 
           this.caisseService.cloturerCaisse(parseFloat(data.data.fondCaisse), data.data.fermetureCaisse).subscribe({
@@ -599,7 +599,7 @@ export class EncaisserVenteComponent implements OnInit {
         });
       } else {
         // Handle the "No" or dismissal case
-        console.log('User canceled the action.');
+        // console.log('User canceled the action.');
       }
     });
   }
@@ -728,8 +728,8 @@ export class EncaisserVenteComponent implements OnInit {
       montantRendu: this.rendu
     };
     // Proceed with validation logic
-    console.log('Validation successful for tab:', this.selectedTabIndex);
-    console.log(encaissementDetails)
+    // console.log('Validation successful for tab:', this.selectedTabIndex);
+    // console.log(encaissementDetails)
 
     this.ventesService.encaisserVente(this.venteId, encaissementDetails).subscribe({
       next: () => {
@@ -852,8 +852,8 @@ export class EncaisserVenteComponent implements OnInit {
       montantRendu: this.rendu
     };
     // Proceed with validation logic
-    console.log('Validation successful for tab:', this.selectedTabIndex);
-    console.log(encaissementDetails)
+    // console.log('Validation successful for tab:', this.selectedTabIndex);
+    // console.log(encaissementDetails)
 
     this.ventesService.encaisserVente(this.venteId, encaissementDetails).subscribe({
       next: () => {
@@ -966,7 +966,7 @@ export class EncaisserVenteComponent implements OnInit {
           autoFocus: false,
         });
         dialogRef.afterClosed().subscribe((data: any) => {
-          console.log('Dialog closed', data);
+          // console.log('Dialog closed', data);
         });
       },
       error: (err: any) => {
@@ -1024,7 +1024,7 @@ export class EncaisserVenteComponent implements OnInit {
           autoFocus: false,
         });
         dialogRef.afterClosed().subscribe((data: any) => {
-          console.log('Dialog closed', data);
+          // console.log('Dialog closed', data);
         });
 
       },
@@ -1080,7 +1080,7 @@ export class EncaisserVenteComponent implements OnInit {
       autoFocus: false,
     });
     dialogRef.afterClosed().subscribe((data: any) => {
-      console.log('Dialog closed', data);
+      // console.log('Dialog closed', data);
     });
   }
 
@@ -1106,12 +1106,12 @@ export class EncaisserVenteComponent implements OnInit {
           dialogRef.afterClosed().subscribe((data: boolean) => {
             if (data === true) {
               // Handle the "Yes" case
-              console.log('User confirmed the action.');
+              // console.log('User confirmed the action.');
               // Add logic for specific scenarios here
               this.performActionBasedOnType();
             } else {
               // Handle the "No" or dismissal case
-              console.log('User canceled the action.');
+              // console.log('User canceled the action.');
             }
           });
         }
@@ -1174,12 +1174,12 @@ export class EncaisserVenteComponent implements OnInit {
         this.deleteItem();
         break;
       default:
-        console.log('Unknown action type.');
+        // console.log('Unknown action type.');
     }
   }
 
   closeCaisse(): void {
-    console.log('Closing caisse...');
+    // console.log('Closing caisse...');
     // Add logic to close caisse
     this.putCaissePendingClosure();
   }
@@ -1241,13 +1241,13 @@ export class EncaisserVenteComponent implements OnInit {
   }
 
   openCaisse(): void {
-    console.log('Opening caisse...');
+    // console.log('Opening caisse...');
     // Add logic to open caisse
     this.manageCaisse()
   }
 
   deleteItem(): void {
-    console.log('Deleting item...');
+    // console.log('Deleting item...');
     // A
 
   }
@@ -1263,12 +1263,12 @@ export class EncaisserVenteComponent implements OnInit {
     dialogRef.afterClosed().subscribe((data: boolean) => {
       if (data === true) {
         // Handle the "Yes" case
-        console.log('User confirmed the action.');
+        // console.log('User confirmed the action.');
         // Add logic for specific scenarios here
         this.manageCaisse();
       } else {
         // Handle the "No" or dismissal case
-        console.log('User canceled the action.');
+        // console.log('User canceled the action.');
       }
     });
   }

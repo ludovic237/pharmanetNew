@@ -152,10 +152,10 @@ export class RetourProduitComponent implements OnInit {
 
             this.totalReductionAmount = parseFloat(data.vente.reduction)
             this.totalGrosAmount =  this.produitsAchetes.reduce((sum, item) => sum + (item.prixUnitaire*item.quantite), 0)
-            console.log("this.totalReduction");
-            console.log(this.totalReduction);
-            console.log("this.totalGrosAmount");
-            console.log(this.totalGrosAmount);
+            // console.log("this.totalReduction");
+            // console.log(this.totalReduction);
+            // console.log("this.totalGrosAmount");
+            // console.log(this.totalGrosAmount);
             this.snackBar.open('Retour validé avec succès.', '×', {panelClass: 'success', duration: 3000});
           },
           error: (err: any) => {
@@ -233,11 +233,11 @@ export class RetourProduitComponent implements OnInit {
     // this.totalPrix = data.reduce((sum, item) => sum + item.prixTotal, 0);
     // // this.totalReduction = data.reduce((sum, item) => sum + item.reduction, 0);
     //
-    console.log("produitsRetournes");
-    console.log(this.produitsRetournes);
+    // console.log("produitsRetournes");
+    // console.log(this.produitsRetournes);
     this.totalReturnAmount =  this.produitsRetournes.reduce((sum, item) => sum + (item.quantite*item.prixUnitaire), 0);
-    console.log(" this.totalReturnAmount : "+ this.totalReturnAmount)
-    console.log(" this.totalReductionAmount : "+ this.totalReductionAmount)
+    // console.log(" this.totalReturnAmount : "+ this.totalReturnAmount)
+    // console.log(" this.totalReductionAmount : "+ this.totalReductionAmount)
     this.totalReduction = Math.floor(this.totalReductionAmount*this.totalReturnAmount/this.totalGrosAmount)
     this.totalPrix = this.totalReturnAmount
     this.netTotal = this.totalReturnAmount - this.totalReduction;
@@ -311,14 +311,14 @@ export class RetourProduitComponent implements OnInit {
     //   console.error('produitsAchetes.data is undefined');
     //   return;
     // }
-    console.log('produitsAchetes.data:', this.produitsAchetes);
+    // console.log('produitsAchetes.data:', this.produitsAchetes);
     // Restore the product's quantity in produitsAchetes
     const originalProduct = this.produitsAchetes.find(p => p.id === produit.id);
     if (originalProduct) {
       originalProduct.quantite += produit.quantite; // Add the returned quantity back
       this.produitsAchetes = [...this.produitsAchetes]; // Refresh the table
     }
-    console.log('produitsAchetes:', this.produitsAchetes);
+    // console.log('produitsAchetes:', this.produitsAchetes);
     // Recalculate totals
     this.calculateTotals(this.produitsRetournes);
   }

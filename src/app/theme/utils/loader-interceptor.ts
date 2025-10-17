@@ -27,8 +27,8 @@ import {MatDialog} from "@angular/material/dialog";
 //         'Pragma': 'no-cache'
 //       }
 //     });
-//     console.log("req")
-//     console.log(req)
+//     // console.log("req")
+//     // console.log(req)
 //
 //     this.loaderService.show()
 //
@@ -135,8 +135,8 @@ export const LoaderInterceptor: HttpInterceptorFn = (req, next) => {
       // console.log("activeRequest")
       // console.log(activeRequest)
       // if (activeRequest === 0 && dialogRef) {
-      //   console.log("inside")
-      //   console.log(activeRequest)
+      //   // console.log("inside")
+      //   // console.log(activeRequest)
       //   ngZone.runOutsideAngular(()=>{
       //     setTimeout(() => {
       //       ngZone.run(()=>dialogRef.close())

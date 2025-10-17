@@ -135,16 +135,16 @@ export class DetailCommandeDialogComponent implements OnInit {
     }
     this.reference = this.data.data.reference;
     this.etat = this.data.data.etat;
-    console.log("data")
-    console.log(this.data)
+    // console.log("data")
+    // console.log(this.data)
     this.type = this.data.type;
     this.commande = this.data.data;
     this.commande.produits = this.commande.produits.map((item: any) => {
       item.datePeremption = new Date();
       return item
     });
-    console.log("his.commande")
-    console.log(this.commande)
+    // console.log("his.commande")
+    // console.log(this.commande)
   }
 
   public getInfoCommande(commande: any): void {
@@ -207,7 +207,7 @@ export class DetailCommandeDialogComponent implements OnInit {
 
       this.commandesService.addCommande(payload).subscribe({
         next: (response) => {
-          console.log('Commande created:', response);
+          // console.log('Commande created:', response);
           this.dialogRef.close();
           this.snackBar.open('Commande created', '×', {
             panelClass: 'success',
@@ -239,10 +239,10 @@ export class DetailCommandeDialogComponent implements OnInit {
   }
 
   get canCreateCommande(): boolean {
-    console.log("canCreateCommande")
-    console.log(this.typeCommande)
-    console.log(this.fournisseurId)
-    console.log(this.selectedProducts.value.length)
+    // console.log("canCreateCommande")
+    // console.log(this.typeCommande)
+    // console.log(this.fournisseurId)
+    // console.log(this.selectedProducts.value.length)
     return this.typeCommande.trim() !== '' &&
       this.fournisseurId !== '' &&
       this.selectedProducts.value.length > 0;
@@ -255,9 +255,9 @@ export class DetailCommandeDialogComponent implements OnInit {
   }
 
   canSubmitReception(): boolean {
-    console.log("canSubmitReception")
-    console.log(this.commande.produits)
-    console.log(this.type)
+    // console.log("canSubmitReception")
+    // console.log(this.commande.produits)
+    // console.log(this.type)
     if (this.type !== 'partiel' && this.type !== 'complementaire') {
       return false;
     }
@@ -270,8 +270,8 @@ export class DetailCommandeDialogComponent implements OnInit {
   }
 
   submitReception(): void {
-    console.log("this.commande.produits");
-    console.log(this.commande.produits);
+    // console.log("this.commande.produits");
+    // console.log(this.commande.produits);
 
     const receptionPayload = this.commande.produits = this.commande.produits.map((item: any) => {
       item.quantite = item.qtiteRecu || 0

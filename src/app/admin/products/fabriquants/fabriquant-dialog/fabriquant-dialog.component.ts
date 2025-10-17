@@ -62,7 +62,7 @@ export class FabriquantDialogComponent implements OnInit {
   }
 
   public onSubmit() {
-    console.log(this.form.value);
+    // console.log(this.form.value);
     if (this.form.valid) {
       if (this.data.type == "add") {
 

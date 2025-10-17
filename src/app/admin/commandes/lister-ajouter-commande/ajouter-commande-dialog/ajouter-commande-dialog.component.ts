@@ -84,10 +84,10 @@ export class AjouterCommandeDialogComponent implements OnInit {
   ngOnInit(): void {
     this.updateColumns();
     this.searchFournisseur();
-    console.log("this.typeCommande")
-    console.log(this.typeCommande)
-    console.log("this.fournisseurId")
-    console.log(this.fournisseurId)
+    // console.log("this.typeCommande")
+    // console.log(this.typeCommande)
+    // console.log("this.fournisseurId")
+    // console.log(this.fournisseurId)
   }
 
   /*  updateColumns(): void {
@@ -142,8 +142,8 @@ export class AjouterCommandeDialogComponent implements OnInit {
   }
 
   addProduct(product: any): void {
-    console.log("fournisseur")
-    console.log(this.fournisseur)
+    // console.log("fournisseur")
+    // console.log(this.fournisseur)
     const productGroup = this.fb.group({
       id: [product.id],
       codebarre: [product.id + "" + this.fournisseur.code + "" + formatDate(new Date(), 'yyyyMMddHHmmss', 'en-US')],
@@ -161,8 +161,8 @@ export class AjouterCommandeDialogComponent implements OnInit {
       quantiteRecu: [this.typeCommande === 'en_cours' ? 0 : null, [Validators.min(0)]],
       dateDePeremption: [this.typeCommande === 'livree' || this.typeCommande === 'en_cours' ? new Date(product.datePeremption) : null]
     });
-    console.log("productGroup");
-    console.log(productGroup);
+    // console.log("productGroup");
+    // console.log(productGroup);
     this.selectedProducts.push(productGroup);
     this.updateTotal()
   }
@@ -234,20 +234,20 @@ export class AjouterCommandeDialogComponent implements OnInit {
   }
 
   get canCreateCommande(): boolean {
-    console.log("canCreateCommande")
-    console.log(this.typeCommande)
-    console.log(this.fournisseurId)
-    console.log(this.selectedProducts.value.length)
+    // console.log("canCreateCommande")
+    // console.log(this.typeCommande)
+    // console.log(this.fournisseurId)
+    // console.log(this.selectedProducts.value.length)
     return this.typeCommande.trim() !== '' &&
       this.fournisseur != null &&
       this.selectedProducts.value.length > 0;
   }
 
   generatePDF(product: any):Promise<void> {
-    console.log("generatePDF")
-    console.log(product)
-    console.log(this.fournisseurId)
-    console.log(this.codeFournisseur)
+    // console.log("generatePDF")
+    // console.log(product)
+    // console.log(this.fournisseurId)
+    // console.log(this.codeFournisseur)
     return new Promise((resolve) => {
 
       const qte = product.quantite + product.uniteGratuite;

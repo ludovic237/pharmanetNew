@@ -456,7 +456,7 @@ export class EncaisserVenteComponent {
     //       autoFocus: false,
     //     });
     //     dialogRef.afterClosed().subscribe((data: any) => {
-    //       console.log('Dialog closed', data);
+    //       // console.log('Dialog closed', data);
     //     });
     //   },
     //   error: (err: any) => {

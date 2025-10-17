@@ -188,13 +188,13 @@ export class AddProductDialogComponent implements OnInit {
           this.info = true
         }
         this.getProductById(this.data.id);
-        console.log("next");
+        // console.log("next");
         // console.log()
 
       },
       error: (err) => {
-        console.log("error");
-        console.log(err);
+        // console.log("error");
+        // console.log(err);
 
         if (err.status === 401 || err.status === 403) {
           this.authService.logout();
@@ -220,8 +220,8 @@ export class AddProductDialogComponent implements OnInit {
 
   public onSubmit() {
     if (this.form.valid) {
-      console.log("this.form.value");
-      console.log(this.form.value);
+      // console.log("this.form.value");
+      // console.log(this.form.value);
       if (this.form.value.etagere==null){
         this.form.value.etagere=""
       }

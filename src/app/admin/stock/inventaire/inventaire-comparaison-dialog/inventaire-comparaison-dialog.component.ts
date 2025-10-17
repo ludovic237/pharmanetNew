@@ -128,7 +128,7 @@ export class InventaireComparaisonDialogComponent implements OnInit {
 
   onTabChange(event: MatTabChangeEvent): void {
     const activeTabLabel = event.tab.textLabel;
-    console.log('Active Tab:', activeTabLabel);
+    // console.log('Active Tab:', activeTabLabel);
     // You can perform additional actions based on the active tab
     this.page = 1
     if (activeTabLabel === 'Écarts uniquement') {
