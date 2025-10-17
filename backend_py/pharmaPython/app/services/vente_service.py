@@ -516,7 +516,7 @@ class VenteService:
   # chargerVentesEnCoursNonEncaisser(venteId)
   # ---------------------------------------------------------------------
   def charger_ventes_en_cours_non_encaisser(self, vente_id: int) -> Dict[str, Any]:
-    vente = to_camel_dict(_require(self.vente_repo.find_by_id(int(vente_id)), "Vente introuvable")
+    vente = to_camel_dict(_require(self.vente_repo.find_by_id(int(vente_id)), "Vente introuvable"))
     data = {
       "id": vente.id,
       "prixTotal": vente.prix_total,

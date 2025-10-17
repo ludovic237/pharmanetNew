@@ -27,7 +27,7 @@ function createWindows() {
   //   cwd: path.join(__dirname, '../backend_py/pharmaPython/app/')
   // })
   backendProcess = spawn('python', [path.join(__dirname, '../backend_py/pharmaPython/app/main.py')])
-  backendProcess.stdout.on('data', (data) => // console.log(`python : ${data}`))
+  backendProcess.stdout.on('data', (data) => console.log(`python : ${data}`))
   backendProcess.stderr.on('data', (data) => console.error(`erreur python : ${data}`))
 
   win.on('closed', () => {

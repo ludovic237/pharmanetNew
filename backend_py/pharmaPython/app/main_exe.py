@@ -38,8 +38,6 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.services.stock_alert_service import compute_and_store_alerts
 
-import passlib.handlers.bcrypt  # <-- force l’inclusion dans l’exe
-
 # ---------- Localisation du build Angular ----------
 def get_front_dist() -> Path:
   """
