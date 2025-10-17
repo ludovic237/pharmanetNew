@@ -6,12 +6,11 @@ from datetime import datetime
 from typing import List, Optional
 
 from app.api.deps import get_db
-from app.core.db import SessionLocal
+from app.api.v1.db import SessionLocal
 from app.schemas.dashboard_dto import OrderRow, TopProduct, StockAlertRow, SalesMonthlyPoint, CategorySales, KpiDto
 from app.services.ai.anomaly import score_caisse, train_caisse_anomaly_model
 from app.services.ai.forecast import forecast_sales
 from app.services.dashboard_service import DashboardService
-from app.utility.jwt_authentication import jwt_authentication
 
 # Si tu as une dépendance d'authentification JWT, dé-commente:
 # from security.jwt_authentication import jwt_authentication

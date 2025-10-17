@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String, DateTime
-from app.core.db import Base
+from app.api.v1.db import Base
 
 class LigneCommande(Base):
   __tablename__ = "ligne_commande"

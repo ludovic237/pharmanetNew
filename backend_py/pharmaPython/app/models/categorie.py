@@ -1,10 +1,7 @@
 # app/models/categorie.py
-from typing import Optional
-from pydantic import BaseModel
-from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column
 
-from app.core.db import Base
+from app.api.v1.db import Base
 # app/models/categorie_schema.py (Pydantic)
 from pydantic import BaseModel, ConfigDict
 

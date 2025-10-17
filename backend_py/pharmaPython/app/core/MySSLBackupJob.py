@@ -3,7 +3,7 @@ import subprocess
 from datetime import datetime
 from apscheduler.schedulers.background import BackgroundScheduler
 from sqlalchemy.orm import Session
-from app.core.db import SessionLocal
+from app.api.v1.db import SessionLocal
 from app.models import Produit, EnRayon
 
 BACKUP_DIR = "C:\\backups_mysql"

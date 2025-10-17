@@ -1,8 +1,8 @@
 from datetime import datetime
 
 from pydantic import BaseModel
-from sqlalchemy import Column, Integer, String, Date, Boolean
-from app.core.db import Base
+from sqlalchemy import Column, Integer, String, Date
+from app.api.v1.db import Base
 
 
 class TicketCaisse(Base):

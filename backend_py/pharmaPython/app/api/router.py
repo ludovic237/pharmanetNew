@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 
 from app.api.v1 import app_setting_controller, insight_controller, stock_alert_controller, ai_controller, \
-  replenishment_controller
+  replenishment_controller, conf_controller
 from app.api.v1 import auth_controller
 from app.api.v1 import bon_caisse_controller
 from app.api.v1 import caisse_controller
@@ -60,3 +60,4 @@ api_router.include_router(insight_controller.router)
 api_router.include_router(stock_alert_controller.router)
 api_router.include_router(ai_controller.router)
 api_router.include_router(replenishment_controller.router)
+api_router.include_router(conf_controller.router)

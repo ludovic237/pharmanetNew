@@ -1,6 +1,6 @@
 from apscheduler.schedulers.background import BackgroundScheduler
 from sqlalchemy.orm import Session
-from app.core.db import SessionLocal  # ta fabrique de sessions
+from app.api.v1.db import SessionLocal  # ta fabrique de sessions
 from app.repositories.produit_repository import ProduitRepository
 from app.services.ai.feature_store import get_daily_sales_series
 from app.services.ai.forecast import forecast_daily

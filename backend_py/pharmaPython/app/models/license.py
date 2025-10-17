@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, DateTime
-from app.core.db import Base
+from app.api.v1.db import Base
 
 class License(Base):
   __tablename__ = "license"

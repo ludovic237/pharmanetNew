@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer
-from app.core.db import Base
+from app.api.v1.db import Base
 
 class Correspondre(Base):
   __tablename__ = "correspondre"

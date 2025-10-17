@@ -1,6 +1,5 @@
 from sqlalchemy.orm import Session
-from fastapi import Depends
-from app.core.db import SessionLocal
+from app.api.v1.db import SessionLocal
 from app.services.product_service import ProductService
 
 def get_db() -> Session:

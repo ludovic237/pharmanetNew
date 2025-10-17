@@ -1,8 +1,8 @@
 # models/facture_electronique.py
-from sqlalchemy import Column, Integer, BigInteger, String, ForeignKey
-from sqlalchemy.orm import declarative_base, relationship
+from sqlalchemy import Column, Integer, String, ForeignKey
+from sqlalchemy.orm import relationship
 
-from app.core.db import Base
+from app.api.v1.db import Base
 
 class FactureElectronique(Base):
   __tablename__ = "facture_electronique"

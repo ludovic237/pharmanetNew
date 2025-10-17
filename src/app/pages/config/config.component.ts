@@ -1,5 +1,5 @@
 import {Component, Inject, OnDestroy, OnInit, PLATFORM_ID} from '@angular/core';
-import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule} from "@angular/forms";
+import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
 import {HttpClient} from "@angular/common/http";
 import {ConfigService} from "@services/config.service";
 
@@ -26,7 +26,7 @@ import {MatSelectModule} from "@angular/material/select";
 import {FlexLayoutModule} from "@ngbracket/ngx-layout";
 import {MatStepperModule} from "@angular/material/stepper";
 import {MatRadioModule} from "@angular/material/radio";
-import {MatSnackBarModule} from "@angular/material/snack-bar";
+import {MatSnackBar, MatSnackBarModule} from "@angular/material/snack-bar";
 import {NgxPaginationModule} from "ngx-pagination";
 import {MatPaginator} from "@angular/material/paginator";
 
@@ -80,31 +80,95 @@ import {MatPaginator} from "@angular/material/paginator";
   templateUrl: './config.component.html',
   styleUrls: ['./config.component.scss']
 })
-export class ConfigComponent {
+export class ConfigComponent implements OnInit {
 
-  configForm:FormGroup;
+  configForm: FormGroup;
 
   constructor(
-    private fb:FormBuilder,
-    private configService:ConfigService
+    public snackBar: MatSnackBar,
+    private fb: FormBuilder,
+    private configService: ConfigService
   ) {
     this.configForm = this.fb.group({
-      db_type:['sqlite'],
-      db_host:['localhost'],
-      db_port:[5432],
-      db_name:['app_data'],
-      db_user:['user'],
-      db_password:['password'],
+      db_type: ["mysql", Validators.required],
+      db_host: ["localhost", Validators.required],
+      db_port: ["3306", Validators.required],
+      db_name: ["pharmanet1", Validators.required],
+      db_user: ["root", Validators.required],
+      db_password: ["root", Validators.required],
     });
   }
 
-  saveConfig(){
-    this.configService.config().subscribe({
-      next:()=>{
+  ngOnInit() {
+    this.getConfig()
+  }
+
+  saveConfig() {
+    this.configService.config(this.configForm.value).subscribe({
+      next: () => {
+        this.getConfig();
+        this.snackBar.open('Sauvegarde reussi.', '×', {
+          panelClass: 'success',
+          verticalPosition: 'top',
+          duration: 3000,
+        });
+      },
+      error: () => {
+        this.snackBar.open('Echec de la sauvegarde.', '×', {
+          panelClass: 'error',
+          verticalPosition: 'top',
+          duration: 3000,
+        });
+      }
+    })
+  }
+
+
+  getConfig() {
+    this.configService.getConfig().subscribe({
+      next: (data: any) => {
+        this.configForm.patchValue(data)
+        this.snackBar.open('Chargement reussi.', '×', {
+          panelClass: 'success',
+          verticalPosition: 'top',
+          duration: 3000,
+        });
+      },
+      error: () => {
+        this.snackBar.open('Chargement echouer.', '×', {
+          panelClass: 'error',
+          verticalPosition: 'top',
+          duration: 3000,
+        });
+      }
+    })
+  }
+
+  testDataConfig() {
+    this.configService.testDataConfig().subscribe({
+      next: (data: any) => {
+        if (data.status.toLowerCase()=="ok".toLowerCase()){
+          this.snackBar.open(data.message, '×', {
+            panelClass: 'success',
+            verticalPosition: 'top',
+            duration: 3000,
+          });
+        }
+        else {
+          this.snackBar.open(data.message, '×', {
+            panelClass: 'error',
+            verticalPosition: 'top',
+            duration: 3000,
+          });
+        }
 
       },
-      error:()=>{
-
+      error: () => {
+        this.snackBar.open('Connexion a la base de donnee echouer.', '×', {
+          panelClass: 'error',
+          verticalPosition: 'top',
+          duration: 3000,
+        });
       }
     })
   }

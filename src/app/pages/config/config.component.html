@@ -1,12 +1,13 @@
 <mat-toolbar color="primary">
-  <div fxLayout="row" fxLayoutAlign="space-between center" class="user-info">
-    <h2>Tableau de bord</h2>
+  <div fxLayout="row wrap" fxLayoutAlign="space-between center" class="w-100 p-3">
+    <h2>Configuration du serveur</h2>
+    <button mat-flat-button color="accent" (click)="testDataConfig()">Tester la connexion a la BD</button>
   </div>
 </mat-toolbar>
 <mat-card>
   <mat-card-content>
-    <form (ngSubmit)="saveConfig()" [formGroup]="configForm">
-      <div>
+    <form (ngSubmit)="saveConfig()" [formGroup]="configForm" fxLayout="row wrap">
+      <div class="p-2" fxFlex="100" fxFlex.gt-sm="50">
         <mat-form-field appearance="outline" class="w-100">
           <mat-label>Type</mat-label>
           <mat-select formControlName="db_type">
@@ -16,39 +17,40 @@
           </mat-select>
         </mat-form-field>
       </div>
-      <div class="p-2">
+      <div class="p-2" fxFlex="100" fxFlex.gt-sm="50">
         <mat-form-field appearance="outline" class="w-100">
           <mat-label>Nom de la base</mat-label>
           <input matInput type="text" formControlName="db_name">
         </mat-form-field>
       </div>
-      <div class="p-2">
+      <div class="p-2" fxFlex="100" fxFlex.gt-sm="50">
         <mat-form-field appearance="outline" class="w-100">
           <mat-label>Hote</mat-label>
           <input matInput type="text" formControlName="db_host">
         </mat-form-field>
       </div>
-      <div class="p-2">
+      <div class="p-2" fxFlex="100" fxFlex.gt-sm="50">
         <mat-form-field appearance="outline" class="w-100">
           <mat-label>Port</mat-label>
-          <input matInput type="text" formControlName="db_port">
+          <input matInput type="number" formControlName="db_port">
         </mat-form-field>
       </div>
-      <div class="p-2">
+      <div class="p-2" fxFlex="100" fxFlex.gt-sm="50">
         <mat-form-field appearance="outline" class="w-100">
           <mat-label>Utilisateur</mat-label>
           <input matInput type="text" formControlName="db_user">
         </mat-form-field>
       </div>
-      <div class="p-2">
+      <div class="p-2" fxFlex="100" fxFlex.gt-sm="50">
         <mat-form-field appearance="outline" class="w-100">
           <mat-label>Mot de passe</mat-label>
           <input matInput type="text" formControlName="db_password">
         </mat-form-field>
       </div>
       <div fxLayout="row" fxLayoutGap="8px" class="actions-bar">
-        <button mat-stroked-button >Annuler</button>
-        <button mat-flat-button color="accent" type="submit" (click)="saveConfig()">save</button>
+        <button mat-stroked-button>Annuler</button>
+        <button mat-flat-button color="accent" type="submit">save</button>
+
       </div>
     </form>
   </mat-card-content>

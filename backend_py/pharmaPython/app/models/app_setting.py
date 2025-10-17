@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 from sqlalchemy import Column, String, Integer
 
-from app.core.db import Base
+from app.api.v1.db import Base
 
 
 class AppSetting(Base):

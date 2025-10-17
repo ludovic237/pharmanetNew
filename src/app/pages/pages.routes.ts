@@ -58,6 +58,11 @@ export const routes: Routes = [
                 path: 'sign-in',
                 loadComponent: () => import('./sign-in/sign-in.component').then(c => c.SignInComponent),
                 data: { breadcrumb: 'Sign In' }
+            },
+            {
+                path: 'config',
+                loadComponent: () => import('./config/config.component').then(c => c.ConfigComponent),
+                data: { breadcrumb: 'Config' }
             }
         ]
     }

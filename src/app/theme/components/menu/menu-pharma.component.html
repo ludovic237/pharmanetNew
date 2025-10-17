@@ -1,5 +1,6 @@
 <mat-toolbar id="menu-toolbar" class="top-navbar mat-elevation-z2" fxLayoutAlign="center center">
-  <a mat-button routerLink="/" routerLinkActive="horizontal-active-link" [routerLinkActiveOptions]="{exact:true}">Connexion</a>
+  <a mat-button routerLink="/" routerLinkActive="horizontal-active-link"
+     [routerLinkActiveOptions]="{exact:true}">Connexions</a>
 
   <a mat-button routerLink="/contact" routerLinkActive="horizontal-active-link"
   [routerLinkActiveOptions]="{exact:true}">{{ 'NAV.CONTACT' | translate }}</a>
@@ -8,5 +9,10 @@
     <a mat-button routerLink="/admin" routerLinkActive="horizontal-active-link"
     [routerLinkActiveOptions]="{exact:true}">{{ 'NAV.ADMIN' | translate }}</a>
   }
+
+  <a mat-button routerLink="/config" routerLinkActive="horizontal-active-link"
+     [routerLinkActiveOptions]="{exact:true}">
+    Configuration
+  </a>
 </mat-toolbar>
 

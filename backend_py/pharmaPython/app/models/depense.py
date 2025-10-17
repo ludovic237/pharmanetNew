@@ -3,7 +3,7 @@ from typing import Optional
 
 from pydantic import BaseModel
 from sqlalchemy import Column, Integer, String, DateTime
-from app.core.db import Base
+from app.api.v1.db import Base
 
 
 class Depense(Base):

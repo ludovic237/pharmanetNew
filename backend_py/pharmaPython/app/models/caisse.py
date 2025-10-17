@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, Float, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
-from app.core.db import Base
+from app.api.v1.db import Base
 
 class Caisse(Base):
   __tablename__ = "caisse"

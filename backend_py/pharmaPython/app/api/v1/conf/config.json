@@ -1,0 +1,8 @@
+{
+    "db_type": "mysql",
+    "db_host": "localhost",
+    "db_port": "3306",
+    "db_name": "pharmanet1",
+    "db_user": "root",
+    "db_password": "root"
+}

@@ -12,8 +12,9 @@ import { OverlayContainer } from '@angular/cdk/overlay';
 import { CustomOverlayContainer } from './theme/utils/custom-overlay-container';
 
 export function HttpLoaderFactory(httpClient: HttpClient) {
-  return new TranslateHttpLoader(httpClient, environment.url +'/i18n/', '.json');
+  // return new TranslateHttpLoader(httpClient, environment.url +'/i18n/', '.json');
   // return new TranslateHttpLoader(httpClient, '/i18n/', '.json');
+  return new TranslateHttpLoader(httpClient, '/i18n/', '.json');
 }
 
 import { InputFileConfig, InputFileModule } from './theme/components/input-file/input-file.module';

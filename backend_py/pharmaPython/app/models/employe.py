@@ -3,8 +3,7 @@ from typing import Optional
 from pydantic import BaseModel
 from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
-from app.core.db import Base
-from app.models.user import User
+from app.api.v1.db import Base
 
 
 class Employe(Base):

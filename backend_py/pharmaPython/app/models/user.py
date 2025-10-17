@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from sqlalchemy import Column, Integer, String
-from app.core.db import Base
+from app.api.v1.db import Base
 
 class User(Base):
   __tablename__ = "user"

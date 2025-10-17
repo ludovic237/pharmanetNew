@@ -1,8 +1,7 @@
 from pydantic import BaseModel, ConfigDict
 from sqlalchemy import Column, Integer, String
-from sqlalchemy.orm import Mapped, mapped_column
 
-from app.core.db import Base
+from app.api.v1.db import Base
 
 class Forme(Base):
   __tablename__ = "forme"
