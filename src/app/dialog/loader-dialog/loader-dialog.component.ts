@@ -44,6 +44,8 @@ import {MatSnackBar} from "@angular/material/snack-bar";
 import html2canvas from "html2canvas";
 import {jsPDF} from "jspdf";
 import {MatProgressSpinnerModule} from "@angular/material/progress-spinner";
+import {LoaderService} from "@services/loader.service";
+import {CommonModule} from "@angular/common";
 
 @Component({
   selector: 'app-loader-dialog',
@@ -57,6 +59,7 @@ import {MatProgressSpinnerModule} from "@angular/material/progress-spinner";
     VentesService,
     PrescripteursService],
   imports: [
+    CommonModule,
     MatMenuModule,
     MatListModule,
     MatChipsModule,
@@ -104,6 +107,6 @@ import {MatProgressSpinnerModule} from "@angular/material/progress-spinner";
   styleUrl: './loader-dialog.component.scss'
 })
 export class LoaderDialogComponent{
-
-
+  constructor(public loader:LoaderService) {
+  }
 }

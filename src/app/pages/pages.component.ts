@@ -23,6 +23,7 @@ import {FooterComponent} from '../theme/components/footer/footer.component';
 import {FlexLayoutModule} from '@ngbracket/ngx-layout';
 import {MatButtonModule} from '@angular/material/button';
 import {MenuPharmaComponent} from "../theme/components/menu/menu-pharma.component";
+import {LoaderDialogComponent} from "../dialog/loader-dialog/loader-dialog.component";
 
 @Component({
   selector: 'app-pages',
@@ -36,14 +37,12 @@ import {MenuPharmaComponent} from "../theme/components/menu/menu-pharma.componen
     MatBadgeModule,
     MatButtonModule,
     TranslateModule,
+    LoaderDialogComponent,
     SidenavMenuComponent,
     TopMenuComponent,
-    CategoryListComponent,
     MenuPharmaComponent,
     BreadcrumbComponent,
-    OptionsComponent,
-    FooterComponent,
-    DecimalPipe
+    FooterComponent
   ],
   templateUrl: './pages.component.html',
   styleUrl: './pages.component.scss',

@@ -34,7 +34,8 @@
     </div>
     <div fxLayout="row" fxLayoutAlign="end center">
       <a mat-button [matMenuTriggerFor]="langMenu" #langMenuTrigger="matMenuTrigger">
-        <img [src]="'images/flags/'+translateService.currentLang+'.svg'" width="18" [alt]="translateService.currentLang">
+        <img [src]="'images/flags/'+translateService.currentLang+'.svg'" width="18"
+             [alt]="translateService.currentLang">
         <span fxShow="false" fxShow.gt-sm class="flag-menu-title">{{ getLangText(translateService.currentLang) }}</span>
         <mat-icon class="mat-icon-sm caret" iconPositionEnd>arrow_drop_down</mat-icon>
       </a>
@@ -75,11 +76,11 @@
             <img [alt]="getInitials(nom)" src=""
                  style="background: #cacaca;padding: 0px;font-size: x-large;
                  height: 80px;justify-content: center;justify-items: center;align-content: center;align-items: center;text-align: center;">
-          }  @else if (userImage) {
+          } @else if (userImage) {
             <img alt="N/A" src=""
                  style="background: #cacaca;padding: 0px;
                  height: 80px;justify-content: center;justify-items: center;align-content: center;align-items: center;text-align: center;">
-          } @else{
+          } @else {
             <img [src]="userImage" alt="user-image">
           }
 
@@ -108,6 +109,7 @@
   </mat-drawer>
   <mat-drawer-content>
     <app-breadcrumb></app-breadcrumb>
+    <app-loader-dialog></app-loader-dialog>
     <router-outlet></router-outlet>
   </mat-drawer-content>
 </mat-drawer-container>

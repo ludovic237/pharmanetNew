@@ -28,6 +28,7 @@ import {LoaderService} from "@services/loader.service";
 import {TranslateModule, TranslateService} from '@ngx-translate/core';
 import {join} from "node:path";
 import {MatMenuModule} from "@angular/material/menu";
+import {LoaderDialogComponent} from "../dialog/loader-dialog/loader-dialog.component";
 
 
 @Component({
@@ -41,12 +42,13 @@ import {MatMenuModule} from "@angular/material/menu";
     MatSidenavModule,
     NgScrollbarModule,
     TranslateModule,
+    LoaderDialogComponent,
     BreadcrumbComponent,
     FullScreenComponent,
     AdminMenuComponent,
     MatMenuModule,
     MatIconModule
-],
+  ],
   templateUrl: './admin.component.html',
   styleUrl: './admin.component.scss'
 })
@@ -63,7 +65,7 @@ export class AdminComponent implements OnInit {
   constructor(
     public dialog: MatDialog,
     private cdr: ChangeDetectorRef,
-     public loaderService: LoaderService,
+    public loaderService: LoaderService,
     public authService: AuthService,
     public snackBar: MatSnackBar, public settingsService: SettingsService,
     public router: Router,
@@ -77,7 +79,7 @@ export class AdminComponent implements OnInit {
 
   ngOnInit() {
     this.translateService.setDefaultLang('fr');
-    this.translateService.langs = ['fr','en']
+    this.translateService.langs = ['fr', 'en']
     this.translateService.use('fr');
     this.nom = localStorage.getItem("nom")
     this.role = localStorage.getItem("role") ? localStorage.getItem("role") : "N/A";
@@ -186,7 +188,7 @@ export class AdminComponent implements OnInit {
             verticalPosition: 'top',
             duration: 3000,
           });
-            localStorage.removeItem('token');
+          localStorage.removeItem('token');
           window.location.href = '/sign-in';
         }
       }
@@ -213,15 +215,14 @@ export class AdminComponent implements OnInit {
     });
   }
 
-  getInitials(name:string){
-    return name.trim().split(/\s+/).slice(0,2).map(w => w.charAt(0).toUpperCase()).join('')
+  getInitials(name: string) {
+    return name.trim().split(/\s+/).slice(0, 2).map(w => w.charAt(0).toUpperCase()).join('')
   }
 
   public getLangText(lang: string) {
     if (lang == 'fr') {
       return 'French';
-    }
-    else {
+    } else {
       return 'English';
     }
   }

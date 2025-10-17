@@ -13,6 +13,7 @@ import {AppSettingsService} from "@services/app-settings.service";
 import {AuthService} from "@services/auth.service";
 import {filter} from "rxjs";
 import {LoaderService} from "@services/loader.service";
+import {LoaderDialogComponent} from "./dialog/loader-dialog/loader-dialog.component";
 
 @Component({
   selector: 'app-root',
@@ -24,7 +25,8 @@ import {LoaderService} from "@services/loader.service";
     MatInputModule,
     RouterOutlet,
     TranslateModule,
-    NgxSpinnerModule
+    NgxSpinnerModule,
+    LoaderDialogComponent
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'

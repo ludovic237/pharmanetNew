@@ -1,6 +1,6 @@
 import {inject, Injectable, NgZone, PLATFORM_ID} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import {Observable} from 'rxjs';
+import {BehaviorSubject, Observable} from 'rxjs';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {environment} from '../../environments/environment';
 import {MatDialog, MatDialogModule, MatDialogRef} from "@angular/material/dialog";
@@ -12,6 +12,8 @@ import {isPlatformBrowser} from "@angular/common";
 })
 export class LoaderService {
 
+  private _loading = new BehaviorSubject<boolean>(false)
+  readonly loading$ = this._loading.asObservable()
   private requests = 0
   private isBrowser = isPlatformBrowser(inject(PLATFORM_ID))
   private dialogRef?: MatDialogRef<LoaderDialogComponent>
@@ -21,32 +23,32 @@ export class LoaderService {
   }
 
   show() {
-    if (!this.isBrowser) return
-    console.log("this.isBrowser show")
-    console.log(this.isBrowser)
-    console.log(PLATFORM_ID)
+    // if (!this.isBrowser) return
     this.requests++;
-    if (this.requests === 1) {
-      this.dialogRef = this.matDialog.open(LoaderDialogComponent, {
-        disableClose: true,
-        // panelClass: 'loader-dialog-panel',
-        // backdropClass: 'loader-backdrop'
-      })
-    }
+    this._loading.next(true)
+    // if (this.requests === 1) {
+    //   this.dialogRef = this.matDialog.open(LoaderDialogComponent, {
+    //     disableClose: true,
+    //     panelClass: 'loader-dialog-panel',
+    //     backdropClass: 'loader-backdrop'
+    //   })
+    // }
   }
 
   hide() {
-    if (!this.isBrowser) return;
-    console.log("this.isBrowser hide")
-    console.log(this.isBrowser)
-    console.log(PLATFORM_ID)
-    if (this.requests > 0) {
-      this.requests--;
+    // if (!this.isBrowser) return;
+    // if (this.requests > 0) {
+    this.requests--;
+    // }
+    // if (this.dialogRef && this.requests === 0) {
+    //   this.dialogRef.close()
+    //   this.dialogRef = null
+    // }
+    if (this.requests <= 0) {
+      this.requests = 0
+      this._loading.next(false)
     }
-    if (this.dialogRef && this.requests === 0) {
-      this.dialogRef.close()
-      // this.dialogRef = undefined
-    }
+
   }
 
   reset() {

@@ -1,7 +1,9 @@
-<div style="text-align: center;padding: 30px;">
-  <mat-progress-spinner
-  mode="indeterminate"
-  diameter="60">
-  </mat-progress-spinner>
-  <p style="margin-top: 15px">Veuillez patientez</p>
+<div class="loader-overlay" *ngIf="loader.loading$ | async" style="text-align: center;padding: 30px;">
+  <mat-card class="p-4" fxLayout="row" fxLayoutAlign="center center">
+    <mat-progress-spinner
+      mode="indeterminate"
+      diameter="60">
+    </mat-progress-spinner>
+    <p class="ml-2">Veuillez patientez</p>
+  </mat-card>
 </div>
