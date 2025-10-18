@@ -14,7 +14,6 @@
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-
 .badge {
   display: inline-block;
   padding: 4px 8px;
@@ -39,6 +38,11 @@
 
 .badge.annuler {
   background-color: #dc3545; /* Rouge */
+}
+
+.badge.commande {
+  background-color: #f6ebec; /* Rouge */
+  color: #dc3545; /* Rouge */
 }
 
 .badge.cloturee {

@@ -336,6 +336,8 @@ export class DetailCommandeDialogComponent implements OnInit {
         return 'en-attente';
       case 'cloturee':
         return 'cloturee';
+      case 'commandé':
+        return 'commande';
       case 'livree':
         return 'livree';
       case 'en_cours':
