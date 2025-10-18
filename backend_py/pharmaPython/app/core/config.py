@@ -10,7 +10,7 @@ class Settings(BaseSettings):
 
   app_name: str = "Pharma API"
   database_url: str = "mysql+pymysql://root:root@localhost:3306/pharmanet1?charset=utf8mb4"
-  cors_origins: list[str] = ["http://localhost:4200"]
+  cors_origins: list[str] = ["http://localhost:4200","http://127.0.0.1:8000"]
   class Config:
     env_file = ".env"
 

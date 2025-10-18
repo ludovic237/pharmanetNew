@@ -1,0 +1,32 @@
+{
+  "name": "pharmanet",
+  "version": "1.0.0",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win nsis",
+    "build_test": "electron-packager . Pharmanet --platform=win32 --arch=x64 --icon=./favicon.icon --overwrite --extra-resource=../dist/emporium/browser --extra-resource=../backend_py/pharmaPython/app/dist ",
+    "build": "electron-packager . Pharmanet --platform=win32 --arch=x64 --icon=./favicon.icon --overwrite --ignore=node_modules --extra-resource=./dist --extra-resource=../backend_py/pharmaPython/app/dist ",
+    "build_old": "electron-packager . Pharmanet --platform=win32 --arch=x64 --icon=.icon",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "build": {
+    "appId": "com.monapp.desktop",
+    "productName": "Pharmanet",
+    "directories": {
+      "output": "release"
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "favicon.ico"
+    }
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "electron": "^38.3.0",
+    "electron-builder": "^26.0.12"
+  }
+}

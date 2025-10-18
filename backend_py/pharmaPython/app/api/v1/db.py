@@ -30,12 +30,12 @@ def get_engine():
 
 
 try:
-  # engine = create_engine(
-  #   DATABASE_URL,
-  #   future=True,
-  #   pool_pre_ping=True,
-  # )
-  engine = get_engine()
+  engine = create_engine(
+    DATABASE_URL,
+    future=True,
+    pool_pre_ping=True,
+  )
+  # engine = get_engine()
   SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False, future=True)
   Base = declarative_base()
   print("Connection to the database was successful!")
@@ -46,7 +46,12 @@ except Exception as e:
 def init_db():
   global engine
   try:
-    engine = get_engine()
+    # engine = get_engine()
+    engine = engine = create_engine(
+      DATABASE_URL,
+      future=True,
+      pool_pre_ping=True,
+    )
     print("Base de donnee configuree")
   except Exception as e:
     print("impossible de configurer la base de donnee")
@@ -54,7 +59,12 @@ def init_db():
 
 def test_db_connection():
   # global engine
-  engine = get_engine()
+  # engine = get_engine()
+  engine = create_engine(
+    DATABASE_URL,
+    future=True,
+    pool_pre_ping=True,
+  )
   if not engine:
     return {"status": "error", "message": "Aucune configuration de la base de donnee"}
   try:

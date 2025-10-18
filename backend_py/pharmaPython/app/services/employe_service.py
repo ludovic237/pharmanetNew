@@ -10,7 +10,7 @@ from app.repositories.user_repository import UserRepository
 from app.schemas.auth_dto import RegisterRequest
 from app.schemas.employe_dto import EmployeNewDto, EmployeDto
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+# pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 class EmployeService:
@@ -34,7 +34,7 @@ class EmployeService:
     user = self.user_repo.save(user)
 
     employe = Employe(
-      password=pwd_context.hash(register_request.password),
+      # password=pwd_context.hash(register_request.password),
       user_id=user.id,
       identifiant=employe_dto.identifiant,
     )
