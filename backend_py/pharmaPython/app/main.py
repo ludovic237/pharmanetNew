@@ -20,14 +20,14 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from fastapi import FastAPI, APIRouter
 from sqlalchemy import text
 
-# from app.api.deps import get_db
+from app.api.deps import get_db
 # from app.api.deps import get_db
 from app.api.router import api_router
 from app.core.app_setting_initializer import initialize_app_settings
 from app.core.config import settings
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.v1.db import SessionLocal, Base, engine, test_db_connection, init_db
+from app.api.v1.db import SessionLocal, Base, engine, test_db_connection
 from app.services.stock_alert_service import compute_and_store_alerts
 
 Base.metadata.create_all(bind=engine)
@@ -64,21 +64,21 @@ app.include_router(api_router)
 scheduler = BackgroundScheduler()
 
 
-# def job_compute_alerts():
-#   # SessionLocal = get_db_session_factory()
-#   db = get_db()
-#   try:
-#     compute_and_store_alerts(db)
-#   finally:
-#     db.close()
-#
-#
-# def start_scheduler():
-#   scheduler.add_job(job_compute_alerts, "interval", hours=6, id="alerts_job", replace_existing=True)
-#   scheduler.start()
+def job_compute_alerts():
+  # SessionLocal = get_db_session_factory()
+  db = get_db()
+  try:
+    compute_and_store_alerts(db)
+  finally:
+    db.close()
 
 
-init_db()
+def start_scheduler():
+  scheduler.add_job(job_compute_alerts, "interval", hours=6, id="alerts_job", replace_existing=True)
+  scheduler.start()
+
+
+
 
 # Health check
 @app.get("/health")
@@ -90,5 +90,5 @@ def health():
 if __name__ == "__main__":
   import uvicorn
 
-  uvicorn.run(app, host="127.0.0.1", port=8000)
+  uvicorn.run("app.main:app", host="127.0.0.1", port=8000, reload=True)
   # uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=True)

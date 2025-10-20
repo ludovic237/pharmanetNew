@@ -1,31 +1,44 @@
-import { ApplicationConfig, importProvidersFrom } from '@angular/core';
-import { PreloadAllModules, provideRouter, withPreloading, withViewTransitions } from '@angular/router';
+import {ApplicationConfig, importProvidersFrom} from '@angular/core';
+import {PreloadAllModules, provideRouter, withPreloading, withViewTransitions} from '@angular/router';
 
-import { routes } from './app.routes';
-import { provideClientHydration } from '@angular/platform-browser';
-import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
-import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
-import { TranslateHttpLoader } from '@ngx-translate/http-loader';
+import {routes} from './app.routes';
+import {provideClientHydration} from '@angular/platform-browser';
+import {provideAnimationsAsync} from '@angular/platform-browser/animations/async';
+import {TranslateLoader, TranslateModule, TranslationObject} from '@ngx-translate/core';
+import {TranslateHttpLoader} from '@ngx-translate/http-loader';
 import {HTTP_INTERCEPTORS, HttpClient, provideHttpClient, withFetch, withInterceptors} from '@angular/common/http';
-import { environment } from '../environments/environment';
-import { OverlayContainer } from '@angular/cdk/overlay';
-import { CustomOverlayContainer } from './theme/utils/custom-overlay-container';
+import {environment} from '../environments/environment';
+import {OverlayContainer} from '@angular/cdk/overlay';
+import {CustomOverlayContainer} from './theme/utils/custom-overlay-container';
 
 export function HttpLoaderFactory(httpClient: HttpClient) {
   // return new TranslateHttpLoader(httpClient, environment.url +'/i18n/', '.json');
   // return new TranslateHttpLoader(httpClient, '/i18n/', '.json');
-  return new TranslateHttpLoader(httpClient, '/i18n/', '.json');
+
+
+  const isElectron = !!(window && (window as any).process && (window as any).process.type);
+  const basePath = isElectron ? './i18n/' : '/i18n/';
+  return new TranslateHttpLoader(httpClient, basePath, '.json');
 }
 
-import { InputFileConfig, InputFileModule } from './theme/components/input-file/input-file.module';
+export class StaticTranslateLoader implements TranslateLoader {
+  getTranslation(lang: string) {
+    const translations = require(`../../public/i18n/${lang}.json`)
+    return of(translations)
+  }
+}
+
+import {InputFileConfig, InputFileModule} from './theme/components/input-file/input-file.module';
+
 const config: InputFileConfig = {
   fileAccept: '*'
 };
 
-import { InMemoryWebApiModule } from 'angular-in-memory-web-api';
-import { UsersData } from './common/data/users-data';
+import {InMemoryWebApiModule} from 'angular-in-memory-web-api';
+import {UsersData} from './common/data/users-data';
 import {LoaderInterceptor} from "./theme/utils/loader-interceptor";
 import {AuthInterceptor} from "./theme/utils/auth-interceptor";
+import {Observable, of} from "rxjs";
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -49,13 +62,14 @@ export const appConfig: ApplicationConfig = {
       TranslateModule.forRoot({
         loader: {
           provide: TranslateLoader,
-          useFactory: HttpLoaderFactory,
-          deps: [HttpClient]
+          useClass: StaticTranslateLoader
+          // useFactory: HttpLoaderFactory,
+          // deps: [HttpClient]
         }
       }),
       InputFileModule.forRoot(config),
-      InMemoryWebApiModule.forRoot(UsersData, { passThruUnknownUrl: true, delay: 1000 })
+      InMemoryWebApiModule.forRoot(UsersData, {passThruUnknownUrl: true, delay: 1000})
     ]),
-    { provide: OverlayContainer, useClass: CustomOverlayContainer }
+    {provide: OverlayContainer, useClass: CustomOverlayContainer}
   ]
 };
