@@ -15,10 +15,13 @@
 #
 # # See PyCharm help at https://www.jetbrains.com/help/pycharm/
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from apscheduler.schedulers.background import BackgroundScheduler
 from fastapi import FastAPI, APIRouter
 from sqlalchemy import text
+from starlette.responses import FileResponse
+from starlette.staticfiles import StaticFiles
 
 from app.api.deps import get_db
 # from app.api.deps import get_db
@@ -33,6 +36,7 @@ from app.services.stock_alert_service import compute_and_store_alerts
 Base.metadata.create_all(bind=engine)
 
 router = APIRouter()
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -59,9 +63,19 @@ app.add_middleware(
 )
 
 # Montage des routes (équivalent @RestController scan)
-app.include_router(api_router)
+app.include_router(api_router, prefix="/api")
+
+REPO_ROOT = Path(__file__).resolve().parents[3]  # => .../pharmaNew
+FRONT_DIST = REPO_ROOT / "dist" / "emporium" / "browser"  # => .../pharmaNew/dist/emporium/browser
 
 scheduler = BackgroundScheduler()
+
+app.mount("/", StaticFiles(directory=str(FRONT_DIST), html=True), name="frontend")
+
+
+@app.get("/")
+async def spa_fallback(full_path: str):
+  return FileResponse(FRONT_DIST / "index.html")
 
 
 def job_compute_alerts():
@@ -76,8 +90,6 @@ def job_compute_alerts():
 def start_scheduler():
   scheduler.add_job(job_compute_alerts, "interval", hours=6, id="alerts_job", replace_existing=True)
   scheduler.start()
-
-
 
 
 # Health check

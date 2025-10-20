@@ -86,7 +86,7 @@ app.add_middleware(
 app.include_router(api_router)
 
 # ---- 2) Angular (SPA) servi à la racine
-REPO_ROOT = Path(__file__).resolve().parents[2]          # => .../pharmaNew
+REPO_ROOT = Path(__file__).resolve().parents[3]          # => .../pharmaNew
 # FRONT_DIST = REPO_ROOT / "dist" / "emporium" / "browser" # => .../pharmaNew/dist/emporium/browser
 FRONT_DIST = get_front_dist()
 

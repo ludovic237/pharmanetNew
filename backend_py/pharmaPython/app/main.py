@@ -73,7 +73,7 @@ scheduler = BackgroundScheduler()
 app.mount("/", StaticFiles(directory=str(FRONT_DIST), html=True), name="frontend")
 
 
-@app.get("/")
+@app.get("/{full_path:path}")
 async def spa_fallback(full_path: str):
   return FileResponse(FRONT_DIST / "index.html")
 
@@ -102,5 +102,6 @@ def health():
 if __name__ == "__main__":
   import uvicorn
 
-  uvicorn.run("app.main:app", host="127.0.0.1", port=8000, reload=True)
+  uvicorn.run(app, host="127.0.0.1", port=8000)
+  # uvicorn.run("app.main:app", host="127.0.0.1", port=8000, reload=True)
   # uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=True)

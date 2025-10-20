@@ -21,7 +21,7 @@ function startPython() {
     args = [script];
     pyProc = spawn('python', args);
   } else {
-    script = path.join(process.resourcesPath, 'app', 'backend_py', 'pharmaPython', 'app', 'dist','main.exe');
+    script = path.join(process.resourcesPath,  'backend_py', 'pharmaPython', 'app', 'dist','main.exe');
     pyProc = spawn(script, [])
   }
 
