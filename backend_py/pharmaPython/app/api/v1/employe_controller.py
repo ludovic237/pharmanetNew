@@ -21,7 +21,7 @@ router = APIRouter(
 # ----------------------------
 # Créer un utilisateur + employé
 # ----------------------------
-@router.post("/", response_model=Dict[str, Any])
+@router.post("", response_model=Dict[str, Any])
 def create_user_and_employee(request: UserEmployeeRequest, db: Session = Depends(get_db)):
   employee_service = EmployeService(db)
   user_service = UserService(db)
@@ -35,7 +35,7 @@ def create_user_and_employee(request: UserEmployeeRequest, db: Session = Depends
 # ----------------------------
 # Récupérer tous les employés
 # ----------------------------
-@router.get("/")
+@router.get("")
 def get_all_employees(db: Session = Depends(get_db)):
   employee_service = EmployeService(db)
   return employee_service.get_all_employees()

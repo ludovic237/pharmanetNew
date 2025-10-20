@@ -28,7 +28,8 @@ from app.api.v1 import type_sortie_controller
 from app.api.v1 import user_controller
 from app.api.v1 import vente_controller
 
-api_router = APIRouter(prefix="/api")
+# api_router = APIRouter(prefix="/api")
+api_router = APIRouter(prefix="")
 
 api_router.include_router(app_setting_controller.router)
 api_router.include_router(auth_controller.router)

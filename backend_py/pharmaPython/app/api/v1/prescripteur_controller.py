@@ -13,11 +13,11 @@ router = APIRouter(
   dependencies=[Depends(jwt_authentication)],
 )
 
-@router.post("/", response_model=PrescripteurSchema, status_code=201)
+@router.post("", response_model=PrescripteurSchema, status_code=201)
 def create_prescripteur(prescripteur: PrescripteurIn, db: Session = Depends(get_db)):
   return PrescripteurService(db).create_prescripteur(prescripteur)
 
-@router.get("/", response_model=List[PrescripteurSchema])
+@router.get("", response_model=List[PrescripteurSchema])
 def get_all_prescripteurs(db: Session = Depends(get_db)):
   return PrescripteurService(db).get_all_prescripteurs()
 

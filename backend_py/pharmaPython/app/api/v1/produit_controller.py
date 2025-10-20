@@ -18,7 +18,7 @@ router = APIRouter(
 )
 
 
-@router.post("/", status_code=201)
+@router.post("", status_code=201)
 def create_produit(request: ProduitRequestDto, db: Session = Depends(get_db)):
   try:
     return ProduitService(db).create_produit(request)
@@ -56,7 +56,7 @@ def get_enrayon_detail_by_id(id: str, db: Session = Depends(get_db)):
   return ProduitService(db).get_enrayon_detail_by_id(id)
 
 
-@router.get("/")
+@router.get("")
 def get_all_produits(
   page: int = Query(0, ge=0),
   size: int = Query(10, ge=1),

@@ -28,7 +28,7 @@ router = APIRouter(
 # ----------------------------
 # Récupérer tous les bons
 # ----------------------------
-@router.get("/")
+@router.get("")
 def get_all_bons(db: Session = Depends(get_db)):
   service = BonCaisseService(db)
   return service.get_all_bons()
@@ -65,7 +65,7 @@ def get_bon_by_codebarre_id(codebarre_id: str, db: Session = Depends(get_db)):
 # ----------------------------
 # Créer un bon
 # ----------------------------
-@router.post("/", response_model=BonCaisseSchema)
+@router.post("", response_model=BonCaisseSchema)
 def create_bon(bon: BonCaisseData, db: Session = Depends(get_db)):
   service = BonCaisseService(db)
   return service.create_bon(bon)

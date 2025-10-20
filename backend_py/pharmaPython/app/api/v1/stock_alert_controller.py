@@ -8,7 +8,7 @@ from app.models.stock_alert import StockAlert, StockAlertSchema
 
 router = APIRouter(prefix="/alerts", tags=["alerts"])
 
-@router.get("/", response_model=List[StockAlertSchema])
+@router.get("", response_model=List[StockAlertSchema])
 def list_alerts(db: Session = Depends(get_db)):
   return db.query(StockAlert).filter(StockAlert.status=="OPEN").order_by(StockAlert.created_at.desc()).all()
 

@@ -14,12 +14,12 @@ router = APIRouter(
 )
 
 
-@router.post("/", response_model=MagasinSchema, status_code=201)
+@router.post("", response_model=MagasinSchema, status_code=201)
 def create_magasin(magasin: MagasinIn, db: Session = Depends(get_db)):
   return MagasinService(db).create_magasin(magasin)
 
 
-@router.get("/", response_model=List[MagasinSchema])
+@router.get("", response_model=List[MagasinSchema])
 def get_all_magasins(db: Session = Depends(get_db)):
   return MagasinService(db).get_all_magasins()
 

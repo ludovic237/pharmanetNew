@@ -9,7 +9,7 @@ from app.utility.jwt_authentication import jwt_authentication
 
 router = APIRouter(prefix="/admin/tickets", tags=["Tickets"],  dependencies=[Depends(jwt_authentication)],)
 
-@router.get("/", response_model=List[TicketCaisseSchema])
+@router.get("", response_model=List[TicketCaisseSchema])
 def get_all_tickets(db: Session = Depends(get_db)):
   return TicketService(db, ticket_repo=...).get_all_tickets()
 
@@ -24,7 +24,7 @@ def get_ticket_by_id(id: int = Path(..., ge=1), db: Session = Depends(get_db)):
 def get_ticket_by_codebarre(codebarre: int, db: Session = Depends(get_db)):
   return TicketService(db, ticket_repo=...).get_ticket_by_codebarre(codebarre)
 
-@router.post("/", response_model=TicketCaisseSchema, status_code=201)
+@router.post("", response_model=TicketCaisseSchema, status_code=201)
 def create_ticket(ticket: TicketCaisseIn, db: Session = Depends(get_db)):
   return TicketService(db, ticket_repo=...).create_ticket(ticket)
 

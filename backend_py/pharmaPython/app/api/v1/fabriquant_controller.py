@@ -11,13 +11,13 @@ from app.utility.jwt_authentication import jwt_authentication
 router = APIRouter(prefix="/fabriquants", tags=["Fabriquants"], dependencies=[Depends(jwt_authentication)], )
 
 
-@router.post("/", response_model=FabriquantSchema, status_code=201)
+@router.post("", response_model=FabriquantSchema, status_code=201)
 def create_fabriquant(body: FabriquantCreateSchema, db: Session = Depends(get_db)):
   service = FabriquantService(db)
   return service.create_fabriquant(body)
 
 
-@router.get("/")
+@router.get("")
 def get_all_fabriquants(db: Session = Depends(get_db)):
   service = FabriquantService(db)
   return service.get_all_fabriquants()  # ORM -> sérialisé grâce à from_attributes

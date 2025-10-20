@@ -15,7 +15,7 @@ router = APIRouter(
 )
 
 
-@router.get("/")
+@router.get("")
 def get_type_sortie_pageable(
   nom: Optional[str] = Query(None),
   page: int = Query(0, ge=0),

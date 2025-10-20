@@ -15,7 +15,7 @@ router = APIRouter(
 )
 
 
-@router.get("/")
+@router.get("")
 def list_depenses(db: Session = Depends(get_db)):
   return DepenseService(db).get_all_depenses()
 
@@ -36,7 +36,7 @@ def list_depenses_pageable(
   return full
 
 
-@router.post("/", response_model=DepenseIn)
+@router.post("", response_model=DepenseIn)
 def create(depenseData: Dict[str, Any], db: Session = Depends(get_db)):
   """
   Kotlin: si la map contient > 3 champs → createDepenseMap, sinon createDepense(designation, prixUnitaire)

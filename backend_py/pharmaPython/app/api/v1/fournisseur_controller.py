@@ -13,11 +13,11 @@ router = APIRouter(
   dependencies=[Depends(jwt_authentication)],
 )
 
-@router.post("/", response_model=FournisseurSchema, status_code=201)
+@router.post("", response_model=FournisseurSchema, status_code=201)
 def create_fournisseur(fournisseur: FournisseurIn, db: Session = Depends(get_db)):
   return FournisseurService(db).create_fournisseur(fournisseur)
 
-@router.get("/")
+@router.get("")
 def get_all_fournisseurs(db: Session = Depends(get_db)):
   return FournisseurService(db).get_all_fournisseurs()
 

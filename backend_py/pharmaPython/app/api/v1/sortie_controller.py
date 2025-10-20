@@ -10,7 +10,7 @@ from app.utility.jwt_authentication import jwt_authentication
 router = APIRouter(prefix="/sortie-stock", tags=["Sorties de stock"],  dependencies=[Depends(jwt_authentication)],)
 
 # GET /
-@router.get("/")
+@router.get("")
 def get_sortie_stock_pageable(
   nomProduit: Optional[str] = Query(None),
   typeSortie: Optional[str] = Query(None),

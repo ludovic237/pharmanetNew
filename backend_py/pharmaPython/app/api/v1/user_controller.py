@@ -14,7 +14,7 @@ router = APIRouter(
   dependencies=[Depends(jwt_authentication)],
 )
 
-@router.get("/")
+@router.get("")
 def get_all_users(db: Session = Depends(get_db)):
   return UserService(db).get_all_users()
 
@@ -25,7 +25,7 @@ def get_user_by_id(id: int = Path(..., ge=1), db: Session = Depends(get_db)):
     raise HTTPException(status_code=404, detail="User not found")
   return user
 
-@router.post("/", response_model=UserSchema, status_code=201)
+@router.post("", response_model=UserSchema, status_code=201)
 def create_user(user: UserIn, db: Session = Depends(get_db)):
   # print("Creating user:", user)  # si tu veux garder le println
   return UserService(db).create_user(user)

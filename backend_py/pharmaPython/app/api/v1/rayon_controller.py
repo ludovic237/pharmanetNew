@@ -10,12 +10,12 @@ from app.utility.jwt_authentication import jwt_authentication
 router = APIRouter(prefix="/rayons", tags=["Rayons"], dependencies=[Depends(jwt_authentication)], )
 
 
-@router.post("/", status_code=201, response_model=RayonSchema)
+@router.post("", status_code=201, response_model=RayonSchema)
 def create_rayon(rayon: RayonIn, db: Session = Depends(get_db)):
   return RayonService(db).create_rayon(rayon)
 
 
-@router.get("/", response_model=List[RayonSchema])
+@router.get("", response_model=List[RayonSchema])
 def get_all_rayons(db: Session = Depends(get_db)):
   return RayonService(db).get_all_rayons()
 

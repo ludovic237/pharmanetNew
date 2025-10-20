@@ -22,7 +22,7 @@ router = APIRouter(
 # ----------------------------
 # Créer une catégorie
 # ----------------------------
-@router.post("/", response_model=CategorieSchema, status_code=201)
+@router.post("", response_model=CategorieSchema, status_code=201)
 def create_categorie(categorie: CategorieCreateSchema, db: Session = Depends(get_db)):
   service = CategorieService(db)
   return service.create_categorie(categorie)
@@ -31,7 +31,7 @@ def create_categorie(categorie: CategorieCreateSchema, db: Session = Depends(get
 # ----------------------------
 # Récupérer toutes les catégories
 # ----------------------------
-@router.get("/")
+@router.get("")
 def get_all_categories(db: Session = Depends(get_db)):
   service = CategorieService(db)
   return service.get_all_categories()

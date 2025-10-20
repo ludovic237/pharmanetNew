@@ -14,12 +14,12 @@ router = APIRouter(
 )
 
 
-@router.post("/", response_model=FormeSchema,  status_code=201)
+@router.post("", response_model=FormeSchema,  status_code=201)
 def create_forme(body: FormCreateSchema, db: Session = Depends(get_db)):
   return FormeService(db).create_forme(body)
 
 
-@router.get("/", response_model=List[FormeSchema])
+@router.get("", response_model=List[FormeSchema])
 def get_all_formes(
   page: int = Query(0, ge=0),
   size: int = Query(10, ge=1),

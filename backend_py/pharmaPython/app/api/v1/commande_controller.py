@@ -22,7 +22,7 @@ router = APIRouter(
 # ----------------------------
 # Créer une commande
 # ----------------------------
-@router.post("/")
+@router.post("")
 def creer_commande(commande_dto: CommandeRequest, db: Session = Depends(get_db)):
   service = CommandeService(db)
   return service.create_commande(commande_dto)
@@ -45,7 +45,7 @@ def receptionner_commande(
 # ----------------------------
 # Liste des commandes (mappées)
 # ----------------------------
-@router.get("/", response_model=List[Dict[str, Any]])
+@router.get("", response_model=List[Dict[str, Any]])
 def get_all_commandes_mapped(db: Session = Depends(get_db)):
   service = CommandeService(db)
   return service.get_all_commandes_mapped()
