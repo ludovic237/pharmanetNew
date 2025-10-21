@@ -7,6 +7,7 @@
     "extract-texts": "node scripts/extract-texts.js",
     "start": "ng serve",
     "build": "ng build",
+    "build_second": "ng build --base-href ./ --configuration production",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "serve:ssr:emporium": "node dist/emporium/server/server.mjs"
